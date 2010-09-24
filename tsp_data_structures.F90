@@ -1,0 +1,337 @@
+!     Last change:  J     9 Sep 2004    5:38 pm
+module tsp_data_structures
+
+  integer, parameter    :: MAXSERIES=10000
+  integer, parameter    :: MAXSERIESREAD=10000
+  integer, parameter    :: MAXSTABLE=1000
+  integer, parameter    :: MAXGTABLE=1000
+  integer, parameter    :: MAXCTABLE=500
+  integer, parameter    :: MAXCONTEXT=5
+  integer, parameter    :: MAXVTABLE=500
+  integer, parameter    :: MAXDTABLE=500
+  integer, parameter    :: MAXTEMPDURFLOW=50
+  integer, parameter    :: MAXTEMPFILE=200
+  integer, parameter    :: MAXPAR=8500
+  character, parameter  :: OBSCHAR='_'
+  integer, parameter    :: iTSNAMELENGTH = 18         ! this used to be limited to 10
+
+  ! Define the sizes of base types used in the model
+  integer*2, public, parameter :: T_LOGICAL = 4
+  integer*2, public, parameter :: T_INT = 4
+  integer*2, public, parameter :: T_REAL = SELECTED_REAL_KIND(p=6,r=37)
+
+! Define machine-independent sizes for base types
+  integer*2, public, parameter :: T_SGL = SELECTED_REAL_KIND(p=6,r=37)
+!  integer*2, public, parameter :: T_SGL = SELECTED_REAL_KIND(p=13,r=307)
+  integer*2, public, parameter :: T_DBL = SELECTED_REAL_KIND(p=13,r=200)
+  integer*2, public, parameter :: T_CPLX_SGL = KIND((T_SGL, T_SGL))
+  integer*2, public, parameter :: T_CPLX_DBL = KIND((T_DBL, T_DBL))
+
+  ! Some useful typed constants (to ensure accurate computations)
+  real (kind=T_SGL), public, parameter :: rZERO = 0.0_T_SGL
+  real (kind=T_DBL), public, parameter :: rD_ZERO = 0.0_T_DBL
+  real (kind=T_SGL), public, parameter :: rNEAR_ZERO = 1E-8_T_SGL
+  logical (kind=T_LOGICAL), public, parameter :: lTRUE = .true._T_LOGICAL
+  logical (kind=T_LOGICAL), public, parameter :: lFALSE = .false._T_LOGICAL
+  real (kind=T_SGL), public, parameter :: rNODATA = -99999_T_SGL
+
+!  type T_DIRECTIVE
+!    integer (kind=T_INT)      :: iOpCode = 0
+!    character(len=24)         :: sDirective = ""
+!    integer (kind=T_INT)      :: iLevel = 0
+!    logical (kind=T_LOGICAL)  :: lRequired = lTRUE
+!    logical (kind=T_LOGICAL)  :: lDefined = lFALSE
+!    character(len=64)         :: sArg = ""
+!    integer (kind=T_INT)      :: iLineNumber = 0
+!  end type T_DIRECTIVE
+
+!  type T_BLOCK
+!    character (len=48) :: sBlockName
+!    type (T_DIRECTIVE), dimension(:), pointer :: pDirective
+!  end type T_BLOCK
+
+!  type T_FILEINFO
+!    integer (kind=T_INT) :: iLogicalUnitNumber
+!    character (len=256)  :: sFilename
+!    integer (kind=T_INT) :: iLineNumber = 0
+!  end type T_FILEINFO
+
+  type T_MONTH
+    character (len=3) :: sAbbreviation
+    character (len=12) :: sName
+  end type T_MONTH
+
+  type T_USGS_NWIS_DAILY
+    integer (kind=T_INT) :: iWaterYear
+    integer (kind=T_INT) :: iYear
+    integer (kind=T_INT) :: iMonth
+    integer (kind=T_INT) :: iDay
+    integer (kind=T_INT) :: iJulianDay
+    real (kind=T_SGL) :: rMeanDischarge
+    character (len=10) :: sDataFlag
+  end type T_USGS_NWIS_DAILY
+
+  type T_USGS_NWIS_GAGE
+    character (len=256) :: sAgencyCode
+    character (len=256) :: sSiteNumber
+    character (len=256) :: sDescription
+    type (T_USGS_NWIS_DAILY), dimension(:), pointer :: pGageData
+  end type T_USGS_NWIS_GAGE
+
+  type time_series
+    logical active
+    integer nterm
+    character*2 type
+    character (len=iTSNAMELENGTH) :: name
+    integer, dimension(:), pointer :: days
+    integer, dimension(:), pointer :: secs
+    real,    dimension(:), pointer :: val
+  end type time_series
+
+  ! general-purpose table for arbitrary stats output
+  type g_table
+    logical active
+    character (len=iTSNAMELENGTH) :: name
+    character (len=iTSNAMELENGTH) :: series_name
+    character (len=80), dimension(:), pointer    :: sDescription
+    real, dimension(:), pointer    :: rValue
+  end type g_table
+
+  ! STATISTICS TABLE
+  type s_table
+    logical active
+    character (len=iTSNAMELENGTH) :: name
+    character (len=iTSNAMELENGTH) :: series_name
+    real     maximum
+    real     minimum
+    real     range
+    real     mean
+    real     stddev
+    real     total
+    real     minmean
+    real     maxmean
+    real     rec_power
+    integer  rec_icount
+    integer  rec_itrans
+    integer  rec_begdays
+    integer  rec_begsecs
+    integer  rec_enddays
+    integer  rec_endsecs
+    integer  avetime
+  end type s_table
+
+  ! COMPARE SERIES table
+  type c_table
+    logical active
+    character (len=iTSNAMELENGTH) :: name
+    character (len=iTSNAMELENGTH) :: series_name_obs
+    character (len=iTSNAMELENGTH) :: series_name_sim
+    real     bias
+    real     se
+    real     rbias
+    real     rse
+    real     ns
+    real     ce
+    real     ia
+    integer  rec_icount
+    integer  rec_begdays
+    integer  rec_begsecs
+    integer  rec_enddays
+    integer  rec_endsecs
+  end type c_table
+
+  ! VOLUME table
+  type v_table
+    logical active
+    character (len=iTSNAMELENGTH) :: name
+    character (len=iTSNAMELENGTH) :: series_name
+    integer nterm
+    integer, dimension(:), pointer :: days1
+    integer, dimension(:), pointer :: secs1
+    integer, dimension(:), pointer :: days2
+    integer, dimension(:), pointer :: secs2
+    real, dimension(:), pointer    :: vol
+  end type v_table
+
+  !FLOW-DURATION table (exceedance table)
+  type d_table
+    logical active
+    character (len=iTSNAMELENGTH) :: name
+    character (len=iTSNAMELENGTH) :: series_name
+    character*7 time_units
+    integer under_over
+    integer nterm
+    real total_time
+    real, dimension(:), pointer     :: flow
+    real, dimension(:), pointer     :: tdelay
+    real, dimension(:), pointer     :: time
+  end type d_table
+
+  type (time_series) tempseries_g
+  type (time_series) series_g(MAXSERIES)
+  type (s_table) stable_g(MAXSTABLE)
+  type (g_table) gtable_g(MAXGTABLE)
+  type (c_table) ctable_g(MAXCTABLE)
+  type (v_table) vtable_g(MAXVTABLE)
+  type (d_table) tempdtable_g
+  type (d_table) dtable_g(MAXDTABLE)
+
+  integer LU_TSPROC_CONTROL,LU_OUT
+  integer NumProcBloc_g,ILine_g,IProcSetting_g
+  character*25 Context_g
+  character*40 CurrentBlock_g
+  character*120 sInfile_g,sRecfile_g,sOutfile_g,sString_g
+
+! -- The following variables are global because they are used to exchange information
+!    between the LIST_OUTPUT block and the WRITE_PEST_FILES block.
+
+  integer iMseries_g
+  integer iMstable_g
+  integer iMctable_g
+  integer iMvtable_g
+  integer iMdtable_g
+  integer iOutseries_g(MAXSERIES),iOutStable_g(MAXSTABLE),iOutVtable_g(MAXVTABLE), &
+          iOutDtable_g(MAXDTABLE),iOutCtable_g(MAXCTABLE)
+  character (len=iTSNAMELENGTH) :: sSeriesFormat_g
+  character*120 sListOutputFile_g
+
+! -- Following are some parameter definitions related to equations.
+
+! -- Maximum terms in any mathematical expression:-
+  integer MAXTERM
+  parameter(MAXTERM=200)
+! -- Maximum number of function types:-
+  integer NFUNCT
+  parameter(NFUNCT=16)
+! -- Maximum number of operators:-
+  integer NOPER
+  parameter(NOPER=7)
+! -- Maximum number of series_g names in a series_g equation:-
+  integer MAXEQNSER
+  parameter (MAXEQNSER=25)
+
+  integer iorder(MAXTERM)
+  character*1   operat(7)
+  character*6   funct(NFUNCT)
+  character*28  aterm(MAXTERM),bterm(MAXTERM),cterm(MAXTERM)
+  double precision rterm(MAXTERM), qterm(MAXTERM)
+  data funct /'abs   ','acos  ','asin  ','atan  ','cos   ','cosh  ',  &
+    'exp   ','log   ','log10 ','sin   ','sinh  ','sqrt  ','tan   ',   &
+    'tanh  ','neg   ','pos   '/
+  data operat /'^','/','*','-','+','(',')'/
+
+! -- The following pertain to WDM files.
+
+  integer MAXWDOPN
+  parameter (MAXWDOPN=10)  ! Number of WDM files that can be open.
+  integer iwdopn
+  integer wdmun(MAXWDOPN)
+  character*120 wdmfil(MAXWDOPN)
+
+!****************************************************************************
+! defined types
+!****************************************************************************
+
+	type modelgrid
+	  integer                         :: nrow,ncol
+	  double precision                :: east_corner,north_corner,rotation
+	  real                            :: cosang,sinang
+	  real, dimension(:), pointer     :: delr,delc
+	  integer                         :: specunit,specline
+	  character (len=80)              :: specfile
+	end type modelgrid
+
+!****************************************************************************
+!global variables
+!****************************************************************************
+
+!variables for reading a file ------->
+
+	integer, parameter              	:: NUM_WORD_DIM=100
+	integer, dimension(NUM_WORD_DIM)        :: left_word,right_word
+	character (len=400)             	:: cline
+
+!variables for writing a message ------->
+
+	integer                 :: imessage=0
+	character (len=500)     :: amessage= ' '
+	character (len=200)     :: initial_message=' '
+
+!escape variables ------->
+
+	integer                 :: escset=0
+	character (len=5)       :: eschar = 'E ~e '
+
+!variables in bore data manipulation ------->
+
+	integer                         :: num_bore_coord, num_bore_list
+	character (len=120)             :: bore_coord_file, bore_list_file
+	integer, dimension(:), pointer			:: bore_coord_layer
+	double precision, dimension(:), pointer         :: bore_coord_east, &
+							   bore_coord_north
+	character (len=10), dimension(:), pointer       :: bore_coord_id, &
+                                                           bore_list_id
+
+!variables recording data settings ------->
+
+	integer				:: datespec
+
+! parameters defining valid program options
+
+   integer, parameter :: iGET_WDM_SERIES               = 101
+   integer, parameter :: iGET_SSF_SERIES               = 102
+   integer, parameter :: iGET_PLT_SERIES               = 103
+   integer, parameter :: iGET_MUL_SERIES_TETRAD        = 104
+   integer, parameter :: iGET_MUL_SERIES_SSF           = 105
+   integer, parameter :: iGET_UFORE_SERIES             = 106
+   integer, parameter :: iGET_MUL_SERIES_GSFLOW_GAGE   = 107
+   integer, parameter :: iGET_MUL_SERIES_STATVAR       = 108
+
+   integer, parameter :: iWRITE_LIST_OUTPUT            = 201
+
+   integer, parameter :: iERASE_ENTITY                 = 301
+   integer, parameter :: iREDUCE_SPAN                  = 302
+   integer, parameter :: iSERIES_STATISTICS            = 303
+   integer, parameter :: iSERIES_COMPARE               = 304
+   integer, parameter :: iNEW_TIME_BASE                = 305
+   integer, parameter :: iVOLUME_CALCULATION           = 306
+   integer, parameter :: iEXCEEDANCE_TIME              = 308
+   integer, parameter :: iSERIES_EQUATION              = 310
+   integer, parameter :: iSERIES_DISPLACE              = 311
+   integer, parameter :: iSERIES_CLEAN                 = 312
+   integer, parameter :: iDIGITAL_FILTER               = 313
+   integer, parameter :: iSERIES_BASE_LEVEL            = 314
+   integer, parameter :: iVOL_TABLE_TO_SERIES          = 315
+   integer, parameter :: iMOVING_MINIMUM               = 316
+   integer, parameter :: iNEW_SERIES_UNIFORM           = 317
+   integer, parameter :: iSERIES_DIFFERENCE            = 318
+   integer, parameter :: iPERIOD_STATISTICS            = 319
+   integer, parameter :: iHYDRO_PEAKS                  = 320
+   integer, parameter :: iUSGS_HYSEP                   = 321
+   integer, parameter :: iHYDROLOGIC_INDICES           = 322
+   integer, parameter :: iHYDRO_EVENTS                 = 323
+
+   integer, parameter :: iWRITE_PEST_FILES             = 401
+
+   integer, parameter :: iGET_SETTINGS                 = 1
+
+! global parameter for rec file output unit
+   integer, public :: LU_REC
+   integer, public :: LU_STD_OUT = 6
+
+   type (T_MONTH),dimension(12) :: MONTH = (/ &
+     T_MONTH('JAN', 'January'), &
+     T_MONTH('FEB', 'February'), &
+     T_MONTH('MAR', 'March'), &
+     T_MONTH('APR', 'April'), &
+     T_MONTH('MAY', 'May'), &
+     T_MONTH('JUN', 'June'), &
+     T_MONTH('JUL', 'July'), &
+     T_MONTH('AUG', 'August'), &
+     T_MONTH('SEP', 'September'), &
+     T_MONTH('OCT', 'October'), &
+     T_MONTH('NOV', 'November'), &
+     T_MONTH('DEC', 'December') &
+     /)
+
+end module tsp_data_structures
