@@ -1852,7 +1852,7 @@ subroutine nextwdmunit(ifail,nunit,afile)
 end subroutine nextwdmunit
 
 
-subroutine get_next_block(ifail,iblock)
+subroutine get_next_block(ifail)
 
 ! -- Subroutine get_next_block obtains the header to the next section of
 !    the TSPROC input file.
@@ -1862,11 +1862,10 @@ subroutine get_next_block(ifail,iblock)
 
        implicit none
 
-       integer, intent(out) :: ifail,iblock
+       integer, intent(out) :: ifail
 
        integer ierr
        character*15 aline
-       character*30 ablock
 
        ifail=0
        call addquote(sInfile_g,sString_g)
@@ -1885,118 +1884,118 @@ subroutine get_next_block(ifail,iblock)
            go to 9800
          end if
 
-         ablock=cline(left_word(1):right_word(1))
-         call casetrans(ablock,'hi')
+         sCurrentBlockName=cline(left_word(1):right_word(1))
+         call casetrans(sCurrentBlockName,'hi')
 
-         if(ablock.ne.'START')then
+         if(sCurrentBlockName.ne.'START')then
            call num2char(ILine_g,aline)
            write(amessage,7) trim(aline),trim(sString_g)
 7          format('first item on line ',a,' of file ',a,' expected to be START.')
            go to 9800
          end if
-         ablock=cline(left_word(2):right_word(2))
-         call casetrans(ablock,'hi')
+         sCurrentBlockName=cline(left_word(2):right_word(2))
+         call casetrans(sCurrentBlockName,'hi')
 
-         if(ablock.eq.'SETTINGS')then
-           iBlock = iGET_SETTINGS
+         if(sCurrentBlockName.eq.'SETTINGS')then
+           iBlockNumber = iGET_SETTINGS
 
-         else if(ablock.eq.'GET_SERIES_WDM')then
-           iBlock = iGET_WDM_SERIES
+         else if(sCurrentBlockName.eq.'GET_SERIES_WDM')then
+           iBlockNumber = iGET_WDM_SERIES
 
-         else if(ablock.eq.'GET_SERIES_SSF')then
-           iBlock = iGET_SSF_SERIES
+         else if(sCurrentBlockName.eq.'GET_SERIES_SSF')then
+           iBlockNumber = iGET_SSF_SERIES
 
-         else if(ablock.eq.'GET_SERIES_PLOTGEN')then
-           iBlock = iGET_PLT_SERIES
+         else if(sCurrentBlockName.eq.'GET_SERIES_PLOTGEN')then
+           iBlockNumber = iGET_PLT_SERIES
 
-         else if(ablock.eq.'GET_SERIES_TETRAD')then
-           iBlock = iGET_MUL_SERIES_TETRAD
+         else if(sCurrentBlockName.eq.'GET_SERIES_TETRAD')then
+           iBlockNumber = iGET_MUL_SERIES_TETRAD
 
-         else if(ablock.eq.'GET_MUL_SERIES_SSF')then
-           iBlock = iGET_MUL_SERIES_SSF
+         else if(sCurrentBlockName.eq.'GET_MUL_SERIES_SSF')then
+           iBlockNumber = iGET_MUL_SERIES_SSF
 
-         else if(ablock.eq.'GET_SERIES_UFORE_HYDRO')then
-           iBlock = iGET_UFORE_SERIES
+         else if(sCurrentBlockName.eq.'GET_SERIES_UFORE_HYDRO')then
+           iBlockNumber = iGET_UFORE_SERIES
 
-         else if(ablock.eq.'GET_MUL_SERIES_GSFLOW_GAGE')then
-           iBlock = iGET_MUL_SERIES_GSFLOW_GAGE
+         else if(sCurrentBlockName.eq.'GET_MUL_SERIES_GSFLOW_GAGE')then
+           iBlockNumber = iGET_MUL_SERIES_GSFLOW_GAGE
 
-         else if(ablock.eq.'GET_MUL_SERIES_STATVAR')then
-           iBlock = iGET_MUL_SERIES_STATVAR
+         else if(sCurrentBlockName.eq.'GET_MUL_SERIES_STATVAR')then
+           iBlockNumber = iGET_MUL_SERIES_STATVAR
 
-         else if(ablock.eq.'LIST_OUTPUT')then
-           iBlock = iWRITE_LIST_OUTPUT
+         else if(sCurrentBlockName.eq.'LIST_OUTPUT')then
+           iBlockNumber = iWRITE_LIST_OUTPUT
 
-         else if(ablock.eq.'ERASE_ENTITY')then
-           iblock = iERASE_ENTITY
+         else if(sCurrentBlockName.eq.'ERASE_ENTITY')then
+           iBlockNumber = iERASE_ENTITY
 
-         else if(ablock.eq.'REDUCE_TIME_SPAN')then
-           iblock = iREDUCE_SPAN
+         else if(sCurrentBlockName.eq.'REDUCE_TIME_SPAN')then
+           iBlockNumber = iREDUCE_SPAN
 
-         else if(ablock.eq.'SERIES_STATISTICS')then
-           iblock = iSERIES_STATISTICS
+         else if(sCurrentBlockName.eq.'SERIES_STATISTICS')then
+           iBlockNumber = iSERIES_STATISTICS
 
-         else if(ablock.eq.'SERIES_COMPARE')then
-           iblock=iSERIES_COMPARE
+         else if(sCurrentBlockName.eq.'SERIES_COMPARE')then
+           iBlockNumber=iSERIES_COMPARE
 
-         else if(ablock.eq.'NEW_TIME_BASE')then
-           iblock = iNEW_TIME_BASE
+         else if(sCurrentBlockName.eq.'NEW_TIME_BASE')then
+           iBlockNumber = iNEW_TIME_BASE
 
-         else if(ablock.eq.'VOLUME_CALCULATION')then
-           iblock = iVOLUME_CALCULATION
+         else if(sCurrentBlockName.eq.'VOLUME_CALCULATION')then
+           iBlockNumber = iVOLUME_CALCULATION
 
-         else if(ablock.eq.'EXCEEDENCE_TIME')then
-           iblock = iEXCEEDANCE_TIME
+         else if(sCurrentBlockName.eq.'EXCEEDENCE_TIME')then
+           iBlockNumber = iEXCEEDANCE_TIME
 
-         else if(ablock.eq.'SERIES_EQUATION')then
-           iblock = iSERIES_EQUATION
+         else if(sCurrentBlockName.eq.'SERIES_EQUATION')then
+           iBlockNumber = iSERIES_EQUATION
 
-         else if(ablock.eq.'SERIES_DISPLACE')then
-           iblock = iSERIES_DISPLACE
+         else if(sCurrentBlockName.eq.'SERIES_DISPLACE')then
+           iBlockNumber = iSERIES_DISPLACE
 
-         else if(ablock.eq.'SERIES_CLEAN')then
-           iblock = iSERIES_CLEAN
+         else if(sCurrentBlockName.eq.'SERIES_CLEAN')then
+           iBlockNumber = iSERIES_CLEAN
 
-         else if(ablock.eq.'DIGITAL_FILTER')then
-           iblock = iDIGITAL_FILTER
+         else if(sCurrentBlockName.eq.'DIGITAL_FILTER')then
+           iBlockNumber = iDIGITAL_FILTER
 
-         else if(ablock.eq.'SERIES_BASE_LEVEL')then
-           iblock = iSERIES_BASE_LEVEL
+         else if(sCurrentBlockName.eq.'SERIES_BASE_LEVEL')then
+           iBlockNumber = iSERIES_BASE_LEVEL
 
-         else if(ablock.eq.'V_TABLE_TO_SERIES')then
-           iblock = iVOL_TABLE_TO_SERIES
+         else if(sCurrentBlockName.eq.'V_TABLE_TO_SERIES')then
+           iBlockNumber = iVOL_TABLE_TO_SERIES
 
-         else if(ablock.eq.'MOVING_MINIMUM')then
-           iblock = iMOVING_MINIMUM
+         else if(sCurrentBlockName.eq.'MOVING_MINIMUM')then
+           iBlockNumber = iMOVING_MINIMUM
 
-         else if(ablock.eq.'NEW_SERIES_UNIFORM')then
-           iblock = iNEW_SERIES_UNIFORM
+         else if(sCurrentBlockName.eq.'NEW_SERIES_UNIFORM')then
+           iBlockNumber = iNEW_SERIES_UNIFORM
 
-         else if(ablock.eq.'SERIES_DIFFERENCE')then
-           iblock = iSERIES_DIFFERENCE
+         else if(sCurrentBlockName.eq.'SERIES_DIFFERENCE')then
+           iBlockNumber = iSERIES_DIFFERENCE
 
-         else if(ablock.eq.'PERIOD_STATISTICS')then
-           iblock = iPERIOD_STATISTICS
+         else if(sCurrentBlockName.eq.'PERIOD_STATISTICS')then
+           iBlockNumber = iPERIOD_STATISTICS
 
-         else if(ablock.eq.'USGS_HYSEP')then
-           iblock = iUSGS_HYSEP
+         else if(sCurrentBlockName.eq.'USGS_HYSEP')then
+           iBlockNumber = iUSGS_HYSEP
 
-         else if(ablock.eq.'HYDRO_PEAKS')then
-           iblock = iHYDRO_PEAKS
+         else if(sCurrentBlockName.eq.'HYDRO_PEAKS')then
+           iBlockNumber = iHYDRO_PEAKS
 
-         else if(ablock.eq.'HYDRO_EVENTS')then
-           iblock = iHYDRO_EVENTS
+         else if(sCurrentBlockName.eq.'HYDRO_EVENTS')then
+           iBlockNumber = iHYDRO_EVENTS
 
-         else if(ablock.eq.'HYDROLOGIC_INDICES')then
-           iblock = iHYDROLOGIC_INDICES
+         else if(sCurrentBlockName.eq.'HYDROLOGIC_INDICES')then
+           iBlockNumber = iHYDROLOGIC_INDICES
 
-         else if(ablock.eq.'WRITE_PEST_FILES')then
-           iblock = iWRITE_PEST_FILES
+         else if(sCurrentBlockName.eq.'WRITE_PEST_FILES')then
+           iBlockNumber = iWRITE_PEST_FILES
 
 
          else
            call num2char(ILine_g,aline)
-           write(amessage,10) trim(ablock),trim(aline),trim(sString_g)
+           write(amessage,10) trim(sCurrentBlockName),trim(aline),trim(sString_g)
 10         format(' Unrecognised block title "',a,'" at line ',a, &
            ' of TSPROC input file ',a)
            call write_message(leadspace='yes')
@@ -2010,7 +2009,7 @@ subroutine get_next_block(ifail,iblock)
 
 !400    continue
        NumProcBloc_g = NumProcBloc_g + 1
-       if(iBlock == iGET_SETTINGS)then
+       if(iBlockNumber == iGET_SETTINGS)then
          if (IProcSetting_g .ne. 0) then
            write(amessage,525) trim(sString_g)
 525        format('file ',a,' contains two SETTINGS blocks.')

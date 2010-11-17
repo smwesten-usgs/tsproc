@@ -99,7 +99,7 @@ module tsp_data_structures
 
   ! STATISTICS TABLE
   type s_table
-    logical active
+    logical :: active = lFALSE
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
     real     maximum
@@ -122,7 +122,7 @@ module tsp_data_structures
 
   ! COMPARE SERIES table
   type c_table
-    logical active
+    logical :: active = lFALSE
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name_obs
     character (len=iTSNAMELENGTH) :: series_name_sim
@@ -142,7 +142,7 @@ module tsp_data_structures
 
   ! VOLUME table
   type v_table
-    logical active
+    logical :: active = lFALSE
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
     integer nterm
@@ -155,7 +155,7 @@ module tsp_data_structures
 
   !FLOW-DURATION table (exceedance table)
   type d_table
-    logical active
+    logical :: active = lFALSE
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
     character*7 time_units
@@ -314,6 +314,9 @@ module tsp_data_structures
    integer, parameter :: iWRITE_PEST_FILES             = 401
 
    integer, parameter :: iGET_SETTINGS                 = 1
+
+   character*30 sCurrentBlockName
+   integer (kind=T_INT) :: iBlockNumber
 
 ! global parameter for rec file output unit
    integer, public :: LU_REC
