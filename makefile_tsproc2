@@ -1,0 +1,110 @@
+#
+# Makefile for compiling under MSYS/gfortran on Windows-32 platform
+#
+#FFLAGS	= -O2 -x f95-cpp-input -fopenmp
+#FFLAGS	= -O2 -cpp
+#FFLAGS	= -O2 -cpp -fbounds-check -Wall
+FFLAGS	= -O3 -cpp -ffree-line-length-none -fwhole-file -fcheck=all -fbounds-check
+#FFLAGS	= -O2 -cpp -fbounds-check -pg -ffree-line-length-none
+
+F95		= gfortran
+#F95		= g95
+GCC     = gcc
+AR		= ar rcs
+
+#LIBPATH	= -L/cygdrive/c/usr/local/lib/gcc-lib/i686-pc-mingw/4.0.3
+LIBPATH	= -Ld:\SMWData\Source_Code\libanne4.0\lib
+LIB		= -lgfortran -lwdm -ladwdm -lutil
+
+# -luser32 -lgdi32
+
+
+all:	main lib
+
+lib:	tsp_utilities.o tsp_data_structures.o tsp_control_file_ops.o \
+		tsp_time_series_manager.o tsp_file_readers.o tsp_main_loop.o \
+		tsp_table_manager.o tsp_collections.o tsp_statistics.o tsp_file_writers.o \
+		tsp_datetime_class.o tsp_equations_interpreter.o tsp_legacy_code.o
+		$(AR) libtsproc.a \
+		tsp_utilities.o tsp_data_structures.o tsp_control_file_ops.o \
+		tsp_time_series_manager.o tsp_file_readers.o tsp_main_loop.o \
+		tsp_datetime_class.o tsp_equations_interpreter.o tsp_legacy_code.o \
+		tsp_table_manager.o tsp_collections.o tsp_statistics.o tsp_file_writers.o
+
+main:	tsp_utilities.o tsp_data_structures.o tsp_control_file_ops.o \
+		tsp_time_series_manager.o tsp_file_readers.o tsp_main_loop.o \
+		tsp_table_manager.o tsp_collections.o tsp_statistics.o tsp_file_writers.o \
+		tsp_datetime_class.o tsp_equations_interpreter.o tsp_legacy_code.o
+		$(F95) test.F90 -o tsproc2 \
+		tsp_utilities.o tsp_data_structures.o tsp_control_file_ops.o \
+		tsp_file_readers.o tsp_time_series_manager.o tsp_main_loop.o \
+		tsp_table_manager.o tsp_collections.o tsp_statistics.o tsp_file_writers.o \
+		tsp_datetime_class.o tsp_equations_interpreter.o tsp_legacy_code.o \
+		$(LIBPATH) $(LIB) $(FFLAGS)
+
+tsp_main_loop.o: tsp_main_loop.F90  tsp_data_structures.o tsp_utilities.o \
+		tsp_table_manager.o tsp_control_file_ops.o tsp_file_writers.o \
+		tsp_file_readers.o tsp_statistics.o tsp_equations_interpreter.o \
+		tsp_legacy_code.o tsp_utilities.o tsp_datetime_class.o \
+		tsp_time_series_manager.o
+		$(F95) $(FFLAGS) -c tsp_main_loop.F90 -o tsp_main_loop.o
+
+tsp_data_structures.o: tsp_data_structures.F90
+		$(F95) $(FFLAGS) -c tsp_data_structures.F90 -o tsp_data_structures.o
+
+tsp_datetime_class.o: tsp_datetime_class.F90 tsp_data_structures.o \
+		tsp_utilities.o
+		$(F95) $(FFLAGS) -c tsp_datetime_class.F90 -o tsp_datetime_class.o
+
+tsp_file_readers.o: tsp_file_readers.F90 tsp_data_structures.o tsp_control_file_ops.o \
+		tsp_time_series_manager.o tsp_collections.o tsp_datetime_class.o
+		$(F95) $(FFLAGS) -c tsp_file_readers.F90 -o tsp_file_readers.o
+
+tsp_file_writers.o: tsp_file_writers.F90 tsp_data_structures.o tsp_control_file_ops.o \
+		tsp_time_series_manager.o tsp_collections.o	tsp_table_manager.o tsp_datetime_class.o
+		$(F95) $(FFLAGS) -c tsp_file_writers.F90 -o tsp_file_writers.o
+
+tsp_utilities.o: tsp_utilities.F90 tsp_data_structures.o
+		$(F95) $(FFLAGS) -c tsp_utilities.F90 -o tsp_utilities.o
+
+tsp_control_file_ops.o: tsp_control_file_ops.F90  tsp_data_structures.o tsp_utilities.o \
+		tsp_datetime_class.o
+		$(F95) $(FFLAGS) -c tsp_control_file_ops.F90 -o tsp_control_file_ops.o
+
+#tsp_time_series_processors.o: tsp_time_series_processors.F90  tsp_data_structures.o \
+#		tsp_utilities.o tsp_datetime_class.o
+#		$(F95) $(FFLAGS) -c tsp_time_series_processors.F90 -o tsp_time_series_processors.o
+
+tsp_time_series_manager.o: tsp_time_series_manager.F90  tsp_data_structures.o tsp_utilities.o \
+		tsp_statistics.o tsp_datetime_class.o tsp_control_file_ops.o
+		$(F95) $(FFLAGS) -c tsp_time_series_manager.F90 -o tsp_time_series_manager.o
+
+tsp_table_manager.o: tsp_table_manager.F90  tsp_data_structures.o tsp_utilities.o \
+		tsp_control_file_ops.o tsp_time_series_manager.o tsp_statistics.o tsp_datetime_class.o
+		$(F95) $(FFLAGS) -c tsp_table_manager.F90 -o tsp_table_manager.o
+
+tsp_collections.o: tsp_collections.F90  tsp_data_structures.o tsp_utilities.o \
+		tsp_control_file_ops.o tsp_time_series_manager.o tsp_table_manager.o \
+		tsp_datetime_class.o tsp_equations_interpreter.o
+		$(F95) $(FFLAGS) -c tsp_collections.F90 -o tsp_collections.o
+
+tsp_statistics.o: tsp_statistics.F90  tsp_data_structures.o tsp_utilities.o \
+		tsp_datetime_class.o
+		$(F95) $(FFLAGS) -c tsp_statistics.F90 -o tsp_statistics.o
+
+tsp_equations_interpreter.o: tsp_equations_interpreter.F90 tsp_data_structures.o \
+		tsp_utilities.o tsp_datetime_class.o
+		$(F95) $(FFLAGS) -c tsp_equations_interpreter.F90 -o tsp_equations_interpreter.o
+
+tsp_legacy_code.o: tsp_legacy_code.F90 tsp_data_structures.o \
+		tsp_utilities.o tsp_time_series_manager.o tsp_collections.o tsp_control_file_ops.o
+		$(F95) $(FFLAGS) -c tsp_legacy_code.F90 -o tsp_legacy_code.o
+
+clean :
+		rm -f *.o
+		rm -f tsproc2.exe
+		rm -f tsproc2
+		rm -f *.mod
+
+copy:
+		cp tsproc2.exe d:/DOS/tsproc2.exe
