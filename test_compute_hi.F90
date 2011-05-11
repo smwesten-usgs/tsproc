@@ -24,9 +24,13 @@ program test_hi
       rMA, rLMA, rUMA, &
       rML, rLML, rUML, &
       rMH, rLMH, rUMH, &
+      rFL, rLFL, rUFL, &
       rFH, rLFH, rUFH, &
       rDL, rLDL, rUDL, &
       rDH, rLDH, rUDH, &
+      rTA, rLTA, rUTA, &
+      rTL, rLTL, rUTL, &
+      rTH, rLTH, rUTH, &
       rRA, rLRA, rURA) BIND(C)
       use ISO_C_BINDING
       logical(  C_BOOL), value :: lUseMedian
@@ -44,6 +48,9 @@ program test_hi
       real(C_FLOAT), dimension(0:28) :: rMH
       real(C_FLOAT), dimension(0:28) :: rLMH
       real(C_FLOAT), dimension(0:28) :: rUMH
+      real(C_FLOAT), dimension(0:4) :: rFL
+      real(C_FLOAT), dimension(0:4) :: rLFL
+      real(C_FLOAT), dimension(0:4) :: rUFL
       real(C_FLOAT), dimension(0:11) :: rFH
       real(C_FLOAT), dimension(0:11) :: rLFH
       real(C_FLOAT), dimension(0:11) :: rUFH
@@ -58,9 +65,9 @@ program test_hi
       real(C_FLOAT), dimension(0:3) :: rTA
       real(C_FLOAT), dimension(0:3) :: rLTA
 
-      real(C_FLOAT), dimension(0:3) :: rUTL
-      real(C_FLOAT), dimension(0:3) :: rTL
-      real(C_FLOAT), dimension(0:3) :: rLTL
+      real(C_FLOAT), dimension(0:4) :: rUTL
+      real(C_FLOAT), dimension(0:4) :: rTL
+      real(C_FLOAT), dimension(0:4) :: rLTL
 
       real(C_FLOAT), dimension(0:3) :: rUTH
       real(C_FLOAT), dimension(0:3) :: rTH
@@ -83,6 +90,9 @@ program test_hi
   real(C_FLOAT), dimension(0:28) :: rMH
   real(C_FLOAT), dimension(0:28) :: rLMH
   real(C_FLOAT), dimension(0:28) :: rUMH
+  real(C_FLOAT), dimension(0:4) :: rFL
+  real(C_FLOAT), dimension(0:4) :: rLFL
+  real(C_FLOAT), dimension(0:4) :: rUFL
   real(C_FLOAT), dimension(0:11) :: rFH
   real(C_FLOAT), dimension(0:11) :: rLFH
   real(C_FLOAT), dimension(0:11) :: rUFH
@@ -92,6 +102,19 @@ program test_hi
   real(C_FLOAT), dimension(0:24) :: rDH
   real(C_FLOAT), dimension(0:24) :: rLDH
   real(C_FLOAT), dimension(0:24) :: rUDH
+
+  real(C_FLOAT), dimension(0:3) :: rUTA
+  real(C_FLOAT), dimension(0:3) :: rTA
+  real(C_FLOAT), dimension(0:3) :: rLTA
+
+  real(C_FLOAT), dimension(0:4) :: rUTL
+  real(C_FLOAT), dimension(0:4) :: rTL
+  real(C_FLOAT), dimension(0:4) :: rLTL
+
+  real(C_FLOAT), dimension(0:3) :: rUTH
+  real(C_FLOAT), dimension(0:3) :: rTH
+  real(C_FLOAT), dimension(0:3) :: rLTH
+
   real(C_FLOAT), dimension(0:9) :: rRA
   real(C_FLOAT), dimension(0:9) :: rLRA
   real(C_FLOAT), dimension(0:9) :: rURA
@@ -213,6 +236,7 @@ program test_hi
 
   rQ = 999999.
 
+  ! starting date = 10/01/1992
   rQ(:,0) = [27,25,25,25,24,23,22,24,24,23,25,23,23,23,24,28,24,23,&
     22,25,25,24,24,25,25,24,24,23,23,24,24,32,46,41,34,32,29,27,26, &
     27,26,25,30,29,27,25,24,23,23,23,59,128,75,81,60,53,51,44,40,38, &
@@ -231,7 +255,6 @@ program test_hi
     70,68,66,64,64,66,63,61,66,65,61,59,58,57,224,136,83,73,71,67,64,&
     62,79,80,64,61,59,57,59,75,68,60,58,57,56,57,57,55,55,54,53,53,&
     55,64,129,91,75,67,62,59,58,58,58,56,54,58,73,62,58,55,54]
-
 
   rQ(:,1) = [54,52,52,51,51,51,51,51,58,52,51,51,50,50,51,51,51,50,50,50,53,51,51,50,50,49,49,50,49,48,48,48,48,49,50,50,49, &
    48,48,47,47,47,47,53,50,53,50,49,48,49,47,47,46,46,46,50,63,55,51,49,47,47,51,50,49,49,50,47,47,47,47,46,46,45, &
@@ -267,9 +290,13 @@ program test_hi
       rLMA = rLMA, rUMA = rUMA, &
       rML = rML, rLML = rLML, rUML = rUML, &
       rMH = rMH, rLMH = rLMH, rUMH = rUMH, &
+      rFL = rFL, rLFL = rLFL, rUFL = rUFL, &
       rFH = rFH, rLFH = rLFH, rUFH = rUFH, &
       rDL = rDL, rLDL = rLDL, rUDL = rUDL, &
       rDH = rDH, rLDH = rLDH, rUDH = rUDH, &
+      rTA = rTA, rLTA = rLTA, rUTA = rUTA, &
+      rTL = rTL, rLTL = rLTL, rUTL = rUTL, &
+      rTH = rTH, rLTH = rLTH, rUTH = rUTH, &
       rRA = rRA, rLRA = rLRA, rURA = rURA )
 
   print *, "Done!!"
@@ -293,6 +320,11 @@ program test_hi
       rLMH(i), rMH(i), rUMH(i)
   enddo
 
+  do i=1,3
+    write(*,fmt="('FL(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+      rLFL(i), rFL(i), rUFL(i)
+  enddo
+
   do i=1,11
     write(*,fmt="('FH(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
       rLFH(i), rFH(i), rUFH(i)
@@ -307,6 +339,22 @@ program test_hi
     write(*,fmt="('DH(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
       rLDH(i), rDH(i), rUDH(i)
   enddo
+
+  do i=1,3
+    write(*,fmt="('TA(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+      rLTA(i), rTA(i), rUTA(i)
+  enddo
+
+  do i=1,4
+    write(*,fmt="('TL(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+      rLTL(i), rTL(i), rUTL(i)
+  enddo
+
+  do i=1,3
+    write(*,fmt="('TH(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+      rLTH(i), rTH(i), rUTH(i)
+  enddo
+
 
   do i=1,9
     write(*,fmt="('RA(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &

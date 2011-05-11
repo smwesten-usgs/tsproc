@@ -46,7 +46,7 @@ module tsp_utilities
   end interface
 
   interface uppercase
-    module procedure uppercase_sub
+!    module procedure uppercase_sub
     module procedure uppercase_fn
   end interface
 
@@ -2011,6 +2011,39 @@ subroutine gregorian_date(iJD, iYear, iMonth, iDay, iOrigin)
   return
 
 end subroutine gregorian_date
+
+!--------------------------------------------------------------------------
+
+subroutine water_year_and_day(iJD, iWY, iDayOfWY)
+
+  integer, intent(in) :: iJD
+  integer, intent(out) :: iWY
+  integer, intent(out) :: iDayOfWY   ! returns value between 0 and 365
+
+  ! [ LOCALS ]
+  integer :: iMM, iDD, iYYYY
+  integer :: iOrigin
+
+  call gregorian_date(iJD, iYYYY, iMM, iDD)
+
+  if(iMM >= 10) then
+    iWY = iYYYY + 1
+    iOrigin = julian_day(iYYYY, 10, 1)
+  else
+    iWY = iYYYY
+    iOrigin = julian_day(iYYYY-1, 10, 1)
+  endif
+
+  if(iMM == 2 .and. iDD == 29) then
+    iDayOfWY = 151
+  else
+    iDayOfWY = julian_day(iYYYY, iMM, iDD, iOrigin)
+    if(iDayOfWY >= 151 .and. (.not. leap(iYYYY)) ) iDayOfWY = iDayOfWY + 1
+  endif
+
+
+end subroutine water_year_and_day
+
 
 !--------------------------------------------------------------------------
 !!****s* types/Assert

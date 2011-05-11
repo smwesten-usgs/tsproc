@@ -23,19 +23,24 @@ void order(int,float*,int);
 //void compute_hi(int datatype, float carea,
 //		float m_lp, float m_up, int yr[], float q[][366])
 
-void compute_hi(bool usemedian, float carea,
+void compute_hi(bool usemedian, float carea, float nearhuge,
 		float m_lp, float m_up, int yr[150], float q[150][366],
 		float MA[46], float LMA[46], float UMA[46],
 		float ML[23],float LML[23],float UML[23],
 		float MH[28],float LMH[28],float UMH[28],
+		float FL[4],float LFL[4],float UFL[4],
 		float FH[12],float LFH[12],float UFH[12],
 		float DL[21],float LDL[21],float UDL[21],
 		float DH[25],float LDH[25],float UDH[25],
+		float TA[4],float LTA[4],float UTA[4],
+		float TL[5],float LTL[5],float UTL[5],
+		float TH[4],float LTH[4],float UTH[4],
 		float RA[10], float LRA[10], float URA[10])
 {
 	float *data;
 	float *mdata;
 	float *baseflow;
+	float *tempdata;
 //	CStdioFile ifile, ofile;
 //	CString line;
 	bool isData;
@@ -81,7 +86,7 @@ void compute_hi(bool usemedian, float carea,
 		for(j=0;j<366;j++)
 
 		{
-			if(q[i][j] < 0.) q[i][j] = 999999.;
+			if(q[i][j] < 0.) q[i][j] = nearhuge + 1;
 		}
 	}
 
@@ -147,7 +152,7 @@ void compute_hi(bool usemedian, float carea,
 		for(j=0;j<366;j++)
 		{
 //			printf("YEAR: %i  DAY: %i  VALUE: %12.3f\n", i,j,q[i][j]);
-			if(int(q[i][j]) != 999999)
+			if(q[i][j]  < nearhuge)
 			{
 				data[ndv] = q[i][j];
 				ndv++;
@@ -188,7 +193,7 @@ void compute_hi(bool usemedian, float carea,
 		k = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				ydata[k] = q[i][j];
 				k++;
@@ -332,7 +337,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=92;j<123;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -374,8 +379,8 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=123;j<152;j++)
 		{
-  			printf("YEAR: %i  DAY: %i  VALUE: %12.3f\n", i,j,q[i][j]);
-			if(q[i][j] != 999999.)
+//  			printf("YEAR: %i  DAY: %i  VALUE: %12.3f\n", i,j,q[i][j]);
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -416,7 +421,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=152;j<183;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -457,7 +462,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=183;j<213;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -498,7 +503,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=213;j<244;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -539,7 +544,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=244;j<274;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -580,7 +585,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=274;j<305;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -621,7 +626,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=305;j<336;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -662,7 +667,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=336;j<366;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -703,7 +708,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=0;j<31;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -744,7 +749,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=31;j<61;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -785,7 +790,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=61;j<92;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				total = total + mdata[nmv];
@@ -829,8 +834,11 @@ void compute_hi(bool usemedian, float carea,
 	float maxqm, minqm;		// Max and min of the monthly means
 	float q1, q3;			// First and third quartiles of the monthly means
 	float q10, q90;			// Tenth and 90th percentiles of the monthly means
+	int numvalidmonths;
 
 // Compute the minimum, maximum, and mean flows for each month and year in the data set
+
+    numvalidmonths = 0;
 
 	for(i=0;i<nyrs;i++)
 	{
@@ -838,11 +846,12 @@ void compute_hi(bool usemedian, float carea,
 		{
 			total = 0.;
 			nmv = 0;
-			minm[k][i] = 10000000.;
-			maxm[k][i] = -10000000.;
+			minm[k][i] = nearhuge + 1.;
+			maxm[k][i] = -nearhuge -1.;
+            meanm[k][i]	= nearhuge + 1.;
 			for(j=strt[k];j<end[k];j++)
 			{
-				if(q[i][j]!=999999.)
+				if(q[i][j] < nearhuge)
 				{
 					total = total + q[i][j];
 					nmv++;
@@ -850,7 +859,11 @@ void compute_hi(bool usemedian, float carea,
 					if(q[i][j] > maxm[k][i]) maxm[k][i] = q[i][j];
 				}
 			}
-			meanm[k][i] = total / nmv;
+			if (nmv > 0)
+			{
+			    numvalidmonths++;     // need to count number of valid months
+    			meanm[k][i] = total / nmv;
+			}
 		}
 	}
 
@@ -859,6 +872,7 @@ void compute_hi(bool usemedian, float carea,
 	nmv = 0;
 	maxqm = -10000000.;
 	minqm = 10000000.;
+	tempdata = new float[numvalidmonths];  // create a new array for VALID months ONLY!
 
 // Transfer the monthly means to a single array and compute the max and min for the entire data set
 
@@ -866,20 +880,23 @@ void compute_hi(bool usemedian, float carea,
 	{
 		for(j=0;j<nyrs;j++)
 		{
-			mdata[nmv] = meanm[i][j];
-			if(mdata[nmv] > maxqm) maxqm = mdata[nmv];
-			if(mdata[nmv] < minqm) minqm = mdata[nmv];
-			nmv++;
+			if(meanm[i][j] < nearhuge)
+			{
+  			    tempdata[nmv] = meanm[i][j];
+  			    if(tempdata[nmv] > maxqm) maxqm = tempdata[nmv];
+  			    if(tempdata[nmv] < minqm) minqm = tempdata[nmv];
+  			    nmv++;
+			}
 		}
 	}
 
 // Compute the statistics and percentiles
 
-	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
-	q1 = percentile(.25,nmv,mdata);
-	q3 = percentile(.75,nmv,mdata);
-	q10 = percentile(.10,nmv,mdata);
-	q90 = percentile(.90,nmv,mdata);
+	stats(nmv,tempdata,&qmean,&qmedian,&qstdv);
+	q1 = percentile(.25,nmv,tempdata);
+	q3 = percentile(.75,nmv,tempdata);
+	q10 = percentile(.10,nmv,tempdata);
+	q90 = percentile(.90,nmv,tempdata);
 
 // MA36		Variability across monthly flows 1.  Compute the minimum, maximum, and mean flows for each
 //			month in the entire flow record.  Compute the first (25th percentile) and third (75th percentile)
@@ -933,7 +950,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				mdata[nmv] =  q[i][j];
 				nmv++;
@@ -985,10 +1002,10 @@ void compute_hi(bool usemedian, float carea,
 
 	MA[42] = 999999;
 	if(qmedian != 0.) MA[42] = (maxqm - minqm)/qmedian;
-    printf("maxqm: %12.4f\n",maxqm);
-    printf("minqm: %12.4f\n",minqm);
-    printf("qmean: %12.4f\n",qmean);
-    printf("qmedian: %12.4f\n",qmedian);
+//    printf("maxqm: %12.4f\n",maxqm);
+//   printf("minqm: %12.4f\n",minqm);
+//    printf("qmean: %12.4f\n",qmean);
+//    printf("qmedian: %12.4f\n",qmedian);
 
 // MA43		Variability across annual flows.  MA43 is the third quartile minus the first quartile divided by
 //			the median of the annual means.  (dimensionless)
@@ -1045,11 +1062,16 @@ void compute_hi(bool usemedian, float carea,
 //				values over the entire record.  (cfs)
 
 // January
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[3][i];
+		if(minm[3][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[3][i];
+			nmv++;
+        }
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[1] = qmean;
 	if(usemedian) ML[1] = qmedian;
 	LML[1] = percentile(lb,nyrs,mdata);
@@ -1058,11 +1080,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[1] < ML[1]) UML[1] = ML[1];
 
 // February
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[4][i];
+		if(minm[4][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[4][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[2] = qmean;
 	if(usemedian) ML[2] = qmedian;
 	LML[2] = percentile(lb,nyrs,mdata);
@@ -1071,11 +1098,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[2] < ML[2]) UML[2] = ML[2];
 
 // March
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[5][i];
+		if(minm[5][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[5][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[3] = qmean;
 	if(usemedian) ML[3] = qmedian;
 	LML[3] = percentile(lb,nyrs,mdata);
@@ -1084,11 +1116,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[3] < ML[3]) UML[3] = ML[3];
 
 // April
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[6][i];
+		if(minm[6][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[6][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[4] = qmean;
 	if(usemedian) ML[4] = qmedian;
 	LML[4] = percentile(lb,nyrs,mdata);
@@ -1097,11 +1134,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[4] < ML[4]) UML[4] = ML[4];
 
 // May
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[7][i];
+		if(minm[7][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[7][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[5] = qmean;
 	if(usemedian) ML[5] = qmedian;
 	LML[5] = percentile(lb,nyrs,mdata);
@@ -1110,11 +1152,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[5] < ML[5]) UML[5] = ML[5];
 
 // June
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[8][i];
+		if(minm[8][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[8][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[6] = qmean;
 	if(usemedian) ML[6] = qmedian;
 	LML[6] = percentile(lb,nyrs,mdata);
@@ -1123,11 +1170,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[6] < ML[6]) UML[6] = ML[6];
 
 // July
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[9][i];
+		if(minm[9][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[9][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[7] = qmean;
 	if(usemedian) ML[7] = qmedian;
 	LML[7] = percentile(lb,nyrs,mdata);
@@ -1136,11 +1188,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[7] < ML[7]) UML[7] = ML[7];
 
 // August
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[10][i];
+		if(minm[10][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[10][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[8] = qmean;
 	if(usemedian) ML[8] = qmedian;
 	LML[8] = percentile(lb,nyrs,mdata);
@@ -1149,11 +1206,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[8] < ML[8]) UML[8] = ML[8];
 
 // September
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[11][i];
+		if(minm[11][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[11][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[9] = qmean;
 	if(usemedian) ML[9] = qmedian;
 	LML[9] = percentile(lb,nyrs,mdata);
@@ -1162,11 +1224,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[9] < ML[9]) UML[9] = ML[9];
 
 // October
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[0][i];
+		if(minm[0][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[0][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[10] = qmean;
 	if(usemedian) ML[10] = qmedian;
 	LML[10] = percentile(lb,nyrs,mdata);
@@ -1175,11 +1242,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[10] < ML[10]) UML[10] = ML[10];
 
 // November
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[1][i];
+		if(minm[1][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[1][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[11] = qmean;
 	if(usemedian) ML[11] = qmedian;
 	LML[11] = percentile(lb,nyrs,mdata);
@@ -1188,11 +1260,16 @@ void compute_hi(bool usemedian, float carea,
 //	if(UML[11] < ML[11]) UML[11] = ML[11];
 
 // December
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = minm[2][i];
+		if(minm[2][i] < nearhuge)
+		{
+ 		    mdata[nmv] = minm[2][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	ML[12] = qmean;
 	if(usemedian) ML[12] = qmedian;
 	LML[12] = percentile(lb,nyrs,mdata);
@@ -1208,8 +1285,11 @@ void compute_hi(bool usemedian, float carea,
 	{
 		for(j=0;j<nyrs;j++)
 		{
-			mdata[nmv] = minm[i][j];
-			nmv++;
+			if(minm[i][j] < nearhuge)
+			{
+    			mdata[nmv] = minm[i][j];
+	    		nmv++;
+			}
 		}
 	}
 	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
@@ -1247,7 +1327,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				nmv++;
@@ -1307,7 +1387,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				total = total + q[i][j];
 				nmv++;
@@ -1329,7 +1409,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+7;k++)
 			{
-				if(q[i][j]!=999999.)
+				if(q[i][j] < nearhuge)
 				{
 					total = total + q[i][j];
 					nmv++;
@@ -1389,7 +1469,7 @@ void compute_hi(bool usemedian, float carea,
 	{
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j] != 999999 && q[i][j] > 0)
+			if(q[i][j] < nearhuge && q[i][j] > 0)
 			{
 				data[ndv] = q[i][j];
 				ndv++;
@@ -1527,7 +1607,7 @@ void compute_hi(bool usemedian, float carea,
 //			Limits are not computed.
 
 	ML[20] = 999999;
-	if(tflow != 0.) ML[20] = tbflow / tflow;
+	if(tflow > 0.) ML[20] = tbflow / tflow;
 
 // Compute the variability across annual minimum flows
 
@@ -1557,31 +1637,31 @@ void compute_hi(bool usemedian, float carea,
 
 //***************   High flow conditions  **************************
 
-	float MH1, LMH1, UMH1;	// January maximum monthly flows across all years
-	float MH2, LMH2, UMH2;	// February maximum monthly flows across all years
-	float MH3, LMH3, UMH3;	// March maximum monthly flows across all years
-	float MH4, LMH4, UMH4;	// April maximum monthly flows across all years
-	float MH5, LMH5, UMH5;	// May maximum monthly flows across all years
-	float MH6, LMH6, UMH6;	// June maximum monthly flows across all years
-	float MH7, LMH7, UMH7;	// July maximum monthly flows across all years
-	float MH8, LMH8, UMH8;	// August maximum monthly flows across all years
-	float MH9, LMH9, UMH9;	// September maximum monthly flows across all years
-	float MH10, LMH10, UMH10;	// October maximum monthly flows across all years
-	float MH11, LMH11, UMH11;	// November maximum monthly flows across all years
-	float MH12, LMH12, UMH12;	// December maximum monthly flows across all years
-	float MH13;		// Variability across maximum monthly flows
-	float MH14, LMH14, UMH14;		// Median of annual minimum flows
-	float MH15, MH16, MH17;		// High flow discharge metrics
-	float MH18;		// Variability across annual maximum flows
-	float MH19;		// Skewness in annual maximum flows
-	float MH20, LMH20, UMH20;		// Specific mean annual maximum flows
-	float MH21, LMH21, UMH21;		// High flow volume metrics
-	float MH22, LMH22, UMH22;		// High flow volume metrics
-	float MH23, LMH23, UMH23;		// High flow volume metrics
-	float MH24, LMH24, UMH24;		// High peak flow 1 metrics
-	float MH25, LMH25, UMH25;		// High peak flow 1 metrics
-	float MH26, LMH26, UMH26;		// High peak flow 1 metrics
-	float MH27, LMH27, UMH27;		// High peak flow 2 metric
+/*	float MH1, LMH1, UMH1;	// January maximum monthly flows across all years
+ *	float MH2, LMH2, UMH2;	// February maximum monthly flows across all years
+ *	float MH3, LMH3, UMH3;	// March maximum monthly flows across all years
+ *	float MH4, LMH4, UMH4;	// April maximum monthly flows across all years
+ *	float MH5, LMH5, UMH5;	// May maximum monthly flows across all years
+ *	float MH6, LMH6, UMH6;	// June maximum monthly flows across all years
+ *	float MH7, LMH7, UMH7;	// July maximum monthly flows across all years
+ *	float MH8, LMH8, UMH8;	// August maximum monthly flows across all years
+ *	float MH9, LMH9, UMH9;	// September maximum monthly flows across all years
+ *	float MH10, LMH10, UMH10;	// October maximum monthly flows across all years
+ *	float MH11, LMH11, UMH11;	// November maximum monthly flows across all years
+ *	float MH12, LMH12, UMH12;	// December maximum monthly flows across all years
+ *	float MH13;		// Variability across maximum monthly flows
+ *	float MH14, LMH14, UMH14;		// Median of annual minimum flows
+ *	float MH15, MH16, MH17;		// High flow discharge metrics
+ *	float MH18;		// Variability across annual maximum flows
+ *	float MH19;		// Skewness in annual maximum flows
+ *	float MH20, LMH20, UMH20;		// Specific mean annual maximum flows
+ *	float MH21, LMH21, UMH21;		// High flow volume metrics
+ *	float MH22, LMH22, UMH22;		// High flow volume metrics
+ *	float MH23, LMH23, UMH23;		// High flow volume metrics
+ *	float MH24, LMH24, UMH24;		// High peak flow 1 metrics
+ *	float MH25, LMH25, UMH25;		// High peak flow 1 metrics
+ *	float MH26, LMH26, UMH26;		// High peak flow 1 metrics
+ *	float MH27, LMH27, UMH27;		// High peak flow 2 metric */
 
 // Compute the mean maximum flows for each month across all years
 
@@ -1591,11 +1671,16 @@ void compute_hi(bool usemedian, float carea,
 
 // January
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[3][i];
+		if(maxm[3][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[3][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[1] = qmean;
 	if(usemedian) MH[1] = qmedian;
 	LMH[1] = percentile(lb,nyrs,mdata);
@@ -1605,11 +1690,16 @@ void compute_hi(bool usemedian, float carea,
 
 // February
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[4][i];
+		if(maxm[4][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[4][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[2] = qmean;
 	if(usemedian) MH[2] = qmedian;
 	LMH[2] = percentile(lb,nyrs,mdata);
@@ -1619,11 +1709,16 @@ void compute_hi(bool usemedian, float carea,
 
 // March
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[5][i];
+		if(maxm[5][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[5][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[3] = qmean;
 	if(usemedian) MH[3] = qmedian;
 	LMH[3] = percentile(lb,nyrs,mdata);
@@ -1633,11 +1728,16 @@ void compute_hi(bool usemedian, float carea,
 
 // April
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[6][i];
+		if(maxm[6][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[6][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[4] = qmean;
 	if(usemedian) MH[4] = qmedian;
 	LMH[4] = percentile(lb,nyrs,mdata);
@@ -1647,11 +1747,16 @@ void compute_hi(bool usemedian, float carea,
 
 // May
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[7][i];
+		if(maxm[7][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[7][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[5] = qmean;
 	if(usemedian) MH[5] = qmedian;
 	LMH[5] = percentile(lb,nyrs,mdata);
@@ -1661,11 +1766,16 @@ void compute_hi(bool usemedian, float carea,
 
 // June
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[8][i];
+		if(maxm[8][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[8][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[6] = qmean;
 	if(usemedian) MH[6] = qmedian;
 	LMH[6] = percentile(lb,nyrs,mdata);
@@ -1675,11 +1785,16 @@ void compute_hi(bool usemedian, float carea,
 
 // July
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[9][i];
+		if(maxm[9][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[9][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[7] = qmean;
 	if(usemedian) MH[7] = qmedian;
 	LMH[7] = percentile(lb,nyrs,mdata);
@@ -1689,11 +1804,16 @@ void compute_hi(bool usemedian, float carea,
 
 // August
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[10][i];
+		if(maxm[10][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[10][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[8] = qmean;
 	if(usemedian) MH[8] = qmedian;
 	LMH[8] = percentile(lb,nyrs,mdata);
@@ -1703,11 +1823,16 @@ void compute_hi(bool usemedian, float carea,
 
 // September
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[11][i];
+		if(maxm[11][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[11][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[9] = qmean;
 	if(usemedian) MH[9] = qmedian;
 	LMH[9] = percentile(lb,nyrs,mdata);
@@ -1717,11 +1842,16 @@ void compute_hi(bool usemedian, float carea,
 
 // October
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[0][i];
+		if(maxm[0][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[0][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[10] = qmean;
 	if(usemedian) MH[10] = qmedian;
 	LMH[10] = percentile(lb,nyrs,mdata);
@@ -1731,11 +1861,16 @@ void compute_hi(bool usemedian, float carea,
 
 // November
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[1][i];
+		if(maxm[1][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[1][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[11] = qmean;
 	if(usemedian) MH[11] = qmedian;
 	LMH[11] = percentile(lb,nyrs,mdata);
@@ -1745,11 +1880,16 @@ void compute_hi(bool usemedian, float carea,
 
 // December
 
+    nmv = 0;
 	for(i=0;i<nyrs;i++)
 	{
-		mdata[i] = maxm[2][i];
+		if(maxm[2][i] > -nearhuge)
+		{
+ 		    mdata[nmv] = maxm[2][i];
+			nmv++;
+		}
 	}
-	stats(nyrs,mdata,&qmean,&qmedian,&qstdv);
+	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
 	MH[12] = qmean;
 	if(usemedian) MH[12] = qmedian;
 	LMH[12] = percentile(lb,nyrs,mdata);
@@ -1764,8 +1904,11 @@ void compute_hi(bool usemedian, float carea,
 	{
 		for(j=0;j<nyrs;j++)
 		{
-			mdata[nmv] = maxm[i][j];
-			nmv++;
+			if(maxm[i][j] > -nearhuge)
+			{
+			    mdata[nmv] = maxm[i][j];
+			    nmv++;
+			}
 		}
 	}
 	stats(nmv,mdata,&qmean,&qmedian,&qstdv);
@@ -1796,7 +1939,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				nmv++;
@@ -1827,7 +1970,7 @@ void compute_hi(bool usemedian, float carea,
 	{
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				data[ndv] = q[i][j];
 				ndv++;
@@ -1950,7 +2093,7 @@ void compute_hi(bool usemedian, float carea,
 		total = 0.;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				temp = q[i][j] - threshold;
 				if(temp > 0.)
@@ -2013,7 +2156,7 @@ void compute_hi(bool usemedian, float carea,
 		total = 0.;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				temp = q[i][j] - threshold;
 				if(temp > 0.)
@@ -2076,7 +2219,7 @@ void compute_hi(bool usemedian, float carea,
 		total = 0.;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				temp = q[i][j] - threshold;
 				if(temp > 0.)
@@ -2139,7 +2282,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				temp = q[i][j];
 				if(temp > threshold)
@@ -2182,7 +2325,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				temp = q[i][j];
 				if(temp > threshold)
@@ -2224,7 +2367,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				temp = q[i][j];
 				if(temp > threshold)
@@ -2269,7 +2412,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				temp = q[i][j];
 				if(temp > threshold)
@@ -2308,9 +2451,9 @@ void compute_hi(bool usemedian, float carea,
 
 //******************  Low Flow Conditions  *************************************
 
-	float FL1, LFL1, UFL1;		// Low flood pulse count
-	float FL2;					// Variability in low flow pulse count
-	float FL3, LFL3, UFL3;		// Frequency of low flow spells
+/*	float FL1, LFL1, UFL1;		// Low flood pulse count
+ *	float FL2;					// Variability in low flow pulse count
+ *	float FL3, LFL3, UFL3;		// Frequency of low flow spells */
 
 	float np[150];		// Number of pulse occurrences for each year
 	float p25;			// 25th percentile flow
@@ -2328,7 +2471,7 @@ void compute_hi(bool usemedian, float carea,
 		pdur = flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] < p25)
 			{
 				pdur++;		// Increment days in the pulse
@@ -2344,56 +2487,53 @@ void compute_hi(bool usemedian, float carea,
 	}
 	stats(nyrs,np,&qmean,&qmedian,&qstdv);
 
-// FL1		Low flood pulse count.  Compute the average number of flow events with flows below a
-//			threshold equal to the 25th percentile value for the entire flow record.  FL1 is the average
+// FL[1]		Low flood pulse count.  Compute the average number of flow events with flows below a
+//			threshold equal to the 25th percentile value for the entire flow record.  FL[1] is the average
 //			number of events.  (number of events)
 
-	FL1 = qmean;
-	if(usemedian) FL1 = qmedian;
-	LFL1 = percentile(lb,nyrs,np);
-	UFL1 = percentile(ub,nyrs,np);
-//	if(LFL1 > FL1) LFL1 = FL1;
-//	if(UFL1 < FL1) UFL1 = FL1;
+	FL[1] = qmean;
+	if(usemedian) FL[1] = qmedian;
+	LFL[1] = percentile(lb,nyrs,np);
+	UFL[1] = percentile(ub,nyrs,np);
+//	if(LFL[1] > FL[1]) LFL[1] = FL[1];
+//	if(UFL[1] < FL[1]) UFL[1] = FL[1];
 
-// FL2		Variability in low pulse count.  Compute the standard deviation in the annual pulse counts for
-//			FL1.  FL2 is 100 times the standard deviation divided by the mean pulse count (FL1).  (%)
+// FL[2]		Variability in low pulse count.  Compute the standard deviation in the annual pulse counts for
+//			FL[1].  FL[2] is 100 times the standard deviation divided by the mean pulse count (FL[1]).  (%)
 //			Limits are not computed.
 
-	if(FL1 != 0.)
-		FL2 = 100*qstdv / FL1;
+	if(FL[1] != 0.)
+		FL[2] = 100*qstdv / FL[1];
 	else
-		FL2 = 999999;
+		FL[2] = 999999;
 
 	for(i=0;i<nyrs;i++)
 	{
 		np[i] = 0.;		// Number of pulses per year
-		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] < p5)
 			{
-				flag++;
-				if(flag==1) np[i]++;
-			}
-			else
-			{
-				flag = 0;
+				np[i]++;
+//    			printf("YEAR: %i  DAY: %i  VALUE: %12.3f  PULSE No.: %i\n", i,j,q[i][j],np[i]);
 			}
 		}
 	}
 	stats(nyrs,np,&qmean,&qmedian,&qstdv);
 
-// FL3		Frequency of low pulse spells.  Compute the average number of flow events with flows below a
-//			threshold equal to 5% of the mean flow value for the entire flow record.  FL3 is the average
+// FL[3]		Frequency of low pulse spells.  Compute the average number of flow events with flows below a
+//			threshold equal to 5% of the mean flow value for the entire flow record.  FL[3] is the average
 //			number of events.  (number of events)
 
-	FL3 = qmean;
-	if(usemedian) FL3 = qmedian;
-	LFL3 = percentile(lb,nyrs,np);
-	UFL3 = percentile(ub,nyrs,np);
-//	if(LFL3 > FL3) LFL3 = FL3;
-//	if(UFL3 < FL3) UFL3 = FL3;
+	FL[3] = qmean;
+	if(usemedian) FL[3] = qmedian;
+	LFL[3] = percentile(lb,nyrs,np);
+	UFL[3] = percentile(ub,nyrs,np);
+//	if(LFL[3] > FL[3]) LFL[3] = FL[3];
+//	if(UFL[3] < FL[3]) UFL[3] = FL[3];
+
+//			printf("YEAR: %i  DAY: %i  VALUE: %12.3f\n", i,j,q[i][j]);
 
 
 //**************************  High Flow Conditions  *****************************
@@ -2419,7 +2559,7 @@ void compute_hi(bool usemedian, float carea,
 		pdur = flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > p75)
 			{
 				pdur++;		// Increment days in a pulse
@@ -2459,7 +2599,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2491,7 +2631,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2525,7 +2665,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2559,7 +2699,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2593,7 +2733,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2628,7 +2768,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2662,7 +2802,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2699,7 +2839,7 @@ void compute_hi(bool usemedian, float carea,
 		flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				flag++;
@@ -2792,7 +2932,7 @@ void compute_hi(bool usemedian, float carea,
 			flag = 0;
 			for(j=0;j<366;j++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] > threshold)
 				{
 					flag++;
@@ -2866,7 +3006,7 @@ void compute_hi(bool usemedian, float carea,
 		minqm = 10000000.;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				if(q[i][j] < minqm) minqm = q[i][j];
 			}
@@ -2902,7 +3042,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+3;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -2942,7 +3082,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+7;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -2982,7 +3122,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+30;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3022,7 +3162,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+90;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3084,7 +3224,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+7;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3120,7 +3260,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+30;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3253,7 +3393,7 @@ void compute_hi(bool usemedian, float carea,
 		maxqm = -10000000.;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				if(q[i][j] > maxqm) maxqm = q[i][j];
 			}
@@ -3289,7 +3429,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+3;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3329,7 +3469,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+7;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3369,7 +3509,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+30;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3409,7 +3549,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+90;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3471,7 +3611,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+7;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3507,7 +3647,7 @@ void compute_hi(bool usemedian, float carea,
 			nmv = 0;
 			for(k=j;k<j+30;k++)
 			{
-				if(q[i][k]!=999999.)
+				if(q[i][k] < nearhuge)
 				{
 					total = total + q[i][k];
 					nmv++;
@@ -3600,7 +3740,7 @@ void compute_hi(bool usemedian, float carea,
 		pdur = flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				pdur++;		// Compile number of days in all pulses
@@ -3644,7 +3784,7 @@ void compute_hi(bool usemedian, float carea,
 		pdur = flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				pdur++;		// Compile number of days in all pulses
@@ -3688,7 +3828,7 @@ void compute_hi(bool usemedian, float carea,
 		pdur = flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				pdur++;		// Compile number of days in all pulses
@@ -3740,7 +3880,7 @@ void compute_hi(bool usemedian, float carea,
 		pdur = flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				pdur++;		// Compile number of days in all pulses
@@ -3784,7 +3924,7 @@ void compute_hi(bool usemedian, float carea,
 		pdur = flag = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]==999999.) continue;
+			if(q[i][j] >= nearhuge) continue;
 			if(q[i][j] > threshold)
 			{
 				pdur++;		// Compile number of days in all pulses
@@ -3831,7 +3971,7 @@ void compute_hi(bool usemedian, float carea,
 			pdur = 0;
 			for(j=0;j<366;j++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] < threshold)		// Begin non pulse period
 				{
 					flag++;
@@ -3882,7 +4022,7 @@ void compute_hi(bool usemedian, float carea,
 
 			for(j=0;j<366;j++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] > threshold)
 				{
 					pdur++;
@@ -3913,7 +4053,7 @@ void compute_hi(bool usemedian, float carea,
 			pdur = 0;
 			for(j=0;j<366;j++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] < threshold)		// Begin flood free period
 				{
 					flag++;
@@ -3959,18 +4099,18 @@ void compute_hi(bool usemedian, float carea,
 
 //***************************  Timing of flow events  *************************
 
-	float TA1;			// Constancy
-	float TA2;			// Predictability of flow
-	float TA3;			// Seasonal predictability of flooding
-
-	float TL1;			// Julian date of annual minimum
-	float TL2;			// Variability in Julian date of annual minimum
-	float TL3;			// Seasonal predictability of low flow
-	float TL4;			// Seasonal predictability of non-low flow
-
-	float TH1;			// Julian date of annual maximum
-	float TH2;			// Variability in Julian date of annual maximum
-	float TH3;			// Seasonal predictability of non-flooding
+/*	float TA1;			// Constancy
+ *	float TA2;			// Predictability of flow
+ *	float TA3;			// Seasonal predictability of flooding
+ *
+ *	float TL1;			// Julian date of annual minimum
+ *	float TL2;			// Variability in Julian date of annual minimum
+ *	float TL3;			// Seasonal predictability of low flow
+ *	float TL4;			// Seasonal predictability of non-low flow
+ *
+ *	float TH1;			// Julian date of annual maximum
+ *	float TH2;			// Variability in Julian date of annual maximum
+ *	float TH3;			// Seasonal predictability of non-flooding */
 
 
 //**************************  Average flow conditions  *************************
@@ -3978,7 +4118,7 @@ void compute_hi(bool usemedian, float carea,
 // Reference:  Colwell,R.k. 1974. Predictability, constancy, and contingency of periodic phenomena.
 //             Ecology 55: 1148-1153.
 
-// TA1	Constancy.  Constancy is computed via the formulation of Colwell.  A matrix of values is
+// TA[1]	Constancy.  Constancy is computed via the formulation of Colwell.  A matrix of values is
 //		compiled where the rows are 11 flow categories and the columns are 365 (no Feb 29th) days of
 //		the year.  The cell values are the number of times that a flow falls into a category on each day.
 //		The categories are:
@@ -4030,7 +4170,7 @@ void compute_hi(bool usemedian, float carea,
 		k = 0;
 		for(j=0;j<366;j++)
 		{
-			if(j==151 || q[i][j]==999999.) continue;
+			if(j==151 || q[i][j] >= nearhuge) continue;
 			if(q[i][j] == 0.)
 				lq = log10(.01);
 			else
@@ -4105,21 +4245,21 @@ void compute_hi(bool usemedian, float carea,
 
 	HxY = HXY - HX;
 
-// TA2		Predictability.  Predictability is computed from the same matrix as constancy.  It is computed as:
+// TA[2]		Predictability.  Predictability is computed from the same matrix as constancy.  It is computed as:
 //
 //			1 - (uncertainty with respect to the interaction of time and state - uncertainty with respect to time) / log (number of states)
 //			(dimensionless)
 //			Limits are not computed.
 
-	TA2 = 100*(1 - (HxY/log10((double)nrows)));
-	TA1 = 1 - (HY/log10((double)nrows));
+	TA[2] = 100*(1 - (HxY/log10((double)nrows)));
+	TA[1] = 1 - (HY/log10((double)nrows));
 
 
 // Compute Seasonal predictability of flooding
 
-// TA3		Seasonal predictability of flooding.  Divide years up into 2 month periods (i.e. Oct-Nov,
+// TA[3]		Seasonal predictability of flooding.  Divide years up into 2 month periods (i.e. Oct-Nov,
 //			Dec-Jan, etc.).  Count the number of floods (flow events with flows > 1.67 year flood) in each
-//			period over the entire flow record.  TA3 is the maximum number of floods in any one period
+//			period over the entire flow record.  TA[3] is the maximum number of floods in any one period
 //			divided by the total number of floods.  (dimensionless)
 
 	int nfloods[6];		// Number of floods for each 60 day period (use 61 for 366 days)
@@ -4136,7 +4276,7 @@ void compute_hi(bool usemedian, float carea,
 			flag = 0;
 			for(j=0;j<366;j++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] > threshold)
 				{
 					flag++;
@@ -4182,8 +4322,8 @@ void compute_hi(bool usemedian, float carea,
 				if(nfloods[k] > maxf) maxf = nfloods[k];
 			}
 		}
-		TA3 = 999999;
-		if(tflds > 0.) TA3 = (float)maxf / (float)tflds;
+		TA[3] = 999999;
+		if(tflds > 0.) TA[3] = (float)maxf / (float)tflds;
 	}
 
 
@@ -4192,7 +4332,7 @@ void compute_hi(bool usemedian, float carea,
 
 // Compute Julian date of annual minimum
 
-// TL1		Julian date of annual minimum.  Determine the Julian date (water year date + 274) that the
+// TL[1]		Julian date of annual minimum.  Determine the Julian date (water year date + 274) that the
 //			minimum flow occurs for each year.  Transform the dates to relative values on a circular
 //			scale (radians or degrees).  Compute the x and y components for each year and average them
 //			across all years.  Compute the mean angle as the arc tangent of ymean divided by xmean.
@@ -4212,7 +4352,7 @@ void compute_hi(bool usemedian, float carea,
 		minaq[i] = 10000000.;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				if(minaq[i] > q[i][j])
 				{
@@ -4232,16 +4372,16 @@ void compute_hi(bool usemedian, float carea,
 	stats(nyrs,np,&xbar,&qmedian,&qstdv);
 	stats(nyrs,mdata,&ybar,&qmedian,&qstdv);
 	ratio = (double)ybar / (double)xbar;
-	if(xbar > 0.) TL1 = atan(ratio)*180./pi;
-	if(xbar < 0.) TL1 = atan(ratio)*180./pi + 180.;
-	if(xbar==0. && ybar > 0.) TL1 = 90.;
-	if(xbar==0. && ybar < 0.) TL1 = 270.;
-	if(TL1 < 0.) TL1 = TL1 + 360.;
-	TL1 = TL1*365.25/(360.);
+	if(xbar > 0.) TL[1] = atan(ratio)*180./pi;
+	if(xbar < 0.) TL[1] = atan(ratio)*180./pi + 180.;
+	if(xbar==0. && ybar > 0.) TL[1] = 90.;
+	if(xbar==0. && ybar < 0.) TL[1] = 270.;
+	if(TL[1] < 0.) TL[1] = TL[1] + 360.;
+	TL[1] = TL[1]*365.25/(360.);
 
 // Compute variability in Julian date of annual minimum
 
-// TL2		Variability in Julian date of annual minima.  Compute the coefficient of variation for the
+// TL[2]		Variability in Julian date of annual minima.  Compute the coefficient of variation for the
 //			mean x and y components and convert to a date.  (Julian days)
 //			Limits are not computed.
 
@@ -4249,7 +4389,7 @@ void compute_hi(bool usemedian, float carea,
 
 	temp = sqrt(xbar*xbar + ybar*ybar);
 	temp = sqrt(2*(1-temp));
-	TL2 = temp*180/pi/360*365.25;
+	TL[2] = temp*180/pi/360*365.25;
 
 // Compute seasonal predictability of low flow
 
@@ -4259,7 +4399,7 @@ void compute_hi(bool usemedian, float carea,
 
 // Find the 5 year flood threshold
 
-// 5-year low flow threshold (Poff, 1996). For TL3 and TL4 compute the log10 of the peak annual
+// 5-year low flow threshold (Poff, 1996). For TL[3] and TL[4] compute the log10 of the peak annual
 // flows. Compute the log10 of the daily flows for the peak annual flow days. Calculate the
 // coefficients for a linear regression equation for logs of peak annual flow versus logs of average
 // daily flow for peak days. Using the log peak flow for the 5-year recurrence interval (80th
@@ -4269,9 +4409,9 @@ void compute_hi(bool usemedian, float carea,
 	if(dopeak)
 	{
 
-// TL3		Seasonal predictability of low flow. Divide years up into 2-month periods (that is,
+// TL[3]		Seasonal predictability of low flow. Divide years up into 2-month periods (that is,
 //			Oct-Nov, Dec-Jan, and so forth). Count the number of low flow events (flow events with
-//			flows <= 5 year low flow threshold) in each period over the entire flow record. TL3 is
+//			flows <= 5 year low flow threshold) in each period over the entire flow record. TL[3] is
 //			the maximum number of low flow events in any one period divided by the total number of
 //			low flow events (dimensionless - spatial).
 
@@ -4287,7 +4427,7 @@ void compute_hi(bool usemedian, float carea,
 			flag = 0;
 			for(j=0;j<366;j++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] <= threshold)
 				{
 					flag++;
@@ -4333,17 +4473,17 @@ void compute_hi(bool usemedian, float carea,
 				if(nlf[k] > maxlf) maxlf = nlf[k];
 			}
 		}
-		TL3 = 999999;
-		if(tnlf > 0.) TL3 = (float)maxlf / (float)tnlf;
+		TL[3] = 999999;
+		if(tnlf > 0.) TL[3] = (float)maxlf / (float)tnlf;
 
 // Compute seasonal predictability of non-low flow
 
-// TL4		Seasonal predictability of non-low flow (i.e., above the low flow threshold). Count  the
+// TL[4]		Seasonal predictability of non-low flow (i.e., above the low flow threshold). Count  the
 //			number of days in each year that the flow is above the 5-year low flow threshold.
-//			Compute  the ratio of number of days to 365 or 366 (leap year) for each year. TL4 is
+//			Compute  the ratio of number of days to 365 or 366 (leap year) for each year. TL[4] is
 //			the maximum of the yearly ratios (dimensionless - spatial).
 
-		TL4 = 0;
+		TL[4] = 0;
 		for(i=0;i<nyrs;i++)
 		{
 			day = 365;
@@ -4351,11 +4491,11 @@ void compute_hi(bool usemedian, float carea,
 			tnlf = 0;
 			for(j=0;j<366;j++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] > threshold) tnlf++;
 			}
 			temp = (float)tnlf / (float)day;
-			if(temp > TL4) TL4 = temp;
+			if(temp > TL[4]) TL[4] = temp;
 		}
 	}
 
@@ -4364,7 +4504,7 @@ void compute_hi(bool usemedian, float carea,
 
 // Compute Julian date of annual maximum
 
-// TH1		Julian date of annual maximum.  Determine the Julian date (water year date + 274) that the
+// TH[1]		Julian date of annual maximum.  Determine the Julian date (water year date + 274) that the
 //			maximum flow occurs for each year.  Transform the dates to relative values on a circular
 //			scale (radians or degrees).  Compute the x and y components for each year and average them
 //			across all years.  Compute the mean angle as the arc tangent of ymean divided by xmean.
@@ -4378,7 +4518,7 @@ void compute_hi(bool usemedian, float carea,
 		maxaq[i] = 0.;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j]!=999999.)
+			if(q[i][j] < nearhuge)
 			{
 				if(maxaq[i] < q[i][j])
 				{
@@ -4398,16 +4538,16 @@ void compute_hi(bool usemedian, float carea,
 	stats(nyrs,np,&xbar,&qmedian,&qstdv);
 	stats(nyrs,mdata,&ybar,&qmedian,&qstdv);
 	ratio = (double)ybar / (double)xbar;
-	if(xbar > 0.) TH1 = atan(ratio)*180./pi;
-	if(xbar < 0.) TH1 = atan(ratio)*180./pi + 180.;
-	if(xbar==0. && ybar > 0.) TH1 = 90.;
-	if(xbar==0. && ybar < 0.) TH1 = 270.;
-	if(TH1 < 0.) TH1 = TH1 + 360.;
-	TH1 = TH1*365.25/(360.);
+	if(xbar > 0.) TH[1] = atan(ratio)*180./pi;
+	if(xbar < 0.) TH[1] = atan(ratio)*180./pi + 180.;
+	if(xbar==0. && ybar > 0.) TH[1] = 90.;
+	if(xbar==0. && ybar < 0.) TH[1] = 270.;
+	if(TH[1] < 0.) TH[1] = TH[1] + 360.;
+	TH[1] = TH[1]*365.25/(360.);
 
 // Compute variability in Julian date of annual maximum
 
-// TH2		Variability in Julian date of annual maxima.  Compute the coefficient of variation for the
+// TH[2]		Variability in Julian date of annual maxima.  Compute the coefficient of variation for the
 //			mean x and y components and convert to a date.  (Julian days)
 //			Limits are not computed.
 
@@ -4415,14 +4555,14 @@ void compute_hi(bool usemedian, float carea,
 
 	temp = sqrt(xbar*xbar + ybar*ybar);
 	temp = sqrt(2*(1-temp));
-	TH2 = temp*180/pi/360*365.25;
+	TH[2] = temp*180/pi/360*365.25;
 
 // Compute seasonal predictability of non flooding
 
-// TH3		Seasonal predictability of non-flooding. Identify  non-flow days (days when the flow is
+// TH[3]		Seasonal predictability of non-flooding. Identify  non-flow days (days when the flow is
 //			less than the 1.67-year bankfull threshold)   that occur on the same date for all years
 //			in the period of record.  Accumulate consective  days that meet this criterion as
-//			flood-free periods.  TH3 is maximum length of those flood-free periods divided by
+//			flood-free periods.  TH[3] is maximum length of those flood-free periods divided by
 //			365 (dimensionless - spatial).
 
 	int nfdur[365];			// No flood durations across all years
@@ -4431,7 +4571,7 @@ void compute_hi(bool usemedian, float carea,
 	if(dopeak)
 	{
 		threshold = (float)pow(10.,(double)lq167);
-		TH3 = 0.;
+		TH[3] = 0.;
 		nnflds = 0;
 		for(i=0;i<365;i++){nfdur[i] = 0;}
 		flag = 0;
@@ -4440,7 +4580,7 @@ void compute_hi(bool usemedian, float carea,
 			tnlf = 0;
 			for(i=0;i<nyrs;i++)
 			{
-				if(q[i][j]==999999.) continue;
+				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] > threshold) tnlf++;
 			}
 			if(tnlf == 0)
@@ -4459,7 +4599,7 @@ void compute_hi(bool usemedian, float carea,
 		{
 			if(nfdur[i] > maxlf) maxlf = nfdur[i];
 		}
-		TH3 = (float)maxlf / 365;
+		TH[3] = (float)maxlf / 365;
 	}
 
 
@@ -4487,7 +4627,7 @@ void compute_hi(bool usemedian, float carea,
 	{
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				data[ndv] = q[i][j];
 				ndv++;
@@ -4574,7 +4714,7 @@ void compute_hi(bool usemedian, float carea,
 	{
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				if(q[i][j] > 0.)
 					data[ndv] = log(q[i][j]);
@@ -4634,7 +4774,7 @@ void compute_hi(bool usemedian, float carea,
 		nmv = 0;
 		for(j=0;j<366;j++)
 		{
-			if(q[i][j] != 999999.)
+			if(q[i][j]  < nearhuge)
 			{
 				mdata[nmv] = q[i][j];
 				nmv++;

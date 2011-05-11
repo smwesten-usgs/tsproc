@@ -34,27 +34,9 @@ module tsp_data_structures
   logical (kind=T_LOGICAL), public, parameter :: lTRUE = .true._T_LOGICAL
   logical (kind=T_LOGICAL), public, parameter :: lFALSE = .false._T_LOGICAL
   real (kind=T_SGL), public, parameter :: rNODATA = -99999_T_SGL
-
-!  type T_DIRECTIVE
-!    integer (kind=T_INT)      :: iOpCode = 0
-!    character(len=24)         :: sDirective = ""
-!    integer (kind=T_INT)      :: iLevel = 0
-!    logical (kind=T_LOGICAL)  :: lRequired = lTRUE
-!    logical (kind=T_LOGICAL)  :: lDefined = lFALSE
-!    character(len=64)         :: sArg = ""
-!    integer (kind=T_INT)      :: iLineNumber = 0
-!  end type T_DIRECTIVE
-
-!  type T_BLOCK
-!    character (len=48) :: sBlockName
-!    type (T_DIRECTIVE), dimension(:), pointer :: pDirective
-!  end type T_BLOCK
-
-!  type T_FILEINFO
-!    integer (kind=T_INT) :: iLogicalUnitNumber
-!    character (len=256)  :: sFilename
-!    integer (kind=T_INT) :: iLineNumber = 0
-!  end type T_FILEINFO
+  real (kind=T_SGL), public, parameter :: rHUGE = HUGE(rNODATA)
+  real (kind=T_SGL), public, parameter :: rNEARHUGE = HUGE(rNODATA) - 100.
+  real (kind=T_SGL), public, parameter :: rTINY = -HUGE(rNODATA)
 
   type T_MONTH
     character (len=3) :: sAbbreviation
@@ -90,9 +72,14 @@ module tsp_data_structures
 
   ! general-purpose table for arbitrary stats output
   type g_table
-    logical active
+    logical :: active = lFALSE
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
+    integer  rec_begdays
+    integer  rec_begsecs
+    integer  rec_enddays
+    integer  rec_endsecs
+
     character (len=80), dimension(:), pointer    :: sDescription
     real, dimension(:), pointer    :: rValue
   end type g_table

@@ -39,7 +39,7 @@ subroutine openControlfile(sFilename, sRecfile)
                 tempdtable_g%tdelay(MAXTEMPDURFLOW),stat=ierr)
 
        call Assert(ierr==0, &
-         "Cannot allocate sufficient memory to store temporary E_TABLE.", &
+         "Cannot allocate sufficient memory to store temporary D_TABLE.", &
          TRIM(__FILE__),__LINE__)
 
        LU_TSPROC_CONTROL=nextunit()
@@ -207,7 +207,7 @@ subroutine processBlock()
 
          ! hydrologic_indices
          else if(iBlockNumber == iHYDROLOGIC_INDICES) then
-!           call calc_hydrologic_indices(ifail)
+           call compute_hydrologic_indices(ifail)
 
          ! write pest files
          else if(iBlockNumber == iWRITE_PEST_FILES) then
