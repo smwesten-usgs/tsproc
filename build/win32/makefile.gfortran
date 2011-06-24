@@ -7,13 +7,12 @@
 FFLAGS	= -O3 -cpp -ffree-line-length-none -fwhole-file -fcheck=all -fbounds-check
 
 F95		= gfortran
-#F95		= g95
 GCC     = gcc
 CXX     = g++
 CFLAGS  = -O2
 AR		= ar rcs
+SRC     = ../../src
 
-#LIBPATH	= -L/cygdrive/c/usr/local/lib/gcc-lib/i686-pc-mingw/4.0.3
 LIB		= -lgfortran -lgcc -lstdc++
 
 # -luser32 -lgdi32
@@ -31,48 +30,48 @@ main:	tsp_utilities.o tsp_data_structures.o tsp_equation_parser.o tsp_input.o \
 
 lib:	tsp_utilities.o tsp_data_structures.o tsp_equation_parser.o tsp_input.o \
 		tsp_output.o tsp_time_series_processors.o wsc_additions.o \
-		tsp_command_processors.o tsp_main_loop.o tsp_hydrologic_indices.o
+		tsp_command_processors.o tsp_main_loop.o
 		$(AR) libtsproc.a \
 		tsp_utilities.o tsp_data_structures.o tsp_equation_parser.o tsp_input.o \
 		tsp_output.o tsp_time_series_processors.o wsc_additions.o \
-		tsp_command_processors.o tsp_main_loop.o tsp_hydrologic_indices.o
+		tsp_command_processors.o tsp_main_loop.o
 
-compute_hi.o: compute_hi.c
-		$(CXX) $(CFLAGS) -c compute_hi.c -o compute_hi.o
+compute_hi.o: $(SRC)/compute_hi.c
+		$(CXX) $(CFLAGS) -c $(SRC)/compute_hi.c -o compute_hi.o
 
-tsp_data_structures.o: tsp_data_structures.F90
-		$(F95) $(FFLAGS) -c tsp_data_structures.F90 -o tsp_data_structures.o
+tsp_data_structures.o: $(SRC)/tsp_data_structures.F90
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_data_structures.F90 -o tsp_data_structures.o
 
-tsp_utilities.o: tsp_utilities.F90 tsp_data_structures.o
-		$(F95) $(FFLAGS) -c tsp_utilities.F90 -o tsp_utilities.o
+tsp_utilities.o: $(SRC)/tsp_utilities.F90 tsp_data_structures.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_utilities.F90 -o tsp_utilities.o
 
-tsp_time_series_processors.o: tsp_time_series_processors.F90  tsp_data_structures.o tsp_utilities.o
-		$(F95) $(FFLAGS) -c tsp_time_series_processors.F90 -o tsp_time_series_processors.o
+tsp_time_series_processors.o: $(SRC)/tsp_time_series_processors.F90  tsp_data_structures.o tsp_utilities.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_time_series_processors.F90 -o tsp_time_series_processors.o
 
-tsp_main.o: tsp_main.F90  tsp_data_structures.o tsp_utilities.o tsp_time_series_processors.o \
+tsp_main.o: $(SRC)/tsp_main.F90  tsp_data_structures.o tsp_utilities.o tsp_time_series_processors.o \
 		wsc_additions.o tsp_command_processors.o tsp_main_loop.o
-		$(F95) $(FFLAGS) -c tsp_main.F90 -o tsp_main.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_main.F90 -o tsp_main.o
 
-tsp_equation_parser.o: tsp_equation_parser.F90  tsp_data_structures.o tsp_utilities.o \
+tsp_equation_parser.o: $(SRC)/tsp_equation_parser.F90  tsp_data_structures.o tsp_utilities.o \
 		tsp_command_processors.o
-		$(F95) $(FFLAGS) -c tsp_equation_parser.F90 -o tsp_equation_parser.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_equation_parser.F90 -o tsp_equation_parser.o
 
-tsp_input.o: tsp_input.F90  tsp_data_structures.o tsp_utilities.o
-		$(F95) $(FFLAGS) -c tsp_input.F90 -o tsp_input.o
+tsp_input.o: $(SRC)/tsp_input.F90  tsp_data_structures.o tsp_utilities.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_input.F90 -o tsp_input.o
 
-tsp_output.o: tsp_output.F90  tsp_data_structures.o tsp_utilities.o
-		$(F95) $(FFLAGS) -c tsp_output.F90 -o tsp_output.o
+tsp_output.o: $(SRC)/tsp_output.F90  tsp_data_structures.o tsp_utilities.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_output.F90 -o tsp_output.o
 
-tsp_command_processors.o: tsp_command_processors.F90  tsp_data_structures.o tsp_utilities.o
-		$(F95) $(FFLAGS) -c tsp_command_processors.F90 -o tsp_command_processors.o
+tsp_command_processors.o: $(SRC)/tsp_command_processors.F90  tsp_data_structures.o tsp_utilities.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_command_processors.F90 -o tsp_command_processors.o
 
-wsc_additions.o: wsc_additions.F90  tsp_data_structures.o tsp_utilities.o tsp_time_series_processors.o
-		$(F95) $(FFLAGS) -c wsc_additions.F90 -o wsc_additions.o
+wsc_additions.o: $(SRC)/wsc_additions.F90  tsp_data_structures.o tsp_utilities.o tsp_time_series_processors.o
+		$(F95) $(FFLAGS) -c $(SRC)/wsc_additions.F90 -o wsc_additions.o
 
-tsp_main_loop.o: tsp_main_loop.F90  tsp_data_structures.o tsp_utilities.o \
+tsp_main_loop.o: $(SRC)/tsp_main_loop.F90  tsp_data_structures.o tsp_utilities.o \
 		tsp_time_series_processors.o tsp_equation_parser.o tsp_input.o tsp_output.o \
-		wsc_additions.o tsp_hydrologic_indices.o
-		$(F95) $(FFLAGS) -c tsp_main_loop.F90 -o tsp_main_loop.o
+		wsc_additions.o
+		$(F95) $(FFLAGS) -c $(SRC)/tsp_main_loop.F90 -o tsp_main_loop.o
 
 clean:
 		rm -f *.o
@@ -80,9 +79,9 @@ clean:
 		rm -f tsproc
 		rm -f *.mod
 
-copy:
+copy_lin:
 		sudo chmod 755 tsproc
 		sudo cp tsproc.exe /usr/local/bin/tsproc
 
-copy_win:
-		copy tsproc.exe d:\DOS\tsproc.exe
+copy:
+		cp tsproc.exe e:/DOS/tsproc.exe
