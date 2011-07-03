@@ -2423,7 +2423,7 @@ subroutine write_list_output(ifail)
        do i=1,iseries
          j=iOutseries_g(i)
          aname=series_g(j)%name
-         if( trim(sformat) /= 'ssf' ) then               ! suggested JMW changes to enable SSF output
+         if( trim(sformat) /= 'ssf' ) then               ! suggested JFW changes to enable SSF output
            write(LU_OUT,271) trim(series_g(j)%name)
 271        format(/,' TIME_SERIES "',a,'" ---->')
          endif

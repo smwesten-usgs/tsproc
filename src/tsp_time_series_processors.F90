@@ -87,7 +87,7 @@ module tsp_time_series_processors
     T_HI( 6,iDAILY,'CV, all daily flows',rZERO,1), &                         ! 3
     T_HI( 6,iDAILY,'CV, log of all daily flows',rZERO,0), &                  ! 4
     T_HI( 6,iDAILY,'Mean daily flow / median daily flow',rZERO,1), &         ! 5
-    T_HI( 6,iDAILY,'Ratio, Q10 / Q90 for all daily flows',rZERO,0), &        ! 6
+    T_HI( 6,iDAILY,'Ratio, Q10 / Q90 for all daily flows',rZERO,b'00100100'), &        ! 6
     T_HI( 6,iDAILY,'Ratio, Q20 / Q80 for all daily flows',rZERO,0), &        ! 7
     T_HI( 6,iDAILY,'Ratio, Q25 / Q75 for all daily flows',rZERO,0), &        ! 8
     T_HI( 2,iDAILY,'(Q10 - Q90) / median daily flow',rZERO,0), &             ! 9
@@ -284,10 +284,6 @@ module tsp_time_series_processors
     T_HI( 1,iDAILY,'Number of flow reversals from one day to the next',rZERO,0), &
     T_HI( 1,iDAILY,'CV, number of flow reversals from one day to the next',rZERO,0) &
   ]
-
-
-
-
 
 
 contains
@@ -4357,6 +4353,27 @@ subroutine compute_hydrologic_indices(ifail)
        ifail=0
        CurrentBlock_g='HYDROLOGIC_INDICES'
 
+       MA%iInclude = 1
+       ML%iInclude = 1
+       MH%iInclude = 1
+       FL%iInclude = 1
+       FH%iInclude = 1
+       DL%iInclude = 1
+       DH%iInclude = 1
+       TA%iInclude = 1
+       TL%iInclude = 1
+       TH%iInclude = 1
+       RA%iInclude = 1
+
+       FH(11)%iInclude = 0
+       DH(22)%iInclude = 0
+       DH(23)%iInclude = 0
+       DH(24)%iInclude = 0
+       TA(3)%iInclude = 0
+       TL(3)%iInclude = 0
+       TL(4)%iInclude = 0
+       TH(3)%iInclude = 0
+
        write(*,10) trim(CurrentBlock_g)
        write(LU_REC,10) trim(CurrentBlock_g)
 10     format(/,' Processing ',a,' block....')
@@ -4525,27 +4542,6 @@ subroutine compute_hydrologic_indices(ifail)
 
 !       write(*,fmt="('a ',4(i8,2x))") iStartJD, iStartYYYY, iStartMM, iStartDD
 !       write(*,fmt="('b ',4(i8,2x))") iEndJD, iEndYYYY, iEndMM, iEndDD
-
-       MA%iInclude = 1
-       ML%iInclude = 1
-       MH%iInclude = 1
-       FL%iInclude = 1
-       FH%iInclude = 1
-       DL%iInclude = 1
-       DH%iInclude = 1
-       TA%iInclude = 1
-       TL%iInclude = 1
-       TH%iInclude = 1
-       RA%iInclude = 1
-
-       FH(11)%iInclude = 0
-       DH(22)%iInclude = 0
-       DH(23)%iInclude = 0
-       DH(24)%iInclude = 0
-       TA(3)%iInclude = 0
-       TL(3)%iInclude = 0
-       TL(4)%iInclude = 0
-       TH(3)%iInclude = 0
 
        ! determine the number of entries that will be in the GTABLE
        iCount = count(MA%iInclude > 0) + count(ML%iInclude > 0) &
