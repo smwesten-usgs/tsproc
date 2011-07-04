@@ -1891,6 +1891,7 @@ subroutine get_next_block(ifail)
            call num2char(ILine_g,aline)
            write(amessage,7) trim(aline),trim(sString_g)
 7          format('first item on line ',a,' of file ',a,' expected to be START.')
+
            go to 9800
          end if
          sCurrentBlockName=cline(left_word(2):right_word(2))

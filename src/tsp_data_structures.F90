@@ -18,6 +18,8 @@ module tsp_data_structures
   ! Define the sizes of base types used in the model
   integer*2, public, parameter :: T_LOGICAL = 4
   integer*2, public, parameter :: T_INT = 4
+  integer*2, public, parameter :: T_BYTE = 1
+  integer*2, public, parameter :: T_SHORT = 2
   integer*2, public, parameter :: T_REAL = SELECTED_REAL_KIND(p=6,r=37)
 
 ! Define machine-independent sizes for base types

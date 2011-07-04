@@ -84,4 +84,4 @@ copy_lin:
 		sudo cp tsproc.exe /usr/local/bin/tsproc
 
 copy:
-		cp tsproc.exe e:/DOS/tsproc.exe
+		cp tsproc.exe d:/DOS/tsproc.exe
