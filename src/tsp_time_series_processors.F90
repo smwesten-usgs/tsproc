@@ -186,104 +186,104 @@ module tsp_time_series_processors
     ]
 
   type (T_HI), dimension(3) :: FL = [ &
-    T_HI( 5,iANNUAL,'Annual low flow pulse count; number of periods < 25th percentile',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'CV of low flow pulse count',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. low flow spells (< 5% of mean flow) / record length (yrs)',rZERO,lFALSE,B'00000001') &
+    T_HI( 5,iANNUAL,'Annual low flow pulse count; number of periods < 25th percentile',rZERO,lFALSE,B'11001011'), &     ! 1
+    T_HI( 6,iANNUAL,'CV of low flow pulse count',rZERO,lFALSE,B'11111111'), &                                           ! 2
+    T_HI( 5,iANNUAL,'Num. low flow spells (< 5% of mean flow) / record length (yrs)',rZERO,lFALSE,B'11111111') &        ! 3
   ]
 
   type (T_HI), dimension(11) :: FH = [ &
-    T_HI( 5,iANNUAL,'Annual high flow pulse count; number of periods > 75th percentile',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'CV of high flow pulse count',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>3 * median annual flow)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>7 * median annual flow)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>1 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>3 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>7 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>25th percentile flow) / record length (yrs)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>75th percentile flow) / record length (yrs)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Num. high flow spells (>median of annual minima) / record length (yrs)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Mean number of discrete flood events per year',rZERO,lFALSE,B'00000001') &
+    T_HI( 5,iANNUAL,'Annual high flow pulse count; number of periods > 75th percentile',rZERO,lFALSE,B'00000001'), &       ! 1
+    T_HI( 6,iANNUAL,'CV of high flow pulse count',rZERO,lFALSE,B'11000011'), &                                             ! 2
+    T_HI( 5,iANNUAL,'Num. high flow spells (>3 * median annual flow)',rZERO,lFALSE,B'01011011'), &                         ! 3
+    T_HI( 5,iANNUAL,'Num. high flow spells (>7 * median annual flow)',rZERO,lFALSE,B'00000101'), &                         ! 4
+    T_HI( 5,iANNUAL,'Num. high flow spells (>1 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'10010001'), &   ! 5
+    T_HI( 5,iANNUAL,'Num. high flow spells (>3 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'00001111'), &   ! 6
+    T_HI( 5,iANNUAL,'Num. high flow spells (>7 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'11000111'), &   ! 7
+    T_HI( 5,iANNUAL,'Num. high flow spells (>25th percentile flow) / record length (yrs)',rZERO,lFALSE,B'00100001'), &     ! 8
+    T_HI( 5,iANNUAL,'Num. high flow spells (>75th percentile flow) / record length (yrs)',rZERO,lFALSE,B'00000001'), &     ! 9
+    T_HI( 5,iANNUAL,'Num. high flow spells (>median of annual minima) / record length (yrs)',rZERO,lFALSE,B'01000001'), &  ! 10
+    T_HI( 5,iANNUAL,'Mean number of discrete flood events per year',rZERO,lFALSE,B'00101001') &                            ! 11
   ]
 
   type (T_HI), dimension(20) :: DL = [ &
-    T_HI( 1,iDAILY,'Annual minimum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual minimum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual minimum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual minimum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual minimum of 90-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual minimum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual minimum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual minimum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual minimum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual minimum of 90-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Mean of 1-day minimum of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Mean of 7-day minimum of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Mean of 30-day minimum of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean of Q75 values / median daily flow across all years',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean of Q90 values / median daily flow across all years',rZERO,lFALSE,B'00000001'), &
-    T_HI( 4,iANNUAL,'Low flow pulse duration (Mean duration of FL1)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'CV, low flow pulse duration (DL16)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 5,iANNUAL,'Mean annual number of zero-flow days',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'CV, mean annual number of zero-flow days',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Percentage of all months with zero flow',rZERO,lFALSE,B'00000001') &
+    T_HI( 1,iDAILY,'Annual minimum of 1-day mean of flow',rZERO,lFALSE,B'11000001'), &                            ! 1
+    T_HI( 1,iDAILY,'Annual minimum of 3-day mean of flow',rZERO,lFALSE,B'10000001'), &                            ! 2
+    T_HI( 1,iDAILY,'Annual minimum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                            ! 3
+    T_HI( 1,iDAILY,'Annual minimum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &                           ! 4
+    T_HI( 1,iDAILY,'Annual minimum of 90-day mean of flow',rZERO,lFALSE,B'00100001'), &                           ! 5
+    T_HI( 6,iDAILY,'CV, annual minimum of 1-day mean of flow',rZERO,lFALSE,B'00010101'), &                        ! 6
+    T_HI( 6,iDAILY,'CV, annual minimum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &                        ! 7
+    T_HI( 6,iDAILY,'CV, annual minimum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                        ! 8
+    T_HI( 6,iDAILY,'CV, annual minimum of 30-day mean of flow',rZERO,lFALSE,B'00001001'), &                       ! 9
+    T_HI( 6,iDAILY,'CV, annual minimum of 90-day mean of flow',rZERO,lFALSE,B'00000101'), &                       ! 10
+    T_HI( 6,iDAILY,'Mean of 1-day minimum of flow',rZERO,lFALSE,B'00001001'), &                                   ! 11
+    T_HI( 6,iDAILY,'Mean of 7-day minimum of flow',rZERO,lFALSE,B'00000001'), &                                   ! 12
+    T_HI( 6,iDAILY,'Mean of 30-day minimum of flow',rZERO,lFALSE,B'11010011'), &                                  ! 13
+    T_HI( 6,iANNUAL,'Mean of Q75 values / median daily flow across all years',rZERO,lFALSE,B'00000001'), &        ! 14
+    T_HI( 6,iANNUAL,'Mean of Q90 values / median daily flow across all years',rZERO,lFALSE,B'00000001'), &        ! 15
+    T_HI( 4,iANNUAL,'Low flow pulse duration (Mean duration of FL1)',rZERO,lFALSE,B'01101011'), &                 ! 16
+    T_HI( 6,iANNUAL,'CV, low flow pulse duration (DL16)',rZERO,lFALSE,B'00000111'), &                             ! 17
+    T_HI( 5,iANNUAL,'Mean annual number of zero-flow days',rZERO,lFALSE,B'01000011'), &                           ! 18
+    T_HI( 6,iANNUAL,'CV, mean annual number of zero-flow days',rZERO,lFALSE,B'00000001'), &                       ! 19
+    T_HI( 6,iANNUAL,'Percentage of all months with zero flow',rZERO,lFALSE,B'00000001') &                         ! 20
   ]
 
   type (T_HI), dimension(24) :: DH = [ &
-    T_HI( 1,iDAILY,'Annual maximum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual maximum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual maximum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual maximum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Annual maximum of 90-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual maximum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual maximum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual maximum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual maximum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, annual maximum of 90-day mean of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Mean of 1-day maximum of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Mean of 7-day maximum of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Mean of 30-day maximum of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Q95 value / mean monthly flow across all years',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 75th percentile flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'CV, mean duration of high flow pulse (FH1)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 1 * median flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 3 * median flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 7 * median flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 25th percentile of median flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 75th percentile of median flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean annual median interval in days between floods over all years',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean annual number of days that flows > threshold over all years',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iANNUAL,'Mean annual maximum number of 365-day periods in which no floods occur',rZERO,lFALSE,B'00000001') &
+    T_HI( 1,iDAILY,'Annual maximum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &                                   ! 1
+    T_HI( 1,iDAILY,'Annual maximum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &                                   ! 2
+    T_HI( 1,iDAILY,'Annual maximum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                                   ! 3
+    T_HI( 1,iDAILY,'Annual maximum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &                                  ! 4
+    T_HI( 1,iDAILY,'Annual maximum of 90-day mean of flow',rZERO,lFALSE,B'10000001'), &                                  ! 5
+    T_HI( 6,iDAILY,'CV, annual maximum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &                               ! 6
+    T_HI( 6,iDAILY,'CV, annual maximum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &                               ! 7
+    T_HI( 6,iDAILY,'CV, annual maximum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                               ! 8
+    T_HI( 6,iDAILY,'CV, annual maximum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &                              ! 9
+    T_HI( 6,iDAILY,'CV, annual maximum of 90-day mean of flow',rZERO,lFALSE,B'10000001'), &                              ! 10
+    T_HI( 6,iDAILY,'Mean of 1-day maximum of flow',rZERO,lFALSE,B'00001001'), &                                          ! 11
+    T_HI( 6,iDAILY,'Mean of 7-day maximum of flow',rZERO,lFALSE,B'01010001'), &                                          ! 12
+    T_HI( 6,iDAILY,'Mean of 30-day maximum of flow',rZERO,lFALSE,B'01000111'), &                                         ! 13
+    T_HI( 6,iANNUAL,'Q95 value / mean monthly flow across all years',rZERO,lFALSE,B'00000001'), &                        ! 14
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 75th percentile flow',rZERO,lFALSE,B'01001011'), &                  ! 15
+    T_HI( 6,iANNUAL,'CV, mean duration of high flow pulse (FH1)',rZERO,lFALSE,B'00100111'), &                            ! 16
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 1 * median flow',rZERO,lFALSE,B'00000001'), &                       ! 17
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 3 * median flow',rZERO,lFALSE,B'00000001'), &                       ! 18
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 7 * median flow',rZERO,lFALSE,B'00100001'), &                       ! 19
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 25th percentile of median flow',rZERO,lFALSE,B'00001011'), &        ! 20
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 75th percentile of median flow',rZERO,lFALSE,B'00000001'), &        ! 21
+    T_HI( 6,iANNUAL,'Mean annual median interval in days between floods over all years',rZERO,lFALSE,B'10000001'), &     ! 22
+    T_HI( 6,iANNUAL,'Mean annual number of days that flows > threshold over all years',rZERO,lFALSE,B'01000001'), &      ! 23
+    T_HI( 6,iANNUAL,'Mean annual maximum number of 365-day periods in which no floods occur',rZERO,lFALSE,B'00010101') & ! 24
   ]
 
   type (T_HI), dimension(3) :: TA = [ &
-    T_HI( 6,iDAILY,'Constancy (see Colwell, 1974)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Predictability of flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Seasonal predictability of flooding',rZERO,lFALSE,B'00000001') &
+    T_HI( 6,iDAILY,'Constancy (see Colwell, 1974)',rZERO,lFALSE,B'01111111'), &           ! 1
+    T_HI( 6,iDAILY,'Predictability of flow',rZERO,lFALSE,B'01000001'), &                  ! 2
+    T_HI( 6,iDAILY,'Seasonal predictability of flooding',rZERO,lFALSE,B'00100101') &      ! 3
   ]
 
   type (T_HI), dimension(4) :: TL = [ &
-    T_HI( 6,iDAILY,'Mean day-of-year of annual minimum',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, day-of-year of annual minimum',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Seasonal predictibility of low flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Seasonal predictibility of non-low flow',rZERO,lFALSE,B'00000001') &
+    T_HI( 6,iDAILY,'Mean day-of-year of annual minimum',rZERO,lFALSE,B'01010001'), &      ! 1
+    T_HI( 6,iDAILY,'CV, day-of-year of annual minimum',rZERO,lFALSE,B'10001011'), &       ! 2
+    T_HI( 6,iDAILY,'Seasonal predictibility of low flow',rZERO,lFALSE,B'00000001'), &     ! 3
+    T_HI( 6,iDAILY,'Seasonal predictibility of non-low flow',rZERO,lFALSE,B'00000001') &  ! 4
   ]
 
   type (T_HI), dimension(3) :: TH = [ &
-    T_HI( 6,iDAILY,'Mean day-of-year of annual maximum',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, day-of-year of annual maximum',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Seasonal predictibility of non-flooding',rZERO,lFALSE,B'00000001') &
+    T_HI( 6,iDAILY,'Mean day-of-year of annual maximum',rZERO,lFALSE,B'10001001'), &       ! 1
+    T_HI( 6,iDAILY,'CV, day-of-year of annual maximum',rZERO,lFALSE,B'10000001'), &        ! 2
+    T_HI( 6,iDAILY,'Seasonal predictibility of non-flooding',rZERO,lFALSE,B'01000111') &   ! 3
   ]
 
   type (T_HI), dimension(9) :: RA = [ &
-    T_HI( 7,iDAILY,'Mean of positive changes from one day to next (rise rate)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, mean of positive changes from one day to next (rise rate)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 7,iDAILY,'Mean of negative changes from one day to next (fall rate)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'CV, mean of negative changes from one day to next (fall rate)',rZERO,lFALSE,B'00000001'), &
-    T_HI( 6,iDAILY,'Ratio of days that are higher than previous day',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Median of difference in log of flows over two consecutive days of rising flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Median of difference in log of flows over two consecutive days of falling flow',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'Number of flow reversals from one day to the next',rZERO,lFALSE,B'00000001'), &
-    T_HI( 1,iDAILY,'CV, number of flow reversals from one day to the next',rZERO,lFALSE,B'00000001') &
+    T_HI( 7,iDAILY,'Mean of positive changes from one day to next (rise rate)',rZERO,lFALSE,B'10100001'), &                           ! 1
+    T_HI( 6,iDAILY,'CV, mean of positive changes from one day to next (rise rate)',rZERO,lFALSE,B'00000001'), &                       ! 2
+    T_HI( 7,iDAILY,'Mean of negative changes from one day to next (fall rate)',rZERO,lFALSE,B'00000001'), &                           ! 3
+    T_HI( 6,iDAILY,'CV, mean of negative changes from one day to next (fall rate)',rZERO,lFALSE,B'10000001'), &                       ! 4
+    T_HI( 6,iDAILY,'Ratio of days that are higher than previous day',rZERO,lFALSE,B'11001011'), &                                     ! 5
+    T_HI( 1,iDAILY,'Median of difference in log of flows over two consecutive days of rising flow',rZERO,lFALSE,B'01000111'), &       ! 6
+    T_HI( 1,iDAILY,'Median of difference in log of flows over two consecutive days of falling flow',rZERO,lFALSE,B'01000101'), &      ! 7
+    T_HI( 1,iDAILY,'Number of flow reversals from one day to the next',rZERO,lFALSE,B'00111011'), &                                   ! 8
+    T_HI( 1,iDAILY,'CV, number of flow reversals from one day to the next',rZERO,lFALSE,B'01011111') &                                ! 9
   ]
 
 
@@ -4353,6 +4353,7 @@ subroutine compute_hydrologic_indices(ifail)
        integer (kind=T_INT) :: iStreamClass
        logical, dimension(1:9) :: lFlowComponent
        integer :: iLoop
+       real :: rTemp
 
        real(C_FLOAT) :: rCarea
 
@@ -4364,6 +4365,18 @@ subroutine compute_hydrologic_indices(ifail)
 
        ifail=0
        CurrentBlock_g='HYDROLOGIC_INDICES'
+
+       MA%lInclude = lFALSE
+       ML%lInclude = lFALSE
+       MH%lInclude = lFALSE
+       FL%lInclude = lFALSE
+       FH%lInclude = lFALSE
+       DL%lInclude = lFALSE
+       DH%lInclude = lFALSE
+       TA%lInclude = lFALSE
+       TL%lInclude = lFALSE
+       TH%lInclude = lFALSE
+       RA%lInclude = lFALSE
 
        iNumberOfKeywords = 0
 
@@ -4430,7 +4443,11 @@ subroutine compute_hydrologic_indices(ifail)
              case("ALL_STREAMS")
                iStreamClass = 1
              case default
-
+               call num2char(ILine_g,aline)
+               call addquote(sInfile_g,sString_g)
+               write(amessage,34) trim(aline),trim(sString_g)
+34             format('Unknown STREAM_CLASSIFICATION specified at line ',a,' of file ',a)
+               go to 9800
            end select
 
            write(*,54) trim(sStreamClass)
@@ -4462,7 +4479,11 @@ subroutine compute_hydrologic_indices(ifail)
              case("RATE_OF_CHANGE")
                lFlowComponent(9) = lTRUE
              case default
-
+               call num2char(ILine_g,aline)
+               call addquote(sInfile_g,sString_g)
+               write(amessage,32) trim(aline),trim(sString_g)
+32             format('Unknown FLOW_COMPONENT specified at line ',a,' of file ',a)
+               go to 9800
            end select
 
            write(*,56) trim(sFlowComponent)
@@ -4480,6 +4501,171 @@ subroutine compute_hydrologic_indices(ifail)
              go to 9800
            end if
 
+         else if(aoption.eq.'MA')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'MA')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(MA,dim=1) .or. iIndex > ubound(MA,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,48) lbound(MA),ubound(MA),trim(aline),trim(sString_g)
+48          format('Average magnitude (MA) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           MA(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'MH')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'MH')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(MH,dim=1) .or. iIndex > ubound(MH,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,60) lbound(MH),ubound(MH),trim(aline),trim(sString_g)
+60          format('High-flow Magnitude (MH) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           MH(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'ML')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'ML')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(ML,dim=1) .or. iIndex > ubound(ML,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,62) lbound(ML),ubound(ML),trim(aline),trim(sString_g)
+62          format('Low-flow Magnitude (ML) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           ML(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'FL')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'FL')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(FL,dim=1) .or. iIndex > ubound(FL,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,64) lbound(FL),ubound(FL),trim(aline),trim(sString_g)
+64          format('Low-flow Frequency (FL) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           FL(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'FH')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'FH')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(FH,dim=1) .or. iIndex > ubound(FH,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,66) lbound(FH),ubound(FH),trim(aline),trim(sString_g)
+66          format('High-flow Frequency (FH) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           FH(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'DL')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'DL')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(DL,dim=1) .or. iIndex > ubound(DL,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,68) lbound(DL),ubound(DL),trim(aline),trim(sString_g)
+68          format('Low-flow Duration (DL) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           DL(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'DH')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'DH')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(DH,dim=1) .or. iIndex > ubound(DH,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,70) lbound(DH),ubound(DH),trim(aline),trim(sString_g)
+70          format('High-flow Duration (DH) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           DH(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'TH')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'TH')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(TH,dim=1) .or. iIndex > ubound(TH,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,72) lbound(TH),ubound(TH),trim(aline),trim(sString_g)
+72          format('Timing of high-flow events (TH) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           TH(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'TL')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'TL')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(TL,dim=1) .or. iIndex > ubound(TL,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,74) lbound(TL),ubound(TL),trim(aline),trim(sString_g)
+74          format('Timing of low-flow events (TL) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           TL(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'TA')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'TA')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(TA,dim=1) .or. iIndex > ubound(TA,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,76) lbound(TA),ubound(TA),trim(aline),trim(sString_g)
+76          format('Timing of average-flow events (TA) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           TA(iIndex)%lInclude = lTRUE
+
+         else if(aoption.eq.'RA')then
+           iNumberOfKeywords = iNumberOfKeywords + 1
+           call get_keyword_value(ierr,1,itemp,rTemp,'RA')
+           if(ierr.ne.0) go to 9800
+           iIndex = itemp
+           if(iIndex < lbound(RA,dim=1) .or. iIndex > ubound(RA,dim=1)) then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,78) lbound(RA),ubound(RA),trim(aline),trim(sString_g)
+78          format('Rate of change (RA) indices must be in the range ', &
+               i3,' to ',i3,': line ',a,' of file ',a)
+             go to 9800
+           end if
+           RA(iIndex)%lInclude = lTRUE
+
          elseif(aoption.eq.'DATE_1')then
            call get_date(ierr,dd1,mm1,yy1,'DATE_1')
            if(ierr.ne.0) go to 9800
@@ -4493,7 +4679,7 @@ subroutine compute_hydrologic_indices(ifail)
            call get_time(ierr,hh2,nn2,ss2,'TIME_2')
            if(ierr.ne.0) go to 9800
          else if(aoption.eq.'NEW_G_TABLE_NAME')then
-           call get_new_table_name(ierr,1,aname)
+           call get_new_table_name(ierr,iG_TABLE,aname)
            if(ierr.ne.0) go to 9800
          else if(aoption.eq.'SERIES_NAME')then
            call get_series_name(ierr,iseries,'SERIES_NAME')
@@ -4691,6 +4877,9 @@ subroutine compute_hydrologic_indices(ifail)
 
        iCurrWY = 0
 
+       ! The c++ code we're calling assumes that the data are organized
+       ! by WATER YEAR, not by CALENDAR year. Therefore, we must reformat
+       ! the time series to meet this assumption.
        iCount = 0
        do j=1,iiterm
          call water_year_and_day(series_g(iseries)%days(j) + iOrigin, iWY, iDayOfWY)

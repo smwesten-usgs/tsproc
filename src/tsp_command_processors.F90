@@ -61,6 +61,7 @@ subroutine get_new_series_name(ifail,aname)
             end if
          end if
        end do
+
          do i=1,MAXSTABLE
            if(stable_g(i)%active)then
              if(str_compare(stable_g(i)%name, aname ) )then
@@ -73,6 +74,20 @@ subroutine get_new_series_name(ifail,aname)
              end if
            end if
          end do
+
+         do i=1,MAXGTABLE
+           if(gtable_g(i)%active)then
+             if(str_compare(gtable_g(i)%name, aname ) )then
+               call num2char(ILine_g,aline)
+               call addquote(sInfile_g,sString_g)
+               write(amessage,79) trim(aname),trim(aline),trim(sString_g)
+79             format('the name "',a,'" at line ',a,' of file ',a,' is already used by ', &
+               'an active g_table.')
+               go to 9800
+             end if
+           end if
+         end do
+
          do i=1,MAXVTABLE
            if(vtable_g(i)%active)then
              if(str_compare(vtable_g(i)%name, aname ) )then
@@ -85,6 +100,7 @@ subroutine get_new_series_name(ifail,aname)
              end if
            end if
          end do
+
          do i=1,MAXDTABLE
            if(dtable_g(i)%active)then
              if(str_compare(dtable_g(i)%name, aname ) )then
@@ -1160,22 +1176,26 @@ subroutine get_new_table_name(ifail,itype,aname)
          go to 9800
        end if
        call casetrans(aname,'lo')
-       if(itype.eq.1)then
+       if(itype == iS_TABLE)then
          write(*,74) trim(aname)
          write(LU_REC,74) trim(aname)
 74       format(t5,'NEW_S_TABLE_NAME ',a)
-       else if (itype.eq.2)then
+       else if (itype == iV_TABLE)then
          write(*,75) trim(aname)
          write(LU_REC,75) trim(aname)
 75       format(t5,'NEW_V_TABLE_NAME ',a)
-       else if(itype.eq.3)then
+       else if(itype == iE_TABLE)then
          write(*,76) trim(aname)
          write(LU_REC,76) trim(aname)
 76       format(t5,'NEW_E_TABLE_NAME ',a)
-       else if(itype.eq.4)then
+       else if(itype == iC_TABLE)then
          write(*,78) trim(aname)
          write(LU_REC,78) trim(aname)
 78       format(t5,'NEW_C_TABLE_NAME ',a)
+       else if(itype == iG_TABLE)then
+         write(*,80) trim(aname)
+         write(LU_REC,80) trim(aname)
+80       format(t5,'NEW_G_TABLE_NAME ',a)
        end if
 !       if(itype.eq.1)then
          do i=1,MAXSTABLE
@@ -1229,7 +1249,21 @@ subroutine get_new_table_name(ifail,itype,aname)
              end if
            end if
          end do
-!       end if
+!       else if(itype.eq.5)then
+         do i=1,MAXGTABLE
+           if(gtable_g(i)%active)then
+!             if(str_compare(gtable_g(i)%name, aname) )then
+             if(trim(uppercase(gtable_g(i)%name)) .eq. trim(uppercase(aname)) )then
+               call num2char(ILine_g,aline)
+               call addquote(sInfile_g,sString_g)
+               write(amessage,97) trim(aname),trim(aline),trim(sString_g)
+97             format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
+               'by an active g_table.')
+               go to 9800
+             end if
+           end if
+         end do
+
          do i=1,MAXSERIES
            if(series_g(i)%active)then
              if(str_compare(series_g(i)%name, aname ) )then

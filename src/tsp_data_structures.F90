@@ -15,6 +15,12 @@ module tsp_data_structures
   character, parameter  :: OBSCHAR='_'
   integer, parameter    :: iTSNAMELENGTH = 18         ! this used to be limited to 10
 
+  integer, parameter :: iS_TABLE = 1
+  integer, parameter :: iV_TABLE = 2
+  integer, parameter :: iE_TABLE = 3
+  integer, parameter :: iC_TABLE = 4
+  integer, parameter :: iG_TABLE = 5
+
   ! Define the sizes of base types used in the model
   integer*2, public, parameter :: T_LOGICAL = 4
   integer*2, public, parameter :: T_INT = 4
