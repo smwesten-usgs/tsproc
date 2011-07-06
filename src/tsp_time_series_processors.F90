@@ -4294,7 +4294,7 @@ subroutine compute_hydrologic_indices(ifail)
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
        icontext,i,begdays,begsecs,enddays,endsecs,iseries,jtrans,javerage, &
        iterm,ibterm,ieterm,iiterm,itemp,ixcon, &
-       iitemp,jj,minaverage,maxaverage,ii,nnterm,jrange, j
+       iitemp,jj,minaverage,maxaverage,ii,nnterm,jrange, j, ig
        integer :: iCount, iStat, iIndex
        integer :: iNumberOfKeywords
        character*3 aaa
@@ -4714,7 +4714,7 @@ subroutine compute_hydrologic_indices(ifail)
 210      format('no SERIES_NAME keyword provided in ',a,' block.')
          go to 9800
        end if
-       if(aname.eq.' ')then
+       if(len_trim(aname) == 0)then
          write(amessage,230) trim(CurrentBlock_g)
 230      format('no NEW_G_TABLE keyword provided in ',a,' block.')
          go to 9800
@@ -4792,7 +4792,6 @@ subroutine compute_hydrologic_indices(ifail)
          if(lFlowComponent(9)) &
              RA%lInclude = RA%lInclude .or. btest(RA%iMask, iStreamClass)
 
-
        endif
 
 
@@ -4806,8 +4805,8 @@ subroutine compute_hydrologic_indices(ifail)
          go to 9800
        end if
 
-       do i=1,MAXGTABLE
-         if(.not.gtable_g(i)%active) go to 300
+       do ig=1,MAXGTABLE
+         if(.not. gtable_g(ig)%active ) go to 300
        end do
        write(amessage,310)
 310    format('no more G_TABLE''s available for data storage - increase MAXGTABLE and ', &
@@ -4815,16 +4814,16 @@ subroutine compute_hydrologic_indices(ifail)
        go to 9800
 300    continue
 
-       if((begdays.lt.series_g(iseries)%days(1)).or.  &
-         ((begdays.eq.series_g(iseries)%days(1)).and. &
-          (begsecs.lt.series_g(iseries)%secs(1))))then
+       if((begdays .lt. series_g(iseries)%days(1)).or.  &
+         ((begdays .eq. series_g(iseries)%days(1)).and. &
+          (begsecs .lt. series_g(iseries)%secs(1))))then
          begdays=series_g(iseries)%days(1)
          begsecs=series_g(iseries)%secs(1)
        end if
        iiterm=series_g(iseries)%nterm
-       if((enddays.gt.series_g(iseries)%days(iiterm)).or.  &
-         ((enddays.eq.series_g(iseries)%days(iiterm)).and. &
-          (endsecs.gt.series_g(iseries)%secs(iiterm))))then
+       if((enddays .gt. series_g(iseries)%days(iiterm)).or.  &
+         ((enddays .eq. series_g(iseries)%days(iiterm)).and. &
+          (endsecs .gt. series_g(iseries)%secs(iiterm))))then
          enddays=series_g(iseries)%days(iiterm)
          endsecs=series_g(iseries)%secs(iiterm)
        end if
@@ -4832,27 +4831,27 @@ subroutine compute_hydrologic_indices(ifail)
        ! get the Julian date associated with John's "origin" term
        iOrigin = julian_day(1970, 1, 1)
 
-       gtable_g(i)%active=.true.
-       gtable_g(i)%name=aname
-       gtable_g(i)%series_name=series_g(iseries)%name
+       gtable_g(ig)%active = lTRUE
+       gtable_g(ig)%name = aname
+       gtable_g(ig)%series_name = series_g(iseries)%name
 
        if(begdays.eq.-99999999)then
-         gtable_g(i)%rec_begdays=series_g(iseries)%days(1)
-         gtable_g(i)%rec_begsecs=series_g(iseries)%secs(1)
+         gtable_g(ig)%rec_begdays = series_g(iseries)%days(1)
+         gtable_g(ig)%rec_begsecs = series_g(iseries)%secs(1)
        else
-         gtable_g(i)%rec_begdays=begdays
-         gtable_g(i)%rec_begsecs=begsecs
+         gtable_g(ig)%rec_begdays = begdays
+         gtable_g(ig)%rec_begsecs = begsecs
        end if
        if(enddays.eq.99999999)then
-         gtable_g(i)%rec_enddays=series_g(iseries)%days(iiterm)
-         gtable_g(i)%rec_endsecs=series_g(iseries)%secs(iiterm)
+         gtable_g(ig)%rec_enddays = series_g(iseries)%days(iiterm)
+         gtable_g(ig)%rec_endsecs = series_g(iseries)%secs(iiterm)
        else
-         gtable_g(i)%rec_enddays=enddays
-         gtable_g(i)%rec_endsecs=endsecs
+         gtable_g(ig)%rec_enddays = enddays
+         gtable_g(ig)%rec_endsecs = endsecs
        end if
 
-       iStartJD = gtable_g(i)%rec_begdays + iOrigin
-       iEndJD = gtable_g(i)%rec_enddays + iOrigin
+       iStartJD = gtable_g(ig)%rec_begdays + iOrigin
+       iEndJD = gtable_g(ig)%rec_enddays + iOrigin
 
        call gregorian_date(iStartJD, iStartYYYY, iStartMM, iStartDD)
        call gregorian_date(iEndJD, iEndYYYY, iEndMM, iEndDD)
@@ -4868,8 +4867,8 @@ subroutine compute_hydrologic_indices(ifail)
                   + count(TH%lInclude) + count(RA%lInclude) &
                   + count(TA%lInclude)
 
-       allocate(gtable_g(i)%rValue(iCount), stat=iStat)
-       allocate(gtable_g(i)%sDescription(iCount), stat=iStat)
+       allocate(gtable_g(ig)%rValue(iCount), stat=iStat)
+       allocate(gtable_g(ig)%sDescription(iCount), stat=iStat)
 
        ! establish first water year
        call water_year_and_day(iStartJD, iBaseWY, iDayOfWY)
@@ -4921,130 +4920,133 @@ subroutine compute_hydrologic_indices(ifail)
        TH(1:3)%rValue = rTH(1:3)
        RA(1:9)%rValue = rRA(1:9)
 
+       print *, "Currently there are ",ig," g_tables..."
+       print *, "Current table name is '"//gtable_g(ig)%name//"'"
+
        iCount = 1
        do j=1,size(MA%lInclude)
          if(MA(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = MA(j)%rValue
+           gtable_g(ig)%rValue(iCount) = MA(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "MA"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "MA"//trim(adjustl(aaa))//": " &
               //trim(MA(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),MA(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),MA(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(ML%lInclude)
          if(ML(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = ML(j)%rValue
+           gtable_g(ig)%rValue(iCount) = ML(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "ML"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "ML"//trim(adjustl(aaa))//": " &
               //trim(ML(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),ML(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),ML(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(MH%lInclude)
          if(MH(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = MH(j)%rValue
+           gtable_g(ig)%rValue(iCount) = MH(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "MH"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "MH"//trim(adjustl(aaa))//": " &
               //trim(MH(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),MH(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),MH(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(FL%lInclude)
          if(FL(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = FL(j)%rValue
+           gtable_g(ig)%rValue(iCount) = FL(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "FL"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "FL"//trim(adjustl(aaa))//": " &
               //trim(FL(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),FL(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),FL(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(FH%lInclude)
          if(FH(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = FH(j)%rValue
+           gtable_g(ig)%rValue(iCount) = FH(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "FH"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "FH"//trim(adjustl(aaa))//": " &
               //trim(FH(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),FH(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),FH(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(DL%lInclude)
          if(DL(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = DL(j)%rValue
+           gtable_g(ig)%rValue(iCount) = DL(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "DL"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "DL"//trim(adjustl(aaa))//": " &
               //trim(DL(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),DL(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),DL(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(DH%lInclude)
          if(DH(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = DH(j)%rValue
+           gtable_g(ig)%rValue(iCount) = DH(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "DH"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "DH"//trim(adjustl(aaa))//": " &
               //trim(DH(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),DH(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),DH(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(TA%lInclude)
          if(TA(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = TA(j)%rValue
+           gtable_g(ig)%rValue(iCount) = TA(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "TA"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "TA"//trim(adjustl(aaa))//": " &
               //trim(TA(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),TA(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),TA(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(TL%lInclude)
          if(TL(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = TL(j)%rValue
+           gtable_g(ig)%rValue(iCount) = TL(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "TL"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "TL"//trim(adjustl(aaa))//": " &
               //trim(TL(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),TL(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),TL(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(TH%lInclude)
          if(TH(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = TH(j)%rValue
+           gtable_g(ig)%rValue(iCount) = TH(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "TH"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "TH"//trim(adjustl(aaa))//": " &
               //trim(TH(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),TH(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),TH(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
        do j=1,size(RA%lInclude)
          if(RA(j)%lInclude) then
-           gtable_g(i)%rValue(iCount) = RA(j)%rValue
+           gtable_g(ig)%rValue(iCount) = RA(j)%rValue
            write(aaa,fmt="(i3)") j
-           gtable_g(i)%sDescription(iCount) = "RA"//trim(adjustl(aaa))//": " &
+           gtable_g(ig)%sDescription(iCount) = "RA"//trim(adjustl(aaa))//": " &
               //trim(RA(j)%sHydrologicIndex)
-           write(*,fmt="(a,t75,f12.3)") gtable_g(i)%sDescription(iCount),RA(j)%rValue
+           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),RA(j)%rValue
            iCount = iCount +1
          endif
        enddo
 
-       write(6,380) trim(series_g(iseries)%name),trim(aname)
-       write(LU_REC,380) trim(series_g(iseries)%name),trim(aname)
+       write(6,380) trim(series_g(iseries)%name),trim(gtable_g(ig)%name)
+       write(LU_REC,380) trim(series_g(iseries)%name),trim(gtable_g(ig)%name)
 380    format(/,t5,'Hydrologic indices for time series "',a,'" stored in ', &
        'G_TABLE "',a,'".')
        return

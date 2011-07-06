@@ -391,6 +391,7 @@ subroutine get_table_name(ifail,itable,jtype)
          if(itype.lt.10)exit
          itype=itype-10
        end do
+
        call getfile(ierr,cline,atemp,left_word(2),right_word(2))
        if(ierr.ne.0)then
          call num2char(ILine_g,aline)
@@ -422,42 +423,57 @@ subroutine get_table_name(ifail,itable,jtype)
          write(*,140) trim(aname)
          write(LU_REC,140) trim(aname)
 140      format(t5,'S_TABLE_NAME ',a)
+
        else if(jtype.eq.2)then
          write(*,141) trim(aname)
          write(LU_REC,141) trim(aname)
 141      format(t5,'V_TABLE_NAME ',a)
+
        else if(jtype.eq.3)then
          write(*,142) trim(aname)
          write(LU_REC,142) trim(aname)
 142      format(t5,'E_TABLE_NAME ',a)
+
        else if(jtype.eq.4)then
          write(*,151) trim(aname)
          write(LU_REC,151) trim(aname)
 151      format(t5,'C_TABLE_NAME ',a)
+
+       else if(jtype == iG_TABLE)then
+         write(*,157) trim(aname)
+         write(LU_REC,157) trim(aname)
+157      format(t5,'G_TABLE_NAME ',a)
+
        else if(jtype.eq.11)then
          write(*,143) trim(aname)
          write(LU_REC,143) trim(aname)
 143      format(t5,'OBSERVATION_S_TABLE_NAME ',a)
+
        else if(jtype.eq.12)then
          write(*,144) trim(aname)
          write(LU_REC,144) trim(aname)
 144      format(t5,'OBSERVATION_V_TABLE_NAME ',a)
+
        else if(jtype.eq.13)then
          write(*,145) trim(aname)
          write(LU_REC,145) trim(aname)
 145      format(t5,'OBSERVATION_E_TABLE_NAME ',a)
+
        else if(jtype.eq.21)then
          write(*,146) trim(aname)
          write(LU_REC,146) trim(aname)
 146      format(t5,'MODEL_S_TABLE_NAME ',a)
+
        else if(jtype.eq.22)then
          write(*,147) trim(aname)
          write(LU_REC,147) trim(aname)
 147      format(t5,'MODEL_V_TABLE_NAME ',a)
+
        else if(jtype.eq.23)then
          write(*,148) trim(aname)
          write(LU_REC,148) trim(aname)
 148      format(t5,'MODEL_E_TABLE_NAME ',a)
+
        end if
        if(itype.eq.1)then
          do i=1,MAXSTABLE
@@ -474,6 +490,7 @@ subroutine get_table_name(ifail,itable,jtype)
          ' has not been read or calculated, or has been erased.')
          go to 9800
 130      continue
+
        else if(itype.eq.2)then
          do i=1,MAXVTABLE
            if(.not.vtable_g(i)%active) cycle
@@ -489,6 +506,7 @@ subroutine get_table_name(ifail,itable,jtype)
          ' has not been read or calculated, or has been erased.')
          go to 9800
 131      continue
+
        else if(itype.eq.3)then
          do i=1,MAXDTABLE
            if(.not.dtable_g(i)%active) cycle
@@ -504,6 +522,7 @@ subroutine get_table_name(ifail,itable,jtype)
          ' has not been read or calculated, or has been erased.')
          go to 9800
 132      continue
+
        else if(itype.eq.4)then
          do i=1,MAXCTABLE
            if(.not.ctable_g(i)%active) cycle
@@ -519,6 +538,23 @@ subroutine get_table_name(ifail,itable,jtype)
          ' has not been read or calculated, or has been erased.')
          go to 9800
 172      continue
+
+       else if(itype == iG_TABLE)then
+         do i=1,MAXGTABLE
+           if(.not.gtable_g(i)%active) cycle
+           if(str_compare(gtable_g(i)%name, aname) )then
+             itable=i
+             go to 192
+           end if
+         end do
+         call num2char(ILine_g,aline)
+         call addquote(sInfile_g,sString_g)
+         write(amessage,191) trim(aname),trim(aline),trim(sString_g)
+191      format('G_TABLE "',a,'" cited at line ',a,' of file ',a,    &
+         ' has not been read or calculated, or has been erased.')
+         go to 9800
+192      continue
+
        end if
        return
 
@@ -1176,27 +1212,39 @@ subroutine get_new_table_name(ifail,itype,aname)
          go to 9800
        end if
        call casetrans(aname,'lo')
+
        if(itype == iS_TABLE)then
+
          write(*,74) trim(aname)
          write(LU_REC,74) trim(aname)
 74       format(t5,'NEW_S_TABLE_NAME ',a)
+
        else if (itype == iV_TABLE)then
+
          write(*,75) trim(aname)
          write(LU_REC,75) trim(aname)
 75       format(t5,'NEW_V_TABLE_NAME ',a)
+
        else if(itype == iE_TABLE)then
+
          write(*,76) trim(aname)
          write(LU_REC,76) trim(aname)
 76       format(t5,'NEW_E_TABLE_NAME ',a)
+
        else if(itype == iC_TABLE)then
+
          write(*,78) trim(aname)
          write(LU_REC,78) trim(aname)
 78       format(t5,'NEW_C_TABLE_NAME ',a)
+
        else if(itype == iG_TABLE)then
+
          write(*,80) trim(aname)
          write(LU_REC,80) trim(aname)
 80       format(t5,'NEW_G_TABLE_NAME ',a)
+
        end if
+
 !       if(itype.eq.1)then
          do i=1,MAXSTABLE
            if(stable_g(i)%active)then
@@ -1252,8 +1300,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 !       else if(itype.eq.5)then
          do i=1,MAXGTABLE
            if(gtable_g(i)%active)then
-!             if(str_compare(gtable_g(i)%name, aname) )then
-             if(trim(uppercase(gtable_g(i)%name)) .eq. trim(uppercase(aname)) )then
+             if(str_compare(gtable_g(i)%name, aname) )then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,97) trim(aname),trim(aline),trim(sString_g)

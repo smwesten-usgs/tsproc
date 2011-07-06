@@ -80,7 +80,7 @@ module tsp_data_structures
 
   ! general-purpose table for arbitrary stats output
   type g_table
-    logical :: active = lFALSE
+    logical :: active
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
     integer  rec_begdays
@@ -94,7 +94,7 @@ module tsp_data_structures
 
   ! STATISTICS TABLE
   type s_table
-    logical :: active = lFALSE
+    logical :: active
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
     real     maximum
@@ -117,7 +117,7 @@ module tsp_data_structures
 
   ! COMPARE SERIES table
   type c_table
-    logical :: active = lFALSE
+    logical :: active
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name_obs
     character (len=iTSNAMELENGTH) :: series_name_sim
@@ -137,7 +137,7 @@ module tsp_data_structures
 
   ! VOLUME table
   type v_table
-    logical :: active = lFALSE
+    logical :: active
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
     integer nterm
@@ -150,7 +150,7 @@ module tsp_data_structures
 
   !FLOW-DURATION table (exceedance table)
   type d_table
-    logical :: active = lFALSE
+    logical :: active
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
     character*7 time_units
@@ -185,8 +185,9 @@ module tsp_data_structures
   integer iMctable_g
   integer iMvtable_g
   integer iMdtable_g
+  integer iMgtable_g
   integer iOutseries_g(MAXSERIES),iOutStable_g(MAXSTABLE),iOutVtable_g(MAXVTABLE), &
-          iOutDtable_g(MAXDTABLE),iOutCtable_g(MAXCTABLE)
+          iOutDtable_g(MAXDTABLE),iOutCtable_g(MAXCTABLE), iOutGtable(MAXGTABLE)
   character (len=iTSNAMELENGTH) :: sSeriesFormat_g
   character*120 sListOutputFile_g
 
