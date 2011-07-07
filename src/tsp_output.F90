@@ -2218,7 +2218,7 @@ subroutine write_list_output(ifail)
        integer icontext,ierr,i,dd,mm,yy,ss,hhh,mmm,sss,nn,iterm,j, &
        nnn,dds1,mms1,yys1,dds2,mms2,yys2,hhs1,nns1,sss1,ixcon, &
        hhs2,nns2,sss2,jstable,jvtable,jdtable,iseries,idtable,istable,ivtable, &
-       ictable,jctable
+       ictable,jctable,igtable,jgtable
        real totim
        character*3 aaa
        character (len=iTSNAMELENGTH) :: aname,sformat,atemp
@@ -2241,6 +2241,7 @@ subroutine write_list_output(ifail)
        ictable=0
        ivtable=0
        idtable=0
+       igtable = 0
        sOutfile_g=' '
        sformat=' '
 
@@ -2272,9 +2273,11 @@ subroutine write_list_output(ifail)
            end if
            ixcon=1
          end if
+
          if(aoption.eq.'FILE')then
            call get_file_name(ierr,sOutfile_g)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'CONTEXT')then
            if(ixcon.ne.0)then
              call num2char(ILine_g,aline)
@@ -2285,6 +2288,7 @@ subroutine write_list_output(ifail)
            end if
            call get_context(ierr,icontext,acontext)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'SERIES_NAME')then
            iseries=iseries+1
            if(iseries.gt.MAXSERIES)then
@@ -2295,6 +2299,7 @@ subroutine write_list_output(ifail)
            end if
            call get_series_name(ierr,iOutseries_g(iseries),'SERIES_NAME')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'S_TABLE_NAME')then
            istable=istable+1
            if(istable.gt.MAXSTABLE)then
@@ -2305,6 +2310,7 @@ subroutine write_list_output(ifail)
            end if
            call get_table_name(ierr,iOutStable_g(istable),1)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'C_TABLE_NAME')then
            ictable=ictable+1
            if(ictable.gt.MAXCTABLE)then
@@ -2315,6 +2321,7 @@ subroutine write_list_output(ifail)
            end if
            call get_table_name(ierr,iOutCtable_g(ictable),4)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'V_TABLE_NAME')then
            ivtable=ivtable+1
            if(ivtable.gt.MAXVTABLE)then
@@ -2325,6 +2332,7 @@ subroutine write_list_output(ifail)
            end if
            call get_table_name(ierr,iOutVtable_g(ivtable),2)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'E_TABLE_NAME')then
            idtable=idtable+1
            if(idtable.gt.MAXDTABLE)then
@@ -2335,8 +2343,21 @@ subroutine write_list_output(ifail)
            end if
            call get_table_name(ierr,iOutDtable_g(idtable),3)
            if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'G_TABLE_NAME')then
+           igtable=igtable+1
+           if(igtable > MAXGTABLE)then
+             call num2char(MAXGTABLE,aline)
+             write(amessage,204) trim(aline)
+204          format('a maximum of ',a,' G_TABLES can be cited in a LIST_OUTPUT block.')
+             go to 9800
+           end if
+           call get_table_name(ierr,iOutGtable_g(igtable),iG_TABLE)
+           if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'END')then
            go to 200
+
          else if(aoption.eq.'SERIES_FORMAT')then
            call getfile(ierr,cline,sformat,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -2359,6 +2380,7 @@ subroutine write_list_output(ifail)
            write(*,157) trim(sformat)
            write(LU_REC,157) trim(sformat)
 157        format(t5,'SERIES_FORMAT ',a)
+
          else
            call num2char(ILine_g,aline)
            call addquote(sInfile_g,sString_g)
@@ -2367,13 +2389,14 @@ subroutine write_list_output(ifail)
            ' of file ',a)
            go to 9800
          end if
+
        end do
 
 ! -- The block has been read; now it is checked for correctness.
 
 200    continue
        if((iseries.eq.0).and.(istable.eq.0).and.(ivtable.eq.0).and.   &
-          (idtable.eq.0).and.(ictable.eq.0))then
+          (idtable.eq.0).and.(ictable.eq.0) .and. (igtable == 0) )then
          write(amessage,210)
 210      format('no series or tables have been named for output in LIST_OUTPUT block.')
          go to 9800
@@ -2391,7 +2414,7 @@ subroutine write_list_output(ifail)
        end if
        if(icontext.eq.0)then
          write(amessage,220)
-220      format('no Context_g keyword(s) provided in LIST_OUTPUT block.')
+220      format('no Context keyword(s) provided in LIST_OUTPUT block.')
          go to 9800
        end if
 
@@ -2418,6 +2441,7 @@ subroutine write_list_output(ifail)
        iMvtable_g=ivtable
        iMstable_g=istable
        iMctable_g=ictable
+       iMgtable_g = igtable
 
        if(iseries.eq.0) go to 500
        do i=1,iseries
@@ -2686,6 +2710,24 @@ subroutine write_list_output(ifail)
           end do
        end do
 1100   continue
+
+
+! -- If any G_TABLES were requested, they are now written.
+
+2900    continue
+       if(igtable.eq.0) go to 3100
+       do i=1,igtable
+         jgtable=iOutGtable_g(i)
+         write(LU_OUT,2910) trim(gtable_g(jgtable)%name)
+2910     format(/,' G_TABLE "',a,'" ---->')
+         write(LU_OUT,2915)
+2915     format(t4,'Hydrologic Index and description (Olden and Poff, 2003)',t78,'Value')
+         do j=1,ubound(gtable_g(jgtable)%sDescription, 1 )
+           write(LU_OUT,fmt="(t4,a,t78,f12.3)") gtable_g(i)%sDescription(j), &
+              gtable_g(i)%rValue(j)
+         end do
+       end do
+3100   continue
 
        write(*,320) trim(sString_g)
        write(LU_REC,320) trim(sString_g)

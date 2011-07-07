@@ -187,7 +187,7 @@ module tsp_data_structures
   integer iMdtable_g
   integer iMgtable_g
   integer iOutseries_g(MAXSERIES),iOutStable_g(MAXSTABLE),iOutVtable_g(MAXVTABLE), &
-          iOutDtable_g(MAXDTABLE),iOutCtable_g(MAXCTABLE), iOutGtable(MAXGTABLE)
+          iOutDtable_g(MAXDTABLE),iOutCtable_g(MAXCTABLE), iOutGtable_g(MAXGTABLE)
   character (len=iTSNAMELENGTH) :: sSeriesFormat_g
   character*120 sListOutputFile_g
 

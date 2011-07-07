@@ -16,9 +16,18 @@ program tsp_main
   character (len=256) :: sDateStr
   character (len=256) :: sDateStrPretty
 
+  ! default behavior is to query the user for the control file and record files
   logical :: lInteractive = lTRUE
   integer  :: iNumArgs
   integer (kind=T_INT) :: i, ifail, ierr
+
+  ! ensure all tables and series are inactive to start with
+  gtable_g%active = lFALSE
+  dtable_g%active = lFALSE
+  stable_g%active = lFALSE
+  ctable_g%active = lFALSE
+  vtable_g%active = lFALSE
+  series_g%active = lFALSE
 
   iReturnCode = -1
 
