@@ -459,20 +459,30 @@ subroutine get_table_name(ifail,itable,jtype)
          write(LU_REC,145) trim(aname)
 145      format(t5,'OBSERVATION_E_TABLE_NAME ',a)
 
-       else if(jtype.eq.21)then
+       else if(jtype.eq.15)then
          write(*,146) trim(aname)
          write(LU_REC,146) trim(aname)
-146      format(t5,'MODEL_S_TABLE_NAME ',a)
+146      format(t5,'OBSERVATION_G_TABLE_NAME ',a)
+
+       else if(jtype.eq.21)then
+         write(*,146) trim(aname)
+         write(LU_REC,147) trim(aname)
+147      format(t5,'MODEL_S_TABLE_NAME ',a)
 
        else if(jtype.eq.22)then
          write(*,147) trim(aname)
-         write(LU_REC,147) trim(aname)
-147      format(t5,'MODEL_V_TABLE_NAME ',a)
+         write(LU_REC,148) trim(aname)
+148      format(t5,'MODEL_V_TABLE_NAME ',a)
 
        else if(jtype.eq.23)then
          write(*,148) trim(aname)
-         write(LU_REC,148) trim(aname)
-148      format(t5,'MODEL_E_TABLE_NAME ',a)
+         write(LU_REC,149) trim(aname)
+149      format(t5,'MODEL_E_TABLE_NAME ',a)
+
+       else if(jtype.eq.25)then
+         write(*,150) trim(aname)
+         write(LU_REC,150) trim(aname)
+150      format(t5,'MODEL_G_TABLE_NAME ',a)
 
        end if
        if(itype.eq.1)then
@@ -741,7 +751,7 @@ subroutine alloc_tempseries(ifail,iterm)
 355          format('error #1 in expanding memory allocation for temporary time series.')
              go to 9800
            end if
-           nullify(tempseries_g%days,tempseries_g%secs,tempseries_g%val)
+!           nullify(tempseries_g%days,tempseries_g%secs,tempseries_g%val)
            allocate(tempseries_g%days(iterm),tempseries_g%secs(iterm), &
            tempseries_g%val(iterm),stat=ierr)
            if(ierr.ne.0)then

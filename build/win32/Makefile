@@ -85,3 +85,4 @@ copy_lin:
 
 copy:
 		cp tsproc.exe e:/DOS/tsproc.exe
+		cp tsproc.exe d:/DOS/tsproc.exe

@@ -21,16 +21,17 @@ subroutine pest_files(ifail,lastblock)
 ! -- General parameters
        logical lexist
        integer ierr,icontext,itempfile,ioseries,iostable,iovtable,iodtable,i,iunit,j, &
+       iogtable, iomgtable, &
        jline,numtempfile,ii1,ll,jj1,jj,kk,io,im,noterm,nmterm,iomseries,iomstable,  &
        iomvtable,iomdtable,iout,nsterm,iterm,il,siout,nobs,nobsgp,ieqnerr,nterm,nnterm, &
        isnum,dd,nn,yy,mm,k,ixcon,auiyesno,itempunit,isvd,iaui,itemp
        real rotemp,rmtemp,rprecis,weightmin,weightmax,totim,rtime,eigthresh
        integer obsseries(MAXSERIES),obsstable(MAXSTABLE),obsvtable(MAXVTABLE), &
-       obsdtable(MAXDTABLE),modseries(MAXSERIES),modstable(MAXSTABLE), &
-       modvtable(MAXVTABLE),moddtable(MAXDTABLE)
+       obsdtable(MAXDTABLE),obsgtable(MAXGTABLE),modseries(MAXSERIES),modstable(MAXSTABLE), &
+       modvtable(MAXVTABLE),moddtable(MAXDTABLE),modgtable(MAXGTABLE)
        real sweightmin(MAXSERIES),sweightmax(MAXSERIES),stweightmin(MAXSTABLE), &
        stweightmax(MAXSTABLE),vtweightmin(MAXVTABLE),vtweightmax(MAXVTABLE), &
-       dtweightmin(MAXDTABLE),dtweightmax(MAXDTABLE)
+       dtweightmin(MAXDTABLE),dtweightmax(MAXDTABLE),gtweightmin(MAXGTABLE),gtweightmax(MAXGTABLE)
        double precision dval,dtempx
        character*1 aa
        character*3 auiaa
@@ -40,11 +41,11 @@ subroutine pest_files(ifail,lastblock)
        character*120 pardatfile,pestctlfile,instructfile,modcomline,bstring,cstring, &
        micactlfile,pest2micacom
        character*25 acontext(MAXCONTEXT)
-       character*12 basename(MAXSERIES+MAXVTABLE+MAXDTABLE),sbasename(MAXSTABLE), &
-                    obgnme(MAXSERIES+MAXSTABLE+MAXVTABLE+MAXDTABLE)
+       character*12 basename(MAXSERIES+MAXVTABLE+MAXDTABLE+MAXGTABLE),sbasename(MAXSTABLE), &
+                    obgnme(MAXSERIES+MAXSTABLE+MAXVTABLE+MAXDTABLE+MAXGTABLE)
        character*120 tempfile(MAXTEMPFILE),modfile(MAXTEMPFILE)
        character*150 sequation(MAXSERIES),stequation(MAXSTABLE),vtequation(MAXVTABLE), &
-                     dtequation(MAXDTABLE),eqntext
+                     dtequation(MAXDTABLE),gtequation(MAXGTABLE),eqntext
 
 ! -- Variable used for dealing with parameter groups.
 
@@ -97,15 +98,18 @@ subroutine pest_files(ifail,lastblock)
        stequation=' '           ! stequation is an array
        vtequation=' '           ! vtequation is an array
        dtequation=' '           ! dtequation is an array
+       gtequation=' '           ! gtequation is an array
 
        ioseries=0
        iostable=0
        iovtable=0
        iodtable=0
+       iogtable = 0
        iomseries=0
        iomstable=0
        iomvtable=0
        iomdtable=0
+       iomgtable = 0
 
        pardatfile=' '
        pargroupfile=' '
@@ -123,6 +127,9 @@ subroutine pest_files(ifail,lastblock)
        vtweightmax= 1.0e36             !vtweightmax is an array
        dtweightmin=-1.0e36             !dtweightmin is an array
        dtweightmax= 1.0e36             !dtweightmax is an array
+       gtweightmin=-1.0e36             !dtweightmin is an array
+       gtweightmax= 1.0e36             !dtweightmax is an array
+
 
        f_numpargp=0
        f_numpar=0
@@ -176,6 +183,7 @@ subroutine pest_files(ifail,lastblock)
            write(*,37) trim(aoption),trim(tempfile(itempfile))
            write(LU_REC,37) trim(aoption),trim(tempfile(itempfile))
 37         format(t5,a,' ',a)
+
          else if(aoption.eq.'MODEL_INPUT_FILE')then
            correct_keyword='TEMPLATE_FILE'
            if(last_keyword.ne.correct_keyword)go to 9300
@@ -189,6 +197,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(modfile(itempfile))
            write(LU_REC,37) trim(aoption),trim(modfile(itempfile))
+
          else if(aoption.eq.'PARAMETER_DATA_FILE')then
            call getfile(ierr,cline,pardatfile,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -200,6 +209,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(pardatfile)
            write(LU_REC,37) trim(aoption),trim(pardatfile)
+
          else if(aoption.eq.'PARAMETER_GROUP_FILE')then
            call getfile(ierr,cline,pargroupfile,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -211,6 +221,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(pargroupfile)
            write(LU_REC,37) trim(aoption),trim(pargroupfile)
+
          else if(aoption.eq.'AUTOMATIC_USER_INTERVENTION')then
            call get_yes_no(ierr,auiyesno)
            if(ierr.ne.0) go to 9800
@@ -222,6 +233,7 @@ subroutine pest_files(ifail,lastblock)
            iaui=1
            write(*,37) trim(aoption),trim(auiaa)
            write(LU_REC,37) trim(aoption),trim(auiaa)
+
          else if(aoption.eq.'TRUNCATED_SVD')then
            call get_keyword_value(ierr,2,itemp,eigthresh,aoption)
            if(ierr.ne.0) go to 9800
@@ -233,6 +245,7 @@ subroutine pest_files(ifail,lastblock)
              go to 9800
            end if
            isvd=1
+
          else if(aoption.eq.'NEW_PEST_CONTROL_FILE')then
            call getfile(ierr,cline,pestctlfile,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -244,6 +257,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(pestctlfile)
            write(LU_REC,37) trim(aoption),trim(pestctlfile)
+
          else if(aoption.eq.'NEW_MICA_CONTROL_FILE')then
            call getfile(ierr,cline,micactlfile,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -255,6 +269,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(micactlfile)
            write(LU_REC,37) trim(aoption),trim(micactlfile)
+
          else if(aoption.eq.'PEST2MICA_COMMAND')then
            call getfile(ierr,cline,pest2micacom,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -266,6 +281,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(pest2micacom)
            write(LU_REC,37) trim(aoption),trim(pest2micacom)
+
          else if(aoption.eq.'NEW_INSTRUCTION_FILE')then
            call getfile(ierr,cline,instructfile,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -277,6 +293,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(instructfile)
            write(LU_REC,37) trim(aoption),trim(instructfile)
+
          else if(aoption.eq.'MODEL_COMMAND_LINE')then
            call getfile(ierr,cline,modcomline,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -288,6 +305,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            write(*,37) trim(aoption),trim(modcomline)
            write(LU_REC,37) trim(aoption),trim(modcomline)
+
          else if(aoption.eq.'OBSERVATION_SERIES_NAME')then
            ioseries=ioseries+1
            if(ioseries.gt.MAXSERIES)then
@@ -298,6 +316,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            call get_series_name(ierr,obsseries(ioseries),'OBSERVATION_SERIES_NAME')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'OBSERVATION_S_TABLE_NAME')then
            iostable=iostable+1
            if(iostable.gt.MAXSTABLE)then
@@ -308,6 +327,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            call get_table_name(ierr,obsstable(iostable),11)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'OBSERVATION_C_TABLE_NAME')then
            write(amessage,109)
 109        format('current version of TSPROC does not allow C_TABLES to be ', &
@@ -323,6 +343,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            call get_table_name(ierr,obsvtable(iovtable),12)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'OBSERVATION_E_TABLE_NAME')then
            iodtable=iodtable+1
            if(iodtable.gt.MAXDTABLE)then
@@ -333,6 +354,18 @@ subroutine pest_files(ifail,lastblock)
            end if
            call get_table_name(ierr,obsdtable(iodtable),13)
            if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'OBSERVATION_G_TABLE_NAME')then
+           iogtable=iogtable+1
+           if(iogtable .gt. MAXGTABLE)then
+             call num2char(MAXGTABLE,aline)
+             write(amessage,804) trim(aline),trim(CurrentBlock_g)
+804          format('a maximum of ',a,' g_tables can be cited in a ',a,' block.')
+             go to 9800
+           end if
+           call get_table_name(ierr,obsgtable(iogtable),15)
+           if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'MODEL_SERIES_NAME')then
            correct_keyword='OBSERVATION_SERIES_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -349,6 +382,7 @@ subroutine pest_files(ifail,lastblock)
                end if
              end do
            end if
+
          else if(aoption.eq.'MODEL_S_TABLE_NAME')then
            correct_keyword='OBSERVATION_S_TABLE_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -365,6 +399,7 @@ subroutine pest_files(ifail,lastblock)
                end if
              end do
            end if
+
          else if(aoption.eq.'MODEL_C_TABLE_NAME')then
            write(amessage,109)
            go to 9800
@@ -384,6 +419,7 @@ subroutine pest_files(ifail,lastblock)
                end if
              end do
            end if
+
          else if(aoption.eq.'MODEL_E_TABLE_NAME')then
            correct_keyword='OBSERVATION_E_TABLE_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -400,26 +436,54 @@ subroutine pest_files(ifail,lastblock)
                end if
              end do
            end if
+
+         else if(aoption.eq.'MODEL_G_TABLE_NAME')then
+           correct_keyword='OBSERVATION_G_TABLE_NAME'
+           if(last_keyword.ne.correct_keyword) go to 9300
+           iomgtable=iomgtable+1
+           call get_table_name(ierr,modgtable(iomgtable),25)
+           if(ierr.ne.0) go to 9800
+           if(iomgtable.gt.1)then
+             do k=1,iomgtable-1
+               if(modgtable(k).eq.modgtable(iomgtable))then
+                 write(amessage,308) trim(gtable_g(modgtable(iomgtable))%name)
+308              format('g_table "',a,'" has been provided as more than one ', &
+                 'MODEL_G_TABLE_NAME.')
+                 go to 9800
+               end if
+             end do
+           end if
+
          else if(aoption.eq.'SERIES_WEIGHTS_EQUATION')then
            correct_keyword='MODEL_SERIES_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
            call get_equation(ierr,sequation(ioseries),aoption)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'S_TABLE_WEIGHTS_EQUATION')then
            correct_keyword='MODEL_S_TABLE_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
            call get_equation(ierr,stequation(iostable),aoption)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'V_TABLE_WEIGHTS_EQUATION')then
            correct_keyword='MODEL_V_TABLE_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
            call get_equation(ierr,vtequation(iovtable),aoption)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'E_TABLE_WEIGHTS_EQUATION')then
            correct_keyword='MODEL_E_TABLE_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
            call get_equation(ierr,dtequation(iodtable),aoption)
            if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'G_TABLE_WEIGHTS_EQUATION')then
+           correct_keyword='MODEL_G_TABLE_NAME'
+           if(last_keyword.ne.correct_keyword) go to 9300
+           call get_equation(ierr,gtequation(iogtable),aoption)
+           if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'SERIES_WEIGHTS_MIN_MAX')then
            correct_keyword='SERIES_WEIGHTS_EQUATION'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -427,6 +491,7 @@ subroutine pest_files(ifail,lastblock)
            if(ierr.ne.0) go to 9800
            call check_weight_order(ierr,sweightmin(ioseries),sweightmax(ioseries))
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'S_TABLE_WEIGHTS_MIN_MAX')then
            correct_keyword='S_TABLE_WEIGHTS_EQUATION'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -434,6 +499,7 @@ subroutine pest_files(ifail,lastblock)
            if(ierr.ne.0) go to 9800
            call check_weight_order(ierr,stweightmin(iostable),stweightmax(iostable))
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'V_TABLE_WEIGHTS_MIN_MAX')then
            correct_keyword='V_TABLE_WEIGHTS_EQUATION'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -441,6 +507,7 @@ subroutine pest_files(ifail,lastblock)
            if(ierr.ne.0) go to 9800
            call check_weight_order(ierr,vtweightmin(iovtable),vtweightmax(iovtable))
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'E_TABLE_WEIGHTS_MIN_MAX')then
            correct_keyword='E_TABLE_WEIGHTS_EQUATION'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -448,6 +515,15 @@ subroutine pest_files(ifail,lastblock)
            if(ierr.ne.0) go to 9800
            call check_weight_order(ierr,dtweightmin(iodtable),dtweightmax(iodtable))
            if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'G_TABLE_WEIGHTS_MIN_MAX')then
+           correct_keyword='G_TABLE_WEIGHTS_EQUATION'
+           if(last_keyword.ne.correct_keyword) go to 9300
+           call get_two_numbers(ierr,gtweightmin(iogtable),gtweightmax(iogtable),aoption)
+           if(ierr.ne.0) go to 9800
+           call check_weight_order(ierr,gtweightmin(iogtable),gtweightmax(iogtable))
+           if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'CONTEXT')then
            if(ixcon.ne.0)then
              call num2char(ILine_g,aline)
@@ -458,8 +534,10 @@ subroutine pest_files(ifail,lastblock)
            end if
            call get_context(ierr,icontext,acontext)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'END')then
            go to 200
+
          else
            call num2char(ILine_g,aline)
            call addquote(sInfile_g,sString_g)
@@ -468,7 +546,9 @@ subroutine pest_files(ifail,lastblock)
            ' of file ',a)
            go to 9800
          end if
+
          last_keyword=aoption
+
        end do
 
 200    continue
@@ -476,7 +556,7 @@ subroutine pest_files(ifail,lastblock)
 ! -- Any absenses in the block are now looked for.
 
        if((ioseries.eq.0).and.(iostable.eq.0).and.(iovtable.eq.0).and.   &
-          (iodtable.eq.0))then
+          (iodtable.eq.0) .and. (iogtable == 0) )then
          write(amessage,210) trim(CurrentBlock_g)
 210      format('no observation series or table names have been cited in ',a,' block.')
          go to 9800
@@ -545,6 +625,7 @@ subroutine pest_files(ifail,lastblock)
            end if
          end do
        end if
+
        if(iodtable.ne.0)then
          if(iomdtable.ne.iodtable)then
            write(amessage,271) trim(CurrentBlock_g)
@@ -552,6 +633,7 @@ subroutine pest_files(ifail,lastblock)
              'OBSERVATION_E_TABLE_NAME cited in the ',a,' block.')
            go to 9800
          end if
+
          do i=1,iodtable
            if(dtequation(i).eq.' ')then
              write(amessage,280) trim(CurrentBlock_g)
@@ -561,9 +643,28 @@ subroutine pest_files(ifail,lastblock)
            end if
          end do
        end if
+
+       if(iogtable.ne.0)then
+         if(iomgtable.ne.iogtable)then
+           write(amessage,671) trim(CurrentBlock_g)
+671        format('a MODEL_G_TABLE_NAME keyword has not been provided for each ', &
+             'OBSERVATION_G_TABLE_NAME cited in the ',a,' block.')
+           go to 9800
+         end if
+
+         do i=1,iogtable
+           if(gtequation(i).eq.' ')then
+             write(amessage,680) trim(CurrentBlock_g)
+680          format('a G_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
+             'g_table cited in the ',a,'block.')
+             go to 9800
+           end if
+         end do
+       end if
+
        if(icontext.eq.0)then
          write(amessage,290) trim(CurrentBlock_g)
-290      format('no Context_g keyword(s) provided in ',a,' block.')
+290      format('no Context keyword(s) provided in ',a,' block.')
          go to 9800
        end if
        if((micactlfile.ne.' ').and.(pest2micacom.eq.' '))then
@@ -585,9 +686,9 @@ subroutine pest_files(ifail,lastblock)
 
        otherblock='LIST_OUTPUT'
        if((ioseries.ne.iMseries_g).or.(iostable.ne.iMstable_g).or.(iovtable.ne.iMvtable_g).or. &
-          (iodtable.ne.iMdtable_g))then
+          (iodtable.ne.iMdtable_g) .or. (iogtable /= iMgtable_g) )then
           write(amessage,1010) trim(CurrentBlock_g),trim(otherblock)
-1010      format('the number of series, s_tables, e_tables and v_tables cited in the ', &
+1010      format('the number of series, s_tables, e_tables, g_tables and v_tables cited in the ', &
           a,' block does not correspond exactly to the number of these entities cited in ', &
           'the immediately-preceding ',a,' block.')
           go to 9800
@@ -794,6 +895,41 @@ subroutine pest_files(ifail,lastblock)
            write(amessage,1037) 'D',trim(amname),trim(CurrentBlock_g)
            go to 9800
 1078       continue
+         end do
+       end if
+
+       if(iogtable.ne.0)then
+         do i=1,iogtable
+           io=obsgtable(i)
+           im=modgtable(i)
+           aoname=gtable_g(io)%name
+           amname=gtable_g(im)%name
+           if(io.eq.im) go to 3079
+           noterm = ubound(gtable_g(io)%sDescription, 1)
+           nmterm = ubound(gtable_g(im)%sDescription, 1)
+           if(noterm.ne.nmterm)then
+             write(amessage,3060) trim(aoname),trim(amname)
+3060         format('OBSERVATION_G_TABLE "',a,'"  has been matched to ', &
+             'MODEL G_TABLE "',a,'". However these G_TABLES ', &
+             'have different numbers of entries.')
+             go to 9800
+           end if
+           do j=1,noterm
+             if(.not. str_compare(gtable_g(io)%sDescription(j),gtable_g(im)%sDescription(j)) )then
+               write(amessage,3070) trim(aoname),trim(amname)
+3070           format('OBSERVATION_G_TABLE "',a,'"  has been matched to ', &
+               'MODEL G_TABLE "',a,'". However the items in ', &
+               'these G_TABLES do not correspond.')
+               go to 9800
+             end if
+           end do
+3079       continue
+           do j=1,iogtable
+             if(im.eq.iOutGtable_g(j)) go to 3078
+           end do
+           write(amessage,1037) 'G',trim(amname),trim(CurrentBlock_g)
+           go to 9800
+3078       continue
          end do
        end if
 
@@ -1472,6 +1608,39 @@ subroutine pest_files(ifail,lastblock)
          end do
        end do
 
+! -- Next the G_TABLE instructions are written.
+
+4300   continue
+
+       if(iogtable.eq.0) go to 1400
+       do i=1,iogtable
+         iout=iout+1
+         im=iOutGtable_g(i)
+         do j=1,iogtable
+           if(im.eq.modgtable(j)) go to 4320
+         end do
+         write(amessage,1110) 'g',trim(gtable_g(im)%name),'G'
+         go to 9800
+4320     io=obsgtable(j)
+         nsterm=ubound(gtable_g(io)%sDescription, 1)
+         aname=gtable_g(im)%name
+         nobsgp=nobsgp+1
+         obgnme(nobsgp)=aname
+         call make_basename(ierr,iout,nsterm,aname,basename)
+         if(ierr.ne.0) go to 9800
+         atemp=basename(iout)
+         do iterm=1,nsterm
+           call num2char(iterm,anum)
+           aname='['//trim(atemp)//trim(anum)//']75:89'
+           if(iterm.eq.1)then
+             write(iunit,1230) trim(aname)
+           else
+             write(iunit,1240) trim(aname)
+           end if
+           nobs=nobs+1
+         end do
+       end do
+
 1400   continue
        close(unit=iunit)
        write(*,1410) trim(sString_g)
@@ -2005,7 +2174,7 @@ subroutine pest_files(ifail,lastblock)
 ! -- Next the E_TABLE observations are handled.
 
 2300   continue
-       if(iodtable.eq.0) go to 2400
+       if(iodtable.eq.0) go to 7300
        do i=1,iodtable
          iout=iout+1
          im=iOutDtable_g(i)
@@ -2059,6 +2228,75 @@ subroutine pest_files(ifail,lastblock)
            write(iunit,1900) trim(aname),dtable_g(io)%time(j)/totim,dval,trim(dtable_g(im)%name)
          end do
        end do
+
+
+! -- Next the G_TABLE observations are handled.
+
+7300   continue
+       if(iogtable.eq.0) go to 2400
+       do i=1,iogtable
+         iout=iout+1
+         im=iOutGtable_g(i)
+         do j=1,iogtable
+           if(im .eq. modgtable(j)) go to 7320
+         end do
+         write(amessage,1110) 'g',trim(gtable_g(im)%name),'G'
+         go to 9800
+7320     io=obsgtable(j)
+         nsterm=ubound(gtable_g(io)%sDescription, 1)
+         aname=gtable_g(im)%name
+         call make_basename(ierr,iout,nsterm,aname,basename)
+         if(ierr.ne.0) go to 9800
+         atemp=basename(iout)
+         weightmin=max(gtweightmin(j),0.0)        !chek
+         weightmax=min(gtweightmax(j),1.0e36)
+         eqntext=gtequation(j)
+         call prepare_eqn(ierr,nterm,gtequation(j),0)
+         if(ierr.ne.0) then
+           ieqnerr=1
+           go to 9800
+         end if
+         nnterm=nterm
+         do iterm=1,nterm
+           cterm(iterm)=aterm(iterm)
+         end do
+         do iterm=1,nterm
+           qterm(iterm)=rterm(iterm)
+         end do
+         do j=1,nsterm
+           nterm=nnterm
+           do iterm=1,nterm
+             aterm(iterm)=cterm(iterm)
+           end do
+           do iterm=1,nterm
+             rterm(iterm)=qterm(iterm)
+           end do
+           call num2char(j,anum)
+           aname=trim(atemp)//trim(anum)
+           do iterm =1,nterm
+             if(aterm(iterm)(1:3).eq.'@_2') then
+               rterm(iterm)=abs( gtable_g(io)%rValue(j) )
+               aterm(iterm)='~!~'
+             end if
+           end do
+           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
+           OPERAT,FUNCT,IORDER,DVAL,rterm)
+           if(dval.lt.weightmin) dval=weightmin
+           if(dval.gt.weightmax) dval=weightmax
+
+
+           print *, im
+           print *, io
+           print *, "'"//trim(aname)//"'"
+           print *, gtable_g(io)%rValue
+           print *, dval
+           print *, "'"//trim(gtable_g(im)%name)//"'"
+
+
+           write(iunit,1900) trim(aname),gtable_g(io)%rValue(j),dval,trim(gtable_g(im)%name)
+         end do
+       end do
+
 
 ! -- The "* model command line" section of the PEST control file is written.
 
@@ -2721,10 +2959,10 @@ subroutine write_list_output(ifail)
          write(LU_OUT,2910) trim(gtable_g(jgtable)%name)
 2910     format(/,' G_TABLE "',a,'" ---->')
          write(LU_OUT,2915)
-2915     format(t4,'Hydrologic Index and description (Olden and Poff, 2003)',t78,'Value')
+2915     format(t4,'Hydrologic Index and description (Olden and Poff, 2003)',t85,'Value')
          do j=1,ubound(gtable_g(jgtable)%sDescription, 1 )
-           write(LU_OUT,fmt="(t4,a,t78,f12.3)") gtable_g(i)%sDescription(j), &
-              gtable_g(i)%rValue(j)
+           write(LU_OUT,fmt="(t4,a,t78,f12.3)") gtable_g(jgtable)%sDescription(j), &
+              gtable_g(jgtable)%rValue(j)
          end do
        end do
 3100   continue

@@ -445,7 +445,7 @@ subroutine erase_entity(ifail)
 230        format('cannot de-allocate memory previously allocated to erased time series.')
            go to 9800
          end if
-         nullify(series_g(is)%days,series_g(is)%secs,series_g(is)%val)
+!         nullify(series_g(is)%days,series_g(is)%secs,series_g(is)%val)
          series_g(is)%active=.false.
          series_g(is)%nterm=0
          series_g(is)%type=' '

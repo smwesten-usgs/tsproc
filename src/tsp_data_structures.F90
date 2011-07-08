@@ -73,9 +73,12 @@ module tsp_data_structures
     integer nterm
     character*2 type
     character (len=iTSNAMELENGTH) :: name
-    integer, dimension(:), pointer :: days
-    integer, dimension(:), pointer :: secs
-    real,    dimension(:), pointer :: val
+!    integer, dimension(:), pointer :: days
+!    integer, dimension(:), pointer :: secs
+!    real,    dimension(:), pointer :: val
+    integer, dimension(:), allocatable :: days
+    integer, dimension(:), allocatable :: secs
+    real,    dimension(:), allocatable :: val
   end type time_series
 
   ! general-purpose table for arbitrary stats output
@@ -88,8 +91,8 @@ module tsp_data_structures
     integer  rec_enddays
     integer  rec_endsecs
 
-    character (len=80), dimension(:), pointer    :: sDescription
-    real, dimension(:), pointer    :: rValue
+    character (len=80), dimension(:), allocatable  :: sDescription
+    real, dimension(:), allocatable                :: rValue
   end type g_table
 
   ! STATISTICS TABLE

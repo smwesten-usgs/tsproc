@@ -95,41 +95,41 @@ program tsp_main
 !       call write_message(leadspace='yes')
    call close_files
 
-  do i=1,MAXSERIES
-    if(series_g(i)%active)then
-      deallocate(series_g(i)%days,series_g(i)%secs,series_g(i)%val,stat=ierr)
-      if(associated(series_g(i)%days)) nullify(series_g(i)%days)
-      if(associated(series_g(i)%secs)) nullify(series_g(i)%secs)
-      if(associated(series_g(i)%val))  nullify(series_g(i)%val)
-    end if
-  end do
-  if(tempseries_g%active)then
-    deallocate(tempseries_g%days,tempseries_g%secs,tempseries_g%val,stat=ierr)
-    if(associated(tempseries_g%days)) nullify(tempseries_g%days)
-    if(associated(tempseries_g%secs)) nullify(tempseries_g%secs)
-    if(associated(tempseries_g%val)) nullify(tempseries_g%val)
-  end if
-  do i=1,MAXVTABLE
-    if(vtable_g(i)%active)then
-      deallocate(vtable_g(i)%days1,vtable_g(i)%days2,vtable_g(i)%secs1,  &
-      vtable_g(i)%secs2,vtable_g(i)%vol,stat=ierr)
-      if(associated(vtable_g(i)%days1)) nullify(vtable_g(i)%days1)
-      if(associated(vtable_g(i)%days2)) nullify(vtable_g(i)%days2)
-      if(associated(vtable_g(i)%secs1)) nullify(vtable_g(i)%secs1)
-      if(associated(vtable_g(i)%secs2)) nullify(vtable_g(i)%secs2)
-      if(associated(vtable_g(i)%vol)) nullify(vtable_g(i)%vol)
-    end if
-  end do
-  do i=1,MAXDTABLE
-    if(dtable_g(i)%active)then
-      deallocate(dtable_g(i)%time,dtable_g(i)%flow,  &
-                 dtable_g(i)%tdelay,stat=ierr)
-      if(associated(dtable_g(i)%time))   nullify(dtable_g(i)%time)
-      if(associated(dtable_g(i)%flow))   nullify(dtable_g(i)%flow)
-      if(associated(dtable_g(i)%tdelay)) nullify(dtable_g(i)%tdelay)
-    end if
-  end do
-  deallocate(tempdtable_g%time,tempdtable_g%flow,tempdtable_g%tdelay,stat=ierr)
-  nullify (tempdtable_g%time,tempdtable_g%flow,tempdtable_g%tdelay)
+!   do i=1,MAXSERIES
+!     if(series_g(i)%active)then
+!       deallocate(series_g(i)%days,series_g(i)%secs,series_g(i)%val,stat=ierr)
+!       if(associated(series_g(i)%days)) nullify(series_g(i)%days)
+!       if(associated(series_g(i)%secs)) nullify(series_g(i)%secs)
+!       if(associated(series_g(i)%val))  nullify(series_g(i)%val)
+!     end if
+!   end do
+!   if(tempseries_g%active)then
+!     deallocate(tempseries_g%days,tempseries_g%secs,tempseries_g%val,stat=ierr)
+!     if(associated(tempseries_g%days)) nullify(tempseries_g%days)
+!     if(associated(tempseries_g%secs)) nullify(tempseries_g%secs)
+!     if(associated(tempseries_g%val)) nullify(tempseries_g%val)
+!   end if
+!   do i=1,MAXVTABLE
+!     if(vtable_g(i)%active)then
+!       deallocate(vtable_g(i)%days1,vtable_g(i)%days2,vtable_g(i)%secs1,  &
+!       vtable_g(i)%secs2,vtable_g(i)%vol,stat=ierr)
+!       if(associated(vtable_g(i)%days1)) nullify(vtable_g(i)%days1)
+!       if(associated(vtable_g(i)%days2)) nullify(vtable_g(i)%days2)
+!       if(associated(vtable_g(i)%secs1)) nullify(vtable_g(i)%secs1)
+!       if(associated(vtable_g(i)%secs2)) nullify(vtable_g(i)%secs2)
+!       if(associated(vtable_g(i)%vol)) nullify(vtable_g(i)%vol)
+!     end if
+!   end do
+!   do i=1,MAXDTABLE
+!     if(dtable_g(i)%active)then
+!       deallocate(dtable_g(i)%time,dtable_g(i)%flow,  &
+!                  dtable_g(i)%tdelay,stat=ierr)
+!       if(associated(dtable_g(i)%time))   nullify(dtable_g(i)%time)
+!       if(associated(dtable_g(i)%flow))   nullify(dtable_g(i)%flow)
+!       if(associated(dtable_g(i)%tdelay)) nullify(dtable_g(i)%tdelay)
+!     end if
+!   end do
+!   deallocate(tempdtable_g%time,tempdtable_g%flow,tempdtable_g%tdelay,stat=ierr)
+!   nullify (tempdtable_g%time,tempdtable_g%flow,tempdtable_g%tdelay)
 
 end program tsp_main
