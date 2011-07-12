@@ -4927,7 +4927,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "MA"//trim(adjustl(aaa))//": " &
               //trim(MA(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),MA(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLMA(j),MA(j)%rValue,rUMA(j)
            iCount = iCount +1
          endif
        enddo
@@ -4938,7 +4938,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "ML"//trim(adjustl(aaa))//": " &
               //trim(ML(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),ML(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLML(j),ML(j)%rValue,rUML(j)
            iCount = iCount +1
          endif
        enddo
@@ -4949,7 +4949,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "MH"//trim(adjustl(aaa))//": " &
               //trim(MH(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),MH(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLMH(j),MH(j)%rValue,rUMH(j)
            iCount = iCount +1
          endif
        enddo
@@ -4960,7 +4960,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "FL"//trim(adjustl(aaa))//": " &
               //trim(FL(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),FL(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLFL(j),FL(j)%rValue,rUFL(j)
            iCount = iCount +1
          endif
        enddo
@@ -4971,7 +4971,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "FH"//trim(adjustl(aaa))//": " &
               //trim(FH(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),FH(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLFH(j),FH(j)%rValue,rUFH(j)
            iCount = iCount +1
          endif
        enddo
@@ -4982,7 +4982,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "DL"//trim(adjustl(aaa))//": " &
               //trim(DL(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),DL(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLDL(j),DL(j)%rValue,rUDL(j)
            iCount = iCount +1
          endif
        enddo
@@ -4993,7 +4993,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "DH"//trim(adjustl(aaa))//": " &
               //trim(DH(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),DH(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLDH(j),DH(j)%rValue,rUDH(j)
            iCount = iCount +1
          endif
        enddo
@@ -5004,7 +5004,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "TA"//trim(adjustl(aaa))//": " &
               //trim(TA(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),TA(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLTA(j),TA(j)%rValue,rUTA(j)
            iCount = iCount +1
          endif
        enddo
@@ -5015,7 +5015,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "TL"//trim(adjustl(aaa))//": " &
               //trim(TL(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),TL(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLTL(j),TL(j)%rValue,rUTL(j)
            iCount = iCount +1
          endif
        enddo
@@ -5026,7 +5026,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "TH"//trim(adjustl(aaa))//": " &
               //trim(TH(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),TH(j)%rValue
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLTH(j),TH(j)%rValue,rUTH(j)
            iCount = iCount +1
          endif
        enddo
@@ -5037,7 +5037,7 @@ subroutine compute_hydrologic_indices(ifail)
            write(aaa,fmt="(i3)") j
            gtable_g(ig)%sDescription(iCount) = "RA"//trim(adjustl(aaa))//": " &
               //trim(RA(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,f12.3)") gtable_g(ig)%sDescription(iCount),gtable_g(ig)%rValue(iCount)
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLRA(j),gtable_g(ig)%rValue(iCount),rURA(j)
            iCount = iCount +1
          endif
        enddo

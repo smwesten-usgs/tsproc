@@ -58,6 +58,18 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	lb = m_lp / 100;
 	ub = m_up / 100;
 
+    for(i=0;i<46;i++) {LMA[i]=nearhuge;UMA[i]=nearhuge;}
+    for(i=0;i<23;i++) {LML[i]=nearhuge;UML[i]=nearhuge;}
+    for(i=0;i<28;i++) {LMH[i]=nearhuge;UMH[i]=nearhuge;}
+    for(i=0;i<4;i++) {LFL[i]=nearhuge;UFL[i]=nearhuge;}
+    for(i=0;i<12;i++) {LFH[i]=nearhuge;UFH[i]=nearhuge;}
+    for(i=0;i<21;i++) {LDL[i]=nearhuge;UDL[i]=nearhuge;}
+    for(i=0;i<25;i++) {LDH[i]=nearhuge;UDH[i]=nearhuge;}
+    for(i=0;i<4;i++) {LTA[i]=nearhuge;UTA[i]=nearhuge;}
+    for(i=0;i<5;i++) {LTL[i]=nearhuge;UTL[i]=nearhuge;}
+    for(i=0;i<4;i++) {LTH[i]=nearhuge;UTH[i]=nearhuge;}
+    for(i=0;i<10;i++) {LRA[i]=nearhuge;URA[i]=nearhuge;}
+
 // Read the flow data
 
 // Read the years
@@ -169,11 +181,11 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 //	stats(ndv,data,&MA[1],&MA[2],&MA3);
 	stats(ndv,data,&MA[1],&MA[2],&MA[3]);
 	LMA[1] = LMA[2] = percentile(lb,ndv,data);
-//	if(LMA1 > MA[1]) LMA1 = MA[1];
-//	if(UMA1 < MA[1]) UMA1 = MA[1];
+	if(LMA[1] > MA[1]) LMA[1] = MA[1];
+	if(UMA[1] < MA[1]) UMA[1] = MA[1];
 	UMA[1] = UMA[2] = percentile(ub,ndv,data);
-//	if(LMA2 > MA[2]) LMA2 = MA[2];
-//	if(UMA2 < MA[2]) UMA2 = MA[2];
+	if(LMA[2] > MA[2]) LMA[2] = MA[2];
+	if(UMA[2] < MA[2]) UMA[2] = MA[2];
 
 // Compute daily variability 1 (coefficient of variation = standard deviation/mean * 100)
 
@@ -210,8 +222,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	temp = percentile(ub,nyrs,stdv);
 	UMA[3] = 999999;
 	if(MA[1] != 0.) UMA[3] = 100*temp/MA[1];
-//	if(LMA3 > MA3) LMA3 = MA3;
-//	if(UMA3 < MA3) UMA3 = MA3;
+	if(LMA[3] > MA[3]) LMA[3] = MA[3];
+	if(UMA[3] < MA[3]) UMA[3] = MA[3];
 
 // Compute daily variability 2 (coefficient of variation = std dev. of 19 percentiles / mean of 19 percentiles
 
@@ -360,8 +372,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[12] = qmedian;
 	LMA[12] = percentile(lb,nyrs,ydata);
 	UMA[12] = percentile(ub,nyrs,ydata);
-//	if(LMA12 > MA12) LMA12 = MA12;
-//	if(UMA12 < MA12) UMA12 = MA12;
+	if(LMA[12] > MA[12]) LMA[12] = MA[12];
+	if(UMA[12] < MA[12]) UMA[12] = MA[12];
 
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
@@ -369,8 +381,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[24] = dum;
 	LMA[24] = percentile(lb,nyrs,stdv);
 	UMA[24] = percentile(ub,nyrs,stdv);
-//	if(LMA24 > MA24) LMA24 = MA24;
-//	if(UMA24 < MA24) UMA24 = MA24;
+	if(LMA[24] > MA[24]) LMA[24] = MA[24];
+	if(UMA[24] < MA[24]) UMA[24] = MA[24];
 
 // February
 	for(i=0;i<nyrs;i++)
@@ -403,16 +415,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[13] = qmedian;
 	LMA[13] = percentile(lb,nyrs,ydata);
 	UMA[13] = percentile(ub,nyrs,ydata);
-//	if(LMA13 > MA13) LMA13 = MA13;
-//	if(UMA13 < MA13) UMA13 = MA13;
+	if(LMA[13] > MA[13]) LMA[13] = MA[13];
+	if(UMA[13] < MA[13]) UMA[13] = MA[13];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[25] = qmean;		// Coefficient of variation
 	if(usemedian) MA[25] = dum;
 	LMA[25] = percentile(lb,nyrs,stdv);
 	UMA[25] = percentile(ub,nyrs,stdv);
-//	if(LMA25 > MA25) LMA25 = MA25;
-//	if(UMA25 < MA25) UMA25 = MA25;
+	if(LMA[25] > MA[25]) LMA[25] = MA[25];
+	if(UMA[25] < MA[25]) UMA[25] = MA[25];
 
 // March
 	for(i=0;i<nyrs;i++)
@@ -444,16 +456,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[14] = qmedian;
 	LMA[14] = percentile(lb,nyrs,ydata);
 	UMA[14] = percentile(ub,nyrs,ydata);
-//	if(LMA14 > MA14) LMA14 = MA14;
-//	if(UMA14 < MA14) UMA14 = MA14;
+	if(LMA[14] > MA[14]) LMA[14] = MA[14];
+	if(UMA[14] < MA[14]) UMA[14] = MA[14];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[26] = qmean;		// Coefficient of variation
 	if(usemedian) MA[26] = dum;
 	LMA[26] = percentile(lb,nyrs,stdv);
 	UMA[26] = percentile(ub,nyrs,stdv);
-//	if(LMA26 > MA26) LMA26 = MA26;
-//	if(UMA26 < MA26) UMA26 = MA26;
+	if(LMA[26] > MA[26]) LMA[26] = MA[26];
+	if(UMA[26] < MA[26]) UMA[26] = MA[26];
 
 // April
 	for(i=0;i<nyrs;i++)
@@ -485,16 +497,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[15] = qmedian;
 	LMA[15] = percentile(lb,nyrs,ydata);
 	UMA[15] = percentile(ub,nyrs,ydata);
-//	if(LMA15 > MA15) LMA15 = MA15;
-//	if(UMA15 < MA15) UMA15 = MA15;
+	if(LMA[15] > MA[15]) LMA[15] = MA[15];
+	if(UMA[15] < MA[15]) UMA[15] = MA[15];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[27] = qmean;		// Coefficient of variation
 	if(usemedian) MA[27] = dum;
 	LMA[27] = percentile(lb,nyrs,stdv);
 	UMA[27] = percentile(ub,nyrs,stdv);
-//	if(LMA27 > MA27) LMA27 = MA27;
-//	if(UMA27 < MA27) UMA27 = MA27;
+	if(LMA[27] > MA[27]) LMA[27] = MA[27];
+	if(UMA[27] < MA[27]) UMA[27] = MA[27];
 
 // May
 	for(i=0;i<nyrs;i++)
@@ -526,16 +538,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[16] = qmedian;
 	LMA[16] = percentile(lb,nyrs,ydata);
 	UMA[16] = percentile(ub,nyrs,ydata);
-//	if(LMA16 > MA16) LMA16 = MA16;
-//	if(UMA16 < MA16) UMA16 = MA16;
+	if(LMA[16] > MA[16]) LMA[16] = MA[16];
+	if(UMA[16] < MA[16]) UMA[16] = MA[16];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[28] = qmean;		// Coefficient of variation
 	if(usemedian) MA[28] = dum;
 	LMA[28] = percentile(lb,nyrs,stdv);
 	UMA[28] = percentile(ub,nyrs,stdv);
-//	if(LMA28 > MA28) LMA28 = MA28;
-//	if(UMA28 < MA28) UMA28 = MA28;
+	if(LMA[28] > MA[28]) LMA[28] = MA[28];
+	if(UMA[28] < MA[28]) UMA[28] = MA[28];
 
 // June
 	for(i=0;i<nyrs;i++)
@@ -567,16 +579,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[17] = qmedian;
 	LMA[17] = percentile(lb,nyrs,ydata);
 	UMA[17] = percentile(ub,nyrs,ydata);
-//	if(LMA17 > MA17) LMA17 = MA17;
-//	if(UMA17 < MA17) UMA17 = MA17;
+	if(LMA[17] > MA[17]) LMA[17] = MA[17];
+	if(UMA[17] < MA[17]) UMA[17] = MA[17];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[29] = qmean;		// Coefficient of variation
 	if(usemedian) MA[29] = dum;
 	LMA[29] = percentile(lb,nyrs,stdv);
 	UMA[29] = percentile(ub,nyrs,stdv);
-//	if(LMA29 > MA29) LMA29 = MA29;
-//	if(UMA29 < MA29) UMA29 = MA29;
+	if(LMA[29] > MA[29]) LMA[29] = MA[29];
+	if(UMA[29] < MA[29]) UMA[29] = MA[29];
 
 // July
 	for(i=0;i<nyrs;i++)
@@ -608,16 +620,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[18] = qmedian;
 	LMA[18] = percentile(lb,nyrs,ydata);
 	UMA[18] = percentile(ub,nyrs,ydata);
-//	if(LMA18 > MA18) LMA18 = MA18;
-//	if(UMA18 < MA18) UMA18 = MA18;
+	if(LMA[18] > MA[18]) LMA[18] = MA[18];
+	if(UMA[18] < MA[18]) UMA[18] = MA[18];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[30] = qmean;		// Coefficient of variation
 	if(usemedian) MA[30] = dum;
 	LMA[30] = percentile(lb,nyrs,stdv);
 	UMA[30] = percentile(ub,nyrs,stdv);
-//	if(LMA30 > MA30) LMA30 = MA30;
-//	if(UMA30 < MA30) UMA30 = MA30;
+	if(LMA[30] > MA[30]) LMA[30] = MA[30];
+	if(UMA[30] < MA[30]) UMA[30] = MA[30];
 
 // August
 	for(i=0;i<nyrs;i++)
@@ -649,16 +661,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[19] = qmedian;
 	LMA[19] = percentile(lb,nyrs,ydata);
 	UMA[19] = percentile(ub,nyrs,ydata);
-//	if(LMA19 > MA19) LMA19 = MA19;
-//	if(UMA19 < MA19) UMA19 = MA19;
+	if(LMA[19] > MA[19]) LMA[19] = MA[19];
+	if(UMA[19] < MA[19]) UMA[19] = MA[19];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[31] = qmean;		// Coefficient of variation
 	if(usemedian) MA[31] = dum;
 	LMA[31] = percentile(lb,nyrs,stdv);
 	UMA[31] = percentile(ub,nyrs,stdv);
-//	if(LMA31 > MA31) LMA31 = MA31;
-//	if(UMA31 < MA31) UMA31 = MA31;
+	if(LMA[31] > MA[31]) LMA[31] = MA[31];
+	if(UMA[31] < MA[31]) UMA[31] = MA[31];
 
 // September
 	for(i=0;i<nyrs;i++)
@@ -690,16 +702,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[20] = qmedian;
 	LMA[20] = percentile(lb,nyrs,ydata);
 	UMA[20] = percentile(ub,nyrs,ydata);
-//	if(LMA20 > MA20) LMA20 = MA20;
-//	if(UMA20 < MA20) UMA20 = MA20;
+	if(LMA[20] > MA[20]) LMA[20] = MA[20];
+	if(UMA[20] < MA[20]) UMA[20] = MA[20];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[32] = qmean;		// Coefficient of variation
 	if(usemedian) MA[32] = dum;
 	LMA[32] = percentile(lb,nyrs,stdv);
 	UMA[32] = percentile(ub,nyrs,stdv);
-//	if(LMA32 > MA32) LMA32 = MA32;
-//	if(UMA32 < MA32) UMA32 = MA32;
+	if(LMA[32] > MA[32]) LMA[32] = MA[32];
+	if(UMA[32] < MA[32]) UMA[32] = MA[32];
 
 // October
 	for(i=0;i<nyrs;i++)
@@ -731,16 +743,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[21] = qmedian;
 	LMA[21] = percentile(lb,nyrs,ydata);
 	UMA[21] = percentile(ub,nyrs,ydata);
-//	if(LMA21 > MA21) LMA21 = MA21;
-//	if(UMA21 < MA21) UMA21 = MA21;
+	if(LMA[21] > MA[21]) LMA[21] = MA[21];
+	if(UMA[21] < MA[21]) UMA[21] = MA[21];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[33] = qmean;		// Coefficient of variation
 	if(usemedian) MA[33] = dum;
 	LMA[33] = percentile(lb,nyrs,stdv);
 	UMA[33] = percentile(ub,nyrs,stdv);
-//	if(LMA33 > MA33) LMA33 = MA33;
-//	if(UMA33 < MA33) UMA33 = MA33;
+	if(LMA[33] > MA[33]) LMA[33] = MA[33];
+	if(UMA[33] < MA[33]) UMA[33] = MA[33];
 
 // November
 	for(i=0;i<nyrs;i++)
@@ -772,16 +784,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[22] = qmedian;
 	LMA[22] = percentile(lb,nyrs,ydata);
 	UMA[22] = percentile(ub,nyrs,ydata);
-//	if(LMA22 > MA22) LMA22 = MA22;
-//	if(UMA22 < MA22) UMA22 = MA22;
+	if(LMA[22] > MA[22]) LMA[22] = MA[22];
+	if(UMA[22] < MA[22]) UMA[22] = MA[22];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[34] = qmean;		// Coefficient of variation
 	if(usemedian) MA[34] = dum;
 	LMA[34] = percentile(lb,nyrs,stdv);
 	UMA[34] = percentile(ub,nyrs,stdv);
-//	if(LMA34 > MA34) LMA34 = MA34;
-//	if(UMA34 < MA34) UMA34 = MA34;
+	if(LMA[34] > MA[34]) LMA[34] = MA[34];
+	if(UMA[34] < MA[34]) UMA[34] = MA[34];
 
 // December
 	for(i=0;i<nyrs;i++)
@@ -813,16 +825,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MA[23] = qmedian;
 	LMA[23] = percentile(lb,nyrs,ydata);
 	UMA[23] = percentile(ub,nyrs,ydata);
-//	if(LMA23 > MA23) LMA23 = MA23;
-//	if(UMA23 < MA23) UMA23 = MA23;
+	if(LMA[23] > MA[23]) LMA[23] = MA[23];
+	if(UMA[23] < MA[23]) UMA[23] = MA[23];
 
 	stats(nyrs,stdv,&qmean,&dum,&qstdv);
 	MA[35] = qmean;		// Coefficient of variation
 	if(usemedian) MA[35] = dum;
 	LMA[35] = percentile(lb,nyrs,stdv);
 	UMA[35] = percentile(ub,nyrs,stdv);
-//	if(LMA35 > MA35) LMA35 = MA35;
-//	if(UMA35 < MA35) UMA35 = MA35;
+	if(LMA[35] > MA[35]) LMA[35] = MA[35];
+	if(UMA[35] < MA[35]) UMA[35] = MA[35];
 
 // Compute variability across monthly flows 1
 
@@ -989,8 +1001,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	LMA[41] = temp / carea;
 	temp = percentile(ub,nyrs,meana);
 	UMA[41] = temp / carea;
-//	if(LMA41 > MA41) LMA41 = MA41;
-//	if(UMA41 < MA41) UMA41 = MA41;
+	if(LMA[41] > MA[41]) LMA[41] = MA[41];
+	if(UMA[41] < MA[41]) UMA[41] = MA[41];
 
 // Compute the variability across annual flows
 
@@ -1076,8 +1088,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[1] = qmedian;
 	LML[1] = percentile(lb,nyrs,mdata);
 	UML[1] = percentile(ub,nyrs,mdata);
-//	if(LML[1] > ML[1]) LML[1] = ML[1];
-//	if(UML[1] < ML[1]) UML[1] = ML[1];
+	if(LML[1] > ML[1]) LML[1] = ML[1];
+	if(UML[1] < ML[1]) UML[1] = ML[1];
 
 // February
     nmv = 0;
@@ -1094,8 +1106,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[2] = qmedian;
 	LML[2] = percentile(lb,nyrs,mdata);
 	UML[2] = percentile(ub,nyrs,mdata);
-//	if(LML[2] > ML[2]) LML[2] = ML[2];
-//	if(UML[2] < ML[2]) UML[2] = ML[2];
+	if(LML[2] > ML[2]) LML[2] = ML[2];
+	if(UML[2] < ML[2]) UML[2] = ML[2];
 
 // March
     nmv = 0;
@@ -1112,8 +1124,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[3] = qmedian;
 	LML[3] = percentile(lb,nyrs,mdata);
 	UML[3] = percentile(ub,nyrs,mdata);
-//	if(LML[3] > ML[3]) LML[3] = ML[3];
-//	if(UML[3] < ML[3]) UML[3] = ML[3];
+	if(LML[3] > ML[3]) LML[3] = ML[3];
+	if(UML[3] < ML[3]) UML[3] = ML[3];
 
 // April
     nmv = 0;
@@ -1130,8 +1142,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[4] = qmedian;
 	LML[4] = percentile(lb,nyrs,mdata);
 	UML[4] = percentile(ub,nyrs,mdata);
-//	if(LML[4] > ML[4]) LML[4] = ML[4];
-//	if(UML[4] < ML[4]) UML[4] = ML[4];
+	if(LML[4] > ML[4]) LML[4] = ML[4];
+	if(UML[4] < ML[4]) UML[4] = ML[4];
 
 // May
     nmv = 0;
@@ -1148,8 +1160,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[5] = qmedian;
 	LML[5] = percentile(lb,nyrs,mdata);
 	UML[5] = percentile(ub,nyrs,mdata);
-//	if(LML[5] > ML[5]) LML[5] = ML[5];
-//	if(UML[5] < ML[5]) UML[5] = ML[5];
+	if(LML[5] > ML[5]) LML[5] = ML[5];
+	if(UML[5] < ML[5]) UML[5] = ML[5];
 
 // June
     nmv = 0;
@@ -1166,8 +1178,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[6] = qmedian;
 	LML[6] = percentile(lb,nyrs,mdata);
 	UML[6] = percentile(ub,nyrs,mdata);
-//	if(LML[6] > ML[6]) LML[6] = ML[6];
-//	if(UML[6] < ML[6]) UML[6] = ML[6];
+	if(LML[6] > ML[6]) LML[6] = ML[6];
+	if(UML[6] < ML[6]) UML[6] = ML[6];
 
 // July
     nmv = 0;
@@ -1184,8 +1196,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[7] = qmedian;
 	LML[7] = percentile(lb,nyrs,mdata);
 	UML[7] = percentile(ub,nyrs,mdata);
-//	if(LML[7] > ML[7]) LML[7] = ML[7];
-//	if(UML[7] < ML[7]) UML[7] = ML[7];
+	if(LML[7] > ML[7]) LML[7] = ML[7];
+	if(UML[7] < ML[7]) UML[7] = ML[7];
 
 // August
     nmv = 0;
@@ -1202,8 +1214,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[8] = qmedian;
 	LML[8] = percentile(lb,nyrs,mdata);
 	UML[8] = percentile(ub,nyrs,mdata);
-//	if(LML[8] > ML[8]) LML[8] = ML[8];
-//	if(UML[8] < ML[8]) UML[8] = ML[8];
+	if(LML[8] > ML[8]) LML[8] = ML[8];
+	if(UML[8] < ML[8]) UML[8] = ML[8];
 
 // September
     nmv = 0;
@@ -1220,8 +1232,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[9] = qmedian;
 	LML[9] = percentile(lb,nyrs,mdata);
 	UML[9] = percentile(ub,nyrs,mdata);
-//	if(LML[9] > ML[9]) LML[9] = ML[9];
-//	if(UML[9] < ML[9]) UML[9] = ML[9];
+	if(LML[9] > ML[9]) LML[9] = ML[9];
+	if(UML[9] < ML[9]) UML[9] = ML[9];
 
 // October
     nmv = 0;
@@ -1238,8 +1250,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[10] = qmedian;
 	LML[10] = percentile(lb,nyrs,mdata);
 	UML[10] = percentile(ub,nyrs,mdata);
-//	if(LML[10] > ML[10]) LML[10] = ML[10];
-//	if(UML[10] < ML[10]) UML[10] = ML[10];
+	if(LML[10] > ML[10]) LML[10] = ML[10];
+	if(UML[10] < ML[10]) UML[10] = ML[10];
 
 // November
     nmv = 0;
@@ -1256,8 +1268,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[11] = qmedian;
 	LML[11] = percentile(lb,nyrs,mdata);
 	UML[11] = percentile(ub,nyrs,mdata);
-//	if(LML[11] > ML[11]) LML[11] = ML[11];
-//	if(UML[11] < ML[11]) UML[11] = ML[11];
+	if(LML[11] > ML[11]) LML[11] = ML[11];
+	if(UML[11] < ML[11]) UML[11] = ML[11];
 
 // December
     nmv = 0;
@@ -1274,8 +1286,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[12] = qmedian;
 	LML[12] = percentile(lb,nyrs,mdata);
 	UML[12] = percentile(ub,nyrs,mdata);
-//	if(LML[12] > ML[12]) LML[12] = ML[12];
-//	if(UML[12] < ML[12]) UML[12] = ML[12];
+	if(LML[12] > ML[12]) LML[12] = ML[12];
+	if(UML[12] < ML[12]) UML[12] = ML[12];
 
 
 // Compute the variability across minimum monthly flows
@@ -1352,8 +1364,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	ML[14] = qmean;
 	LML[14] = percentile(lb,nyrs,total3);
 	UML[14] = percentile(ub,nyrs,total3);
-//	if(LML[14] > ML[14]) LML[14] = ML[14];
-//	if(UML[14] < ML[14]) UML[14] = ML[14];
+	if(LML[14] > ML[14]) LML[14] = ML[14];
+	if(UML[14] < ML[14]) UML[14] = ML[14];
 
 // Compute the median of annual minimum flows 2
 
@@ -1363,8 +1375,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	ML[16] = qmedian;
 	LML[16] = LML[14];
 	UML[16] = UML[14];
-//	if(LML[16] > ML[16]) LML[16] = ML[16];
-//	if(UML[16] < ML[16]) UML[16] = ML[16];
+	if(LML[16] > ML[16]) LML[16] = ML[16];
+	if(UML[16] < ML[16]) UML[16] = ML[16];
 
 // Compute the low flow index
 
@@ -1376,8 +1388,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[15] = qmedian;
 	LML[15] = percentile(lb,nyrs,ydata);
 	UML[15] = percentile(ub,nyrs,ydata);
-//	if(LML[15] > ML[15]) LML[15] = ML[15];
-//	if(UML[15] < ML[15]) UML[15] = ML[15];
+	if(LML[15] > ML[15]) LML[15] = ML[15];
+	if(UML[15] < ML[15]) UML[15] = ML[15];
 
 // Recompute the mean annual flows
 
@@ -1431,8 +1443,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[17] = qmedian;
 	LML[17] = percentile(lb,nyrs,mdata);
 	UML[17] = percentile(ub,nyrs,mdata);
-//	if(LML[17] > ML[17]) LML[17] = ML[17];
-//	if(UML[17] < ML[17]) UML[17] = ML[17];
+	if(LML[17] > ML[17]) LML[17] = ML[17];
+	if(UML[17] < ML[17]) UML[17] = ML[17];
 
 // ML[18]		Variability in base flow index 1.  Compute the standard deviation for the ratios of
 //			minimum 7-day moving average flows to mean annual flows for each year.  ML[18] is the
@@ -1459,8 +1471,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) ML[19] = 100*qmedian;
 	LML[19] = 100*percentile(lb,nyrs,mdata);
 	UML[19] = 100*percentile(ub,nyrs,mdata);
-//	if(LML[19] > ML[19]) LML[19] = ML[19];
-//	if(UML[19] < ML[19]) UML[19] = ML[19];
+	if(LML[19] > ML[19]) LML[19] = ML[19];
+	if(UML[19] < ML[19]) UML[19] = ML[19];
 
 // Compute the Baseflow Index 3  (ML[20], Ratio of baseflow volume to total flow volume)
 
@@ -1632,8 +1644,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	LML[22] = temp / carea;
 	temp = percentile(ub,nyrs,minaq);
 	UML[22] = temp / carea;
-//	if(LML[22] > ML[22]) LML[22] = ML[22];
-//	if(UML[22] < ML[22]) UML[22] = ML[22];
+	if(LML[22] > ML[22]) LML[22] = ML[22];
+	if(UML[22] < ML[22]) UML[22] = ML[22];
 
 //***************   High flow conditions  **************************
 
@@ -1685,8 +1697,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[1] = qmedian;
 	LMH[1] = percentile(lb,nyrs,mdata);
 	UMH[1] = percentile(ub,nyrs,mdata);
-//	if(LMH[1] > MH[1]) LMH[1] = MH[1];
-//	if(UMH[1] < MH[1]) UMH[1] = MH[1];
+	if(LMH[1] > MH[1]) LMH[1] = MH[1];
+	if(UMH[1] < MH[1]) UMH[1] = MH[1];
 
 // February
 
@@ -1704,8 +1716,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[2] = qmedian;
 	LMH[2] = percentile(lb,nyrs,mdata);
 	UMH[2] = percentile(ub,nyrs,mdata);
-//	if(LMH[2] > MH[2]) LMH[2] = MH[2];
-//	if(UMH[2] < MH[2]) UMH[2] = MH[2];
+	if(LMH[2] > MH[2]) LMH[2] = MH[2];
+	if(UMH[2] < MH[2]) UMH[2] = MH[2];
 
 // March
 
@@ -1723,8 +1735,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[3] = qmedian;
 	LMH[3] = percentile(lb,nyrs,mdata);
 	UMH[3] = percentile(ub,nyrs,mdata);
-//	if(LMH[3] > MH[3]) LMH[3] = MH[3];
-//	if(UMH[3] < MH[3]) UMH[3] = MH[3];
+	if(LMH[3] > MH[3]) LMH[3] = MH[3];
+	if(UMH[3] < MH[3]) UMH[3] = MH[3];
 
 // April
 
@@ -1742,8 +1754,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[4] = qmedian;
 	LMH[4] = percentile(lb,nyrs,mdata);
 	UMH[4] = percentile(ub,nyrs,mdata);
-//	if(LMH[4] > MH[4]) LMH[4] = MH[4];
-//	if(UMH[4] < MH[4]) UMH[4] = MH[4];
+	if(LMH[4] > MH[4]) LMH[4] = MH[4];
+	if(UMH[4] < MH[4]) UMH[4] = MH[4];
 
 // May
 
@@ -1761,8 +1773,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[5] = qmedian;
 	LMH[5] = percentile(lb,nyrs,mdata);
 	UMH[5] = percentile(ub,nyrs,mdata);
-//	if(LMH[5] > MH[5]) LMH[5] = MH[5];
-//	if(UMH[5] < MH[5]) UMH[5] = MH[5];
+	if(LMH[5] > MH[5]) LMH[5] = MH[5];
+	if(UMH[5] < MH[5]) UMH[5] = MH[5];
 
 // June
 
@@ -1780,8 +1792,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[6] = qmedian;
 	LMH[6] = percentile(lb,nyrs,mdata);
 	UMH[6] = percentile(ub,nyrs,mdata);
-//	if(LMH[6] > MH[6]) LMH[6] = MH[6];
-//	if(UMH[6] < MH[6]) UMH[6] = MH[6];
+	if(LMH[6] > MH[6]) LMH[6] = MH[6];
+	if(UMH[6] < MH[6]) UMH[6] = MH[6];
 
 // July
 
@@ -1799,8 +1811,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[7] = qmedian;
 	LMH[7] = percentile(lb,nyrs,mdata);
 	UMH[7] = percentile(ub,nyrs,mdata);
-//	if(LMH[7] > MH[7]) LMH[7] = MH[7];
-//	if(UMH[7] < MH[7]) UMH[7] = MH[7];
+	if(LMH[7] > MH[7]) LMH[7] = MH[7];
+	if(UMH[7] < MH[7]) UMH[7] = MH[7];
 
 // August
 
@@ -1818,8 +1830,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[8] = qmedian;
 	LMH[8] = percentile(lb,nyrs,mdata);
 	UMH[8] = percentile(ub,nyrs,mdata);
-//	if(LMH[8] > MH[8]) LMH[8] = MH[8];
-//	if(UMH[8] < MH[8]) UMH[8] = MH[8];
+	if(LMH[8] > MH[8]) LMH[8] = MH[8];
+	if(UMH[8] < MH[8]) UMH[8] = MH[8];
 
 // September
 
@@ -1837,8 +1849,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[9] = qmedian;
 	LMH[9] = percentile(lb,nyrs,mdata);
 	UMH[9] = percentile(ub,nyrs,mdata);
-//	if(LMH[9] > MH[9]) LMH[9] = MH[9];
-//	if(UMH[9] < MH[9]) UMH[9] = MH[9];
+	if(LMH[9] > MH[9]) LMH[9] = MH[9];
+	if(UMH[9] < MH[9]) UMH[9] = MH[9];
 
 // October
 
@@ -1856,8 +1868,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[10] = qmedian;
 	LMH[10] = percentile(lb,nyrs,mdata);
 	UMH[10] = percentile(ub,nyrs,mdata);
-//	if(LMH[10] > MH[10]) LMH[10] = MH[10];
-//	if(UMH[10] < MH[10]) UMH[10] = MH[10];
+	if(LMH[10] > MH[10]) LMH[10] = MH[10];
+	if(UMH[10] < MH[10]) UMH[10] = MH[10];
 
 // November
 
@@ -1875,8 +1887,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[11] = qmedian;
 	LMH[11] = percentile(lb,nyrs,mdata);
 	UMH[11] = percentile(ub,nyrs,mdata);
-//	if(LMH[11] > MH[11]) LMH[11] = MH[11];
-//	if(UMH[11] < MH[11]) UMH[11] = MH[11];
+	if(LMH[11] > MH[11]) LMH[11] = MH[11];
+	if(UMH[11] < MH[11]) UMH[11] = MH[11];
 
 // December
 
@@ -1894,8 +1906,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) MH[12] = qmedian;
 	LMH[12] = percentile(lb,nyrs,mdata);
 	UMH[12] = percentile(ub,nyrs,mdata);
-//	if(LMH[12] > MH[12]) LMH[12] = MH[12];
-//	if(UMH[12] < MH[12]) UMH[12] = MH[12];
+	if(LMH[12] > MH[12]) LMH[12] = MH[12];
+	if(UMH[12] < MH[12]) UMH[12] = MH[12];
 
 // Compute the variability across maximum monthly flows
 
@@ -1960,8 +1972,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	MH[14] = qmedian;
 	LMH[14] = percentile(lb,nyrs,total3);
 	UMH[14] = percentile(ub,nyrs,total3);
-//	if(LMH[14] > MH[14]) LMH[14] = MH[14];
-//	if(UMH[14] < MH[14]) UMH[14] = MH[14];
+	if(LMH[14] > MH[14]) LMH[14] = MH[14];
+	if(UMH[14] < MH[14]) UMH[14] = MH[14];
 
 // Compute the high flow discharge metrics
 
@@ -2075,8 +2087,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	LMH[20] = temp / carea;
 	temp = percentile(ub,nyrs,maxaq);
 	UMH[20] = temp / carea;
-//	if(LMH[20] > MH[20]) LMH[20] = MH[20];
-//	if(UMH[20] < MH[20]) UMH[20] = MH[20];
+	if(LMH[20] > MH[20]) LMH[20] = MH[20];
+	if(UMH[20] < MH[20]) UMH[20] = MH[20];
 
 // Compute the high volume flow metrics
 
@@ -2144,8 +2156,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		UMH[21] = UMH[21] / MA[2];
 	else
 		UMH[21] = 999999;
-//	if(LMH[21] > MH[21]) LMH[21] = MH[21];
-//	if(UMH[21] < MH[21]) UMH[21] = MH[21];
+	if(LMH[21] > MH[21]) LMH[21] = MH[21];
+	if(UMH[21] < MH[21]) UMH[21] = MH[21];
 
 	threshold = 3.*MA[2];
 	nmv = 0;
@@ -2207,8 +2219,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		UMH[22] = UMH[22] / MA[2];
 	else
 		UMH[22] = 999999;
-//	if(LMH[22] > MH[22]) LMH[22] = MH[22];
-//	if(UMH[22] < MH[22]) UMH[22] = MH[22];
+	if(LMH[22] > MH[22]) LMH[22] = MH[22];
+	if(UMH[22] < MH[22]) UMH[22] = MH[22];
 
 	threshold = 7.*MA[2];
 	nmv = 0;
@@ -2270,8 +2282,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		UMH[23] = UMH[23] / MA[2];
 	else
 		UMH[23] = 999999;
-//	if(LMH[23] > MH[23]) LMH[23] = MH[23];
-//	if(UMH[23] < MH[23]) UMH[23] = MH[23];
+	if(LMH[23] > MH[23]) LMH[23] = MH[23];
+	if(UMH[23] < MH[23]) UMH[23] = MH[23];
 
 // Compute high peak flow 1 metrics
 
@@ -2314,8 +2326,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(MA[2] != 0.) LMH[24] = temp / MA[2];
 	temp = percentile(ub,nevents,mdata);
 	if(MA[2] != 0.) UMH[24] = temp / MA[2];
-//	if(LMH[24] > MH[24]) LMH[24] = MH[24];
-//	if(UMH[24] < MH[24]) UMH[24] = MH[24];
+	if(LMH[24] > MH[24]) LMH[24] = MH[24];
+	if(UMH[24] < MH[24]) UMH[24] = MH[24];
 
 
 	threshold = 3.*MA[2];
@@ -2357,8 +2369,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(MA[2] != 0.) LMH[25] = temp / MA[2];
 	temp = percentile(ub,nevents,mdata);
 	if(MA[2] != 0.) UMH[25] = temp / MA[2];
-//	if(LMH[25] > MH[25]) LMH[25] = MH[25];
-//	if(UMH[25] < MH[25]) UMH[25] = MH[25];
+	if(LMH[25] > MH[25]) LMH[25] = MH[25];
+	if(UMH[25] < MH[25]) UMH[25] = MH[25];
 
 	threshold = 7.*MA[2];
 	nevents = 0;
@@ -2399,8 +2411,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(MA[2] != 0.) LMH[26] = temp / MA[2];
 	temp = percentile(ub,nevents,mdata);
 	if(MA[2] != 0.) UMH[26] = temp / MA[2];
-//	if(LMH[26] > MH[26]) LMH[26] = MH[26];
-//	if(UMH[26] < MH[26]) UMH[26] = MH[26];
+	if(LMH[26] > MH[26]) LMH[26] = MH[26];
+	if(UMH[26] < MH[26]) UMH[26] = MH[26];
 
 // Compute the high peak flow 2 metric
 
@@ -2444,8 +2456,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(MA[2] != 0.) LMH[27] = temp / MA[2];
 	temp = percentile(ub,nevents,mdata);
 	if(MA[2] != 0.) UMH[27] = temp / MA[2];
-//	if(LMH[27] > MH[27]) LMH[27] = MH[27];
-//	if(UMH[27] < MH[27]) UMH[27] = MH[27];
+	if(LMH[27] > MH[27]) LMH[27] = MH[27];
+	if(UMH[27] < MH[27]) UMH[27] = MH[27];
 
 //******************  Frequency of flow events  ********************************
 
@@ -2495,8 +2507,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FL[1] = qmedian;
 	LFL[1] = percentile(lb,nyrs,np);
 	UFL[1] = percentile(ub,nyrs,np);
-//	if(LFL[1] > FL[1]) LFL[1] = FL[1];
-//	if(UFL[1] < FL[1]) UFL[1] = FL[1];
+	if(LFL[1] > FL[1]) LFL[1] = FL[1];
+	if(UFL[1] < FL[1]) UFL[1] = FL[1];
 
 // FL[2]		Variability in low pulse count.  Compute the standard deviation in the annual pulse counts for
 //			FL[1].  FL[2] is 100 times the standard deviation divided by the mean pulse count (FL[1]).  (%)
@@ -2530,8 +2542,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FL[3] = qmedian;
 	LFL[3] = percentile(lb,nyrs,np);
 	UFL[3] = percentile(ub,nyrs,np);
-//	if(LFL[3] > FL[3]) LFL[3] = FL[3];
-//	if(UFL[3] < FL[3]) UFL[3] = FL[3];
+	if(LFL[3] > FL[3]) LFL[3] = FL[3];
+	if(UFL[3] < FL[3]) UFL[3] = FL[3];
 
 //			printf("YEAR: %i  DAY: %i  VALUE: %12.3f\n", i,j,q[i][j]);
 
@@ -2583,8 +2595,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[1] = qmedian;
 	LFH[1] = percentile(lb,nyrs,np);
 	UFH[1] = percentile(ub,nyrs,np);
-//	if(LFH[1] > FH[1]) LFH[1] = FH[1];
-//	if(UFH[1] < FH[1]) UFH[1] = FH[1];
+	if(LFH[1] > FH[1]) LFH[1] = FH[1];
+	if(UFH[1] < FH[1]) UFH[1] = FH[1];
 
 // FH[2]		Variability in high pulse count 1.  Compute the standard deviation in the annual pulse counts for
 //			FH[1].  FH[2] is 100 times the standard deviation divided by the mean pulse count (FH[1]).  (%)
@@ -2621,8 +2633,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[3] = qmedian;
 	LFH[3] = percentile(lb,nyrs,np);
 	UFH[3] = percentile(ub,nyrs,np);
-//	if(LFH[3] > FH[3]) LFH[3] = FH[3];
-//	if(UFH[3] < FH[3]) UFH[3] = FH[3];
+	if(LFH[3] > FH[3]) LFH[3] = FH[3];
+	if(UFH[3] < FH[3]) UFH[3] = FH[3];
 
 	threshold = 7.*MA[2];
 	for(i=0;i<nyrs;i++)
@@ -2653,8 +2665,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[4] = qmedian;
 	LFH[4] = percentile(lb,nyrs,np);
 	UFH[4] = percentile(ub,nyrs,np);
-//	if(LFH[4] > FH[4]) LFH[4] = FH[4];
-//	if(UFH[4] < FH[4]) UFH[4] = FH[4];
+	if(LFH[4] > FH[4]) LFH[4] = FH[4];
+	if(UFH[4] < FH[4]) UFH[4] = FH[4];
 
 // Compute the number of events (pulses) per year above threshold
 
@@ -2687,8 +2699,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[5] = qmedian;
 	LFH[5] = percentile(lb,nyrs,np);
 	UFH[5] = percentile(ub,nyrs,np);
-//	if(LFH[5] > FH[5]) LFH[5] = FH[5];
-//	if(UFH[5] < FH[5]) UFH[5] = FH[5];
+	if(LFH[5] > FH[5]) LFH[5] = FH[5];
+	if(UFH[5] < FH[5]) UFH[5] = FH[5];
 
 // Compute the number of events (pulses) per year above threshold
 
@@ -2721,8 +2733,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[6] = qmedian;
 	LFH[6] = percentile(lb,nyrs,np);
 	UFH[6] = percentile(ub,nyrs,np);
-//	if(LFH[6] > FH[6]) LFH[6] = FH[6];
-//	if(UFH[6] < FH[6]) UFH[6] = FH[6];
+	if(LFH[6] > FH[6]) LFH[6] = FH[6];
+	if(UFH[6] < FH[6]) UFH[6] = FH[6];
 
 // Compute the number of events (pulses) per year above threshold
 
@@ -2755,8 +2767,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[7] = qmedian;
 	LFH[7] = percentile(lb,nyrs,np);
 	UFH[7] = percentile(ub,nyrs,np);
-//	if(LFH[7] > FH[7]) LFH[7] = FH[7];
-//	if(UFH[7] < FH[7]) UFH[7] = FH[7];
+	if(LFH[7] > FH[7]) LFH[7] = FH[7];
+	if(UFH[7] < FH[7]) UFH[7] = FH[7];
 
 // Compute the number of events (pulses) per year above threshold
 
@@ -2790,8 +2802,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[8] = qmedian;
 	LFH[8] = percentile(lb,nyrs,np);
 	UFH[8] = percentile(ub,nyrs,np);
-//	if(LFH[8] > FH[8]) LFH[8] = FH[8];
-//	if(UFH[8] < FH[8]) UFH[8] = FH[8];
+	if(LFH[8] > FH[8]) LFH[8] = FH[8];
+	if(UFH[8] < FH[8]) UFH[8] = FH[8];
 
 // Compute the number of events (pulses) per year above threshold
 
@@ -2824,8 +2836,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[9] = qmedian;
 	LFH[9] = percentile(lb,nyrs,np);
 	UFH[9] = percentile(ub,nyrs,np);
-//	if(LFH[9] > FH[9]) LFH[9] = FH[9];
-//	if(UFH[9] < FH[9]) UFH[9] = FH[9];
+	if(LFH[9] > FH[9]) LFH[9] = FH[9];
+	if(UFH[9] < FH[9]) UFH[9] = FH[9];
 
 // Compute the threshold as the median of the yearly minimum flows
 
@@ -2861,8 +2873,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) FH[10] = qmedian;
 	LFH[10] = percentile(lb,nyrs,np);
 	UFH[10] = percentile(ub,nyrs,np);
-//	if(LFH[10] > FH[10]) LFH[10] = FH[10];
-//	if(UFH[10] < FH[10]) UFH[10] = FH[10];
+	if(LFH[10] > FH[10]) LFH[10] = FH[10];
+	if(UFH[10] < FH[10]) UFH[10] = FH[10];
 
 // Compute the number of events having a magnitude > that of a 1.67 year flood
 // (percentile of 60%)
@@ -3022,8 +3034,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DL[1] = qmedian;
 	LDL[1] = percentile(lb,nyrs,mdata);
 	UDL[1] = percentile(ub,nyrs,mdata);
-//	if(LDL[1] > DL[1]) LDL[1] = DL[1];
-//	if(UDL[1] < DL[1]) UDL[1] = DL[1];
+	if(LDL[1] > DL[1]) LDL[1] = DL[1];
+	if(UDL[1] < DL[1]) UDL[1] = DL[1];
 
 // DL[6]		Variability of annual minimum of 1-day moving average flows.  Compute the standard deviation
 //			for the minimum 1-day moving averages.  DL[6] is 100 times the standard deviation divided by
@@ -3062,8 +3074,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DL[2] = qmedian;
 	LDL[2] = percentile(lb,nyrs,mdata);
 	UDL[2] = percentile(ub,nyrs,mdata);
-//	if(LDL[2] > DL[2]) LDL[2] = DL[2];
-//	if(UDL[2] < DL[2]) UDL[2] = DL[2];
+	if(LDL[2] > DL[2]) LDL[2] = DL[2];
+	if(UDL[2] < DL[2]) UDL[2] = DL[2];
 
 // DL[7]		Variability of annual minimum of 3-day moving average flows.  Compute the standard deviation
 //			for the minimum 3-day moving averages.  DL[7] is 100 times the standard deviation divided by
@@ -3102,8 +3114,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DL[3] = qmedian;
 	LDL[3] = percentile(lb,nyrs,mdata);
 	UDL[3] = percentile(ub,nyrs,mdata);
-//	if(LDL[3] > DL[3]) LDL[3] = DL[3];
-//	if(UDL[3] < DL[3]) UDL[3] = DL[3];
+	if(LDL[3] > DL[3]) LDL[3] = DL[3];
+	if(UDL[3] < DL[3]) UDL[3] = DL[3];
 
 // DL[8]		Variability of annual minimum of 7-day moving average flows.  Compute the standard deviation
 //			for the minimum 7-day moving averages.  DL[8] is 100 times the standard deviation divided by
@@ -3142,8 +3154,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DL[4] = qmedian;
 	LDL[4] = percentile(lb,nyrs,mdata);
 	UDL[4] = percentile(ub,nyrs,mdata);
-//	if(LDL[4] > DL[4]) LDL[4] = DL[4];
-//	if(UDL[4] < DL[4]) UDL[4] = DL[4];
+	if(LDL[4] > DL[4]) LDL[4] = DL[4];
+	if(UDL[4] < DL[4]) UDL[4] = DL[4];
 
 // DL[9]		Variability of annual minimum of 30-day moving average flows.  Compute the standard
 //			deviation for the minimum 30-day moving averages.  DL[9] is 100 times the standard deviation
@@ -3182,8 +3194,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DL[5] = qmedian;
 	LDL[5] = percentile(lb,nyrs,mdata);
 	UDL[5] = percentile(ub,nyrs,mdata);
-//	if(LDL[5] > DL[5]) LDL[5] = DL[5];
-//	if(UDL[5] < DL[5]) UDL[5] = DL[5];
+	if(LDL[5] > DL[5]) LDL[5] = DL[5];
+	if(UDL[5] < DL[5]) UDL[5] = DL[5];
 
 // DL[10]		Variability of annual minimum of 90-day moving average flows.  Compute the standard
 //			deviation for the minimum 90-day moving averages.  DL[10] is 100 times the standard deviation
@@ -3212,8 +3224,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	temp = percentile(ub,nyrs,mdata);
 	UDL[11] = 999999;
 	if(MA[2] != 0.) UDL[11] = temp / MA[2];
-//	if(LDL[11] > DL[11]) LDL[11] = DL[11];
-//	if(UDL[11] < DL[11]) UDL[11] = DL[11];
+	if(LDL[11] > DL[11]) LDL[11] = DL[11];
+	if(UDL[11] < DL[11]) UDL[11] = DL[11];
 
 	for(i=0;i<nyrs;i++)		// 7 day minima
 	{
@@ -3248,8 +3260,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	temp = percentile(ub,nyrs,mdata);
 	UDL[12] = 999999;
 	if(MA[2] != 0.) UDL[12] = temp / MA[2];
-//	if(LDL[12] > DL[12]) LDL[12] = DL[12];
-//	if(UDL[12] < DL[12]) UDL[12] = DL[12];
+	if(LDL[12] > DL[12]) LDL[12] = DL[12];
+	if(UDL[12] < DL[12]) UDL[12] = DL[12];
 
 	for(i=0;i<nyrs;i++)		// 30 day minima
 	{
@@ -3284,8 +3296,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	temp = percentile(ub,nyrs,mdata);
 	UDL[13] = 999999;
 	if(MA[2] != 0.) UDL[13] = temp / MA[2];
-//	if(LDL[13] > DL[13]) LDL[13] = DL[13];
-//	if(UDL[13] < DL[13]) UDL[13] = DL[13];
+	if(LDL[13] > DL[13]) LDL[13] = DL[13];
+	if(UDL[13] < DL[13]) UDL[13] = DL[13];
 
 // Compute low exceedence flows (75% and 90%)
 
@@ -3328,8 +3340,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	DL[16] = qmedian;
 	LDL[16] = percentile(lb,nmv,mdata);
 	UDL[16] = percentile(ub,nmv,mdata);
-//	if(LDL[16] > DL[16]) LDL[16] = DL[16];
-//	if(UDL[16] < DL[16]) UDL[16] = DL[16];
+	if(LDL[16] > DL[16]) LDL[16] = DL[16];
+	if(UDL[16] < DL[16]) UDL[16] = DL[16];
 
 // Compute variability in low flow pulse duration (IHA) - DL[17]
 
@@ -3363,8 +3375,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DL[18] = qmedian;
 	LDL[18] = percentile(lb,nyrs,mdata);
 	UDL[18] = percentile(ub,nyrs,mdata);
-//	if(LDL[18] > DL[18]) LDL[18] = DL[18];
-//	if(UDL[18] < DL[18]) UDL[18] = DL[18];
+	if(LDL[18] > DL[18]) LDL[18] = DL[18];
+	if(UDL[18] < DL[18]) UDL[18] = DL[18];
 
 // Compute variability in number of zero-flow days (IHA) - DL[19]
 
@@ -3409,8 +3421,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[1] = qmedian;
 	LDH[1] = percentile(lb,nyrs,mdata);
 	UDH[1] = percentile(ub,nyrs,mdata);
-//	if(LDH[1] > DH[1]) LDH[1] = DH[1];
-//	if(UDH[1] < DH[1]) UDH[1] = DH[1];
+	if(LDH[1] > DH[1]) LDH[1] = DH[1];
+	if(UDH[1] < DH[1]) UDH[1] = DH[1];
 
 // DH[6]		Variability of annual maximum of 1-day moving average flows.  Compute the standard deviation
 //			for the maximum 1-day moving averages.  DH[6] is 100 times the standard deviation divided by
@@ -3449,8 +3461,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[2] = qmedian;
 	LDH[2] = percentile(lb,nyrs,mdata);
 	UDH[2] = percentile(ub,nyrs,mdata);
-//	if(LDH[2] > DH[2]) LDH[2] = DH[2];
-//	if(UDH[2] < DH[2]) UDH[2] = DH[2];
+	if(LDH[2] > DH[2]) LDH[2] = DH[2];
+	if(UDH[2] < DH[2]) UDH[2] = DH[2];
 
 // DH[7]		Variability of annual maximum of 3-day moving average flows.  Compute the standard deviation
 //			for the maximum 3-day moving averages.  DH[7] is 100 times the standard deviation divided by
@@ -3489,8 +3501,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[3] = qmedian;
 	LDH[3] = percentile(lb,nyrs,mdata);
 	UDH[3] = percentile(ub,nyrs,mdata);
-//	if(LDH[3] > DH[3]) LDH[3] = DH[3];
-//	if(UDH[3] < DH[3]) UDH[3] = DH[3];
+	if(LDH[3] > DH[3]) LDH[3] = DH[3];
+	if(UDH[3] < DH[3]) UDH[3] = DH[3];
 
 // DH[8]		Variability of annual maximum of 7-day moving average flows.  Compute the standard deviation
 //			for the maximum 7-day moving averages.  DH[8] is 100 times the standard deviation divided by
@@ -3529,8 +3541,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[4] = qmedian;
 	LDH[4] = percentile(lb,nyrs,mdata);
 	UDH[4] = percentile(ub,nyrs,mdata);
-//	if(LDH[4] > DH[4]) LDH[4] = DH[4];
-//	if(UDH[4] < DH[4]) UDH[4] = DH[4];
+	if(LDH[4] > DH[4]) LDH[4] = DH[4];
+	if(UDH[4] < DH[4]) UDH[4] = DH[4];
 
 // DH[9]		Variability of annual maximum of 30-day moving average flows.  Compute the standard
 //			deviation for the maximum 30-day moving averages.  DH[9] is 100 times the standard deviation
@@ -3569,8 +3581,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[5] = qmedian;
 	LDH[5] = percentile(lb,nyrs,mdata);
 	UDH[5] = percentile(ub,nyrs,mdata);
-//	if(LDH[5] > DH[5]) LDH[5] = DH[5];
-//	if(UDH[5] < DH[5]) UDH[5] = DH[5];
+	if(LDH[5] > DH[5]) LDH[5] = DH[5];
+	if(UDH[5] < DH[5]) UDH[5] = DH[5];
 
 // DH[10]		Variability of annual maximum of 90-day moving average flows.  Compute the standard
 //			deviation for the maximum 90-day moving averages.  DH[10] is 100 times the standard deviation
@@ -3594,13 +3606,13 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	DH[11] = 999999;
 	if(MA[2] != 0.) DH[11] = qmean / MA[2];
 	temp = percentile(lb,nyrs,mdata);
-	LDH[11] = 999999;
+
 	if(MA[2] != 0.) LDH[11] = temp / MA[2];
 	temp = percentile(ub,nyrs,mdata);
-	UDH[11] = 999999;
+
 	if(MA[2] != 0.) UDH[11] = temp / MA[2];
-//	if(LDH[11] > DH[11]) LDH[11] = DH[11];
-//	if(UDH[11] < DH[11]) UDH[11] = DH[11];
+	if(LDH[11] > DH[11]) LDH[11] = DH[11];
+	if(UDH[11] < DH[11]) UDH[11] = DH[11];
 
 	for(i=0;i<nyrs;i++)		// 7 day maxima
 	{
@@ -3635,8 +3647,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	temp = percentile(ub,nyrs,mdata);
 	UDH[12] = 999999;
 	if(MA[2] != 0.) UDH[12] = temp / MA[2];
-//	if(LDH[12] > DH[12]) LDH[12] = DH[12];
-//	if(UDH[12] < DH[12]) UDH[12] = DH[12];
+	if(LDH[12] > DH[12]) LDH[12] = DH[12];
+	if(UDH[12] < DH[12]) UDH[12] = DH[12];
 
 	for(i=0;i<nyrs;i++)		// 30 day maxima
 	{
@@ -3671,8 +3683,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	temp = percentile(ub,nyrs,mdata);
 	UDH[13] = 999999;
 	if(MA[2] != 0.) UDH[13] = temp / MA[2];
-//	if(LDH[13] > DH[13]) LDH[13] = DH[13];
-//	if(UDH[13] < DH[13]) UDH[13] = DH[13];
+	if(LDH[13] > DH[13]) LDH[13] = DH[13];
+	if(UDH[13] < DH[13]) UDH[13] = DH[13];
 
 // Compute flood duration 1
 
@@ -3717,8 +3729,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	DH[15] = qmedian;
 	LDH[15] = percentile(lb,nmv,mdata);
 	UDH[15] = percentile(ub,nmv,mdata);
-//	if(LDH[15] > DH[15]) LDH[15] = DH[15];
-//	if(UDH[15] < DH[15]) UDH[15] = DH[15];
+	if(LDH[15] > DH[15]) LDH[15] = DH[15];
+	if(UDH[15] < DH[15]) UDH[15] = DH[15];
 
 // Compute variability in high flow pulse duration (IHA)
 
@@ -3773,8 +3785,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[17] = qmedian;
 	LDH[17] = percentile(lb,nmv,mdata);
 	UDH[17] = percentile(ub,nmv,mdata);
-//	if(LDH[17] > DH[17]) LDH[17] = DH[17];
-//	if(UDH[17] < DH[17]) UDH[17] = DH[17];
+	if(LDH[17] > DH[17]) LDH[17] = DH[17];
+	if(UDH[17] < DH[17]) UDH[17] = DH[17];
 
 	threshold = 3.*MA[2];
 	for(i=0;i<nyrs;i++)
@@ -3817,8 +3829,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[18] = qmedian;
 	LDH[18] = percentile(lb,nmv,mdata);
 	UDH[18] = percentile(ub,nmv,mdata);
-//	if(LDH[18] > DH[18]) LDH[18] = DH[18];
-//	if(UDH[18] < DH[18]) UDH[18] = DH[18];
+	if(LDH[18] > DH[18]) LDH[18] = DH[18];
+	if(UDH[18] < DH[18]) UDH[18] = DH[18];
 
 	threshold = 7.*MA[2];
 	for(i=0;i<nyrs;i++)
@@ -3861,8 +3873,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[19] = qmedian;
 	LDH[19] = percentile(lb,nmv,mdata);
 	UDH[19] = percentile(ub,nmv,mdata);
-//	if(LDH[19] > DH[19]) LDH[19] = DH[19];
-//	if(UDH[19] < DH[19]) UDH[19] = DH[19];
+	if(LDH[19] > DH[19]) LDH[19] = DH[19];
+	if(UDH[19] < DH[19]) UDH[19] = DH[19];
 
 // Compute high flow duration 2
 
@@ -3908,8 +3920,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[20] = qmedian;
 	LDH[20] = percentile(lb,nmv,mdata);
 	UDH[20] = percentile(ub,nmv,mdata);
-//	if(LDH[20] > DH[20]) LDH[20] = DH[20];
-//	if(UDH[20] < DH[20]) UDH[20] = DH[20];
+	if(LDH[20] > DH[20]) LDH[20] = DH[20];
+	if(UDH[20] < DH[20]) UDH[20] = DH[20];
 
 // DH[21]		High flow duration 2.  Compute the 25th percentile value for the entire set of flows.
 //			Compute the average duration of flow events with flows above a threshold equal to the 75th
@@ -3952,8 +3964,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) DH[21] = qmedian;
 	LDH[21] = percentile(lb,nmv,mdata);
 	UDH[21] = percentile(ub,nmv,mdata);
-//	if(LDH[21] > DH[21]) LDH[21] = DH[21];
-//	if(UDH[21] < DH[21]) UDH[21] = DH[21];
+	if(LDH[21] > DH[21]) LDH[21] = DH[21];
+	if(UDH[21] < DH[21]) UDH[21] = DH[21];
 
 // Compute flood interval
 
@@ -4650,8 +4662,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) RA[1] = qmedian;
 	LRA[1] = percentile(lb,nmv,mdata);
 	URA[1] = percentile(ub,nmv,mdata);
-//	if(LRA[1] > RA[1]) LRA[1] = RA[1];
-//	if(URA[1] < RA[1]) URA[1] = RA[1];
+	if(LRA[1] > RA[1]) LRA[1] = RA[1];
+	if(URA[1] < RA[1]) URA[1] = RA[1];
 
 // Compute variability in rise rate
 
@@ -4691,8 +4703,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) RA[3] = qmedian;
 	LRA[3] = percentile(lb,nmv,mdata);
 	URA[3] = percentile(ub,nmv,mdata);
-//	if(LRA[3] > RA[3]) LRA[3] = RA[3];
-//	if(URA[3] < RA[3]) URA[3] = RA[3];
+	if(LRA[3] > RA[3]) LRA[3] = RA[3];
+	if(URA[3] < RA[3]) URA[3] = RA[3];
 
 // Compute variability in fall rate
 
@@ -4739,8 +4751,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	RA[6] = qmedian;
 	LRA[6] = percentile(lb,nmv,mdata);
 	URA[6] = percentile(ub,nmv,mdata);
-//	if(LRA[6] > RA[6]) LRA[6] = RA[6];
-//	if(URA[6] < RA[6]) URA[6] = RA[6];
+	if(LRA[6] > RA[6]) LRA[6] = RA[6];
+	if(URA[6] < RA[6]) URA[6] = RA[6];
 
 // RA[7]		Change of flow.  Compute the log10 of the flows for the entire flow record.  Compute the change
 //			in log of flow for days in which the change is negative for the entire flow record.  RA[7] is the
@@ -4760,8 +4772,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	RA[7] = qmedian;
 	LRA[7] = percentile(lb,nmv,mdata);
 	URA[7] = percentile(ub,nmv,mdata);
-//	if(LRA[7] > RA[7]) LRA[7] = RA[7];
-//	if(URA[7] < RA[7]) URA[7] = RA[7];
+	if(LRA[7] > RA[7]) LRA[7] = RA[7];
+	if(URA[7] < RA[7]) URA[7] = RA[7];
 
 // Compute number of reversals
 
@@ -4812,8 +4824,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	if(usemedian) RA[8] = qmedian;
 	LRA[8] = percentile(lb,nyrs,np);
 	URA[8] = percentile(ub,nyrs,np);
-//	if(LRA[8] > RA[8]) LRA[8] = RA[8];
-//	if(URA[8] < RA[8]) URA[8] = RA[8];
+	if(LRA[8] > RA[8]) LRA[8] = RA[8];
+	if(URA[8] < RA[8]) URA[8] = RA[8];
 
 // Compute variability in reversals
 

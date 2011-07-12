@@ -2284,15 +2284,6 @@ subroutine pest_files(ifail,lastblock)
            if(dval.lt.weightmin) dval=weightmin
            if(dval.gt.weightmax) dval=weightmax
 
-
-           print *, im
-           print *, io
-           print *, "'"//trim(aname)//"'"
-           print *, gtable_g(io)%rValue
-           print *, dval
-           print *, "'"//trim(gtable_g(im)%name)//"'"
-
-
            write(iunit,1900) trim(aname),gtable_g(io)%rValue(j),dval,trim(gtable_g(im)%name)
          end do
        end do
