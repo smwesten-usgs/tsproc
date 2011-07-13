@@ -177,6 +177,7 @@ module tsp_data_structures
   integer LU_TSPROC_CONTROL,LU_OUT
   integer NumProcBloc_g,ILine_g,IProcSetting_g
   character*25 Context_g
+  character*25 sContextOverride_g
   character*40 CurrentBlock_g
   character*120 sInfile_g,sRecfile_g,sOutfile_g,sString_g
 

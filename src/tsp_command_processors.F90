@@ -2186,8 +2186,9 @@ subroutine Process_Settings(ifail)
          end if
          aoption=cline(left_word(1):right_word(1))
          call casetrans(aoption,'hi')
-         if(aoption.eq.'CONTEXT')then
-           if (context_g .ne. ' ') then
+
+         if( (aoption .eq. 'CONTEXT') )then
+           if (context_g .ne. ' ' .and. (len_trim(sContextOverride_g) == 0)) then
              call num2char(ILine_g,aline)
              call addquote(sInfile_g,sString_g)
              write(amessage,12) trim(aline), trim(sString_g)
@@ -2214,6 +2215,7 @@ subroutine Process_Settings(ifail)
            write(*,25) trim(Context_g)
            write(LU_REC,25) trim(Context_g)
 25         format(t5,'context ',a)
+
          else if(aoption.eq.'DATE_FORMAT')then
            call getfile(ierr,cline,datestr,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -2243,6 +2245,7 @@ subroutine Process_Settings(ifail)
              write(LU_REC,142)
 142          format(t5,'DATE_FORMAT mm/dd/yyyy')
            end if
+
          else if(aoption.eq.'END')then
            go to 100
          else
@@ -2257,13 +2260,14 @@ subroutine Process_Settings(ifail)
 
 100    continue
 
-       if (context_g .eq. ' ') then
+       if ( (context_g .eq. ' ') .and. (len_trim(sContextOverride_g) == 0) ) then
          call addquote(sInfile_g,sString_g)
          write(amessage,19) trim(sString_g)
 19       format('the SETTINGS block in file ',a,' does not contain ', &
-         'a Context_g keyword.')
+         'a Context keyword, and no context was provided at the command line.')
          go to 9800
        end if
+
        if(datestr.eq.' ')then
          call addquote(sInfile_g,sString_g)
          write(amessage,18) trim(sString_g)
@@ -2271,6 +2275,21 @@ subroutine Process_Settings(ifail)
          'DATE_FORMAT keyword.')
          go to 9800
        end if
+
+       if(len_trim(sContextOverride_g) > 0) then
+         context_g = trim(sContextOverride_g)
+         if(isspace(Context_g))then
+           write(amessage,41) trim(Context_g)
+41           format('space character in context name "',a,'"; context entered at the command line')
+             go to 9800
+         end if
+
+         write(*,42) trim(context_g)
+         write(LU_REC,42) trim(context_g)
+42       format(/,t5,'*** Context has been overridden from the command line; CONTEXT = "',a,'" ***',/)
+
+       endif
+
        IProcSetting_g=1
        write(*,120)
 120    format(t5,'Processing of SETTINGS block complete.')

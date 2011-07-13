@@ -60,7 +60,9 @@ subroutine openControlfile(sFilename, sRecfile)
        NumProcBloc_g=0
        ILine_g=0
        IProcSetting_g=0
+
        Context_g=' '
+
        tempseries_g%nterm=0
        call GetSysTimeDate(sDateStr,sDateStrPretty)
        call addquote(sInfile_g,sString_g)

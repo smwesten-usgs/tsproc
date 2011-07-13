@@ -29,6 +29,7 @@ program tsp_main
   vtable_g%active = lFALSE
   series_g%active = lFALSE
 
+  sContextOverride_g = ""
   iReturnCode = -1
 
   ! get number of command-line arguments
@@ -40,6 +41,14 @@ program tsp_main
     ! get actual values of the command-line arguments
     call GET_COMMAND_ARGUMENT(1,sInputFile)
     call GET_COMMAND_ARGUMENT(2,sRecFile)
+
+  elseif(iNumArgs == 3) then
+
+    lInteractive = lFALSE
+    ! get actual values of the command-line arguments
+    call GET_COMMAND_ARGUMENT(1,sContextOverride_g)
+    call GET_COMMAND_ARGUMENT(2,sInputFile)
+    call GET_COMMAND_ARGUMENT(3,sRecFile)
 
   end if
 

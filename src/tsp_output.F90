@@ -1579,7 +1579,7 @@ subroutine pest_files(ifail,lastblock)
 
 1300   continue
 
-       if(iodtable.eq.0) go to 1400
+       if(iodtable.eq.0) go to 4300
        do i=1,iodtable
          iout=iout+1
          im=iOutDtable_g(i)
