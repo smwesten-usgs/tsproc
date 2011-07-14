@@ -3176,543 +3176,543 @@ subroutine get_ufore_series(ifail)
 
 end subroutine get_ufore_series
 
-! subroutine get_wdm_series(ifail)
-!
-! ! -- Subroutine get_wdm_series reads a time series from a WDM file.
-!
-!        implicit none
-!
-!        integer, intent(out)   :: ifail
-!
-!        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
-!        icontext,nn,ss,i,wdmunit,iterm,dsn,jterm,j,hhd,nnd,ssd,secsd, &
-!        retcode,yyy1,yyy2,mmm1,mmm2,ddd1,ddd2,hhh1,hhh2,nnn1,nnn2,sss1,sss2, &
-!        begdays,begsecs,enddays,endsecs,ixcon,yy1flag,dd1a,mm1a,yy1a,hh1a,nn1a, &
-!        ss1a,yy2flag,dd2a,mm2a,yy2a,hh2a,nn2a,ss2a,ibd,ibs,itsecs,iacount
-!        integer lsdat(6),ledat(6),llsdat(6),lledat(6),tstep,tcode
-!        real filter,fspace,fval
-!        character*10 aname
-!        character*15 aline
-!        character*25 aoption
-!        character*120 afile
-!        character*25 acontext(MAXCONTEXT)
-!
-!        include 'cfbuff90.inc'
-! !       include 'CDRLOC90.INC'
-! !       include 'CTBLAB90.INC'
-! !       include 'CTSBUF90.INC'
-! !       include 'CWDMID90.INC'
-! !       include 'CWTSDS90.INC'
-! !       include 'inc_init.inc'
-!
-!        ifail=0
-!        currentblock_g='GET_SERIES_WDM'
-!
-!        write(*,10) trim(currentblock_g)
-!        write(LU_REC,10) trim(currentblock_g)
-! 10     format(/,' Processing ',a,' block....')
-!
-!        afile=' '
-!        aname=' '
-!        icontext=0
-!        yy1=-9999
-!        hh1=-9999
-!        yy2=-9999
-!        hh2=-9999
-!        hhd=-9999
-!        dsn=-99999999
-!        filter=-1.0e37
-!        ixcon=0
-!
-! ! -- The GET_SERIES_WDM block is first parsed.
-!
-!        do
-!          iLine_g=iLine_g+1
-!          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-!          if(cline.eq.' ') cycle
-!          if(cline(1:1).eq.'#') cycle
-!          call linesplit(ierr,2)
-!          if(ierr.ne.0)then
-!            call num2char(iLine_g,aline)
-!            call addquote(sInfile_g,sString_g)
-!            write(amessage,20) trim(aline),trim(sString_g)
-! 20         format('there should be 2 entries on line ',a,' of file ',a)
-!            go to 9800
-!          end if
-!          aoption=cline(left_word(1):right_word(1))
-!          call casetrans(aoption,'hi')
-!          if(aoption.ne.'CONTEXT')then
-!            call test_context(ierr,icontext,acontext)
-!            if(ierr.eq.-1)then
-!              call find_end(ifail)
-!              if(ifail.eq.1) go to 9800
-!              return
-!            else if(ierr.eq.1) then
-!              go to 9800
-!            end if
-!            ixcon=1
-!          end if
-!          if(aoption.eq.'FILE')then
-!            call get_file_name(ierr,afile)
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'DSN')then
-!            call char2num(ierr,cline(left_word(2):right_word(2)),dsn)
-!            if(ierr.ne.0)then
-!              call num2char(iLine_g,aline)
-!              call addquote(sInfile_g,sString_g)
-!              write(amessage,45) trim(aline),trim(sString_g)
-! 45           format('cannot read DSN from line ',a,' of file ',a)
-!              go to 9800
-!            end if
-!            call num2char(dsn,aline)
-!            write(*,55) trim(aline)
-!            write(LU_REC,55) trim(aline)
-! 55         format(t5,'DSN ',a)
-!          else if(aoption.eq.'DATE_1')then
-!            call get_date(ierr,dd1,mm1,yy1,'DATE_1')
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'DATE_2')then
-!            call get_date(ierr,dd2,mm2,yy2,'DATE_2')
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'TIME_1')then
-!            call get_time(ierr,hh1,nn1,ss1,'TIME_1')
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'TIME_2')then
-!            call get_time(ierr,hh2,nn2,ss2,'TIME_2')
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'DEF_TIME')then
-!            call get_time(ierr,hhd,nnd,ssd,'DEF_TIME')
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'NEW_SERIES_NAME')then
-!            call get_new_series_name(ierr,aname)
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'CONTEXT')then
-!            if(ixcon.ne.0)then
-!              call num2char(iLine_g,aline)
-!              call addquote(sInfile_g,sString_g)
-!              write(amessage,41) trim(aline),trim(sString_g)
-! 41           format('CONTEXT keyword in incorrect location at line ',a,' of file ',a)
-!              go to 9800
-!            end if
-!            call get_context(ierr,icontext,acontext)
-!            if(ierr.ne.0) go to 9800
-!          else if(aoption.eq.'FILTER')then
-!            call char2num(ierr,cline(left_word(2):right_word(2)),filter)
-!            if(ierr.ne.0)then
-!              call num2char(iLine_g,aline)
-!              call addquote(sInfile_g,sString_g)
-!              write(amessage,89) trim(aline),trim(sString_g)
-! 89           format('cannot read filter from line ',a,' of file ',a)
-!              go to 9800
-!            end if
-!            call num2char(filter,aline)
-!            write(*,86) cline(left_word(2):right_word(2))
-!            write(LU_REC,86) cline(left_word(2):right_word(2))
-! 86         format(t5,'FILTER ',a)
-!          else if(aoption.eq.'END')then
-!            go to 100
-!          else
-!            call num2char(iLine_g,aline)
-!            call addquote(sInfile_g,sString_g)
-!            write(amessage,80) trim(aoption),trim(currentblock_g),trim(aline),trim(sString_g)
-! 80         format('unexpected keyword - "',a,'" in ',a,' block at line ',a, &
-!            ' of file ',a)
-!            go to 9800
-!          end if
-!        end do
-!
-! ! -- If there are any absences in the GETSERIES block, this is now reported.
-! ! -- The DEF_TIME keyword must NOT act on samples unless the time series is a day or greater!!!!!!
-!
-!
-! 100    continue
-!        if(afile.eq.' ')then
-!          call addquote(sInfile_g,sString_g)
-!          write(amessage,110) trim(currentblock_g),trim(sString_g)
-! 110      format('no FILE keyword provided in ',a,' block in file ',a)
-!          go to 9800
-!        end if
-!        if(dsn.eq.-99999999)then
-!          call addquote(sInfile_g,sString_g)
-!          write(amessage,120) trim(currentblock_g),trim(sString_g)
-! 120      format('no DSN keyword provided in ',a,' block in file ',a)
-!          go to 9800
-!        end if
-!        if(icontext.eq.0)then
-!          call addquote(sInfile_g,sString_g)
-!          write(amessage,122) trim(currentblock_g),trim(sString_g)
-! 122      format('no CONTEXT keyword provided in ',a,' block in file ',a)
-!          go to 9800
-!        end if
-!        if(aname.eq.' ')then
-!          call addquote(sInfile_g,sString_g)
-!          write(amessage,125) trim(currentblock_g),trim(sString_g)
-! 125      format('no NEW_SERIES_NAME keyword provided in ',a,' block in file ',a)
-!          go to 9800
-!        end if
-!        call date_check(ierr,yy1,mm1,dd1,hh1,nn1,ss1,yy2,mm2,dd2,hh2,nn2,ss2,  &
-!        begdays,begsecs,enddays,endsecs)
-!        if(ierr.ne.0) go to 9800
-!
-!
-! ! -- There appear to be no errors in the block, so now it is processed.
-!
-!        call addquote(afile,sString_g)
-!        write(*,179) trim(sString_g)
-!        write(LU_REC,179) trim(sString_g)
-! 179    format(t5,'Reading WDM file ',a,'....')
-!
-!        call nextwdmunit(ierr,wdmunit,afile)
-!        if(ierr.ne.0) go to 9800
-!        open(unit=99,file='dummy.dat')
-!        if(wdmunit.lt.0)then
-!          wdmunit=-wdmunit
-!        else
-!          call wdbopn(wdmunit,afile,1,retcode)
-!          if(retcode.ne.0)then
-!            write(amessage,210) trim(sString_g)
-! 210        format('unable to open WDM file ',a,' for data retreival.')
-!            go to 9800
-!          end if
-!        end if
-!
-! ! -- Next we ensure that our dates are no wider than those of the actual time series.
-!
-!        call wdatim(wdmunit,dsn,llsdat,lledat,tstep,tcode,retcode)
-!        if(retcode.eq.-6)then
-!          write(amessage,220) trim(sString_g)
-! 220      format('there is no data pertaining to the nominated DSN in WDM file ',a)
-!          go to 9800
-!        else if(retcode.eq.-81) then
-!          write(amessage,230) trim(sString_g)
-! 230      format('the nominated data set does not exist in WDM file ',a)
-!          go to 9800
-!        else if(retcode.eq.-82)then
-!          write(amessage,240) trim(sString_g)
-! 240      format('the nominated data set is not a time-series data set in file ',a)
-!          go to 9800
-!        else if(retcode.ne.0)then
-!          write(amessage,250) trim(sString_g)
-! 250      format('cannot retrieve data for nominated data set from file ',a)
-!          go to 9800
-!        end if
-!        yyy1=llsdat(1)
-!        mmm1=llsdat(2)
-!        ddd1=llsdat(3)
-!        hhh1=llsdat(4)
-!        nnn1=llsdat(5)
-!        sss1=llsdat(6)
-!        yyy2=lledat(1)
-!        mmm2=lledat(2)
-!        ddd2=lledat(3)
-!        hhh2=lledat(4)
-!        nnn2=lledat(5)
-!        sss2=lledat(6)
-! !       write(6,244) ddd1,mmm1,yyy1,hhh1,nnn1,sss1
-! !244    format(' real start date  ',i2.2,'/',i2.2,'/',i4)
-! !       write(6,245) ddd2,mmm2,yyy2,hhh2,nnn2,sss2
-! !245    format(' real end   date  ',i2.2,'/',i2.2,'/',i4)
-!
-!        yy1flag=0
-!        if(yy1.ne.-9999)then
-!          yy1flag=1
-!          dd1a=dd1
-!          mm1a=mm1
-!          yy1a=yy1
-!          hh1a=hh1
-!          nn1a=nn1
-!          ss1a=ss1
-!          nn=numdays(ddd1,mmm1,yyy1,dd1,mm1,yy1)
-!          ss=numsecs(hhh1,nnn1,sss1,hh1,nn1,ss1)
-!          if(ss.ge.86400)then
-!            ss=ss-86400
-!            nn=nn+1
-!          else if(ss.le.-86400)then
-!            ss=ss+86400
-!            nn=nn-1
-!          end if
-!          if((nn.lt.0).or.((nn.eq.0).and.(ss.le.0)))then
-!            dd1=ddd1
-!            mm1=mmm1
-!            yy1=yyy1
-!            hh1=hhh1
-!            nn1=nnn1
-!            ss1=sss1
-!          end if
-!        else
-!          dd1=ddd1
-!          mm1=mmm1
-!          yy1=yyy1
-!          hh1=hhh1
-!          nn1=nnn1
-!          ss1=sss1
-!        end if
-!        yy2flag=0
-!        if(yy2.ne.-9999)then
-!          yy2flag=1
-!          dd2a=dd2
-!          mm2a=mm2
-!          yy2a=yy2
-!          hh2a=hh2
-!          nn2a=nn2
-!          ss2a=ss2
-!          nn=numdays(dd2,mm2,yy2,ddd2,mmm2,yyy2)
-!          ss=numsecs(hh2,nn2,ss2,hhh2,nnn2,sss2)
-!          if(ss.ge.86400)then
-!            ss=ss-86400
-!            nn=nn+1
-!          else if(ss.le.-86400)then
-!            ss=ss+86400
-!            nn=nn-1
-!          end if
-!          if((nn.lt.0).or.((nn.eq.0).and.(ss.le.0)))then
-!            dd2=ddd2
-!            mm2=mmm2
-!            yy2=yyy2
-!            hh2=hhh2
-!            nn2=nnn2
-!            ss2=sss2
-!          end if
-!        else
-!          dd2=ddd2
-!          mm2=mmm2
-!          yy2=yyy2
-!          hh2=hhh2
-!          nn2=nnn2
-!          ss2=sss2
-!        end if
-!
-! ! -- The following lines is added to compensate for an idiosyncracy in the WDM
-! !    library. A check is made later that the DATE_2 and TIME_2 specs are exactly
-! !    obeyed.
-!        dd2=dd2+1
-!        if(dd2.gt.ddd2)dd2=ddd2
-!
-!        lsdat(1)=yy1
-!        lsdat(2)=mm1
-!        lsdat(3)=dd1
-!        lsdat(4)=hh1
-!        lsdat(5)=nn1
-!        lsdat(6)=ss1
-!        ledat(1)=yy2
-!        ledat(2)=mm2
-!        ledat(3)=dd2
-!        ledat(4)=hh2
-!        ledat(5)=nn2
-!        ledat(6)=ss2
-!
-! ! -- Next space is allocated in the temporary time series to receive the data.
-!
-!        nn=numdays(dd1,mm1,yy1,dd2,mm2,yy2) + 2
-!        if(tcode.eq.4)then
-!          iterm=nn
-!        else if(tcode.eq.3)then
-!          iterm=nn*24
-!        else if(tcode.eq.2)then
-!          iterm=nn*24*60
-!        else if(tcode.eq.1)then
-!          iterm=nn*86400
-!        else if(tcode.eq.5)then
-!          iterm=nn/12+2
-!        else
-!          iterm=nn/365.25 +2
-!        end if
-!        if(tstep.ne.0) then
-!          iterm=iterm/tstep
-!        end if
-!        iterm=iterm+1
-!        call alloc_tempseries(ierr,iterm)
-!        if(ierr.ne.0) go to 9800
-!
-!        call prwmte(wdmunit,20,dsn,lsdat,ledat,iterm,tempseries_g%days, &
-!                    tempseries_g%secs,tempseries_g%val,jterm)              !change unit numbers
-!        iterm=jterm
-!
-! ! -- The time series is now copied to a real time series.
-!
-!        do i=1,MAXSERIES
-!          if(.not.series_g(i)%active) go to 515
-!        end do
-!        write(amessage,510)
-! 510    format('no more time series available for data storage - increase MAXSERIES and ', &
-!        'recompile program.')
-!        go to 9800
-!
-! 515    allocate(series_g(i)%days(iterm),series_g(i)%secs(iterm),  &
-!        series_g(i)%val(iterm),stat=ierr)
-!        if(ierr.ne.0)then
-!          write(amessage,550)
-! 550      format('cannot allocate memory for another time series.')
-!          go to 9800
-!        end if
-!
-! ! -- But first we make doubly sure that no terms of the series predate or postdate
-! !    DATE_1, TIME_1 or DATE_2, TIME_2 taking into account DEF_TIME.
-!
-!        iacount=0
-!        secsd=-9999
-!        if(tcode.ge.4)then
-!          if(hhd.ne.-9999)then
-!            secsd=numsecs(0,0,0,hhd,nnd,ssd)
-!          end if
-!        end if
-!        if(yy1flag.eq.1)then
-!          ibd=numdays(1,1,1970,dd1a,mm1a,yy1a)
-!          ibs=numsecs(0,0,0,hh1a,nn1a,ss1a)
-! 555      continue
-!          if(ibs.ge.86400)then
-!            ibs=ibs-86400
-!            ibd=ibd+1
-!            go to 555
-!          end if
-!          do j=1,iterm
-!            if(secsd.eq.-9999)then
-!               itsecs=tempseries_g%secs(j)
-!            else
-!              itsecs=secsd
-!            end if
-!            if((tempseries_g%days(j).lt.ibd).or.  &
-!               (tempseries_g%days(j).eq.ibd).and.(itsecs.lt.ibs))then
-!               tempseries_g%days(j)=-99999999
-!               iacount=iacount+1
-!            else
-!              go to 556
-!            end if
-!          end do
-!        end if
-! 556    continue
-!        if(yy2flag.eq.1)then
-!          ibd=numdays(1,1,1970,dd2a,mm2a,yy2a)
-!          ibs=numsecs(0,0,0,hh2a,nn2a,ss2a)
-! 557      continue
-!          if(ibs.ge.86400)then
-!            ibs=ibs-86400
-!            ibd=ibd+1
-!            go to 557
-!          end if
-!          do j=iterm,1,-1
-!            if(secsd.eq.-9999)then
-!               itsecs=tempseries_g%secs(j)
-!            else
-!              itsecs=secsd
-!            end if
-!            if((tempseries_g%days(j).gt.ibd).or.  &
-!               (tempseries_g%days(j).eq.ibd).and.(itsecs.gt.ibs))then
-!               tempseries_g%days(j)=-99999999
-!               iacount=iacount+1
-!            else
-!              go to 558
-!            end if
-!          end do
-!        end if
-! 558    continue
-!        series_g(i)%active=.true.
-!        series_g(i)%name=aname
-!        series_g(i)%nterm=iterm-iacount
-!        series_g(i)%type='ts'
-!        jterm=0
-!        if(iacount.eq.0)then
-!          if(filter.lt.-1.0e35)then
-!            do j=1,iterm
-!              series_g(i)%val(j)=tempseries_g%val(j)
-!            end do
-!            do j=1,iterm
-!              series_g(i)%days(j)=tempseries_g%days(j)
-!            end do
-!            if(secsd.eq.-9999)then
-!              do j=1,iterm
-!                series_g(i)%secs(j)=tempseries_g%secs(j)
-!              end do
-!            else
-!              do j=1,iterm
-!                series_g(i)%secs(j)=secsd
-!              end do
-!            end if
-!          else
-!            fspace=abs(3.0*spacing(filter))
-!            do j=1,iterm
-!              fval=tempseries_g%val(j)
-!              if(abs(fval-filter).lt.fspace) go to 620
-!              jterm=jterm+1
-!              series_g(i)%val(jterm)=fval
-!              series_g(i)%days(jterm)=tempseries_g%days(j)
-!              if(secsd.eq.-9999)then
-!                series_g(i)%secs(jterm)=tempseries_g%secs(j)
-!              else
-!                series_g(i)%secs(jterm)=secsd
-!              end if
-! 620          continue
-!            end do
-!            series_g(i)%nterm=jterm
-!          end if
-!        else
-!          if(filter.lt.-1.0e35)then
-!            do j=1,iterm
-!              if(tempseries_g%days(j).ne.-99999999)then
-!                jterm=jterm+1
-!                series_g(i)%val(jterm)=tempseries_g%val(j)
-!                series_g(i)%days(jterm)=tempseries_g%days(j)
-!                if(secsd.eq.-9999)then
-!                  series_g(i)%secs(jterm)=tempseries_g%secs(j)
-!                else
-!                  series_g(i)%secs(jterm)=secsd
-!                end if
-!              end if
-!            end do
-!          else
-!            fspace=abs(3.0*spacing(filter))
-!            do j=1,iterm
-!              fval=tempseries_g%val(j)
-!              if(abs(fval-filter).lt.fspace) go to 621
-!              if(tempseries_g%days(j).eq.-99999999) go to 621
-!              jterm=jterm+1
-!              series_g(i)%val(jterm)=fval
-!              series_g(i)%days(jterm)=tempseries_g%days(j)
-!              if(secsd.eq.-9999)then
-!                series_g(i)%secs(jterm)=tempseries_g%secs(j)
-!              else
-!                series_g(i)%secs(jterm)=secsd
-!              end if
-! 621          continue
-!            end do
-!            series_g(i)%nterm=jterm
-!          end if
-!        end if
-!        if(secsd.eq.86400)then
-!          do j=1,series_g(i)%nterm
-!            series_g(i)%days(j)=series_g(i)%days(j)+1
-!            series_g(i)%secs(j)=0
-!          end do
-!        end if
-!        call addquote(afile,sString_g)
-!        write(*,580) trim(aname),trim(sString_g)
-!        write(LU_REC,580) trim(aname),trim(sString_g)
-! 580    format(t5,'Series "',a,'" successfully imported from file ',a)
-!        go to 9900
-!
-!
-! 9000   call num2char(iLine_g,aline)
-!        call addquote(sInfile_g,sString_g)
-!        write(amessage,9010) trim(aline), trim(sString_g)
-! 9010   format('cannot read line ',a,' of TSPROC input file ',a)
-!        go to 9800
-! 9100   continue
-!        call addquote(sInfile_g,sString_g)
-!        write(amessage,9110) trim(sString_g),trim(currentblock_g)
-! 9110   format('unexpected end encountered to TSPROC input file ',a,' while ', &
-!        ' reading ',a,' block.')
-!        go to 9800
-!
-! 9800   call write_message(leadspace='yes',error='yes')
-!        call write_message(iunit=LU_REC,leadspace='yes',error='yes')
-!        ifail=1
-!
-! 9900   continue
-! !       close(unit=wdmunit,iostat=ierr)         !wdm
-!        close(unit=99,iostat=ierr)
-!        return
-!
-! end subroutine get_wdm_series
-!
+ subroutine get_wdm_series(ifail)
+
+ ! -- Subroutine get_wdm_series reads a time series from a WDM file.
+
+        implicit none
+
+        integer, intent(out)   :: ifail
+
+        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
+        icontext,nn,ss,i,wdmunit,iterm,dsn,jterm,j,hhd,nnd,ssd,secsd, &
+        retcode,yyy1,yyy2,mmm1,mmm2,ddd1,ddd2,hhh1,hhh2,nnn1,nnn2,sss1,sss2, &
+        begdays,begsecs,enddays,endsecs,ixcon,yy1flag,dd1a,mm1a,yy1a,hh1a,nn1a, &
+        ss1a,yy2flag,dd2a,mm2a,yy2a,hh2a,nn2a,ss2a,ibd,ibs,itsecs,iacount
+        integer lsdat(6),ledat(6),llsdat(6),lledat(6),tstep,tcode
+        real filter,fspace,fval
+        character*10 aname
+        character*15 aline
+        character*25 aoption
+        character*120 afile
+        character*25 acontext(MAXCONTEXT)
+
+        include 'cfbuff90.inc'
+ !       include 'CDRLOC90.INC'
+ !       include 'CTBLAB90.INC'
+ !       include 'CTSBUF90.INC'
+ !       include 'CWDMID90.INC'
+ !       include 'CWTSDS90.INC'
+ !       include 'inc_init.inc'
+
+        ifail=0
+        currentblock_g='GET_SERIES_WDM'
+
+        write(*,10) trim(currentblock_g)
+        write(LU_REC,10) trim(currentblock_g)
+ 10     format(/,' Processing ',a,' block....')
+
+        afile=' '
+        aname=' '
+        icontext=0
+        yy1=-9999
+        hh1=-9999
+        yy2=-9999
+        hh2=-9999
+        hhd=-9999
+        dsn=-99999999
+        filter=-1.0e37
+        ixcon=0
+
+ ! -- The GET_SERIES_WDM block is first parsed.
+
+        do
+          iLine_g=iLine_g+1
+          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+          if(cline.eq.' ') cycle
+          if(cline(1:1).eq.'#') cycle
+          call linesplit(ierr,2)
+          if(ierr.ne.0)then
+            call num2char(iLine_g,aline)
+            call addquote(sInfile_g,sString_g)
+            write(amessage,20) trim(aline),trim(sString_g)
+ 20         format('there should be 2 entries on line ',a,' of file ',a)
+            go to 9800
+          end if
+          aoption=cline(left_word(1):right_word(1))
+          call casetrans(aoption,'hi')
+          if(aoption.ne.'CONTEXT')then
+            call test_context(ierr,icontext,acontext)
+            if(ierr.eq.-1)then
+              call find_end(ifail)
+              if(ifail.eq.1) go to 9800
+              return
+            else if(ierr.eq.1) then
+              go to 9800
+            end if
+            ixcon=1
+          end if
+          if(aoption.eq.'FILE')then
+            call get_file_name(ierr,afile)
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'DSN')then
+            call char2num(ierr,cline(left_word(2):right_word(2)),dsn)
+            if(ierr.ne.0)then
+              call num2char(iLine_g,aline)
+              call addquote(sInfile_g,sString_g)
+              write(amessage,45) trim(aline),trim(sString_g)
+ 45           format('cannot read DSN from line ',a,' of file ',a)
+              go to 9800
+            end if
+            call num2char(dsn,aline)
+            write(*,55) trim(aline)
+            write(LU_REC,55) trim(aline)
+ 55         format(t5,'DSN ',a)
+          else if(aoption.eq.'DATE_1')then
+            call get_date(ierr,dd1,mm1,yy1,'DATE_1')
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'DATE_2')then
+            call get_date(ierr,dd2,mm2,yy2,'DATE_2')
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'TIME_1')then
+            call get_time(ierr,hh1,nn1,ss1,'TIME_1')
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'TIME_2')then
+            call get_time(ierr,hh2,nn2,ss2,'TIME_2')
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'DEF_TIME')then
+            call get_time(ierr,hhd,nnd,ssd,'DEF_TIME')
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'NEW_SERIES_NAME')then
+            call get_new_series_name(ierr,aname)
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'CONTEXT')then
+            if(ixcon.ne.0)then
+              call num2char(iLine_g,aline)
+              call addquote(sInfile_g,sString_g)
+              write(amessage,41) trim(aline),trim(sString_g)
+ 41           format('CONTEXT keyword in incorrect location at line ',a,' of file ',a)
+              go to 9800
+            end if
+            call get_context(ierr,icontext,acontext)
+            if(ierr.ne.0) go to 9800
+          else if(aoption.eq.'FILTER')then
+            call char2num(ierr,cline(left_word(2):right_word(2)),filter)
+            if(ierr.ne.0)then
+              call num2char(iLine_g,aline)
+              call addquote(sInfile_g,sString_g)
+              write(amessage,89) trim(aline),trim(sString_g)
+ 89           format('cannot read filter from line ',a,' of file ',a)
+              go to 9800
+            end if
+            call num2char(filter,aline)
+            write(*,86) cline(left_word(2):right_word(2))
+            write(LU_REC,86) cline(left_word(2):right_word(2))
+ 86         format(t5,'FILTER ',a)
+          else if(aoption.eq.'END')then
+            go to 100
+          else
+            call num2char(iLine_g,aline)
+            call addquote(sInfile_g,sString_g)
+            write(amessage,80) trim(aoption),trim(currentblock_g),trim(aline),trim(sString_g)
+ 80         format('unexpected keyword - "',a,'" in ',a,' block at line ',a, &
+            ' of file ',a)
+            go to 9800
+          end if
+        end do
+
+ ! -- If there are any absences in the GETSERIES block, this is now reported.
+ ! -- The DEF_TIME keyword must NOT act on samples unless the time series is a day or greater!!!!!!
+
+
+ 100    continue
+        if(afile.eq.' ')then
+          call addquote(sInfile_g,sString_g)
+          write(amessage,110) trim(currentblock_g),trim(sString_g)
+ 110      format('no FILE keyword provided in ',a,' block in file ',a)
+          go to 9800
+        end if
+        if(dsn.eq.-99999999)then
+          call addquote(sInfile_g,sString_g)
+          write(amessage,120) trim(currentblock_g),trim(sString_g)
+ 120      format('no DSN keyword provided in ',a,' block in file ',a)
+          go to 9800
+        end if
+        if(icontext.eq.0)then
+          call addquote(sInfile_g,sString_g)
+          write(amessage,122) trim(currentblock_g),trim(sString_g)
+ 122      format('no CONTEXT keyword provided in ',a,' block in file ',a)
+          go to 9800
+        end if
+        if(aname.eq.' ')then
+          call addquote(sInfile_g,sString_g)
+          write(amessage,125) trim(currentblock_g),trim(sString_g)
+ 125      format('no NEW_SERIES_NAME keyword provided in ',a,' block in file ',a)
+          go to 9800
+        end if
+        call date_check(ierr,yy1,mm1,dd1,hh1,nn1,ss1,yy2,mm2,dd2,hh2,nn2,ss2,  &
+        begdays,begsecs,enddays,endsecs)
+        if(ierr.ne.0) go to 9800
+
+
+ ! -- There appear to be no errors in the block, so now it is processed.
+
+        call addquote(afile,sString_g)
+        write(*,179) trim(sString_g)
+        write(LU_REC,179) trim(sString_g)
+ 179    format(t5,'Reading WDM file ',a,'....')
+
+        call nextwdmunit(ierr,wdmunit,afile)
+        if(ierr.ne.0) go to 9800
+        open(unit=99,file='dummy.dat')
+        if(wdmunit.lt.0)then
+          wdmunit=-wdmunit
+        else
+          call wdbopn(wdmunit,afile,1,retcode)
+          if(retcode.ne.0)then
+            write(amessage,210) trim(sString_g)
+ 210        format('unable to open WDM file ',a,' for data retreival.')
+            go to 9800
+          end if
+        end if
+
+ ! -- Next we ensure that our dates are no wider than those of the actual time series.
+
+        call wdatim(wdmunit,dsn,llsdat,lledat,tstep,tcode,retcode)
+        if(retcode.eq.-6)then
+          write(amessage,220) trim(sString_g)
+ 220      format('there is no data pertaining to the nominated DSN in WDM file ',a)
+          go to 9800
+        else if(retcode.eq.-81) then
+          write(amessage,230) trim(sString_g)
+ 230      format('the nominated data set does not exist in WDM file ',a)
+          go to 9800
+        else if(retcode.eq.-82)then
+          write(amessage,240) trim(sString_g)
+ 240      format('the nominated data set is not a time-series data set in file ',a)
+          go to 9800
+        else if(retcode.ne.0)then
+          write(amessage,250) trim(sString_g)
+ 250      format('cannot retrieve data for nominated data set from file ',a)
+          go to 9800
+        end if
+        yyy1=llsdat(1)
+        mmm1=llsdat(2)
+        ddd1=llsdat(3)
+        hhh1=llsdat(4)
+        nnn1=llsdat(5)
+        sss1=llsdat(6)
+        yyy2=lledat(1)
+        mmm2=lledat(2)
+        ddd2=lledat(3)
+        hhh2=lledat(4)
+        nnn2=lledat(5)
+        sss2=lledat(6)
+ !       write(6,244) ddd1,mmm1,yyy1,hhh1,nnn1,sss1
+ !244    format(' real start date  ',i2.2,'/',i2.2,'/',i4)
+ !       write(6,245) ddd2,mmm2,yyy2,hhh2,nnn2,sss2
+ !245    format(' real end   date  ',i2.2,'/',i2.2,'/',i4)
+
+        yy1flag=0
+        if(yy1.ne.-9999)then
+          yy1flag=1
+          dd1a=dd1
+          mm1a=mm1
+          yy1a=yy1
+          hh1a=hh1
+          nn1a=nn1
+          ss1a=ss1
+          nn=numdays(ddd1,mmm1,yyy1,dd1,mm1,yy1)
+          ss=numsecs(hhh1,nnn1,sss1,hh1,nn1,ss1)
+          if(ss.ge.86400)then
+            ss=ss-86400
+            nn=nn+1
+          else if(ss.le.-86400)then
+            ss=ss+86400
+            nn=nn-1
+          end if
+          if((nn.lt.0).or.((nn.eq.0).and.(ss.le.0)))then
+            dd1=ddd1
+            mm1=mmm1
+            yy1=yyy1
+            hh1=hhh1
+            nn1=nnn1
+            ss1=sss1
+          end if
+        else
+          dd1=ddd1
+          mm1=mmm1
+          yy1=yyy1
+          hh1=hhh1
+          nn1=nnn1
+          ss1=sss1
+        end if
+        yy2flag=0
+        if(yy2.ne.-9999)then
+          yy2flag=1
+          dd2a=dd2
+          mm2a=mm2
+          yy2a=yy2
+          hh2a=hh2
+          nn2a=nn2
+          ss2a=ss2
+          nn=numdays(dd2,mm2,yy2,ddd2,mmm2,yyy2)
+          ss=numsecs(hh2,nn2,ss2,hhh2,nnn2,sss2)
+          if(ss.ge.86400)then
+            ss=ss-86400
+            nn=nn+1
+          else if(ss.le.-86400)then
+            ss=ss+86400
+            nn=nn-1
+          end if
+          if((nn.lt.0).or.((nn.eq.0).and.(ss.le.0)))then
+            dd2=ddd2
+            mm2=mmm2
+            yy2=yyy2
+            hh2=hhh2
+            nn2=nnn2
+            ss2=sss2
+          end if
+        else
+          dd2=ddd2
+          mm2=mmm2
+          yy2=yyy2
+          hh2=hhh2
+          nn2=nnn2
+          ss2=sss2
+        end if
+
+ ! -- The following lines is added to compensate for an idiosyncracy in the WDM
+ !    library. A check is made later that the DATE_2 and TIME_2 specs are exactly
+ !    obeyed.
+        dd2=dd2+1
+        if(dd2.gt.ddd2)dd2=ddd2
+
+        lsdat(1)=yy1
+        lsdat(2)=mm1
+        lsdat(3)=dd1
+        lsdat(4)=hh1
+        lsdat(5)=nn1
+        lsdat(6)=ss1
+        ledat(1)=yy2
+        ledat(2)=mm2
+        ledat(3)=dd2
+        ledat(4)=hh2
+        ledat(5)=nn2
+        ledat(6)=ss2
+
+ ! -- Next space is allocated in the temporary time series to receive the data.
+
+        nn=numdays(dd1,mm1,yy1,dd2,mm2,yy2) + 2
+        if(tcode.eq.4)then
+          iterm=nn
+        else if(tcode.eq.3)then
+          iterm=nn*24
+        else if(tcode.eq.2)then
+          iterm=nn*24*60
+        else if(tcode.eq.1)then
+          iterm=nn*86400
+        else if(tcode.eq.5)then
+          iterm=nn/12+2
+        else
+          iterm=nn/365.25 +2
+        end if
+        if(tstep.ne.0) then
+          iterm=iterm/tstep
+        end if
+        iterm=iterm+1
+        call alloc_tempseries(ierr,iterm)
+        if(ierr.ne.0) go to 9800
+
+        call prwmte(wdmunit,20,dsn,lsdat,ledat,iterm,tempseries_g%days, &
+                    tempseries_g%secs,tempseries_g%val,jterm)              !change unit numbers
+        iterm=jterm
+
+ ! -- The time series is now copied to a real time series.
+
+        do i=1,MAXSERIES
+          if(.not.series_g(i)%active) go to 515
+        end do
+        write(amessage,510)
+ 510    format('no more time series available for data storage - increase MAXSERIES and ', &
+        'recompile program.')
+        go to 9800
+
+ 515    allocate(series_g(i)%days(iterm),series_g(i)%secs(iterm),  &
+        series_g(i)%val(iterm),stat=ierr)
+        if(ierr.ne.0)then
+          write(amessage,550)
+ 550      format('cannot allocate memory for another time series.')
+          go to 9800
+        end if
+
+ ! -- But first we make doubly sure that no terms of the series predate or postdate
+ !    DATE_1, TIME_1 or DATE_2, TIME_2 taking into account DEF_TIME.
+
+        iacount=0
+        secsd=-9999
+        if(tcode.ge.4)then
+          if(hhd.ne.-9999)then
+            secsd=numsecs(0,0,0,hhd,nnd,ssd)
+          end if
+        end if
+        if(yy1flag.eq.1)then
+          ibd=numdays(1,1,1970,dd1a,mm1a,yy1a)
+          ibs=numsecs(0,0,0,hh1a,nn1a,ss1a)
+ 555      continue
+          if(ibs.ge.86400)then
+            ibs=ibs-86400
+            ibd=ibd+1
+            go to 555
+          end if
+          do j=1,iterm
+            if(secsd.eq.-9999)then
+               itsecs=tempseries_g%secs(j)
+            else
+              itsecs=secsd
+            end if
+            if((tempseries_g%days(j).lt.ibd).or.  &
+               (tempseries_g%days(j).eq.ibd).and.(itsecs.lt.ibs))then
+               tempseries_g%days(j)=-99999999
+               iacount=iacount+1
+            else
+              go to 556
+            end if
+          end do
+        end if
+ 556    continue
+        if(yy2flag.eq.1)then
+          ibd=numdays(1,1,1970,dd2a,mm2a,yy2a)
+          ibs=numsecs(0,0,0,hh2a,nn2a,ss2a)
+ 557      continue
+          if(ibs.ge.86400)then
+            ibs=ibs-86400
+            ibd=ibd+1
+            go to 557
+          end if
+          do j=iterm,1,-1
+            if(secsd.eq.-9999)then
+               itsecs=tempseries_g%secs(j)
+            else
+              itsecs=secsd
+            end if
+            if((tempseries_g%days(j).gt.ibd).or.  &
+               (tempseries_g%days(j).eq.ibd).and.(itsecs.gt.ibs))then
+               tempseries_g%days(j)=-99999999
+               iacount=iacount+1
+            else
+              go to 558
+            end if
+          end do
+        end if
+ 558    continue
+        series_g(i)%active=.true.
+        series_g(i)%name=aname
+        series_g(i)%nterm=iterm-iacount
+        series_g(i)%type='ts'
+        jterm=0
+        if(iacount.eq.0)then
+          if(filter.lt.-1.0e35)then
+            do j=1,iterm
+              series_g(i)%val(j)=tempseries_g%val(j)
+            end do
+            do j=1,iterm
+              series_g(i)%days(j)=tempseries_g%days(j)
+            end do
+            if(secsd.eq.-9999)then
+              do j=1,iterm
+                series_g(i)%secs(j)=tempseries_g%secs(j)
+              end do
+            else
+              do j=1,iterm
+                series_g(i)%secs(j)=secsd
+              end do
+            end if
+          else
+            fspace=abs(3.0*spacing(filter))
+            do j=1,iterm
+              fval=tempseries_g%val(j)
+              if(abs(fval-filter).lt.fspace) go to 620
+              jterm=jterm+1
+              series_g(i)%val(jterm)=fval
+              series_g(i)%days(jterm)=tempseries_g%days(j)
+              if(secsd.eq.-9999)then
+                series_g(i)%secs(jterm)=tempseries_g%secs(j)
+              else
+                series_g(i)%secs(jterm)=secsd
+              end if
+ 620          continue
+            end do
+            series_g(i)%nterm=jterm
+          end if
+        else
+          if(filter.lt.-1.0e35)then
+            do j=1,iterm
+              if(tempseries_g%days(j).ne.-99999999)then
+                jterm=jterm+1
+                series_g(i)%val(jterm)=tempseries_g%val(j)
+                series_g(i)%days(jterm)=tempseries_g%days(j)
+                if(secsd.eq.-9999)then
+                  series_g(i)%secs(jterm)=tempseries_g%secs(j)
+                else
+                  series_g(i)%secs(jterm)=secsd
+                end if
+              end if
+            end do
+          else
+            fspace=abs(3.0*spacing(filter))
+            do j=1,iterm
+              fval=tempseries_g%val(j)
+              if(abs(fval-filter).lt.fspace) go to 621
+              if(tempseries_g%days(j).eq.-99999999) go to 621
+              jterm=jterm+1
+              series_g(i)%val(jterm)=fval
+              series_g(i)%days(jterm)=tempseries_g%days(j)
+              if(secsd.eq.-9999)then
+                series_g(i)%secs(jterm)=tempseries_g%secs(j)
+              else
+                series_g(i)%secs(jterm)=secsd
+              end if
+ 621          continue
+            end do
+            series_g(i)%nterm=jterm
+          end if
+        end if
+        if(secsd.eq.86400)then
+          do j=1,series_g(i)%nterm
+            series_g(i)%days(j)=series_g(i)%days(j)+1
+            series_g(i)%secs(j)=0
+          end do
+        end if
+        call addquote(afile,sString_g)
+        write(*,580) trim(aname),trim(sString_g)
+        write(LU_REC,580) trim(aname),trim(sString_g)
+ 580    format(t5,'Series "',a,'" successfully imported from file ',a)
+        go to 9900
+
+
+ 9000   call num2char(iLine_g,aline)
+        call addquote(sInfile_g,sString_g)
+        write(amessage,9010) trim(aline), trim(sString_g)
+ 9010   format('cannot read line ',a,' of TSPROC input file ',a)
+        go to 9800
+ 9100   continue
+        call addquote(sInfile_g,sString_g)
+        write(amessage,9110) trim(sString_g),trim(currentblock_g)
+ 9110   format('unexpected end encountered to TSPROC input file ',a,' while ', &
+        ' reading ',a,' block.')
+        go to 9800
+
+ 9800   call write_message(leadspace='yes',error='yes')
+        call write_message(iunit=LU_REC,leadspace='yes',error='yes')
+        ifail=1
+
+ 9900   continue
+ !       close(unit=wdmunit,iostat=ierr)         !wdm
+        close(unit=99,iostat=ierr)
+        return
+
+ end subroutine get_wdm_series
+
 
 end module tsp_input

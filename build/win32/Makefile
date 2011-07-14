@@ -13,7 +13,10 @@ CFLAGS  = -O2
 AR		= ar rcs
 SRC     = ../../src
 
-LIB		= -lgfortran -lgcc -lstdc++
+LIBPATH	= -L../../lib/x86
+INCLUDE	= -I../../include
+
+LIB		= -lgfortran -lgcc -lstdc++ -lwdm -lutil -ladwdm 
 
 # -luser32 -lgdi32
 
@@ -57,7 +60,7 @@ tsp_equation_parser.o: $(SRC)/tsp_equation_parser.F90  tsp_data_structures.o tsp
 		$(F95) $(FFLAGS) -c $(SRC)/tsp_equation_parser.F90 -o tsp_equation_parser.o
 
 tsp_input.o: $(SRC)/tsp_input.F90  tsp_data_structures.o tsp_utilities.o
-		$(F95) $(FFLAGS) -c $(SRC)/tsp_input.F90 -o tsp_input.o
+		$(F95) $(FFLAGS) $(INCLUDE) -c $(SRC)/tsp_input.F90 -o tsp_input.o
 
 tsp_output.o: $(SRC)/tsp_output.F90  tsp_data_structures.o tsp_utilities.o
 		$(F95) $(FFLAGS) -c $(SRC)/tsp_output.F90 -o tsp_output.o

@@ -93,7 +93,7 @@ subroutine processBlock()
 
         ! get series from WDM file
          else if(iBlockNumber == iGET_WDM_SERIES) then
-!         call get_wdm_series(ifail)
+         call get_wdm_series(ifail)
 
          ! get series_g from site sample file
          else if(iBlockNumber == iGET_SSF_SERIES) then
