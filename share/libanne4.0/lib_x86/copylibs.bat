@@ -1,9 +1,0 @@
-copy adwdmlib.a ..\..\..\lib\x86\libadwdm.a
-copy aidelib.a ..\..\..\lib\x86\libaide.a
-copy annlib.a ..\..\..\lib\x86\libann.a
-copy awstatlib.a ..\..\..\lib\x86\libawstat.a
-copy graphlib.a ..\..\..\lib\x86\libgraph.a
-copy statslib.a ..\..\..\lib\x86\libstats.a
-copy utillib.a ..\..\..\lib\x86\libutil.a
-copy waidelib.a ..\..\..\lib\x86\libwaide.a
-copy wdmlib.a ..\..\..\lib\x86\libwdm.a

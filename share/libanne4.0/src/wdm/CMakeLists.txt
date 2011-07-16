@@ -1,25 +1,21 @@
-add_library(swblib STATIC
-          et_blaney_criddle.F90
-          et_hargreaves.F90
-          et_jensen_haise.F90
-          et_thornthwaite_mather.F90
-          et_turc.F90
-          graph.F90
-          grid.F90
-          irrigation.F90
-          meteorological_functions.F90
-          model.F90
-          netcdf_support.F90
-          RLE.F90
-          runoff_curve_number.F90
-          sm_thornthwaite_mather.F90
-          snow.F90
-          stats.F90
-          types.F90
-          control.F90
-          swb_python_interface.F90)
+add_library(wdm STATIC
+    tsbufr.f 
+    wdatm2.f
+    wdatrb.f
+    wdatru.f
+    wdbtch.f
+    wddlg.f
+    wdexpt.f
+    wdimpt.f
+    wdmid.f
+    wdsptm.f
+    wdtbl2.f 
+    wdtble.f
+    wdtms1.f
+    wdtms2.f
+    wdtms3.f )
 
-set_target_properties(swblib
-          PROPERTIES COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINES}")
+#set_target_properties(swblib
+#          PROPERTIES COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINES}")
 
-target_link_libraries(swblib ${EXTRA_LIBS})
+target_link_libraries(wdm ${EXTRA_LIBS})
