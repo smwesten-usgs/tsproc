@@ -38,7 +38,7 @@ RM = "C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -E remove -f
 CMAKE_EDIT_COMMAND = "C:\Program Files (x86)\CMake 2.8\bin\cmake-gui.exe"
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = E:\SMWData\Source_Code\tsproc\share\libanne4.0\src
+CMAKE_SOURCE_DIR = E:\SMWData\Source_Code\tsproc
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = E:\SMWData\Source_Code\tsproc\build\win32
@@ -98,17 +98,43 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named wdm
+# Target rules for targets named copy
 
 # Build rule for target.
-wdm: cmake_check_build_system
-	$(MAKE) -f CMakeFiles\Makefile2 wdm
-.PHONY : wdm
+copy: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 copy
+.PHONY : copy
 
 # fast build rule for target.
-wdm/fast:
-	$(MAKE) -f wdm\CMakeFiles\wdm.dir\build.make wdm/CMakeFiles/wdm.dir/build
-.PHONY : wdm/fast
+copy/fast:
+	$(MAKE) -f CMakeFiles\copy.dir\build.make CMakeFiles/copy.dir/build
+.PHONY : copy/fast
+
+#=============================================================================
+# Target rules for targets named tsproc
+
+# Build rule for target.
+tsproc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 tsproc
+.PHONY : tsproc
+
+# fast build rule for target.
+tsproc/fast:
+	$(MAKE) -f src\CMakeFiles\tsproc.dir\build.make src/CMakeFiles/tsproc.dir/build
+.PHONY : tsproc/fast
+
+#=============================================================================
+# Target rules for targets named tsproclib
+
+# Build rule for target.
+tsproclib: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 tsproclib
+.PHONY : tsproclib
+
+# fast build rule for target.
+tsproclib/fast:
+	$(MAKE) -f src\CMakeFiles\tsproclib.dir\build.make src/CMakeFiles/tsproclib.dir/build
+.PHONY : tsproclib/fast
 
 # Help Target
 help:
@@ -116,9 +142,11 @@ help:
 	@$(CMAKE_COMMAND) -E echo "... all (the default if no target is provided)"
 	@$(CMAKE_COMMAND) -E echo "... clean"
 	@$(CMAKE_COMMAND) -E echo "... depend"
+	@$(CMAKE_COMMAND) -E echo "... copy"
 	@$(CMAKE_COMMAND) -E echo "... edit_cache"
 	@$(CMAKE_COMMAND) -E echo "... rebuild_cache"
-	@$(CMAKE_COMMAND) -E echo "... wdm"
+	@$(CMAKE_COMMAND) -E echo "... tsproc"
+	@$(CMAKE_COMMAND) -E echo "... tsproclib"
 .PHONY : help
 
 

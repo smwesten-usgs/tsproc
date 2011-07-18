@@ -3,7 +3,6 @@
 *.o
 *.zpi
 *.zwi
-*.txt
 *.ini
 *.rec
 *.inp
