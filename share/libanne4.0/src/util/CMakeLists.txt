@@ -30,7 +30,6 @@ add_library(util STATIC
   utscxxin.f
   utsort.f )
 
-#set_target_properties(swblib
-#          PROPERTIES COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINES}")
+message ("platform: " ${PLATFORM_SUBDIR} )
 
-target_link_libraries(wdm ${EXTRA_LIBS})
+

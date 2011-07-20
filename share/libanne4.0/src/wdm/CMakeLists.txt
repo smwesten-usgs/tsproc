@@ -15,7 +15,4 @@ add_library(wdm STATIC
     wdtms2.f
     wdtms3.f )
 
-#set_target_properties(swblib
-#          PROPERTIES COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINES}")
 
-target_link_libraries(wdm ${EXTRA_LIBS})

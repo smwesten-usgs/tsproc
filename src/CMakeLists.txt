@@ -15,11 +15,6 @@ if(TARGET__TSPROC_EXECUTABLE)
             tsp_utilities.F90
             wsc_additions.F90 )
 
-  #set_target_properties(swb
-  #          PROPERTIES COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINES}")
-
-  target_link_libraries(tsproc ${EXTRA_LIBS})
-
 endif()
 
 if(TARGET__TSPROC_LIBRARY)
@@ -37,10 +32,5 @@ if(TARGET__TSPROC_LIBRARY)
             tsp_time_series_processors.F90
             tsp_utilities.F90
             wsc_additions.F90 )
-
-  #set_target_properties(tsproclib
-  #          PROPERTIES COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINES}")
-
-  target_link_libraries(tsproclib ${EXTRA_LIBS})
 
 endif()

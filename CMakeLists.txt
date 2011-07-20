@@ -25,10 +25,13 @@ option (MAKEFILE_VERBOSE
       "Produce verbose makefiles?" OFF)
 
 option (TARGET__TSPROC_EXECUTABLE
-      "Compile the main SWB executable?" ON)
+      "Compile the main TSPROC executable?" ON)
 
 option (TARGET__TSPROC_LIBRARY
-      "Compile SWB as a library?" ON)
+      "Compile TSPROC as a library?" ON)
+
+#option (TARGET__REBUILD_WDM_LIB
+#      "Rebuild the WDM library?" OFF)
 
 #------------------------------------------------------------------------
 # Restrict CMAKE_BUILD_TYPE to "Release" or "Debug"
@@ -50,23 +53,18 @@ if(CMAKE_HOST_WIN32)
 
      message(" <-- setting options for gfortran on MinGW (32-bit) -->")
 
+     set (PLATFORM_SUBDIR "win32")
      set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none")
 
      set_property(CACHE CMAKE_BUILD_TYPE
              PROPERTY STRINGS "Release" "Debug")
-
-     set(EXTRA_LIBS ${EXTRA_LIBS} ${PROJECT_SOURCE_DIR}/lib/win32/libadwdm.a )
-	 set(EXTRA_LIBS ${EXTRA_LIBS} ${PROJECT_SOURCE_DIR}/lib/win32/libwdm.a )
-	 set(EXTRA_LIBS ${EXTRA_LIBS} ${PROJECT_SOURCE_DIR}/lib/win32/libutil.a )
+     set_target_properties(tsproc tsproclib
+         PROPERTIES LINKER_LANGUAGE gfortran )
 	 
 	 include_directories( ${PROJECT_SOURCE_DIR}/include )
 	include_directories( C:/mingw/include/c++/4.6.2 )
 	include_directories( C:/mingw/include/c++/4.6.2/x86_64-w64-mingw32 )
-#	include_directories( C:/MinGW-32/include/c++/4.6.0/decimal )#
-	#include_directories( C:/MinGW-32/include/c++/4.6.0 )
-	#include_directories( C:/MinGW-32/include/c++/4.6.0 )
-	 
  
      add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
@@ -80,6 +78,7 @@ elseif(CMAKE_HOST_UNIX)
      #------------------------------------------------------------------------
      # Set compilation and link preferences for Intel Fortran on Linux
      #------------------------------------------------------------------------
+     set (PLATFORM_SUBDIR "linux_x64")
      set (CMAKE_Fortran_FLAGS_RELEASE "-fast -fPIC")
      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback -fpe0 -check all -debug all -fPIC")
      set(CMAKE_FIND_LIBRARY_PREFIXES lib)
@@ -98,12 +97,63 @@ else()
 
 endif()
 
-#set(INCLUDE_DIR ${INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src )
+#set(INCLUDE_DIR ${INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/include )
 
-include_directories( ${INCLUDE_DIR} )
-set(EXTRA_LIBS ${EXTRA_LIBS} )
+include_directories(${INCLUDE_DIR})
+link_directories(${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR})
 
 get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
+#if(TARGET__REBUILD_WDM_LIB) 
+#
+#  add_subdirectory(${PROJECT_SOURCE_DIR}/share/libanne4.0/src/wdm)
+#  add_subdirectory(${PROJECT_SOURCE_DIR}/share/libanne4.0/src/adwdm)
+#  add_subdirectory(${PROJECT_SOURCE_DIR}/share/libanne4.0/src/util)
+#
+#endif()
 
-add_subdirectory(src)
+
+if(TARGET__TSPROC_EXECUTABLE)
+
+  add_executable(tsproc
+            src/compute_hi.c
+            src/tsp_command_processors.F90
+            src/tsp_data_structures.F90
+            src/tsp_equation_parser.F90
+            src/tsp_hydrologic_indices.F90
+            src/tsp_input.F90
+            src/tsp_main.F90
+            src/tsp_main_loop.F90
+            src/tsp_output.F90
+            src/tsp_time_series_processors.F90
+            src/tsp_utilities.F90
+            src/wsc_additions.F90 )
+
+  target_link_libraries(tsproc ${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR}/libwdm.a
+                               ${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR}/libadwdm.a
+                               ${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR}/libutil.a )
+
+endif()
+
+if(TARGET__TSPROC_LIBRARY)
+
+  add_library(tsproclib STATIC
+            src/compute_hi.c
+            src/tsp_command_processors.F90
+            src/tsp_data_structures.F90
+            src/tsp_equation_parser.F90
+            src/tsp_hydrologic_indices.F90
+            src/tsp_input.F90
+            src/tsp_main.F90
+            src/tsp_main_loop.F90
+            src/tsp_output.F90
+            src/tsp_time_series_processors.F90
+            src/tsp_utilities.F90
+            src/wsc_additions.F90 )
+
+  target_link_libraries(tsproclib ${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR}/libwdm.a
+                               ${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR}/libadwdm.a
+                               ${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR}/libutil.a )
+
+endif()
+

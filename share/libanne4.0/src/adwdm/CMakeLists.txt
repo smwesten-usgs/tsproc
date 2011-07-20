@@ -23,7 +23,4 @@ add_library(adwdm STATIC
   wdopux.f
   ztwdmf.f )
 
-#set_target_properties(swblib
-#          PROPERTIES COMPILE_DEFINITIONS "${PREPROCESSOR_DEFINES}")
 
-target_link_libraries(wdm ${EXTRA_LIBS})
