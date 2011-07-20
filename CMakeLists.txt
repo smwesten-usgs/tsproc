@@ -59,6 +59,14 @@ if(CMAKE_HOST_WIN32)
      set(EXTRA_LIBS ${EXTRA_LIBS} ${PROJECT_SOURCE_DIR}/lib/win32/libadwdm.a )
 	 set(EXTRA_LIBS ${EXTRA_LIBS} ${PROJECT_SOURCE_DIR}/lib/win32/libwdm.a )
 	 set(EXTRA_LIBS ${EXTRA_LIBS} ${PROJECT_SOURCE_DIR}/lib/win32/libutil.a )
+	 
+	 include_directories( ${PROJECT_SOURCE_DIR}/include )
+	include_directories( C:/mingw/include/c++/4.6.2 )
+	include_directories( C:/mingw/include/c++/4.6.2/x86_64-w64-mingw32 )
+#	include_directories( C:/MinGW-32/include/c++/4.6.0/decimal )#
+	#include_directories( C:/MinGW-32/include/c++/4.6.0 )
+	#include_directories( C:/MinGW-32/include/c++/4.6.0 )
+	 
  
      add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
