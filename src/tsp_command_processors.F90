@@ -1898,51 +1898,6 @@ subroutine find_end(ifail)
 end subroutine find_end
 
 
-
-subroutine nextwdmunit(ifail,nunit,afile)
-
-! -- Function nextunit determines whether a new WDM file needs to be opened
-!    or whether an already open one can be used.
-
-       use tsp_data_structures
-       use tsp_utilities
-
-       implicit none
-
-       integer, intent(out)           :: ifail
-       integer, intent(out)           :: nunit
-       integer j
-       character*(*), intent(in)      :: afile
-       character*15 anum
-       character*120 bfile
-
-       ifail=0
-       bfile=afile
-       call casetrans(bfile,'lo')
-       if(iwdopn.eq.0) go to 100
-       do j=1,iwdopn
-         if(bfile.eq.wdmfil(j))then
-           nunit=-wdmun(j)
-           return
-         end if
-       end do
-
-100    nunit=nextunit()
-       iwdopn=iwdopn+1
-       if(iwdopn.gt.MAXWDOPN)then
-         call num2char(MAXWDOPN,anum)
-         write(amessage,10) trim(anum)
-10       format('a maximum of ',a,' WDM files can be open at any one time.')
-         ifail=1
-         return
-       end if
-       wdmun(iwdopn)=nunit
-       wdmfil(iwdopn)=bfile
-       return
-
-end subroutine nextwdmunit
-
-
 subroutine get_next_block(ifail)
 
 ! -- Subroutine get_next_block obtains the header to the next section of

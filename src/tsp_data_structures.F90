@@ -220,14 +220,6 @@ module tsp_data_structures
     'tanh  ','neg   ','pos   '/
   data operat /'^','/','*','-','+','(',')'/
 
-! -- The following pertain to WDM files.
-
-  integer MAXWDOPN
-  parameter (MAXWDOPN=10)  ! Number of WDM files that can be open.
-  integer iwdopn
-  integer wdmun(MAXWDOPN)
-  character*120 wdmfil(MAXWDOPN)
-
 !****************************************************************************
 ! defined types
 !****************************************************************************
