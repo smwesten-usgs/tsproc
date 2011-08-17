@@ -2,6 +2,8 @@
 if(TARGET__TSPROC_EXECUTABLE)
 
   add_executable(tsproc
+            tokenize.F90
+
             compute_hi.cpp
             tsp_command_processors.F90
             tsp_data_structures.F90
@@ -39,6 +41,8 @@ endif()
 if(TARGET__TSPROC_LIBRARY)
 
   add_library(tsproclib STATIC
+            tokenize.F90
+
             compute_hi.cpp
             tsp_command_processors.F90
             tsp_data_structures.F90
