@@ -104,6 +104,7 @@ module tsp_data_structures
     real     minimum
     real     range
     real     mean
+    real     median
     real     stddev
     real     total
     real     minmean

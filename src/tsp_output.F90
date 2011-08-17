@@ -765,6 +765,11 @@ subroutine pest_files(ifail,lastblock)
              avariable='MEAN'
              go to 9600
            end if
+           if(((stable_g(io)%median.lt.-1.0e36).and.(stable_g(im)%median.gt.-1.0e36)).or.   &
+              ((stable_g(io)%median.gt.-1.0e36).and.(stable_g(im)%median.lt.-1.0e36)))then
+             avariable='MEDIAN'
+             go to 9600
+           end if
            if(((stable_g(io)%stddev.lt.-1.0e36).and.(stable_g(im)%stddev.gt.-1.0e36)).or.  &
               ((stable_g(io)%stddev.gt.-1.0e36).and.(stable_g(im)%stddev.lt.-1.0e36)))then
              avariable='STD_DEV'
@@ -1528,6 +1533,16 @@ subroutine pest_files(ifail,lastblock)
            end if
            nobs=nobs+1
          end if
+         if(stable_g(io)%median.gt.-1.0e36)then
+           il=il+1
+           aname='['//trim(sbasename(siout))//OBSCHAR//'median]51:69'
+           if(il.eq.1)then
+             write(iunit,1140) trim(aname)
+           else
+             write(iunit,1150) trim(aname)
+           end if
+           nobs=nobs+1
+         end if
          if(stable_g(io)%stddev.gt.-1.0e36)then
            il=il+1
            aname='['//trim(sbasename(siout))//OBSCHAR//'sd]51:69'
@@ -2088,6 +2103,28 @@ subroutine pest_files(ifail,lastblock)
            if(dval.lt.weightmin)dval=weightmin
            if(dval.gt.weightmax)dval=weightmax
            write(iunit,1900) trim(aname),stable_g(io)%mean,dval,trim(stable_g(im)%name)
+         end if
+
+         if(stable_g(io)%median.gt.-1.0e36)then
+           aname=trim(sbasename(siout))//OBSCHAR//'median'
+           nterm=nnterm
+           do iterm=1,nterm
+             aterm(iterm)=cterm(iterm)
+           end do
+           do iterm=1,nterm
+             rterm(iterm)=qterm(iterm)
+           end do
+           do iterm =1,nterm
+             if(aterm(iterm)(1:3).eq.'@_2') then
+               rterm(iterm)=abs(stable_g(io)%median)
+               aterm(iterm)='~!~'
+             end if
+           end do
+           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
+           OPERAT,FUNCT,IORDER,DVAL,rterm)
+           if(dval.lt.weightmin)dval=weightmin
+           if(dval.gt.weightmax)dval=weightmax
+           write(iunit,1900) trim(aname),stable_g(io)%median,dval,trim(stable_g(im)%name)
          end if
 
          if(stable_g(io)%stddev.gt.-1.0e36)then
@@ -2800,6 +2837,10 @@ subroutine write_list_output(ifail)
             call num2char(stable_g(jstable)%avetime,atemp)
             write(LU_OUT,640) trim(atemp),stable_g(jstable)%maxmean
 640         format(t5,'Maximum ',a,'-sample mean',t55,1pg14.7)
+          end if
+          if(stable_g(jstable)%median.gt.-1.0e35)then
+            write(LU_OUT,650) stable_g(jstable)%median
+650         format(t5,'Median value:',t55,1pg14.7)
           end if
        end do
 

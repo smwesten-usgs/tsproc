@@ -3725,7 +3725,7 @@ subroutine statistics(ifail)
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
        icontext,i,begdays,begsecs,enddays,endsecs,iseries,jtrans,javerage, &
        jstddev,jmaximum,jminimum,jsum,j,ibterm,ieterm,iterm,iiterm,itemp,ixcon, &
-       iitemp,jj,minaverage,maxaverage,ii,nnterm,jrange
+       iitemp,jj,minaverage,maxaverage,ii,nnterm,jrange,jmed
        real tpower,tsum,tmin,tmax,rtemp,raverage,localsum,tminmean,tmaxmean
        character*3 aaa
        character (len=iTSNAMELENGTH) :: aname,atemp
@@ -3758,6 +3758,7 @@ subroutine statistics(ifail)
        ixcon=0
        minaverage=0
        maxaverage=0
+       jmed=0
 
 ! -- The SERIES_STATISTICS block is first parsed.
 
@@ -3978,6 +3979,17 @@ subroutine statistics(ifail)
            write(*,134) trim(aaa)
            write(LU_REC,134) trim(aaa)
 134        format(t5,'SUM ',a)
+         else if(aoption.eq.'MEDIAN')then
+           call get_yes_no(ierr,jmed)
+           if(ierr.ne.0) go to 9800
+           if(jmed.eq.1)then
+             aaa='yes'
+           else
+             aaa='no'
+           end if
+           write(*,435) trim(aaa)
+           write(LU_REC,435) trim(aaa)
+435        format(t5,'MEDIAN ',a)
          else if(aoption.eq.'END')then
            go to 200
          else
@@ -4015,7 +4027,7 @@ subroutine statistics(ifail)
        if(ierr.ne.0) go to 9800
        if((javerage.eq.0).and.(jstddev.eq.0).and.(jmaximum.eq.0)  &
          .and.(jminimum.eq.0).and.(jsum.eq.0).and.(maxaverage.eq.0)  &
-         .and.(minaverage.eq.0).and.(jrange.eq.0))then
+         .and.(minaverage.eq.0).and.(jrange.eq.0).and.(jmed.eq.0))then
          write(amessage,240) trim(CurrentBlock_g)
 240      format('at least one of the MEAN, STD_DEV, MAXIMUM, MINIMUM, ', &
          'RANGE, SUM, MINMEAN_* or MAXMEAN_*  keywords must be supplied within a ',  &
@@ -4201,6 +4213,11 @@ subroutine statistics(ifail)
          stable_g(i)%total=tsum
        else
          stable_g(i)%total=-1.0e37
+       end if
+       if(jmed.eq.1)then
+         stable_g(i)%median=median(series_g(iseries)%val)
+       else
+         stable_g(i)%median=-1.0e37
        end if
        if(jstddev.eq.0)then
          stable_g(i)%stddev=-1.0e37
