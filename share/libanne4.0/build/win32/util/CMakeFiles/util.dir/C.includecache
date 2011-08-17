@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/src/util/FileName.c
+stdlib.h
+-
+string.h
+-
+
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/src/util/Malloc.c
+stdlib.h
+-
+stdlib.h
+-
+stdlib.h
+-
+
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/src/util/dirlis_.c
+stdlib.h
+-
+stdio.h
+-
+string.h
+-
+
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/src/util/getdir_.c
+stdlib.h
+-
+string.h
+-
+memory.h
+-
+
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/src/util/utcpc.c
+string.h
+-
+

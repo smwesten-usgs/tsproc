@@ -1,0 +1,250 @@
+pcf
+* control data
+restart estimation
+    107     15    107      0      2
+     1     1   single   point   1   0   0
+5.0   2.0    0.3    0.03    10  999
+5.0   5.0   1.0e-3
+0.1   aui
+30   .005  4   4  .005   4
+1    1    1
+* parameter groups
+snow_intcp   relative     1.0000E-02   0.000      switch      2.000      parabolic
+wrain_intcp  relative     1.0000E-02   0.000      switch      2.000      parabolic
+srain_intcp  relative     1.0000E-02   0.000      switch      2.000      parabolic
+jh_coef_fac  relative     1.0000E-02   0.000      switch      2.000      parabolic
+jh_coef_hru  relative     1.0000E-02   0.000      switch      2.000      parabolic
+transp_tmax  relative     1.0000E-02   0.000      switch      2.000      parabolic
+radmax       relative     1.0000E-02   0.000      switch      2.000      parabolic
+radj_sppt    relative     1.0000E-02   0.000      switch      2.000      parabolic
+radj_wppt    relative     1.0000E-02   0.000      switch      2.000      parabolic
+albset_rna   relative     1.0000E-02   0.000      switch      2.000      parabolic
+albset_rnm   relative     1.0000E-02   0.000      switch      2.000      parabolic
+albset_sna   relative     1.0000E-02   0.000      switch      2.000      parabolic
+albset_snm   relative     1.0000E-02   0.000      switch      2.000      parabolic
+cecn_co_fac  relative     1.0000E-02   0.000      switch      2.000      parabolic
+den_init     relative     1.0000E-02   0.000      switch      2.000      parabolic
+rad_trncf    relative     1.0000E-02   0.000      switch      2.000      parabolic
+potet_sublim relative     1.0000E-02   0.000      switch      2.000      parabolic
+tmax_allsnow relative     1.0000E-02   0.000      switch      2.000      parabolic
+tmx_alrnfac  relative     1.0000E-02   0.000      switch      2.000      parabolic
+freeh2o_cap  relative     1.0000E-02   0.000      switch      2.000      parabolic
+settle_const relative     1.0000E-02   0.000      switch      2.000      parabolic
+dday_slp_fac relative     1.0000E-02   0.000      switch      2.000      parabolic
+dday_int_fac relative     1.0000E-02   0.000      switch      2.000      parabolic
+radadj_slope relative     1.0000E-02   0.000      switch      2.000      parabolic
+radadj_intcp relative     1.0000E-02   0.000      switch      2.000      parabolic
+psta_mon     relative     1.0000E-02   0.000      switch      2.000      parabolic
+rain_adj     relative     1.0000E-02   0.000      switch      2.000      parabolic
+snow_adj     relative     1.0000E-02   0.000      switch      2.000      parabolic
+adjmix_rain  relative     1.0000E-02   0.000      switch      2.000      parabolic
+imp_stor_max relative     1.0000E-02   0.000      switch      2.000      parabolic
+sat_thrs_1   relative     1.0000E-02   0.000      switch      2.000      parabolic
+sat_thrs_2   relative     1.0000E-02   0.000      switch      2.000      parabolic
+sat_thrs_3   relative     1.0000E-02   0.000      switch      2.000      parabolic
+sat_thrs_4   relative     1.0000E-02   0.000      switch      2.000      parabolic
+sat_thrs_5   relative     1.0000E-02   0.000      switch      2.000      parabolic
+fl_1         relative     1.0000E-02   0.000      switch      2.000      parabolic
+fl_2         relative     1.0000E-02   0.000      switch      2.000      parabolic
+fl_3         relative     1.0000E-02   0.000      switch      2.000      parabolic
+fl_4         relative     1.0000E-02   0.000      switch      2.000      parabolic
+fl_5         relative     1.0000E-02   0.000      switch      2.000      parabolic
+fsq_1        relative     1.0000E-02   0.000      switch      2.000      parabolic
+fsq_2        relative     1.0000E-02   0.000      switch      2.000      parabolic
+fsq_3        relative     1.0000E-02   0.000      switch      2.000      parabolic
+fsq_4        relative     1.0000E-02   0.000      switch      2.000      parabolic
+fsq_5        relative     1.0000E-02   0.000      switch      2.000      parabolic
+pfd_1        relative     1.0000E-02   0.000      switch      2.000      parabolic
+pfd_2        relative     1.0000E-02   0.000      switch      2.000      parabolic
+pfd_3        relative     1.0000E-02   0.000      switch      2.000      parabolic
+pfd_4        relative     1.0000E-02   0.000      switch      2.000      parabolic
+pfd_5        relative     1.0000E-02   0.000      switch      2.000      parabolic
+sl_1         relative     1.0000E-02   0.000      switch      2.000      parabolic
+sl_2         relative     1.0000E-02   0.000      switch      2.000      parabolic
+sl_3         relative     1.0000E-02   0.000      switch      2.000      parabolic
+sl_4         relative     1.0000E-02   0.000      switch      2.000      parabolic
+sl_5         relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssq_1        relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssq_2        relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssq_3        relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssq_4        relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssq_5        relative     1.0000E-02   0.000      switch      2.000      parabolic
+smcf_1       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smcf_2       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smcf_3       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smcf_4       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smcf_5       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smex_1       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smex_2       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smex_3       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smex_4       relative     1.0000E-02   0.000      switch      2.000      parabolic
+smex_5       relative     1.0000E-02   0.000      switch      2.000      parabolic
+snmx_1       relative     1.0000E-02   0.000      switch      2.000      parabolic
+snmx_2       relative     1.0000E-02   0.000      switch      2.000      parabolic
+snmx_3       relative     1.0000E-02   0.000      switch      2.000      parabolic
+snmx_4       relative     1.0000E-02   0.000      switch      2.000      parabolic
+snmx_5       relative     1.0000E-02   0.000      switch      2.000      parabolic
+s2gmx_1      relative     1.0000E-02   0.000      switch      2.000      parabolic
+s2gmx_2      relative     1.0000E-02   0.000      switch      2.000      parabolic
+s2gmx_3      relative     1.0000E-02   0.000      switch      2.000      parabolic
+s2gmx_4      relative     1.0000E-02   0.000      switch      2.000      parabolic
+s2gmx_5      relative     1.0000E-02   0.000      switch      2.000      parabolic
+smm_1        relative     1.0000E-02   0.000      switch      2.000      parabolic
+smm_2        relative     1.0000E-02   0.000      switch      2.000      parabolic
+smm_3        relative     1.0000E-02   0.000      switch      2.000      parabolic
+smm_4        relative     1.0000E-02   0.000      switch      2.000      parabolic
+smm_5        relative     1.0000E-02   0.000      switch      2.000      parabolic
+srm_fac      relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwc_1        relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwc_2        relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwc_3        relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwc_4        relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwc_5        relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwsnk_1      relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwsnk_2      relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwsnk_3      relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwsnk_4      relative     1.0000E-02   0.000      switch      2.000      parabolic
+gwsnk_5      relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrg_1       relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrg_2       relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrg_3       relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrg_4       relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrg_5       relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrge_1      relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrge_2      relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrge_3      relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrge_4      relative     1.0000E-02   0.000      switch      2.000      parabolic
+ssrge_5      relative     1.0000E-02   0.000      switch      2.000      parabolic
+pimp_fact    relative     1.0000E-02   0.000      switch      2.000      parabolic
+* parameter data
+snow_intcp   log    factor        1.0000       1.00000E-10   1.00000E+10  snow_intcp     1.000       0.000        1
+wrain_intcp  log    factor        1.0000       1.00000E-10   1.00000E+10  wrain_intcp    1.000       0.000        1
+srain_intcp  log    factor        1.0000       1.00000E-10   1.00000E+10  srain_intcp    1.000       0.000        1
+jh_coef_fac  log    factor        1.0000       1.00000E-10   1.00000E+10  jh_coef_fac    1.000       0.000        1
+jh_coef_hru  log    factor        1.0000       1.00000E-10   1.00000E+10  jh_coef_hru    1.000       0.000        1
+transp_tmax  log    factor        1.0000       1.00000E-10   1.00000E+10  transp_tmax    1.000       0.000        1
+radmax       log    factor        1.0000       1.00000E-10   1.00000E+10  radmax         1.000       0.000        1
+radj_sppt    log    factor        1.0000       1.00000E-10   1.00000E+10  radj_sppt      1.000       0.000        1
+radj_wppt    log    factor        1.0000       1.00000E-10   1.00000E+10  radj_wppt      1.000       0.000        1
+albset_rna   log    factor        1.0000       1.00000E-10   1.00000E+10  albset_rna     1.000       0.000        1
+albset_rnm   log    factor        1.0000       1.00000E-10   1.00000E+10  albset_rnm     1.000       0.000        1
+albset_sna   log    factor        1.0000       1.00000E-10   1.00000E+10  albset_sna     1.000       0.000        1
+albset_snm   log    factor        1.0000       1.00000E-10   1.00000E+10  albset_snm     1.000       0.000        1
+cecn_co_fac  log    factor        1.0000       1.00000E-10   1.00000E+10  cecn_co_fac    1.000       0.000        1
+den_init     log    factor        1.0000       1.00000E-10   1.00000E+10  den_init       1.000       0.000        1
+rad_trncf    log    factor        1.0000       1.00000E-10   1.00000E+10  rad_trncf      1.000       0.000        1
+potet_sublim log    factor        1.0000       1.00000E-10   1.00000E+10  potet_sublim   1.000       0.000        1
+tmax_allsnow log    factor        1.0000       1.00000E-10   1.00000E+10  tmax_allsnow   1.000       0.000        1
+tmx_alrnfac  log    factor        1.0000       1.00000E-10   1.00000E+10  tmx_alrnfac    1.000       0.000        1
+freeh2o_cap  log    factor        1.0000       1.00000E-10   1.00000E+10  freeh2o_cap    1.000       0.000        1
+settle_const log    factor        1.0000       1.00000E-10   1.00000E+10  settle_const   1.000       0.000        1
+dday_slp_fac log    factor        1.0000       1.00000E-10   1.00000E+10  dday_slp_fac   1.000       0.000        1
+dday_int_fac log    factor        1.0000       1.00000E-10   1.00000E+10  dday_int_fac   1.000       0.000        1
+radadj_slope log    factor        1.0000       1.00000E-10   1.00000E+10  radadj_slope   1.000       0.000        1
+radadj_intcp log    factor        1.0000       1.00000E-10   1.00000E+10  radadj_intcp   1.000       0.000        1
+psta_mon     log    factor        1.0000       1.00000E-10   1.00000E+10  psta_mon       1.000       0.000        1
+rain_adj     log    factor        1.0000       1.00000E-10   1.00000E+10  rain_adj       1.000       0.000        1
+snow_adj     log    factor        1.0000       1.00000E-10   1.00000E+10  snow_adj       1.000       0.000        1
+adjmix_rain  log    factor        1.0000       1.00000E-10   1.00000E+10  adjmix_rain    1.000       0.000        1
+imp_stor_max log    factor        1.0000       1.00000E-10   1.00000E+10  imp_stor_max   1.000       0.000        1
+sat_thrs_1   log    factor        1.0000       1.00000E-10   1.00000E+10  sat_thrs_1     1.000       0.000        1
+sat_thrs_2   log    factor        1.0000       1.00000E-10   1.00000E+10  sat_thrs_2     1.000       0.000        1
+sat_thrs_3   log    factor        1.0000       1.00000E-10   1.00000E+10  sat_thrs_3     1.000       0.000        1
+sat_thrs_4   log    factor        1.0000       1.00000E-10   1.00000E+10  sat_thrs_4     1.000       0.000        1
+sat_thrs_5   log    factor        1.0000       1.00000E-10   1.00000E+10  sat_thrs_5     1.000       0.000        1
+fl_1         log    factor        1.0000       1.00000E-10   1.00000E+10  fl_1           1.000       0.000        1
+fl_2         log    factor        1.0000       1.00000E-10   1.00000E+10  fl_2           1.000       0.000        1
+fl_3         log    factor        1.0000       1.00000E-10   1.00000E+10  fl_3           1.000       0.000        1
+fl_4         log    factor        1.0000       1.00000E-10   1.00000E+10  fl_4           1.000       0.000        1
+fl_5         log    factor        1.0000       1.00000E-10   1.00000E+10  fl_5           1.000       0.000        1
+fsq_1        log    factor        1.0000       1.00000E-10   1.00000E+10  fsq_1          1.000       0.000        1
+fsq_2        log    factor        1.0000       1.00000E-10   1.00000E+10  fsq_2          1.000       0.000        1
+fsq_3        log    factor        1.0000       1.00000E-10   1.00000E+10  fsq_3          1.000       0.000        1
+fsq_4        log    factor        1.0000       1.00000E-10   1.00000E+10  fsq_4          1.000       0.000        1
+fsq_5        log    factor        1.0000       1.00000E-10   1.00000E+10  fsq_5          1.000       0.000        1
+pfd_1        log    factor        1.0000       1.00000E-10   1.00000E+10  pfd_1          1.000       0.000        1
+pfd_2        log    factor        1.0000       1.00000E-10   1.00000E+10  pfd_2          1.000       0.000        1
+pfd_3        log    factor        1.0000       1.00000E-10   1.00000E+10  pfd_3          1.000       0.000        1
+pfd_4        log    factor        1.0000       1.00000E-10   1.00000E+10  pfd_4          1.000       0.000        1
+pfd_5        log    factor        1.0000       1.00000E-10   1.00000E+10  pfd_5          1.000       0.000        1
+sl_1         log    factor        1.0000       1.00000E-10   1.00000E+10  sl_1           1.000       0.000        1
+sl_2         log    factor        1.0000       1.00000E-10   1.00000E+10  sl_2           1.000       0.000        1
+sl_3         log    factor        1.0000       1.00000E-10   1.00000E+10  sl_3           1.000       0.000        1
+sl_4         log    factor        1.0000       1.00000E-10   1.00000E+10  sl_4           1.000       0.000        1
+sl_5         log    factor        1.0000       1.00000E-10   1.00000E+10  sl_5           1.000       0.000        1
+ssq_1        log    factor        1.0000       1.00000E-10   1.00000E+10  ssq_1          1.000       0.000        1
+ssq_2        log    factor        1.0000       1.00000E-10   1.00000E+10  ssq_2          1.000       0.000        1
+ssq_3        log    factor        1.0000       1.00000E-10   1.00000E+10  ssq_3          1.000       0.000        1
+ssq_4        log    factor        1.0000       1.00000E-10   1.00000E+10  ssq_4          1.000       0.000        1
+ssq_5        log    factor        1.0000       1.00000E-10   1.00000E+10  ssq_5          1.000       0.000        1
+smcf_1       log    factor        1.0000       1.00000E-10   1.00000E+10  smcf_1         1.000       0.000        1
+smcf_2       log    factor        1.0000       1.00000E-10   1.00000E+10  smcf_2         1.000       0.000        1
+smcf_3       log    factor        1.0000       1.00000E-10   1.00000E+10  smcf_3         1.000       0.000        1
+smcf_4       log    factor        1.0000       1.00000E-10   1.00000E+10  smcf_4         1.000       0.000        1
+smcf_5       log    factor        1.0000       1.00000E-10   1.00000E+10  smcf_5         1.000       0.000        1
+smex_1       log    factor        1.0000       1.00000E-10   1.00000E+10  smex_1         1.000       0.000        1
+smex_2       log    factor        1.0000       1.00000E-10   1.00000E+10  smex_2         1.000       0.000        1
+smex_3       log    factor        1.0000       1.00000E-10   1.00000E+10  smex_3         1.000       0.000        1
+smex_4       log    factor        1.0000       1.00000E-10   1.00000E+10  smex_4         1.000       0.000        1
+smex_5       log    factor        1.0000       1.00000E-10   1.00000E+10  smex_5         1.000       0.000        1
+snmx_1       log    factor        1.0000       1.00000E-10   1.00000E+10  snmx_1         1.000       0.000        1
+snmx_2       log    factor        1.0000       1.00000E-10   1.00000E+10  snmx_2         1.000       0.000        1
+snmx_3       log    factor        1.0000       1.00000E-10   1.00000E+10  snmx_3         1.000       0.000        1
+snmx_4       log    factor        1.0000       1.00000E-10   1.00000E+10  snmx_4         1.000       0.000        1
+snmx_5       log    factor        1.0000       1.00000E-10   1.00000E+10  snmx_5         1.000       0.000        1
+s2gmx_1      log    factor        1.0000       1.00000E-10   1.00000E+10  s2gmx_1        1.000       0.000        1
+s2gmx_2      log    factor        1.0000       1.00000E-10   1.00000E+10  s2gmx_2        1.000       0.000        1
+s2gmx_3      log    factor        1.0000       1.00000E-10   1.00000E+10  s2gmx_3        1.000       0.000        1
+s2gmx_4      log    factor        1.0000       1.00000E-10   1.00000E+10  s2gmx_4        1.000       0.000        1
+s2gmx_5      log    factor        1.0000       1.00000E-10   1.00000E+10  s2gmx_5        1.000       0.000        1
+smm_1        log    factor        1.0000       1.00000E-10   1.00000E+10  smm_1          1.000       0.000        1
+smm_2        log    factor        1.0000       1.00000E-10   1.00000E+10  smm_2          1.000       0.000        1
+smm_3        log    factor        1.0000       1.00000E-10   1.00000E+10  smm_3          1.000       0.000        1
+smm_4        log    factor        1.0000       1.00000E-10   1.00000E+10  smm_4          1.000       0.000        1
+smm_5        log    factor        1.0000       1.00000E-10   1.00000E+10  smm_5          1.000       0.000        1
+srm_fac      log    factor        1.0000       1.00000E-10   1.00000E+10  srm_fac        1.000       0.000        1
+gwc_1        log    factor        1.0000       1.00000E-10   1.00000E+10  gwc_1          1.000       0.000        1
+gwc_2        log    factor        1.0000       1.00000E-10   1.00000E+10  gwc_2          1.000       0.000        1
+gwc_3        log    factor        1.0000       1.00000E-10   1.00000E+10  gwc_3          1.000       0.000        1
+gwc_4        log    factor        1.0000       1.00000E-10   1.00000E+10  gwc_4          1.000       0.000        1
+gwc_5        log    factor        1.0000       1.00000E-10   1.00000E+10  gwc_5          1.000       0.000        1
+gwsnk_1      log    factor        1.0000       1.00000E-10   1.00000E+10  gwsnk_1        1.000       0.000        1
+gwsnk_2      log    factor        1.0000       1.00000E-10   1.00000E+10  gwsnk_2        1.000       0.000        1
+gwsnk_3      log    factor        1.0000       1.00000E-10   1.00000E+10  gwsnk_3        1.000       0.000        1
+gwsnk_4      log    factor        1.0000       1.00000E-10   1.00000E+10  gwsnk_4        1.000       0.000        1
+gwsnk_5      log    factor        1.0000       1.00000E-10   1.00000E+10  gwsnk_5        1.000       0.000        1
+ssrg_1       log    factor        1.0000       1.00000E-10   1.00000E+10  ssrg_1         1.000       0.000        1
+ssrg_2       log    factor        1.0000       1.00000E-10   1.00000E+10  ssrg_2         1.000       0.000        1
+ssrg_3       log    factor        1.0000       1.00000E-10   1.00000E+10  ssrg_3         1.000       0.000        1
+ssrg_4       log    factor        1.0000       1.00000E-10   1.00000E+10  ssrg_4         1.000       0.000        1
+ssrg_5       log    factor        1.0000       1.00000E-10   1.00000E+10  ssrg_5         1.000       0.000        1
+ssrge_1      log    factor        1.0000       1.00000E-10   1.00000E+10  ssrge_1        1.000       0.000        1
+ssrge_2      log    factor        1.0000       1.00000E-10   1.00000E+10  ssrge_2        1.000       0.000        1
+ssrge_3      log    factor        1.0000       1.00000E-10   1.00000E+10  ssrge_3        1.000       0.000        1
+ssrge_4      log    factor        1.0000       1.00000E-10   1.00000E+10  ssrge_4        1.000       0.000        1
+ssrge_5      log    factor        1.0000       1.00000E-10   1.00000E+10  ssrge_5        1.000       0.000        1
+pimp_fact    log    factor        1.0000       1.00000E-10   1.00000E+10  pimp_fact      1.000       0.000        1
+* observation groups
+esq6500
+sim_hyd_indx
+* observation data
+esq6500_1              1.000000         1.00000      esq6500
+esq6500_2              1.000000         1.00000      esq6500
+esq6500_3             0.9969871         1.00000      esq6500
+esq6500_4             0.9378747         1.00000      esq6500
+esq6500_5             0.7400036         1.00000      esq6500
+esq6500_6             0.3905908         1.00000      esq6500
+esq6500_7             0.1703586         1.00000      esq6500
+esq6500_8             8.1648365E-02     1.00000      esq6500
+esq6500_9             1.5277040E-02     1.00000      esq6500
+sim_hyd_indx1          46.55484         1.00000      sim_hyd_indx
+sim_hyd_indx2          38.13667         1.00000      sim_hyd_indx
+sim_hyd_indx3          21.48024         1.00000      sim_hyd_indx
+sim_hyd_indx4          28.20000         1.00000      sim_hyd_indx
+sim_hyd_indx5          26.62055         1.00000      sim_hyd_indx
+sim_hyd_indx6         0.5813904         1.00000      sim_hyd_indx
+* model command line
+model
+* model input/output
+par2par_base.tpl   par2par_base.dat
+simulated_vals.ins   hi_list_sim_pest.txt

@@ -1,0 +1,4 @@
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/build/win32/adwdm/CMakeFiles/adwdm.dir
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/build/win32/CMakeFiles/copy.dir
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/build/win32/util/CMakeFiles/util.dir
+D:/SMWData/Source_Code/tsproc_dev/share/libanne4.0/build/win32/wdm/CMakeFiles/wdm.dir

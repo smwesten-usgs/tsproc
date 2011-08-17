@@ -1,0 +1,89 @@
+
+ E_TABLE "esq6500" ---->
+   Flow           Time delay (days)    Time above (days)   Fraction of time above threshold
+   15.00000          0.000000            3562.184              0.9756734    
+   18.00000          0.000000            3430.528              0.9396133    
+   20.00000          0.000000            3319.842              0.9092966    
+   24.00000          0.000000            2937.377              0.8045405    
+   31.00000          0.000000            2203.904              0.6036440    
+   40.00000          0.000000            1447.988              0.3966002    
+   52.00000          0.000000            835.2214              0.2287651    
+   65.00000          0.000000            476.7368              0.1305770    
+   130.1000          0.000000            104.3426              2.8579185E-02
+
+ G_TABLE "obs_hyd_indx" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA16: Mean monthly flow, May                                                    46.555
+   MA22: Mean monthly flow, November                                               38.137
+   MA34: CV of monthly flow, November                                              21.480
+   ML1: Mean minimum monthly flow, January                                         28.200
+   ML13: CV of minimum monthly flows                                               26.621
+   ML15: Mean minimum annual flow / mean annual flow                                0.581
+
+ G_TABLE "obs_hyd_indx02" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA9: (Q10 - Q90) / median daily flow                                             0.946
+   MA18: Mean monthly flow, July                                                   54.674
+   MA21: Mean monthly flow, October                                                35.709
+   MA37: IQR mean monthly / median monthly flow                                     0.410
+   ML6: Mean minimum monthly flow, June                                            33.700
+   ML15: Mean minimum annual flow / mean annual flow                                0.581
+   ML16: Median minimum annual flow / median annual flow                            0.680
+   ML22: Mean annual minimum flow divided by catchment area                         0.589
+
+ G_TABLE "obs_hyd_indx03" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA29: CV of monthly flow, June                                                  45.300
+   MA40: Skewness in monthly flows                                                  0.108
+   ML13: CV of minimum monthly flows                                               26.621
+   ML22: Mean annual minimum flow divided by catchment area                         0.589
+
+ G_TABLE "obs_hyd_indx04" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA3: CV, all daily flows                                                        63.004
+   MA44: (Q10 - Q90)[annual] / median annual flow                                   0.690
+   ML13: CV of minimum monthly flows                                               26.621
+   ML14: Mean minimum daily flow / mean median annual flow                          0.669
+
+ G_TABLE "obs_hyd_indx05" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA3: CV, all daily flows                                                        63.004
+   MA8: Ratio, Q25 / Q75 for all daily flows                                        1.533
+   MA41: Mean annual runoff                                                         1.034
+   ML14: Mean minimum daily flow / mean median annual flow                          0.669
+   ML16: Median minimum annual flow / median annual flow                            0.680
+   ML18: CV of ( mean minimum annual flow / mean annual flow )                     17.655
+
+ G_TABLE "obs_hyd_indx06" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA10: (Q20 - Q80) / median daily flow                                            0.568
+   MA26: CV of monthly flow, March                                                 45.477
+   MA41: Mean annual runoff                                                         1.034
+   ML14: Mean minimum daily flow / mean median annual flow                          0.669
+   ML16: Median minimum annual flow / median annual flow                            0.680
+   ML17: 7-day minimum flow / mean annual flow                                      0.581
+
+ G_TABLE "obs_hyd_indx07" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA3: CV, all daily flows                                                        63.004
+   MA5: Mean daily flow / median daily flow                                         1.163
+   MA11: (Q25 - Q75) / median daily flow                                            0.432
+   MA41: Mean annual runoff                                                         1.034
+   ML4: Mean minimum monthly flow, April                                           36.000
+   ML17: 7-day minimum flow / mean annual flow                                      0.581
+   ML18: CV of ( mean minimum annual flow / mean annual flow )                     17.655
+   ML21: CV of annual minimum flows                                                17.661
+
+ G_TABLE "obs_hyd_indx08" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA2: Median, all daily flows                                                    37.000
+   ML2: Mean minimum monthly flow, February                                        27.500
+   MH2: Mean maximum monthly flow, February                                       133.600
+   FL2: CV of low flow pulse count                                                 79.616
+   FH2: CV of high flow pulse count                                                26.195
+   DL2: Annual minimum of 3-day mean of flow                                       25.067
+   DH2: Annual maximum of 3-day mean of flow                                      218.467
+   TA2: Predictability of flow                                                     76.144
+   TL2: CV, day-of-year of annual minimum                                          78.327
+   TH2: CV, day-of-year of annual maximum                                          58.214
+   RA2: CV, mean of positive changes from one day to next (rise rate)             294.493
