@@ -46,9 +46,9 @@ program tsp_main
 
     lInteractive = lFALSE
     ! get actual values of the command-line arguments
-    call GET_COMMAND_ARGUMENT(1,sContextOverride_g)
-    call GET_COMMAND_ARGUMENT(2,sInputFile)
-    call GET_COMMAND_ARGUMENT(3,sRecFile)
+    call GET_COMMAND_ARGUMENT(1,sInputFile)
+    call GET_COMMAND_ARGUMENT(2,sRecFile)
+    call GET_COMMAND_ARGUMENT(3,sContextOverride_g)
 
   end if
 
