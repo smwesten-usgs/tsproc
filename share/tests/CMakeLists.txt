@@ -2,11 +2,11 @@
 # Need input files over in build environment
 file(GLOB infiles
      RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-     *.ssf *.inp)
+     *.ssf *.inp *.wdm)
 foreach(infilename ${infiles})
     set(infile  ${CMAKE_CURRENT_SOURCE_DIR}/${infilename})
     set(outfile ${CMAKE_CURRENT_BINARY_DIR}/${infilename})
-    configure_file( ${infile} ${outfile} COPYONLY)
+    configure_file(${infile} ${outfile} COPYONLY)
 endforeach()
 
 # Find the tsproc that this build environment created
@@ -20,6 +20,7 @@ set(tests
     #  hi_test_write_pest.inp   # requires interactive input
        test_hi_01.inp
        tsproc_test.inp
+       wdm_test_01.inp
        )
 
 foreach(testfname ${tests})
