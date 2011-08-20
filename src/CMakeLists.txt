@@ -36,6 +36,13 @@ if(TARGET__TSPROC_EXECUTABLE)
             wdm_support/WDTMS1.FOR
             wdm_support/WDTMS2.FOR )
 
+   install(TARGETS tsproc
+           RUNTIME
+           DESTINATION bin
+           )
+   if (${CMAKE_HOST_UNIX})
+       target_link_libraries(tsproc stdc++)
+   endif()
 endif()
 
 if(TARGET__TSPROC_LIBRARY)
@@ -74,11 +81,23 @@ if(TARGET__TSPROC_LIBRARY)
             wdm_support/WDOP.FOR
             wdm_support/WDTMS1.FOR
             wdm_support/WDTMS2.FOR )
+
+   if(${CMAKE_HOST_WIN32})
+      install(TARGETS tsproclib
+              ARCHIVE
+              DESTINATION lib
+              )
+   endif()
+   if(${CMAKE_HOST_UNIX})
+      install(TARGETS tsproclib
+              ARCHIVE
+              DESTINATION lib
+              )
+   endif()
 endif()
 
 set_target_properties(tsproc tsproclib
     PROPERTIES LINKER_LANGUAGE Fortran)
 
-if (${CMAKE_HOST_UNIX})
-    target_link_libraries(tsproc stdc++)
-endif()
+
+
