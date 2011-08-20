@@ -92,9 +92,9 @@ link_directories(${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR})
 
 get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
+enable_testing()
 add_subdirectory(src)
 
-enable_testing()
 add_subdirectory(share/tests)
 
 

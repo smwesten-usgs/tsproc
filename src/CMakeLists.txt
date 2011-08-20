@@ -96,8 +96,18 @@ if(TARGET__TSPROC_LIBRARY)
    endif()
 endif()
 
-set_target_properties(tsproc tsproclib
+
+add_executable(test_hi
+    test_compute_hi.F90
+    compute_hi.cpp
+    )
+
+if (${CMAKE_HOST_UNIX})
+    target_link_libraries(test_hi stdc++)
+endif()
+add_test(test_compute_hi test_hi)
+set_tests_properties(test_compute_hi 
+    PROPERTIES PASS_REGULAR_EXPRESSION "Done!!")
+
+set_target_properties(tsproc tsproclib test_hi
     PROPERTIES LINKER_LANGUAGE Fortran)
-
-
-
