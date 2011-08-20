@@ -9,7 +9,7 @@ module tsp_data_structures
   integer, parameter    :: MAXCONTEXT=5
   integer, parameter    :: MAXVTABLE=500
   integer, parameter    :: MAXDTABLE=500
-  integer, parameter    :: MAXTEMPDURFLOW=50
+  integer, parameter    :: MAXTEMPDURFLOW=100         ! this used to be 50
   integer, parameter    :: MAXTEMPFILE=200
   integer, parameter    :: MAXPAR=8500
   character, parameter  :: OBSCHAR='_'
