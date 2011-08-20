@@ -12,6 +12,9 @@ message("Processing top-level CMakelists.txt for project tsproc")
 project (tsproc Fortran CXX)
 enable_language (Fortran CXX)
 
+SET(CPACK_GENERATOR "TGZ")
+include(CPack)
+
 include(FindBoost)
 find_package(Boost)
 if(Boost_Found)
