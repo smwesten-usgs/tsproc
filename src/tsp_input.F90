@@ -3312,7 +3312,7 @@ subroutine get_wdm_series (ifail)
           CALL addquote (sInfile_g, sString_g)
           WRITE (amessage, 1575) TRIM (aline), TRIM (sString_g)
 1575      FORMAT ('there should be 2 entries on line ', A, ' of file ', A)
-          GOTO 1745
+          GOTO 9800
        ENDIF
        aoption = cline (left_word (1) :right_word (1) )
        CALL casetrans (aoption, 'hi')
@@ -3321,18 +3321,18 @@ subroutine get_wdm_series (ifail)
           IF (ierr == - 1) THEN
              CALL find_end (ifail)
              IF (ifail == 1) THEN
-                GOTO 1745
+                GOTO 9800
              ENDIF
              RETURN
           ELSEIF (ierr == 1) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
           ixcon = 1
        ENDIF
        IF (aoption == 'FILE') THEN
           CALL get_file_name (ierr, afile)
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'DSN') THEN
           CALL char2num (ierr, cline (left_word (2) :right_word (2) ), dsn  &
@@ -3342,7 +3342,7 @@ subroutine get_wdm_series (ifail)
              CALL addquote (sInfile_g, sString_g)
              WRITE (amessage, 1580) TRIM (aline), TRIM (sString_g)
 1580         FORMAT ('cannot read DSN from line ', A, ' of file ', A)
-             GOTO 1745
+             GOTO 9800
           ENDIF
           CALL num2char (dsn, aline)
           WRITE (*, 1585) TRIM (aline)
@@ -3351,32 +3351,32 @@ subroutine get_wdm_series (ifail)
        ELSEIF (aoption == 'DATE_1') THEN
           CALL get_date (ierr, dd1, mm1, yy1, 'DATE_1')
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'DATE_2') THEN
           CALL get_date (ierr, dd2, mm2, yy2, 'DATE_2')
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'TIME_1') THEN
           CALL get_time (ierr, hh1, nn1, ss1, 'TIME_1')
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'TIME_2') THEN
           CALL get_time (ierr, hh2, nn2, ss2, 'TIME_2')
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'DEF_TIME') THEN
           CALL get_time (ierr, hhd, nnd, ssd, 'DEF_TIME')
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'NEW_SERIES_NAME') THEN
           call get_new_series_name(ierr,aname)
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'CONTEXT') THEN
           IF (ixcon /= 0) THEN
@@ -3385,11 +3385,11 @@ subroutine get_wdm_series (ifail)
              WRITE (amessage, 1590) TRIM (aline), TRIM (sString_g)
 1590         FORMAT ('CONTEXT keyword in incorrect location at line ', A,   &
                ' of file ', A)
-             GOTO 1745
+             GOTO 9800
           ENDIF
           call get_context(ierr,icontext,acontext)
           IF (ierr /= 0) THEN
-             GOTO 1745
+             GOTO 9800
           ENDIF
        ELSEIF (aoption == 'FILTER') THEN
           CALL char2num (ierr, cline (left_word (2) :right_word (2) ),      &
@@ -3399,7 +3399,7 @@ subroutine get_wdm_series (ifail)
              CALL addquote (sInfile_g, sString_g)
              WRITE (amessage, 1595) TRIM (aline), TRIM (sString_g)
 1595         FORMAT ('cannot read filter from line ', A, ' of file ', A)
-             GOTO 1745
+             GOTO 9800
           ENDIF
           CALL num2char (filter, aline)
           WRITE (*, 1600) cline (left_word (2) :right_word (2) )
@@ -3414,7 +3414,7 @@ subroutine get_wdm_series (ifail)
             (aline), TRIM (sString_g)
 1605      FORMAT ('unexpected keyword - "', A, '" in ', A,                  &
             ' block at line ', A, ' of file ', A)
-          GOTO 1745
+          GOTO 9800
        ENDIF
     ENDDO
 !
@@ -3427,31 +3427,31 @@ subroutine get_wdm_series (ifail)
        CALL addquote (sInfile_g, sString_g)
        WRITE (amessage, 1615) TRIM (Currentblock_g), TRIM (sString_g)
 1615   FORMAT ('no FILE keyword provided in ', A, ' block in file ', A)
-       GOTO 1745
+       GOTO 9800
     ENDIF
     IF (dsn == - 99999999) THEN
        CALL addquote (sInfile_g, sString_g)
        WRITE (amessage, 1620) TRIM (Currentblock_g), TRIM (sString_g)
 1620   FORMAT ('no DSN keyword provided in ', A, ' block in file ', A)
-       GOTO 1745
+       GOTO 9800
     ENDIF
     IF (icontext == 0) THEN
        CALL addquote (sInfile_g, sString_g)
        WRITE (amessage, 1625) TRIM (Currentblock_g), TRIM (sString_g)
 1625   FORMAT ('no CONTEXT keyword provided in ', A, ' block in file ', A)
-       GOTO 1745
+       GOTO 9800
     ENDIF
     IF (aname == ' ') THEN
        CALL addquote (sInfile_g, sString_g)
        WRITE (amessage, 1630) TRIM (Currentblock_g), TRIM (sString_g)
 1630   FORMAT ('no NEW_SERIES_NAME keyword provided in ', A,                &
          ' block in file ', A)
-       GOTO 1745
+       GOTO 9800
     ENDIF
     CALL date_check (ierr, yy1, mm1, dd1, hh1, nn1, ss1, yy2, mm2, dd2, hh2 &
       , nn2, ss2, begdays, begsecs, enddays, endsecs)
     IF (ierr /= 0) THEN
-       GOTO 1745
+       GOTO 9800
     ENDIF
 !
 !
@@ -3486,7 +3486,7 @@ subroutine get_wdm_series (ifail)
     IF (retcode /= 0) THEN
        WRITE (amessage, 1640) TRIM (sString_g), retcode
 1640   FORMAT ('unable to open WDM file ', A, I, ' for data retreival.')
-       GOTO 1745
+       GOTO 9800
     ENDIF
 !
 !   Make sure we can read the data set.
@@ -3496,21 +3496,21 @@ subroutine get_wdm_series (ifail)
 1645   FORMAT (                                                             &
          'there is no data pertaining to the nominated DSN in WDM file ', A &
          )
-       GOTO 1745
+       GOTO 9800
     ELSEIF (retcode == - 81) THEN
        WRITE (amessage, 1650) TRIM (sString_g)
 1650   FORMAT ('the nominated data set does not exist in WDM file ', A)
-       GOTO 1745
+       GOTO 9800
     ELSEIF (retcode == - 82) THEN
        WRITE (amessage, 1655) TRIM (sString_g)
 1655   FORMAT (                                                             &
          'the nominated data set is not a time-series data set in file ', A &
          )
-       GOTO 1745
+       GOTO 9800
     ELSEIF (retcode /= 0) THEN
        WRITE (amessage, 1660) TRIM (sString_g)
 1660   FORMAT ('cannot retrieve data for nominated data set from file ', A)
-       GOTO 1745
+       GOTO 9800
     ENDIF
 !
     CALL timcvt (llsdat)
@@ -3523,13 +3523,13 @@ subroutine get_wdm_series (ifail)
 1665   FORMAT (                                                             &
          'the requested start date is before the beginning date of the datas&
          &et in the wdm file ', A)
-       GOTO 1745
+       GOTO 9800
     ELSEIF (timchk (ledat, lledat) < 0) THEN
        WRITE (amessage, 1670) TRIM (sString_g)
 1670   FORMAT (                                                             &
          'the requested end date is after the end date of the dataset in the&
          & wdm file ', A)
-       GOTO 1745
+       GOTO 9800
     ENDIF
 !
 !   Collect the number of values (iterm, a.k.a. nvals).
@@ -3537,7 +3537,7 @@ subroutine get_wdm_series (ifail)
 !
     CALL alloc_tempseries (ierr, iterm)
     IF (ierr /= 0) THEN
-       GOTO 1745
+       GOTO 9800
     ENDIF
 !
     dtran = 0
@@ -3566,7 +3566,7 @@ subroutine get_wdm_series (ifail)
 1675 FORMAT (                                                               &
       'no more time series available for data storage - increase MAXSERIES a&
       &nd ', 'recompile program.')
-    GOTO 1745
+    GOTO 9800
 !
 1680 CONTINUE
     ALLOCATE (series_g (i) %days (iterm), series_g (i) %secs (iterm),           &
@@ -3574,7 +3574,7 @@ subroutine get_wdm_series (ifail)
     IF (ierr /= 0) THEN
        WRITE (amessage, 1685)
 1685   FORMAT ('cannot allocate memory for another time series.')
-       GOTO 1745
+       GOTO 9800
     ENDIF
 !
     series_g (i) %active = .TRUE.
@@ -3607,32 +3607,31 @@ subroutine get_wdm_series (ifail)
     WRITE (*, 1720) TRIM (aname), TRIM (sString_g)
     WRITE (LU_REC, 1720) TRIM (aname), TRIM (sString_g)
 1720 FORMAT ( T5, 'Series "', A, '" successfully imported from file ', A)
+
+    IF (wdmunit /= 0) THEN
+       CALL WDFLCL(wdmunit, ifail)
+    ENDIF
     GOTO 1750
-!
 !
 1725 CONTINUE
     CALL num2char (Iline_g, aline)
     CALL addquote (sInfile_g, sString_g)
     WRITE (amessage, 1730) TRIM (aline), TRIM (sString_g)
 1730 FORMAT ('cannot read line ', A, ' of TSPROC input file ', A)
-    GOTO 1745
+    GOTO 9800
 1735 CONTINUE
     CALL addquote (sInfile_g, sString_g)
     WRITE (amessage, 1740) TRIM (sString_g), TRIM (Currentblock_g)
 1740 FORMAT ('unexpected end encountered to TSPROC input file ', A,         &
       ' while ', ' reading ', A, ' block.')
-    GOTO 1745
-!
-1745 CONTINUE
+    GOTO 9800
+
+9800 CONTINUE
     CALL write_message (leadspace = 'yes', error = 'yes')
     CALL write_message (iunit = LU_REC, leadspace = 'yes')
     ifail = 1
 !
 1750 CONTINUE
-
-    IF (wdmunit /= 0) THEN
-       CALL WDFLCL(wdmunit, ifail)
-    ENDIF
 
     RETURN
 
