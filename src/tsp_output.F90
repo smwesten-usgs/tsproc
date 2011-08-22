@@ -1691,14 +1691,10 @@ subroutine pest_files(ifail,lastblock)
              end if
            end do
          end if
-         partrans(ipar)='log'
-         parchglim(ipar)='factor'
-         parval1(ipar)=1.0
-         parlbnd(ipar)=1.0e-10
-         parubnd(ipar)=1e10
-         pargp(ipar)=aapar
-         scale(ipar)=1.0
-         offset(ipar)=0.0
+         write(amessage,1449)trim(aapar)
+1449     format('Parameter "', A, '" was found in the template file ',      &
+            'but was not in the parameter file.')
+         goto 9800
 1450     continue
        end do
 
