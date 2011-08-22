@@ -102,6 +102,7 @@ subroutine openControlfile(sFilename, sRecfile)
                  (trim(word) == 'SERIES_COMPARE') .OR.                  &
                  (trim(word) == 'SERIES_EQUATION') .OR.                 &
                  (trim(word) == 'SETTINGS') .OR.                        &
+                 (trim(word) == 'HYDROLOGIC_INDICES') .OR.              &
                  (trim(word) == 'WRITE_PEST_FILES')) THEN
                 blocktype = 1
              ELSE
