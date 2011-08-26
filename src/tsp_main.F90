@@ -104,11 +104,6 @@ program tsp_main
 !       call write_message(leadspace='yes')
    call close_files
 
-!  If have a problem exit with non-zero code
-!  Right now would only capture problems in the reading and parsing of input
-!  file.
-   if(ifail /= 0) call exit(ifail)
-
 !   do i=1,MAXSERIES
 !     if(series_g(i)%active)then
 !       deallocate(series_g(i)%days,series_g(i)%secs,series_g(i)%val,stat=ierr)
