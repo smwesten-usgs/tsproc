@@ -93,7 +93,6 @@ subroutine openControlfile(sFilename, sRecfile)
 
           CALL set_tokenizer(token, ' ,', token_empty, token_quotes)
           wordone = first_token(token, cline, tokenlen)
-          write(*,*) wordone
 ! -- Identify the type of block - whether it can be unrolled or not
           IF (trim(wordone) == 'START') THEN
              maxtokencnt = 0
