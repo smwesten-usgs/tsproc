@@ -2083,7 +2083,8 @@ subroutine get_next_block(ifail)
 550      format(' No blocks found in TSPROC input file ',a)
        else
          write(amessage,540) trim(sString_g)
-540      format(' End of TSPROC input file ',a,' - no more blocks to process.')
+540      format(' End of TSPROC input file ',A)
+         write(amessage,*) '- no more blocks to process.'
        end if
        call write_message(leadspace='yes')
        call write_message(iunit=LU_REC,leadspace='yes')

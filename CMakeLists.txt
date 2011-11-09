@@ -95,6 +95,6 @@ get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 enable_testing()
 add_subdirectory(src)
 
-add_subdirectory(share/tests)
+add_subdirectory(tests)
 
 
