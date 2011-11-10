@@ -3485,7 +3485,7 @@ subroutine get_wdm_series (ifail)
     CALL wdbopn (wdmunit, afile, 1, retcode)
     IF (retcode /= 0) THEN
        WRITE (amessage, 1640) TRIM (sString_g), retcode
-1640   FORMAT ('unable to open WDM file ', A, I, ' for data retreival.')
+1640   FORMAT ('unable to open WDM file ', A, I5, ' for data retreival.')
        GOTO 9800
     ENDIF
 !
