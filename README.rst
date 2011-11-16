@@ -3,7 +3,7 @@ This is the development source code tree for the Time-Series PROCessor
 
 Inital TSPROC development was by John Doherty, Watermark Numerical
 Computing.  It was part of the Surface Water Utilities package that was
-created to support optimization of model parameters using the Paramter
+created to support optimization of model parameters using the Parameter
 ESTimation (PEST) suite or programs.  PEST was also developed by John Doherty.
 
 Requirements
