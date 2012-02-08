@@ -5,6 +5,15 @@
 
 message("Processing top-level CMakelists.txt for project tsproc")
 
+#------------------------------------------------------------------------------------#
+#                           Build directory check                                    #
+#------------------------------------------------------------------------------------#
+if(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
+  message(FATAL_ERROR "Cannot be built in the source directory. Use
+  out-of-source build instead.")
+  message(FATAL_ERROR "  cd /some/work/dir/build")
+  message(FATAL_ERROR "  cmake -i /path/to/source")
+endif(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
 
 #------------------------------------------------------------------------
 # Set basic project settings
@@ -14,12 +23,6 @@ enable_language (Fortran CXX)
 
 SET(CPACK_GENERATOR "TGZ")
 include(CPack)
-
-include(FindBoost)
-find_package(Boost)
-if(Boost_Found)
-    include_directories(${Boost_INCLUDE_DIRS})
-endif()
 
 set(PACKAGE_BUGREPORT "smwesten@usgs.gov")
 set(PACKAGE_NAME "tsproc")
