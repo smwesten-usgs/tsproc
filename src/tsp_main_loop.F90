@@ -37,7 +37,6 @@ subroutine openControlfile(sFilename, sRecfile)
 
   integer :: blocktype
   integer :: bpunit
-  integer :: tmpunit
   integer :: kline
   integer :: tokenlen
   type(tokenizer) :: token
@@ -72,10 +71,17 @@ subroutine openControlfile(sFilename, sRecfile)
        call Assert(ierr==0,"Could not open file '"//TRIM(ADJUSTL(sInfile_g))//"'")
 
        tmpunit = nextunit()
-       OPEN (UNIT=tmpunit, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
+       open (unit=tmpunit, file="temporary."//trim(int2char(tmpunit)), status='REPLACE', &
+          form='FORMATTED', access='SEQUENTIAL')
+!       OPEN (UNIT=tmpunit, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
 
        LU_TSPROC_CONTROL=nextunit()
-       OPEN (UNIT=LU_TSPROC_CONTROL, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
+!       OPEN (UNIT=LU_TSPROC_CONTROL, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
+       ! ** 64-bit Windows version of gfortran tries to place the scratch
+       ! file into the c:\Windows directory. On most machines this is
+       ! locked down tight, and so the program crashes.
+       open (unit=LU_TSPROC_CONTROL, file='tsproc_unrolled.inp', &
+          status='REPLACE', form='FORMATTED')
 !      blocktype = 1 inside a block to NOT loop, 2 inside a block to loop
        blocktype = 0
        kline = 0
@@ -84,7 +90,7 @@ subroutine openControlfile(sFilename, sRecfile)
           READ (bpunit, '(A)', END=1200) cline
 
 ! -- Get rid of blank lines and comments
-          IF (cline == ' ') THEN
+          IF (len_trim(cline) == 0) THEN
              CYCLE
           ENDIF
           IF (cline (1:1) == '#') THEN
@@ -159,8 +165,10 @@ subroutine openControlfile(sFilename, sRecfile)
                              lastword = wordinner
                           ENDIF
                       ENDDO
-                      IF ((wordinnerone == 'START') .OR. (wordinnerone == 'END')) THEN
+                      IF (wordinnerone == 'START') THEN
                          WRITE(LU_TSPROC_CONTROL, '(A)') trim(wordinnerone) // ' ' // trim(wordinner)
+                      ELSEIF (wordinnerone == 'END') THEN
+                         WRITE(LU_TSPROC_CONTROL, '(A,/)') trim(wordinnerone) // ' ' // trim(wordinner)
                       ELSE
                          WRITE(LU_TSPROC_CONTROL, '(A)') '  ' // trim(wordinnerone) // ' ' // trim(wordinner)
                       ENDIF
@@ -169,7 +177,8 @@ subroutine openControlfile(sFilename, sRecfile)
                 ENDDO
 ! -- Have to close and reopen tmpunit to be ready for next block.
                 CLOSE(tmpunit)
-                OPEN (UNIT=tmpunit, STATUS='scratch', ACCESS='SEQUENTIAL')
+                open (unit=tmpunit, file="temporary.xxx",status='REPLACE', &
+                   form='FORMATTED', access='SEQUENTIAL')
                 maxtokencnt = 0
              ENDIF
           ENDIF
@@ -185,8 +194,8 @@ subroutine openControlfile(sFilename, sRecfile)
        call Assert(ierr==0,"Could not open file '"//TRIM(ADJUSTL(sRecFile))//"'")
 
 ! -- Cleanup
-       CLOSE(tmpunit)
-       CLOSE(bpunit)
+       CLOSE(tmpunit, status='DELETE')
+       CLOSE(bpunit, status='KEEP')
 
 ! -- More variables are initialised.
 

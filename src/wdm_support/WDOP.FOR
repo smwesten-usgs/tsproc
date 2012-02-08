@@ -51,8 +51,11 @@ C       first time called, determine compiler flag specific
 C       definition of RECL units in OPEN
 C
 C       create a small file and try to write different size strings
-        OPEN(UNIT=WDMSFL,STATUS='SCRATCH',ACCESS='DIRECT',
-     1       FORM='UNFORMATTED',RECL=4)
+!        OPEN(UNIT=WDMSFL,STATUS='SCRATCH',ACCESS='DIRECT',
+!     1       FORM='UNFORMATTED',RECL=4)
+        open (unit=WDMSFL, file="temporary.wdm01",
+     1    status='REPLACE', form='UNFORMATTED', access='DIRECT', recl=4)
+
         WRITE(WDMSFL,REC=1,ERR=110) '1234567890123456'
         RECRDL= 512
         GOTO 100

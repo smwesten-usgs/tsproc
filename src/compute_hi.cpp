@@ -3,10 +3,14 @@
 //#include "stdafx.h"
 //
 // These include files are from the Boost C++ library
-#include <cstdlib>
+/*#include <cstdlib>
 #include <cstdio>
 #include <cmath>
-#include <vector>
+#include <vector> */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 
 //extern bool usemedian;		// Flag indicating median is to be used in computing MA3,MA12-MA35,ML1-ML12,ML14,
 							//  ML14,ML15,ML17,ML19,ML22,MH1-MH12,MH20,FL1,FL3,FH1,FH3-FH11,DL1-DL5,DL18,

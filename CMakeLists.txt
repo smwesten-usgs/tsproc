@@ -51,6 +51,8 @@ set( CMAKE_BUILD_TYPE "Release" CACHE STRING
 #------------------------------------------------------------------------
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
+find_program(UNAME NAMES uname)
+
 #------------------------------------------------------------------------
 # Set platform-specific options
 #------------------------------------------------------------------------
@@ -58,18 +60,13 @@ if(CMAKE_HOST_WIN32)
 
    if (Fortran_COMPILER_NAME MATCHES "gfortran[.a-z]*")
 
-      message(" <-- setting options for gfortran on MinGW (32-bit) -->")
+      message(" <-- setting options for gfortran on MinGW -->")
 
-      set (PLATFORM_SUBDIR "win32")
       set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
       set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none")
 
       set_property(CACHE CMAKE_BUILD_TYPE
               PROPERTY STRINGS "Release" "Debug")
-
-      include_directories( ${PROJECT_SOURCE_DIR}/include )
-      include_directories( C:/mingw/include/c++/4.6.2 )
-      include_directories( C:/mingw/include/c++/4.6.2/x86_64-w64-mingw32 )
 
       add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
@@ -84,7 +81,7 @@ elseif(CMAKE_HOST_UNIX)
 
 else()
 
-   message(FATAL_ERROR "Windows 32/gfortran/MinGW or Linux-64/Intel environments were not detected!")
+   message(FATAL_ERROR "Windows (32/64)/gfortran/MinGW or Linux-64/Intel environments were not detected!")
 
 endif()
 
@@ -94,7 +91,5 @@ get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
 enable_testing()
 add_subdirectory(src)
-
 add_subdirectory(tests)
-
 

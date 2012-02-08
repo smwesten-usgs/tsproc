@@ -88,8 +88,6 @@ program tsp_main
     read(5,'(a)') sRecFile
   end if
 
-
-
   call openControlfile(sFilename, sRecfile)
 
   do
