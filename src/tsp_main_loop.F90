@@ -31,7 +31,6 @@ subroutine openControlfile(sFilename, sRecfile)
   character (len=*) :: sFilename
   character (len=*) :: sRecfile
 
-  integer (kind=T_INT) :: i
   integer (kind=T_INT) :: ierr
   character (len=256) :: sDateStr, sDateStrPretty
 
@@ -228,7 +227,7 @@ end subroutine closeControlfile
 
 subroutine processBlock()
 
-  integer (kind=T_INT) :: ierr , ifail
+  integer (kind=T_INT) :: ifail
 
          ! settings
          if(iBlockNumber == iGET_SETTINGS) then

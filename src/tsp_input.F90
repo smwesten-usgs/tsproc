@@ -974,7 +974,7 @@ subroutine get_mul_series_statvar(ifail)
          'time=',a,' or for the entry after that.')
          go to 9800
        end if
-9300   call addquote(afile,sString_g)
+       call addquote(afile,sString_g)
        write(amessage,9310) trim(sString_g)
 9310   format('unexpected components in header lines to GSFLOW gage file ',a,'.')
        go to 9800
@@ -1282,7 +1282,6 @@ subroutine get_mul_series_tetrad(ifail)
 !    time series.
 
        jline=0
-190    continue
        do
          jline=jline+1
          read(iunit,'(a)',end=400) cline
@@ -1429,7 +1428,6 @@ subroutine get_mul_series_tetrad(ifail)
 
        iiterm=0                 !iiterm is an array
        jline=0
-490    continue
        do
          jline=jline+1
          read(iunit,'(a)',end=800) cline
@@ -1520,7 +1518,6 @@ subroutine get_mul_series_tetrad(ifail)
              end if
            end if
          end do
-465      continue
        end do
 
 800    continue
@@ -2817,14 +2814,13 @@ subroutine get_ufore_series(ifail)
 ! -- Subroutine get_ufore_series reads a time series from a UFORE-HYDRO file.
        integer, intent(out)   :: ifail
 
-       integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr,k,ixcon, &
+       integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr,ixcon, &
        icontext,i,iunit,begdays,begsecs,enddays,endsecs,iterm,jline,j, &
        dds,mms,yys,hhs,nns,sss,deltat,refdays,refsecs,nterm,tt1secs,tt2secs,  &
        totsecs,secs,days,jj
        real rtemp
        character (len=iTSNAMELENGTH) :: aname
        character*15 aline
-       character*20 atemp
        character*25 aoption
        character*120 afile,bstring
        character*25 acontext(MAXCONTEXT)
@@ -3200,8 +3196,6 @@ subroutine get_wdm_series (ifail)
       , ss2                                                                 &
       , ierr                                                                &
       , icontext                                                            &
-      , nn                                                                  &
-      , ss                                                                  &
       , i                                                                   &
       , wdmunit                                                             &
       , iterm                                                               &
@@ -3212,41 +3206,11 @@ subroutine get_wdm_series (ifail)
       , nnd                                                                 &
       , ssd                                                                 &
       , retcode                                                             &
-      , yyy1                                                                &
-      , yyy2                                                                &
-      , mmm1                                                                &
-      , mmm2                                                                &
-      , ddd1                                                                &
-      , ddd2                                                                &
-      , hhh1                                                                &
-      , hhh2                                                                &
-      , nnn1                                                                &
-      , nnn2                                                                &
-      , sss1                                                                &
-      , sss2                                                                &
       , begdays                                                             &
       , begsecs                                                             &
       , enddays                                                             &
       , endsecs                                                             &
-      , ixcon                                                               &
-      , yy1flag                                                             &
-      , dd1a                                                                &
-      , mm1a                                                                &
-      , yy1a                                                                &
-      , hh1a                                                                &
-      , nn1a                                                                &
-      , ss1a                                                                &
-      , yy2flag                                                             &
-      , dd2a                                                                &
-      , mm2a                                                                &
-      , yy2a                                                                &
-      , hh2a                                                                &
-      , nn2a                                                                &
-      , ss2a                                                                &
-      , ibd                                                                 &
-      , ibs                                                                 &
-      , itsecs                                                              &
-      , mmx
+      , ixcon
     INTEGER                                                                 &
         lsdat (6)                                                           &
       , ledat (6)                                                           &

@@ -16,18 +16,17 @@ subroutine hydro_events(ifail)
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
-       icontext,i,begdays,begsecs,enddays,endsecs,iseries,jtrans, &
-       j,ibterm,ieterm,iterm,iiterm,itemp,ixcon,nvals,days, &
-       iitemp,jj,ii,nnterm,jrange,ndays,nsecs,npts,nmax,tlast,vlast, &
+       icontext,i,begdays,begsecs,enddays,endsecs,iseries, &
+       j,ibterm,ieterm,iterm,iiterm,itemp,ixcon, &
+       ndays,nsecs,npts,nmax,tlast,vlast, &
        DA(12),index(10000),npeak
-       real twindow,rtemp,rvalue,tmin,slope1,slope2,rise_lag,fall_lag
+       real twindow,rtemp,tmin,slope1,slope2,rise_lag,fall_lag
        real, dimension(:), allocatable :: tdate,tval !rank 1
-       character*3 aaa
-       character*10 aname,atemp,abscissa,statistic,period,year_type
+       character*10 aname
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
-	   DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
+       DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0
        CurrentBlock_g='HYDRO_EVENTS'
@@ -232,29 +231,29 @@ subroutine hydro_events(ifail)
          slope1=(tval(j)-tval(j-1))/(tdate(j)-tdate(j-1))
          slope2=(tval(j+1)-tval(j))/(tdate(j+1)-tdate(j))
 !         print *, j, slope1, slope2, tdate(j), tlast, twindow, tval(j), tmin, vlast
-				 if(slope1 .gt. 0.0) then
-					if(slope2 .le. 0.0) then
-						if((tdate(j)-tlast) .gt. twindow) then
-							if(tval(j) .gt. tmin) then
-								npeak=npeak+1
-								index(npeak)=j
-								tlast=tdate(j)
-								vlast=tval(j)
-							end if
-						else
-							if(tval(j) .gt. vlast) then
+         if(slope1 .gt. 0.0) then
+          if(slope2 .le. 0.0) then
+            if((tdate(j)-tlast) .gt. twindow) then
+              if(tval(j) .gt. tmin) then
+                npeak=npeak+1
+                index(npeak)=j
+                tlast=tdate(j)
+                vlast=tval(j)
+              end if
+            else
+              if(tval(j) .gt. vlast) then
                         if(npeak < 1) npeak = 1
-								index(npeak)=j
-								tlast=tdate(j)
-								vlast=tval(j)
-							end if
-						end if
-					end if
-				 end if
-				end do
-				do i=1,npeak
-					call get_event(tdate,tval,npts,index(i),rise_lag,fall_lag,iterm)
-				end do
+                index(npeak)=j
+                tlast=tdate(j)
+                vlast=tval(j)
+              end if
+            end if
+          end if
+         end if
+        end do
+        do i=1,npeak
+          call get_event(tdate,tval,npts,index(i),rise_lag,fall_lag,iterm)
+        end do
 ! --  space is allocated for the new time series.
 
        do i=1,MAXSERIES
@@ -317,37 +316,37 @@ subroutine get_event(tdate,tval,npts,index,rise_lag,fall_lag,iterm)
 
        implicit none
 
-       integer iseries,j,j1,j2,iterm,nvals,days, &
-       iitemp,jj,ii,nnterm,jrange,ndays,nsecs,npts,index
+       integer j,j1,j2,iterm, &
+       ndays,nsecs,npts,index
        real rise_lag,fall_lag,tbeg,tend
        real tdate(*),tval(*)
 
-				tbeg=tdate(index)-rise_lag
-				if(tbeg.lt.tdate(1))tbeg=tdate(1)
-				tend=tdate(index)+fall_lag
-				if(tend.gt.tdate(npts))tend=tdate(npts)
-				j1=index
-				j2=index
-				do j=1,npts-1
-					if(tdate(j) .le. tbeg .and. tdate(j+1) .gt. tbeg) then
-						j1=j
-						exit
-					end if
-				end do
-				do j=1,npts-1
-					if(tdate(j) .le. tend .and. tdate(j+1) .gt. tend) then
-						j2=j
-						exit
-					end if
-				end do
-				do j=j1,j2
-					iterm=iterm+1
-					ndays=int(tdate(j))
-					nsecs=86400*(tdate(j)-ndays)
-					tempseries_g%days(iterm)=ndays
-					tempseries_g%secs(iterm)=nsecs
-					tempseries_g%val(iterm)=tval(j)
-				end do
+        tbeg=tdate(index)-rise_lag
+        if(tbeg.lt.tdate(1))tbeg=tdate(1)
+        tend=tdate(index)+fall_lag
+        if(tend.gt.tdate(npts))tend=tdate(npts)
+        j1=index
+        j2=index
+        do j=1,npts-1
+          if(tdate(j) .le. tbeg .and. tdate(j+1) .gt. tbeg) then
+            j1=j
+            exit
+          end if
+        end do
+        do j=1,npts-1
+          if(tdate(j) .le. tend .and. tdate(j+1) .gt. tend) then
+            j2=j
+            exit
+          end if
+        end do
+        do j=j1,j2
+          iterm=iterm+1
+          ndays=int(tdate(j))
+          nsecs=86400*(tdate(j)-ndays)
+          tempseries_g%days(iterm)=ndays
+          tempseries_g%secs(iterm)=nsecs
+          tempseries_g%val(iterm)=tval(j)
+        end do
 
 end subroutine get_event
 
@@ -362,17 +361,16 @@ subroutine period_stats(ifail)
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
        icontext,i,begdays,begsecs,enddays,endsecs,iseries,jtrans, &
        j,ibterm,ieterm,iterm,iiterm,itemp,ixcon,ndays,nvals,days, &
-       iitemp,jj,ii,nnterm,jrange,dd,mm,yy,cdd,cmm,cyy,cwy,wy, &
+       dd,mm,yy,cdd,cmm,cyy,cwy,wy, &
        DA(12),nvals_mon(12)
        real tpower,rtemp,rvalue,tstat,tmax,tmin,tsum,tsum2,rmean
-       real tmax_mon(12),tmin_mon(12),tsum_mon(12),tsum2_mon(12), &
-       rmean_mon(12)
+       real tmax_mon(12),tmin_mon(12),tsum_mon(12),tsum2_mon(12)
        character*3 aaa
-       character (len=iTSNAMELENGTH) :: aname,atemp,abscissa,statistic,period,year_type
+       character (len=iTSNAMELENGTH) :: aname,abscissa,statistic,period,year_type
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
-	   DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
+     DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0
        CurrentBlock_g='PERIOD_STATISTICS'
@@ -830,8 +828,8 @@ subroutine period_stats(ifail)
                    case('centre')
                      ndays=numdays(1,1,1970,15,cmm,cyy)
                    case('end')
-	                 days=DA(cmm)
-	                 if((cmm.EQ.2).AND.(leap(cyy)))days=days+1
+                   days=DA(cmm)
+                   if((cmm.EQ.2).AND.(leap(cyy)))days=days+1
                      ndays=numdays(1,1,1970,days,cmm,cyy)
                  end select
                  iterm=iterm+1
@@ -1065,18 +1063,17 @@ subroutine usgs_hysep(ifail)
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
-       icontext,i,begdays,begsecs,enddays,endsecs,iseries_g,jtrans, &
-       j,ibterm,ieterm,iterm,iiterm,itemp,ixcon,nmax,days, &
-       iitemp,jj,ii,nnterm,jrange,ndays,nsecs,npts,intrvl, &
+       icontext,i,begdays,begsecs,enddays,endsecs,iseries_g, &
+       j,ibterm,ieterm,iterm,iiterm,itemp,ixcon,nmax, &
+       ndays,nsecs,npts,intrvl, &
        DA(12)
-       real twindow,rtemp,rvalue,tarea,rintr
+       real twindow,rtemp,tarea,rintr
        real, dimension(:), allocatable :: tdate,tval,tbflow !rank 1
-       character*3 aaa
-       character (len=iTSNAMELENGTH) :: aname,atemp
+       character (len=iTSNAMELENGTH) :: aname
        character*15 aline
        character*25 aoption,hysep_type
        character*25 acontext(MAXCONTEXT)
-	   DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
+     DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0
        CurrentBlock_g='USGS_HYSEP'
@@ -1194,7 +1191,7 @@ subroutine usgs_hysep(ifail)
            if(tarea.le.0.0)then
              call num2char(ILine_g,aline)
              call addquote(sInfile_g,sString_g)
-             write(amessage,43) trim(aline),trim(sString_g)
+             write(amessage,46) trim(aline),trim(sString_g)
 46          format('DRAINAGE_AREA must be greater than zero at line ',a,' of file ',a)
              go to 9800
            end if
@@ -1323,11 +1320,11 @@ subroutine usgs_hysep(ifail)
        series_g(i)%type='ts'
 
        do j=1,npts
-		 ndays=int(tdate(j))
-		 nsecs=86400*(tdate(j)-ndays)
-		 series_g(i)%days(j)=ndays
-		 series_g(i)%secs(j)=nsecs
-		 series_g(i)%val(j)=tbflow(j)
+     ndays=int(tdate(j))
+     nsecs=86400*(tdate(j)-ndays)
+     series_g(i)%days(j)=ndays
+     series_g(i)%secs(j)=nsecs
+     series_g(i)%val(j)=tbflow(j)
        end do
 
        write(6,400) trim(series_g(iseries_g)%name),trim(aname)
@@ -1730,18 +1727,17 @@ subroutine hydro_peaks(ifail)
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
-       icontext,i,begdays,begsecs,enddays,endsecs,iseries,jtrans, &
-       j,ibterm,ieterm,iterm,iiterm,itemp,ixcon,nvals,days, &
-       iitemp,jj,ii,nnterm,jrange,ndays,nsecs,npts,nmax,tlast,vlast, &
+       icontext,i,begdays,begsecs,enddays,endsecs,iseries, &
+       j,ibterm,ieterm,iterm,iiterm,itemp,ixcon, &
+       ndays,nsecs,npts,nmax,tlast,vlast, &
        DA(12)
-       real twindow,rtemp,rvalue,tmin,slope1,slope2
+       real twindow,rtemp,tmin,slope1,slope2
        real, dimension(:), allocatable :: tdate,tval !rank 1
-       character*3 aaa
-       character (len=iTSNAMELENGTH) :: aname,atemp,abscissa,statistic,period,year_type
+       character (len=iTSNAMELENGTH) :: aname
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
-	   DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
+     DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0
        CurrentBlock_g='HYDRO_PEAKS'
@@ -1924,33 +1920,33 @@ subroutine hydro_peaks(ifail)
        do j=2,npts-2
          slope1=(tval(j)-tval(j-1))/(tdate(j)-tdate(j-1))
          slope2=(tval(j+1)-tval(j))/(tdate(j+1)-tdate(j))
-		 if(slope1 .gt. 0.0) then
-			if(slope2 .le. 0.0) then
-				if((tdate(j)-tlast) .gt. twindow) then
-					if(tval(j) .gt. tmin) then
-						iterm=iterm+1
-						ndays=int(tdate(j))
-						nsecs=86400*(tdate(j)-ndays)
-						tempseries_g%days(iterm)=ndays
-						tempseries_g%secs(iterm)=nsecs
-						tempseries_g%val(iterm)=tval(j)
-						tlast=tdate(j)
-						vlast=tval(j)
-					end if
-				else
-					if(tval(j) .gt. vlast) then
+     if(slope1 .gt. 0.0) then
+      if(slope2 .le. 0.0) then
+        if((tdate(j)-tlast) .gt. twindow) then
+          if(tval(j) .gt. tmin) then
+            iterm=iterm+1
+            ndays=int(tdate(j))
+            nsecs=86400*(tdate(j)-ndays)
+            tempseries_g%days(iterm)=ndays
+            tempseries_g%secs(iterm)=nsecs
+            tempseries_g%val(iterm)=tval(j)
+            tlast=tdate(j)
+            vlast=tval(j)
+          end if
+        else
+          if(tval(j) .gt. vlast) then
                   if(iterm < 1) iterm = 1
-						ndays=int(tdate(j))
-						nsecs=86400*(tdate(j)-ndays)
-						tempseries_g%days(iterm)=ndays
-						tempseries_g%secs(iterm)=nsecs
-						tempseries_g%val(iterm)=tval(j)
-						tlast=tdate(j)
-						vlast=tval(j)
-					end if
-				end if
-			end if
-		 end if
+            ndays=int(tdate(j))
+            nsecs=86400*(tdate(j)-ndays)
+            tempseries_g%days(iterm)=ndays
+            tempseries_g%secs(iterm)=nsecs
+            tempseries_g%val(iterm)=tval(j)
+            tlast=tdate(j)
+            vlast=tval(j)
+          end if
+        end if
+      end if
+     end if
        end do
 
 ! --  space is allocated for the new time series.

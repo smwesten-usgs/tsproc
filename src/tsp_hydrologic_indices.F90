@@ -83,22 +83,18 @@ function read_USGS_NWIS(sFilename)   result(pGage)
 
   character(len=*) :: sFilename
   type(T_USGS_NWIS_GAGE),dimension(:), pointer :: pGage
-  type(T_USGS_NWIS_Daily),dimension(:), allocatable :: pTempDaily
 
 
   ! [ LOCALS ]
-  integer (kind=T_INT) :: iMM, iDD, iYYYY
   integer (kind=T_INT) :: iStat
   integer (kind=T_INT) :: iLineNum = 0
   integer (kind=T_INT) :: iGageNum = 0
   character (len=256)   :: sTempAgencyCode
   character (len=256)   :: sTempSiteNumber
 
-  integer (kind=T_INT) :: iMonth, iDay, iYear, iJulianDay, iWaterYear
+  integer (kind=T_INT) :: iMonth, iDay, iYear
 
   integer (kind=T_INT) :: iCount = 0
-  integer (kind=T_INT) :: iNumNonBlankValues
-  integer (kind=T_INT) :: i
   integer (kind=T_INT),dimension(:),allocatable  :: iTotalNumLines
   integer (kind=T_INT) :: iTotalNumGages = 0
   integer (kind=T_INT), parameter :: LU_NWIS = 101
@@ -119,7 +115,7 @@ function read_USGS_NWIS(sFilename)   result(pGage)
         iTotalNumGages = iTotalNumGages + 1
       end do
       allocate(iTotalNumLines(iTotalNumGages))
-      iTotalNumLines = 0.
+      iTotalNumLines = 0
       cycle
     else if(sRecord(1:9) .eq. 'agency_cd') then
       read(unit=LU_NWIS, fmt="(a)",iostat=iStat) sRecord

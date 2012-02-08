@@ -5,21 +5,15 @@ program tsp_main
   implicit none
 
   character(len=256) :: sFilename
-  character (len=256) :: sBlockname
   integer (kind=T_INT) :: iReturnCode
-
-  character (len=32) :: sContext
-  character (len=32) :: sDateFormat
 
   character (len=256) :: sInputFile
   character (len=256) :: sRecFile
-  character (len=256) :: sDateStr
-  character (len=256) :: sDateStrPretty
 
   ! default behavior is to query the user for the control file and record files
   logical :: lInteractive = lTRUE
   integer  :: iNumArgs
-  integer (kind=T_INT) :: i, ifail, ierr
+  integer (kind=T_INT) :: ifail
 
   ! ensure all tables and series are inactive to start with
   gtable_g%active = lFALSE

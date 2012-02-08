@@ -421,7 +421,6 @@ function isspace(sString_g)
 !        sString_g:     the name of the string to be checked.
 
         character (len=*), intent(in)   :: sString_g
-        integer nbb
         logical :: isspace
 
         if(index(trim(sString_g),' ').eq.0)then
@@ -1364,7 +1363,7 @@ subroutine write_message(increment,iunit,error,leadspace,endspace)
 
    do i=1,20
      if(amessage(i:i).ne.' ')exit
-20      end do
+   end do
    leadblank=i-1
    nblc=len_trim(amessage)
 5       jend=j+78-itake
@@ -1780,7 +1779,7 @@ function day_of_year(iJulianDay) result(iDOY)
   integer (kind=T_INT), intent(in) :: iJulianDay
 
   ! [ LOCALS ]
-  integer (kind=T_INT) :: iFirstDay, iCurrDay, iDOY
+  integer (kind=T_INT) :: iFirstDay, iDOY
   integer (kind=T_INT) :: iYear, iMonth, iDay
 
   ! first get the value for the current year
@@ -2215,7 +2214,6 @@ subroutine GetSysTimeDate(sDateStr,sDateStrPretty)
   character(len=256), intent(out) :: sDateStr, sDateStrPretty
 
   character (len=256) :: sRecord
-  character (len=256) :: sItem
   character (len=256) :: sDay
   character (len=256) :: sMon
   character (len=256) :: sDD

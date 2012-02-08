@@ -226,14 +226,14 @@ module tsp_data_structures
 ! defined types
 !****************************************************************************
 
-	type modelgrid
-	  integer                         :: nrow,ncol
-	  double precision                :: east_corner,north_corner,rotation
-	  real                            :: cosang,sinang
-	  real, dimension(:), pointer     :: delr,delc
-	  integer                         :: specunit,specline
-	  character (len=80)              :: specfile
-	end type modelgrid
+  type modelgrid
+    integer                         :: nrow,ncol
+    double precision                :: east_corner,north_corner,rotation
+    real                            :: cosang,sinang
+    real, dimension(:), pointer     :: delr,delc
+    integer                         :: specunit,specline
+    character (len=80)              :: specfile
+  end type modelgrid
 
 !****************************************************************************
 !global variables
@@ -241,34 +241,34 @@ module tsp_data_structures
 
 !variables for reading a file ------->
 
-	integer, parameter              	:: NUM_WORD_DIM=100
-	integer, dimension(NUM_WORD_DIM)        :: left_word,right_word
-	character (len=400)             	:: cline
+  integer, parameter                :: NUM_WORD_DIM=100
+  integer, dimension(NUM_WORD_DIM)        :: left_word,right_word
+  character (len=400)               :: cline
 
 !variables for writing a message ------->
 
-	integer                 :: imessage=0
-	character (len=500)     :: amessage= ' '
-	character (len=200)     :: initial_message=' '
+  integer                 :: imessage=0
+  character (len=500)     :: amessage= ' '
+  character (len=200)     :: initial_message=' '
 
 !escape variables ------->
 
-	integer                 :: escset=0
-	character (len=5)       :: eschar = 'E ~e '
+  integer                 :: escset=0
+  character (len=5)       :: eschar = 'E ~e '
 
 !variables in bore data manipulation ------->
 
-	integer                         :: num_bore_coord, num_bore_list
-	character (len=120)             :: bore_coord_file, bore_list_file
-	integer, dimension(:), pointer			:: bore_coord_layer
-	double precision, dimension(:), pointer         :: bore_coord_east, &
-							   bore_coord_north
-	character (len=10), dimension(:), pointer       :: bore_coord_id, &
+  integer                         :: num_bore_coord, num_bore_list
+  character (len=120)             :: bore_coord_file, bore_list_file
+  integer, dimension(:), pointer      :: bore_coord_layer
+  double precision, dimension(:), pointer         :: bore_coord_east, &
+                 bore_coord_north
+  character (len=10), dimension(:), pointer       :: bore_coord_id, &
                                                            bore_list_id
 
 !variables recording data settings ------->
 
-	integer				:: datespec
+  integer        :: datespec
 
 ! parameters defining valid program options
 

@@ -935,53 +935,53 @@ rnear,rconst,valinterp,extrap,direction,startindex)
 
    use tsp_utilities
 
-	integer, intent(out)                    :: ifail
-	integer, intent(in)                     :: nbore
-	integer, intent(in), dimension(nbore)   :: ndays,nsecs
-	real, intent(in), dimension(nbore)      :: value
-	integer, intent(in)                     :: intday,intsec
-	real, intent(in)                        :: rnear,rconst
-	real, intent(out)                       :: valinterp
-	character (len=*), intent(in), optional :: extrap
-	character (len=*), intent(in), optional :: direction
+  integer, intent(out)                    :: ifail
+  integer, intent(in)                     :: nbore
+  integer, intent(in), dimension(nbore)   :: ndays,nsecs
+  real, intent(in), dimension(nbore)      :: value
+  integer, intent(in)                     :: intday,intsec
+  real, intent(in)                        :: rnear,rconst
+  real, intent(out)                       :: valinterp
+  character (len=*), intent(in), optional :: extrap
+  character (len=*), intent(in), optional :: direction
         integer, intent(inout), optional        :: startindex
 
-	integer                                 :: i,ie,id,istart,is
-	double precision                        :: secfac,diff,diff1,dentime
-	character (len=3)                       :: atemp
+  integer                                 :: i,ie,id,istart,is
+  double precision                        :: secfac,diff,diff1,dentime
+  character (len=3)                       :: atemp
 
 
-	ie=0
-	if(present(extrap)) then
-	  atemp=extrap
-	  call casetrans(atemp,'lo')
-	  if(atemp.eq.'yes')then
-	    ie=1
-	  else if(atemp.eq.'no') then
-	    ie=0
-	  else
-	    call sub_error('TIME_INTERP_S')
-	  end if
-	end if
+  ie=0
+  if(present(extrap)) then
+    atemp=extrap
+    call casetrans(atemp,'lo')
+    if(atemp.eq.'yes')then
+      ie=1
+    else if(atemp.eq.'no') then
+      ie=0
+    else
+      call sub_error('TIME_INTERP_S')
+    end if
+  end if
 
-	id=0
-	if(present(direction))then
-	  atemp=direction
-	  call casetrans(atemp,'lo')
-	  if(atemp.eq.'lo')then
-	    id=-1
-	  else if(atemp.eq.'hi')then
-	    id=1
-	  else if(atemp.eq.'med')then
-	    id=0
-	  else
-	    call sub_error('TIME_INTERP')
-	  end if
-	end if
+  id=0
+  if(present(direction))then
+    atemp=direction
+    call casetrans(atemp,'lo')
+    if(atemp.eq.'lo')then
+      id=-1
+    else if(atemp.eq.'hi')then
+      id=1
+    else if(atemp.eq.'med')then
+      id=0
+    else
+      call sub_error('TIME_INTERP')
+    end if
+  end if
 
-	if((id.ne.0).and.(ie.eq.0))then
-	  call sub_error('TIME_INTERP')
-	end if
+  if((id.ne.0).and.(ie.eq.0))then
+    call sub_error('TIME_INTERP')
+  end if
 
         if(present(startindex))then
           istart=startindex
@@ -993,175 +993,175 @@ rnear,rconst,valinterp,extrap,direction,startindex)
         if(istart.lt.1)istart=1
         if(istart.gt.nbore-1) istart=nbore-1
 
-	ifail=0
-	secfac=1.0d0/86400.0d0
-	if(nbore.eq.1) then
-	  diff=dble(intday-ndays(1))+dble(intsec-nsecs(1))*secfac
-	  if(abs(diff).le.rconst)then
-	    valinterp=value(1)
-	  else
-	    if(diff.gt.0)then
-	      valinterp=-9.1e37
-	    else
-	      valinterp=-8.1e37
-	    end if
-	  end if
-	  return
-	end if
+  ifail=0
+  secfac=1.0d0/86400.0d0
+  if(nbore.eq.1) then
+    diff=dble(intday-ndays(1))+dble(intsec-nsecs(1))*secfac
+    if(abs(diff).le.rconst)then
+      valinterp=value(1)
+    else
+      if(diff.gt.0)then
+        valinterp=-9.1e37
+      else
+        valinterp=-8.1e37
+      end if
+    end if
+    return
+  end if
 
-!	do i=1,nbore-1
-!	  if((ndays(i).gt.ndays(i+1)).or. &
-!	    ((ndays(i).eq.ndays(i+1)).and.(nsecs(i).ge.nsecs(i+1))))then
-!	    ifail=1
-!	    return
-!	  end if
-!	end do
+!  do i=1,nbore-1
+!    if((ndays(i).gt.ndays(i+1)).or. &
+!      ((ndays(i).eq.ndays(i+1)).and.(nsecs(i).ge.nsecs(i+1))))then
+!      ifail=1
+!      return
+!    end if
+!  end do
 
-	do i=istart,nbore
-	  diff=dble(ndays(i)-intday)+dble(nsecs(i)-intsec)*secfac
-	  if(diff.ge.0)then
-	    if(i.eq.1)then
-	      if(diff.le.rconst)then
-	        if(ie.eq.1)then
-	          if((value(1).lt.-1.0e38).or.(value(2).lt.-1.0e38))then
-	            valinterp=value(1)
-	          else
-	            dentime=dble(ndays(i+1)-ndays(i))+ &
+  do i=istart,nbore
+    diff=dble(ndays(i)-intday)+dble(nsecs(i)-intsec)*secfac
+    if(diff.ge.0)then
+      if(i.eq.1)then
+        if(diff.le.rconst)then
+          if(ie.eq.1)then
+            if((value(1).lt.-1.0e38).or.(value(2).lt.-1.0e38))then
+              valinterp=value(1)
+            else
+              dentime=dble(ndays(i+1)-ndays(i))+ &
                             dble(nsecs(i+1)-nsecs(i))*secfac
-	            if(dentime.le.0) then
-	              ifail=1
-	              go to 9000
-	            else
-	              valinterp=value(i)-(value(i+1)-value(i))*diff/dentime
-	            end if
-	          end if
-	        else
-		  valinterp=value(1)
-	        end if
-	      else
-		valinterp=-8.1e37
-	      end if
-	      go to 9000
-	    end if
+              if(dentime.le.0) then
+                ifail=1
+                go to 9000
+              else
+                valinterp=value(i)-(value(i+1)-value(i))*diff/dentime
+              end if
+            end if
+          else
+      valinterp=value(1)
+          end if
+        else
+    valinterp=-8.1e37
+        end if
+        go to 9000
+      end if
 
-	    if(id.eq.-1)then
-	      if(i.eq.2)then
-	        diff1=dble(intday-ndays(1))+dble(intsec-nsecs(1))*secfac
-	        if(diff1.gt.rnear)then               !note - not rconst
-	          valinterp=-7.1e37
-	        else
-	          valinterp=value(1)
-	        end if
-	        if(value(1).lt.-1.0e38) valinterp=-1.1e38
-	      else
-	        dentime=dble(ndays(i-1)-ndays(i-2))+ &
+      if(id.eq.-1)then
+        if(i.eq.2)then
+          diff1=dble(intday-ndays(1))+dble(intsec-nsecs(1))*secfac
+          if(diff1.gt.rnear)then               !note - not rconst
+            valinterp=-7.1e37
+          else
+            valinterp=value(1)
+          end if
+          if(value(1).lt.-1.0e38) valinterp=-1.1e38
+        else
+          dentime=dble(ndays(i-1)-ndays(i-2))+ &
                         dble(nsecs(i-1)-nsecs(i-2))*secfac
-	        if(dentime.lt.0.0d0)then
-	          ifail=1
-	          go to 9000
-	        else
-	          diff1=dble(intday-ndays(i-1))+  &
+          if(dentime.lt.0.0d0)then
+            ifail=1
+            go to 9000
+          else
+            diff1=dble(intday-ndays(i-1))+  &
                   dble(intsec-nsecs(i-1))*secfac
-	          if(diff1.gt.rnear)then
-	            valinterp=-7.1e37
-	          else
-	            if(value(i-1).lt.-1.0e38)then
-	              valinterp=-1.1e38
-	            else if(value(i-2).lt.-1.0e38) then
-	              valinterp=value(i-1)
-	            else
-	              valinterp=value(i-1)+ &
+            if(diff1.gt.rnear)then
+              valinterp=-7.1e37
+            else
+              if(value(i-1).lt.-1.0e38)then
+                valinterp=-1.1e38
+              else if(value(i-2).lt.-1.0e38) then
+                valinterp=value(i-1)
+              else
+                valinterp=value(i-1)+ &
                       (value(i-1)-value(i-2))/dentime*diff1
-	            end if
-	          end if
-	        end if
-	      end if
-	      go to 9000
-	    else if(id.eq.1)then
-	      if(i.eq.nbore)then
-	        if(diff.gt.rnear)then
-	          valinterp=-7.1e37
-	        else
-	          valinterp=value(i)
-	        end if
-	        if(value(i).lt.-1.0e38)valinterp=-1.1e38
-	      else
-	        dentime=dble(ndays(i+1)-ndays(i))+      &
-	                dble(nsecs(i+1)-nsecs(i))*secfac
-	        if(dentime.le.0)then
-	          ifail=1
-	          go to 9000
-	        else
-	          if(diff.gt.rnear)then
-	            valinterp=-7.1e37
-	          else
-	            if(value(i).lt.-1.0e38)then
-	              valinterp=-1.1e38
-	            else if(value(i+1).lt.-1.0e38)then
-	              valinterp=value(i)
-	            else
-	              valinterp=value(i)-  &
+              end if
+            end if
+          end if
+        end if
+        go to 9000
+      else if(id.eq.1)then
+        if(i.eq.nbore)then
+          if(diff.gt.rnear)then
+            valinterp=-7.1e37
+          else
+            valinterp=value(i)
+          end if
+          if(value(i).lt.-1.0e38)valinterp=-1.1e38
+        else
+          dentime=dble(ndays(i+1)-ndays(i))+      &
+                  dble(nsecs(i+1)-nsecs(i))*secfac
+          if(dentime.le.0)then
+            ifail=1
+            go to 9000
+          else
+            if(diff.gt.rnear)then
+              valinterp=-7.1e37
+            else
+              if(value(i).lt.-1.0e38)then
+                valinterp=-1.1e38
+              else if(value(i+1).lt.-1.0e38)then
+                valinterp=value(i)
+              else
+                valinterp=value(i)-  &
                       (value(i+1)-value(i))/dentime*diff
-	            end if
-	          end if
-	        end if
-	      end if
-	      go to 9000
-	    else
+              end if
+            end if
+          end if
+        end if
+        go to 9000
+      else
 
-	      dentime=dble(ndays(i)-ndays(i-1))+ &
-	      dble(nsecs(i)-nsecs(i-1))*secfac
-	      if(dentime.le.0)then
-	        ifail=1
-	        go to 9000
-	      else
-	        diff1=dentime-diff
-	        if((diff1.gt.rnear).and.(diff.gt.rnear))then
-		  valinterp=-7.1e37
-	        else
-		  valinterp=value(i-1)+(value(i)-value(i-1))/dentime*diff1
-	        end if
-	        if(value(i).lt.-1.0e38)then
-		  if(diff1.le.rconst)then
-		    valinterp=value(i-1)
-		  else
-		    valinterp=-1.1e38
-		  end if
-	        else if(value(i-1).lt.-1.0e38)then
-		  if(diff.le.rconst)then
-		    valinterp=value(i)
-		  else
-		    valinterp=-1.1e38
-		  end if
-	        end if
-	      end if
-	    go to 9000
-	    end if
-	  end if
-	end do
+        dentime=dble(ndays(i)-ndays(i-1))+ &
+        dble(nsecs(i)-nsecs(i-1))*secfac
+        if(dentime.le.0)then
+          ifail=1
+          go to 9000
+        else
+          diff1=dentime-diff
+          if((diff1.gt.rnear).and.(diff.gt.rnear))then
+      valinterp=-7.1e37
+          else
+      valinterp=value(i-1)+(value(i)-value(i-1))/dentime*diff1
+          end if
+          if(value(i).lt.-1.0e38)then
+      if(diff1.le.rconst)then
+        valinterp=value(i-1)
+      else
+        valinterp=-1.1e38
+      end if
+          else if(value(i-1).lt.-1.0e38)then
+      if(diff.le.rconst)then
+        valinterp=value(i)
+      else
+        valinterp=-1.1e38
+      end if
+          end if
+        end if
+      go to 9000
+      end if
+    end if
+  end do
 
-	diff1=dble(intday-ndays(nbore))+dble(intsec-nsecs(nbore))*secfac
-	if(diff1.le.rconst)then
-	  if(ie.eq.1) then
-	    if((value(nbore).lt.-1.0e38).or.(value(nbore-1).lt.-1.0e38)) then
-	      valinterp=value(nbore)
-	    else
-	      dentime=dble(ndays(nbore)-ndays(nbore-1))    &
+  diff1=dble(intday-ndays(nbore))+dble(intsec-nsecs(nbore))*secfac
+  if(diff1.le.rconst)then
+    if(ie.eq.1) then
+      if((value(nbore).lt.-1.0e38).or.(value(nbore-1).lt.-1.0e38)) then
+        valinterp=value(nbore)
+      else
+        dentime=dble(ndays(nbore)-ndays(nbore-1))    &
                      +dble(nsecs(nbore)-nsecs(nbore-1))*secfac
-	      if(dentime.le.0) then
-	        ifail=1
-	        go to 9000
-	      else
-	        valinterp=value(nbore)+(value(nbore)-value(nbore-1))*    &
+        if(dentime.le.0) then
+          ifail=1
+          go to 9000
+        else
+          valinterp=value(nbore)+(value(nbore)-value(nbore-1))*    &
                 diff1/dentime
-	      end if
-	    end if
-	  else
-	    valinterp=value(nbore)
-	  end if
-	else
-	  valinterp=-9.1e37
-	end if
+        end if
+      end if
+    else
+      valinterp=value(nbore)
+    end if
+  else
+    valinterp=-9.1e37
+  end if
 
 9000    continue
         if(is.eq.1)then
@@ -1172,7 +1172,7 @@ rnear,rconst,valinterp,extrap,direction,startindex)
           end if
         end if
 
-	return
+  return
 end subroutine time_interp_s
 
 
@@ -1627,7 +1627,7 @@ subroutine get_equation(ifail,eqntext,atext)
        character*(*), intent(out)  :: eqntext
        character*(*), intent(in)   :: atext
 
-       integer ierr,ncl,lnxx,idx,lnx,ixcount
+       integer ncl,lnxx,idx,lnx,ixcount
        character*1 aa
        character*20 aline
 
