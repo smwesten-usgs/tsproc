@@ -1,25 +1,26 @@
 program test_hi
 
   use ISO_C_BINDING
+  use tsp_data_structures
   implicit none
 
   type T_HI
-    integer :: iUnits
-    integer :: iTemporalAspect
+    integer(kind=T_INT) :: iUnits
+    integer(kind=T_INT) :: iTemporalAspect
     character (len=80)   :: sHydrologicIndex
-    real   :: rValue
+    real(kind=T_REAL)   :: rValue
+    logical(kind=T_LOGICAL) :: lInclude = lFALSE
+    integer(kind=T_SHORT) :: iMask = 0
   end type T_HI
 
-  integer, parameter :: rZERO = 0
   integer, parameter :: iDAILY = 0
   integer, parameter :: iMONTHLY = 1
   integer, parameter :: iANNUAL = 2
 
 !void compute_hi(int datatype, float carea,
 !		float m_lp, float m_up, int yr[150], float q[150][366])
-
   interface
-    subroutine compute_hi(lUseMedian, rCarea, &
+    subroutine compute_hi(lUseMedian, rCarea, rNearHuge, &
       rLowerPercentile, rUpperPercentile, iYr, rQ, &
       rMA, rLMA, rUMA, &
       rML, rLML, rUML, &
@@ -35,6 +36,7 @@ program test_hi
       use ISO_C_BINDING
       logical(  C_BOOL), value :: lUseMedian
       real(C_FLOAT), value :: rCarea
+      real(C_FLOAT), value :: rNearHuge
       real(C_FLOAT), value :: rLowerPercentile
       real(C_FLOAT), value :: rUpperPercentile
       integer(C_INT), dimension(150) :: iYr
@@ -79,155 +81,274 @@ program test_hi
     end subroutine compute_hi
   end interface
 
-  integer(C_INT), dimension(0:149) :: iYr
-  real(C_FLOAT), dimension(0:365,0:149) :: rQ
-  real(C_FLOAT), dimension(0:45) :: rMA
-  real(C_FLOAT), dimension(0:45) :: rLMA
-  real(C_FLOAT), dimension(0:45) :: rUMA
-  real(C_FLOAT), dimension(0:22) :: rML
-  real(C_FLOAT), dimension(0:22) :: rLML
-  real(C_FLOAT), dimension(0:22) :: rUML
-  real(C_FLOAT), dimension(0:28) :: rMH
-  real(C_FLOAT), dimension(0:28) :: rLMH
-  real(C_FLOAT), dimension(0:28) :: rUMH
-  real(C_FLOAT), dimension(0:4) :: rFL
-  real(C_FLOAT), dimension(0:4) :: rLFL
-  real(C_FLOAT), dimension(0:4) :: rUFL
-  real(C_FLOAT), dimension(0:11) :: rFH
-  real(C_FLOAT), dimension(0:11) :: rLFH
-  real(C_FLOAT), dimension(0:11) :: rUFH
-  real(C_FLOAT), dimension(0:20) :: rDL
-  real(C_FLOAT), dimension(0:20) :: rLDL
-  real(C_FLOAT), dimension(0:20) :: rUDL
-  real(C_FLOAT), dimension(0:24) :: rDH
-  real(C_FLOAT), dimension(0:24) :: rLDH
-  real(C_FLOAT), dimension(0:24) :: rUDH
+  type (T_HI), dimension(45) :: MA = [ &
+    T_HI( 1,iDAILY,'Mean, all daily flows',rZERO,lFALSE,B'00000001'), &                       ! 1
+    T_HI( 1,iDAILY,'Median, all daily flows',rZERO,lFALSE,B'00000001'), &                     ! 2
+    T_HI( 6,iDAILY,'CV, all daily flows',rZERO,lFALSE,B'00011011'), &                         ! 3
+    T_HI( 6,iDAILY,'CV, log of all daily flows',rZERO,lFALSE,B'00000001'), &                  ! 4
+    T_HI( 6,iDAILY,'Mean daily flow / median daily flow',rZERO,lFALSE,B'00000011'), &         ! 5
+    T_HI( 6,iDAILY,'Ratio, Q10 / Q90 for all daily flows',rZERO,lFALSE,B'00000001'), &        ! 6
+    T_HI( 6,iDAILY,'Ratio, Q20 / Q80 for all daily flows',rZERO,lFALSE,B'00000001'), &        ! 7
+    T_HI( 6,iDAILY,'Ratio, Q25 / Q75 for all daily flows',rZERO,lFALSE,B'00001001'), &        ! 8
+    T_HI( 2,iDAILY,'(Q10 - Q90) / median daily flow',rZERO,lFALSE,B'01000001'), &             ! 9
+    T_HI( 2,iDAILY,'(Q20 - Q80) / median daily flow',rZERO,lFALSE,B'00000101'), &             ! 10
+    T_HI( 2,iDAILY,'(Q25 - Q75) / median daily flow',rZERO,lFALSE,B'00000011'), &             ! 11
+    T_HI( 1,iMONTHLY,'Mean monthly flow, January',rZERO,lFALSE,B'00000001'), &                ! 12
+    T_HI( 1,iMONTHLY,'Mean monthly flow, February',rZERO,lFALSE,B'00000001'), &               ! 13
+    T_HI( 1,iMONTHLY,'Mean monthly flow, March',rZERO,lFALSE,B'00000001'), &                  ! 14
+    T_HI( 1,iMONTHLY,'Mean monthly flow, April',rZERO,lFALSE,B'00000001'), &                  ! 15
+    T_HI( 1,iMONTHLY,'Mean monthly flow, May',rZERO,lFALSE,B'10000001'), &                    ! 16
+    T_HI( 1,iMONTHLY,'Mean monthly flow, June',rZERO,lFALSE,B'00000001'), &                   ! 17
+    T_HI( 1,iMONTHLY,'Mean monthly flow, July',rZERO,lFALSE,B'01000001'), &                   ! 18
+    T_HI( 1,iMONTHLY,'Mean monthly flow, August',rZERO,lFALSE,B'00000001'), &                 ! 19
+    T_HI( 1,iMONTHLY,'Mean monthly flow, September',rZERO,lFALSE,B'00000001'), &              ! 20
+    T_HI( 1,iMONTHLY,'Mean monthly flow, October',rZERO,lFALSE,B'01000001'), &                ! 21
+    T_HI( 1,iMONTHLY,'Mean monthly flow, November',rZERO,lFALSE,B'10000001'), &               ! 22
+    T_HI( 1,iMONTHLY,'Mean monthly flow, December',rZERO,lFALSE,B'00000001'), &               ! 23
+    T_HI( 6,iMONTHLY,'CV of monthly flow, January',rZERO,lFALSE,B'00000001'), &               ! 24
+    T_HI( 6,iMONTHLY,'CV of monthly flow, February',rZERO,lFALSE,B'00000001'), &              ! 25
+    T_HI( 6,iMONTHLY,'CV of monthly flow, March',rZERO,lFALSE,B'00000101'), &                 ! 26
+    T_HI( 6,iMONTHLY,'CV of monthly flow, April',rZERO,lFALSE,B'00000001'), &                 ! 27
+    T_HI( 6,iMONTHLY,'CV of monthly flow, May',rZERO,lFALSE,B'00000001'), &                   ! 28
+    T_HI( 6,iMONTHLY,'CV of monthly flow, June',rZERO,lFALSE,B'00100001'), &                  ! 29
+    T_HI( 6,iMONTHLY,'CV of monthly flow, July',rZERO,lFALSE,B'00000001'), &                  ! 30
+    T_HI( 6,iMONTHLY,'CV of monthly flow, August',rZERO,lFALSE,B'00000001'), &                ! 31
+    T_HI( 6,iMONTHLY,'CV of monthly flow, September',rZERO,lFALSE,B'00000001'), &             ! 32
+    T_HI( 6,iMONTHLY,'CV of monthly flow, October',rZERO,lFALSE,B'00000001'), &               ! 33
+    T_HI( 6,iMONTHLY,'CV of monthly flow, November',rZERO,lFALSE,B'10000001'), &              ! 34
+    T_HI( 6,iMONTHLY,'CV of monthly flow, December',rZERO,lFALSE,B'00000001'), &              ! 35
+    T_HI( 6,iMONTHLY,'Range mean monthly / median monthly flow',rZERO,lFALSE,B'00000001'), &   ! 36
+    T_HI( 6,iMONTHLY,'IQR mean monthly / median monthly flow',rZERO,lFALSE,B'01000001'), &     ! 37
+    T_HI( 6,iMONTHLY,'(Q10 - Q90)[monthly] / median monthly flow',rZERO,lFALSE,B'00000001'), & ! 38
+    T_HI( 6,iMONTHLY,'CV, monthly mean flows',rZERO,lFALSE,B'00000001'), &                     ! 39
+    T_HI( 6,iMONTHLY,'Skewness in monthly flows',rZERO,lFALSE,B'00100001'), &                  ! 40
+    T_HI( 3,iANNUAL,'Mean annual runoff',rZERO,lFALSE,B'00001111'), &                          ! 41
+    T_HI( 6,iANNUAL,'Range mean annual / median annual flow',rZERO,lFALSE,B'00000001'), &      ! 42
+    T_HI( 6,iANNUAL,'IQR mean annual / median annual flow',rZERO,lFALSE,B'00000001'), &        ! 43
+    T_HI( 6,iANNUAL,'(Q10 - Q90)[annual] / median annual flow',rZERO,lFALSE,B'00010001'), &    ! 44
+    T_HI( 6,iANNUAL,'Skewness in annual flows',rZERO,lFALSE,B'00000001') &                     ! 45
+    ]
 
-  real(C_FLOAT), dimension(0:3) :: rUTA
-  real(C_FLOAT), dimension(0:3) :: rTA
-  real(C_FLOAT), dimension(0:3) :: rLTA
+  type (T_HI), dimension(22) :: ML = [ &
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, January',rZERO,lFALSE,B'10000001'), &                     ! 1
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, February',rZERO,lFALSE,B'00000001'), &                    ! 2
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, March',rZERO,lFALSE,B'00000001'), &                       ! 3
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, April',rZERO,lFALSE,B'00000011'), &                       ! 4
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, May',rZERO,lFALSE,B'00000001'), &                         ! 5
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, June',rZERO,lFALSE,B'01000001'), &                        ! 6
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, July',rZERO,lFALSE,B'00000001'), &                        ! 7
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, August',rZERO,lFALSE,B'00000001'), &                      ! 8
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, September',rZERO,lFALSE,B'00000001'), &                   ! 9
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, October',rZERO,lFALSE,B'00000001'), &                     ! 10
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, November',rZERO,lFALSE,B'00000001'), &                    ! 11
+    T_HI( 1,iMONTHLY,'Mean minimum monthly flow, December',rZERO,lFALSE,B'00000001'), &                    ! 12
+    T_HI( 6,iMONTHLY,'CV of minimum monthly flows',rZERO,lFALSE,B'10110001'), &                            ! 13
+    T_HI( 6,iMONTHLY,'Mean minimum daily flow / mean median annual flow',rZERO,lFALSE,B'00011101'), &      ! 14
+    T_HI( 6,iANNUAL,'Mean minimum annual flow / mean annual flow',rZERO,lFALSE,B'11000001'), &             ! 15
+    T_HI( 6,iANNUAL,'Median minimum annual flow / median annual flow',rZERO,lFALSE,B'01001101'), &         ! 16
+    T_HI( 6,iANNUAL,'7-day minimum flow / mean annual flow',rZERO,lFALSE,B'00000111'), &                   ! 17
+    T_HI( 6,iANNUAL,'CV of ( mean minimum annual flow / mean annual flow )',rZERO,lFALSE,B'00001011'), &   ! 18
+    T_HI( 6,iANNUAL,'Mean of (minimum annual flow / mean annual flow ) * 100',rZERO,lFALSE,B'00000001'), & ! 19
+    T_HI( 6,iANNUAL,'Ratio of baseflow volume to total flow volume',rZERO,lFALSE,B'00000001'), &           ! 20
+    T_HI( 6,iANNUAL,'CV of annual minimum flows',rZERO,lFALSE,B'00000011'), &                              ! 21
+    T_HI( 3,iANNUAL,'Mean annual minimum flow divided by catchment area',rZERO,lFALSE,B'01100001') &       ! 22
+    ]
 
-  real(C_FLOAT), dimension(0:4) :: rUTL
-  real(C_FLOAT), dimension(0:4) :: rTL
-  real(C_FLOAT), dimension(0:4) :: rLTL
+  type (T_HI), dimension(27) :: MH = [ &
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, January',rZERO,lFALSE,B'00100001'), &                                  ! 1
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, February',rZERO,lFALSE,B'00000001'), &                                 ! 2
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, March',rZERO,lFALSE,B'00000001'), &                                    ! 3
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, April',rZERO,lFALSE,B'01000001'), &                                    ! 4
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, May',rZERO,lFALSE,B'00000001'), &                                      ! 5
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, June',rZERO,lFALSE,B'00000001'), &                                     ! 6
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, July',rZERO,lFALSE,B'01000001'), &                                     ! 7
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, August',rZERO,lFALSE,B'00000111'), &                                   ! 8
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, September',rZERO,lFALSE,B'10000001'), &                                ! 9
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, October',rZERO,lFALSE,B'00001011'), &                                  ! 10
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, November',rZERO,lFALSE,B'00000001'), &                                 ! 11
+    T_HI( 1,iMONTHLY,'Mean maximum monthly flow, December',rZERO,lFALSE,B'00000001'), &                                 ! 12
+    T_HI( 6,iMONTHLY,'CV of maximum monthly flows',rZERO,lFALSE,B'00000001'), &                                         ! 13
+    T_HI( 6,iANNUAL,'Median maximum annual flow / median annual flow',rZERO,lFALSE,B'11000111'), &                      ! 14
+    T_HI( 6,iANNUAL,'Mean of Q1 values / median daily flow across all years',rZERO,lFALSE,B'00000001'), &               ! 15
+    T_HI( 6,iANNUAL,'Mean of Q10 values / median daily flow across all years',rZERO,lFALSE,B'00000011'), &              ! 16
+    T_HI( 6,iANNUAL,'Mean of Q25 values / median daily flow across all years',rZERO,lFALSE,B'00011001'), &              ! 17
+    T_HI( 6,iANNUAL,'CV of logarithmic annual maximum flows',rZERO,lFALSE,B'00000001'), &                               ! 18
+    T_HI( 6,iANNUAL,'Skewness in annual maximum flows',rZERO,lFALSE,B'00001001'), &                                     ! 19
+    T_HI( 6,iANNUAL,'Mean annual maximum flow / catchment area',rZERO,lFALSE,B'00110001'), &                            ! 20
+    T_HI( 6,iANNUAL,'High-flow volume (thresh = 1 * median annual flow)',rZERO,lFALSE,B'00000001'), &                   ! 21
+    T_HI( 6,iANNUAL,'High-flow volume (thresh= 3 * median annual flow)',rZERO,lFALSE,B'00000001'), &                    ! 22
+    T_HI( 6,iANNUAL,'High-flow volume (thresh = 7 * median annual flow)',rZERO,lFALSE,B'11000101'), &                   ! 23
+    T_HI( 6,iANNUAL,'Maximum peak flow / median flow (thresh = 1 * median annual flow)',rZERO,lFALSE,B'00000001'), &    ! 24
+    T_HI( 6,iANNUAL,'Maximum peak flow / median flow (thresh = 3 * median annual flow)',rZERO,lFALSE,B'00000001'), &    ! 25
+    T_HI( 6,iANNUAL,'Maximum peak flow / median flow (thresh = 7 * median annual flow)',rZERO,lFALSE,B'00000001'), &    ! 26
+    T_HI( 6,iANNUAL,'Maximum peak flow / median flow (threshold = Q25)',rZERO,lFALSE,B'00000001') &                     ! 27
+    ]
 
-  real(C_FLOAT), dimension(0:3) :: rUTH
-  real(C_FLOAT), dimension(0:3) :: rTH
-  real(C_FLOAT), dimension(0:3) :: rLTH
+  type (T_HI), dimension(3) :: FL = [ &
+    T_HI( 5,iANNUAL,'Annual low flow pulse count; number of periods < 25th percentile',rZERO,lFALSE,B'11001011'), &     ! 1
+    T_HI( 6,iANNUAL,'CV of low flow pulse count',rZERO,lFALSE,B'11111111'), &                                           ! 2
+    T_HI( 5,iANNUAL,'Num. low flow spells (< 5% of mean flow) / record length (yrs)',rZERO,lFALSE,B'11111111') &        ! 3
+  ]
 
-  real(C_FLOAT), dimension(0:9) :: rRA
-  real(C_FLOAT), dimension(0:9) :: rLRA
-  real(C_FLOAT), dimension(0:9) :: rURA
+  type (T_HI), dimension(11) :: FH = [ &
+    T_HI( 5,iANNUAL,'Annual high flow pulse count; number of periods > 75th percentile',rZERO,lFALSE,B'00000001'), &       ! 1
+    T_HI( 6,iANNUAL,'CV of high flow pulse count',rZERO,lFALSE,B'11000011'), &                                             ! 2
+    T_HI( 5,iANNUAL,'Num. high flow spells (>3 * median annual flow)',rZERO,lFALSE,B'01011011'), &                         ! 3
+    T_HI( 5,iANNUAL,'Num. high flow spells (>7 * median annual flow)',rZERO,lFALSE,B'00000101'), &                         ! 4
+    T_HI( 5,iANNUAL,'Num. high flow spells (>1 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'10010001'), &   ! 5
+    T_HI( 5,iANNUAL,'Num. high flow spells (>3 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'00001111'), &   ! 6
+    T_HI( 5,iANNUAL,'Num. high flow spells (>7 * median annual flow) / record length (yrs)',rZERO,lFALSE,B'11000111'), &   ! 7
+    T_HI( 5,iANNUAL,'Num. high flow spells (>25th percentile flow) / record length (yrs)',rZERO,lFALSE,B'00100001'), &     ! 8
+    T_HI( 5,iANNUAL,'Num. high flow spells (>75th percentile flow) / record length (yrs)',rZERO,lFALSE,B'00000001'), &     ! 9
+    T_HI( 5,iANNUAL,'Num. high flow spells (>median of annual minima) / record length (yrs)',rZERO,lFALSE,B'01000001'), &  ! 10
+    T_HI( 5,iANNUAL,'Mean number of discrete flood events per year',rZERO,lFALSE,B'00101001') &                            ! 11
+  ]
 
-  integer :: i
+  type (T_HI), dimension(20) :: DL = [ &
+    T_HI( 1,iDAILY,'Annual minimum of 1-day mean of flow',rZERO,lFALSE,B'11000001'), &                            ! 1
+    T_HI( 1,iDAILY,'Annual minimum of 3-day mean of flow',rZERO,lFALSE,B'10000001'), &                            ! 2
+    T_HI( 1,iDAILY,'Annual minimum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                            ! 3
+    T_HI( 1,iDAILY,'Annual minimum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &                           ! 4
+    T_HI( 1,iDAILY,'Annual minimum of 90-day mean of flow',rZERO,lFALSE,B'00100001'), &                           ! 5
+    T_HI( 6,iDAILY,'CV, annual minimum of 1-day mean of flow',rZERO,lFALSE,B'00010101'), &                        ! 6
+    T_HI( 6,iDAILY,'CV, annual minimum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &                        ! 7
+    T_HI( 6,iDAILY,'CV, annual minimum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                        ! 8
+    T_HI( 6,iDAILY,'CV, annual minimum of 30-day mean of flow',rZERO,lFALSE,B'00001001'), &                       ! 9
+    T_HI( 6,iDAILY,'CV, annual minimum of 90-day mean of flow',rZERO,lFALSE,B'00000101'), &                       ! 10
+    T_HI( 6,iDAILY,'Mean of 1-day minimum of flow',rZERO,lFALSE,B'00001001'), &                                   ! 11
+    T_HI( 6,iDAILY,'Mean of 7-day minimum of flow',rZERO,lFALSE,B'00000001'), &                                   ! 12
+    T_HI( 6,iDAILY,'Mean of 30-day minimum of flow',rZERO,lFALSE,B'11010011'), &                                  ! 13
+    T_HI( 6,iANNUAL,'Mean of Q75 values / median daily flow across all years',rZERO,lFALSE,B'00000001'), &        ! 14
+    T_HI( 6,iANNUAL,'Mean of Q90 values / median daily flow across all years',rZERO,lFALSE,B'00000001'), &        ! 15
+    T_HI( 4,iANNUAL,'Low flow pulse duration (Mean duration of FL1)',rZERO,lFALSE,B'01101011'), &                 ! 16
+    T_HI( 6,iANNUAL,'CV, low flow pulse duration (DL16)',rZERO,lFALSE,B'00000111'), &                             ! 17
+    T_HI( 5,iANNUAL,'Mean annual number of zero-flow days',rZERO,lFALSE,B'01000011'), &                           ! 18
+    T_HI( 6,iANNUAL,'CV, mean annual number of zero-flow days',rZERO,lFALSE,B'00000001'), &                       ! 19
+    T_HI( 6,iANNUAL,'Percentage of all months with zero flow',rZERO,lFALSE,B'00000001') &                         ! 20
+  ]
 
-  type (T_HI), dimension(45) :: MA
-  type (T_HI), dimension(22) :: ML
-  type (T_HI), dimension(27) :: MH
+  type (T_HI), dimension(24) :: DH = [ &
+    T_HI( 1,iDAILY,'Annual maximum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &                                   ! 1
+    T_HI( 1,iDAILY,'Annual maximum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &                                   ! 2
+    T_HI( 1,iDAILY,'Annual maximum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                                   ! 3
+    T_HI( 1,iDAILY,'Annual maximum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &                                  ! 4
+    T_HI( 1,iDAILY,'Annual maximum of 90-day mean of flow',rZERO,lFALSE,B'10000001'), &                                  ! 5
+    T_HI( 6,iDAILY,'CV, annual maximum of 1-day mean of flow',rZERO,lFALSE,B'00000001'), &                               ! 6
+    T_HI( 6,iDAILY,'CV, annual maximum of 3-day mean of flow',rZERO,lFALSE,B'00000001'), &                               ! 7
+    T_HI( 6,iDAILY,'CV, annual maximum of 7-day mean of flow',rZERO,lFALSE,B'00000001'), &                               ! 8
+    T_HI( 6,iDAILY,'CV, annual maximum of 30-day mean of flow',rZERO,lFALSE,B'00000001'), &                              ! 9
+    T_HI( 6,iDAILY,'CV, annual maximum of 90-day mean of flow',rZERO,lFALSE,B'10000001'), &                              ! 10
+    T_HI( 6,iDAILY,'Mean of 1-day maximum of flow',rZERO,lFALSE,B'00001001'), &                                          ! 11
+    T_HI( 6,iDAILY,'Mean of 7-day maximum of flow',rZERO,lFALSE,B'01010001'), &                                          ! 12
+    T_HI( 6,iDAILY,'Mean of 30-day maximum of flow',rZERO,lFALSE,B'01000111'), &                                         ! 13
+    T_HI( 6,iANNUAL,'Q95 value / mean monthly flow across all years',rZERO,lFALSE,B'00000001'), &                        ! 14
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 75th percentile flow',rZERO,lFALSE,B'01001011'), &                  ! 15
+    T_HI( 6,iANNUAL,'CV, mean duration of high flow pulse (FH1)',rZERO,lFALSE,B'00100111'), &                            ! 16
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 1 * median flow',rZERO,lFALSE,B'00000001'), &                       ! 17
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 3 * median flow',rZERO,lFALSE,B'00000001'), &                       ! 18
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 7 * median flow',rZERO,lFALSE,B'00100001'), &                       ! 19
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 25th percentile of median flow',rZERO,lFALSE,B'00001011'), &        ! 20
+    T_HI( 6,iANNUAL,'Mean duration of flood pulses > 75th percentile of median flow',rZERO,lFALSE,B'00000001'), &        ! 21
+    T_HI( 6,iANNUAL,'Mean annual median interval in days between floods over all years',rZERO,lFALSE,B'10000001'), &     ! 22
+    T_HI( 6,iANNUAL,'Mean annual number of days that flows > threshold over all years',rZERO,lFALSE,B'01000001'), &      ! 23
+    T_HI( 6,iANNUAL,'Mean annual maximum number of 365-day periods in which no floods occur',rZERO,lFALSE,B'00010101') & ! 24
+  ]
 
+  type (T_HI), dimension(3) :: TA = [ &
+    T_HI( 6,iDAILY,'Constancy (see Colwell, 1974)',rZERO,lFALSE,B'01111111'), &           ! 1
+    T_HI( 6,iDAILY,'Predictability of flow',rZERO,lFALSE,B'01000001'), &                  ! 2
+    T_HI( 6,iDAILY,'Seasonal predictability of flooding',rZERO,lFALSE,B'00100101') &      ! 3
+  ]
 
-   MA = [ &
-     T_HI( 1,iDAILY,'Mean, all daily flows',rZERO), &
-     T_HI( 1,iDAILY,'Median, all daily flows',rZERO), &
-     T_HI( 6,iDAILY,'CV, all daily flows',rZERO), &
-     T_HI( 6,iDAILY,'CV, log of all daily flows',rZERO), &
-     T_HI( 6,iDAILY,'Mean daily flow / median daily flow',rZERO), &
-     T_HI( 6,iDAILY,'Ratio, Q10 / Q90 for all daily flows',rZERO), &
-     T_HI( 6,iDAILY,'Ratio, Q20 / Q80 for all daily flows',rZERO), &
-     T_HI( 6,iDAILY,'Ratio, Q25 / Q75 for all daily flows',rZERO), &
-     T_HI( 2,iDAILY,'(Q10 - Q90) / median daily flow',rZERO), &
-     T_HI( 2,iDAILY,'(Q20 - Q80) / median daily flow',rZERO), &
-     T_HI( 2,iDAILY,'(Q25 - Q75) / median daily flow',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, January',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, February',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, March',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, April',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, May',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, June',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, July',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, August',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, September',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, October',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, November',rZERO), &
-     T_HI( 2,iMONTHLY,'Mean monthly flow, December',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, January',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, February',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, March',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, April',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, May',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, June',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, July',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, August',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, September',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, October',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, November',rZERO), &
-     T_HI( 2,iMONTHLY,'CV of monthly flow, December',rZERO), &
-     T_HI( 2,iMONTHLY,'Range mean monthly / median monthly flow',rZERO), &
-     T_HI( 2,iMONTHLY,'IQR mean monthly / median monthly flow',rZERO), &
-     T_HI( 2,iMONTHLY,'(Q10 - Q90)[monthly] / median monthly flow',rZERO), &
-     T_HI( 2,iMONTHLY,'CV, monthly mean flows',rZERO), &
-     T_HI( 2,iMONTHLY,'Skewness in monthly flows',rZERO), &
-     T_HI( 2,iANNUAL,'Mean annual runoff',rZERO), &
-     T_HI( 2,iANNUAL,'Range mean annual / median annual flow',rZERO), &
-     T_HI( 2,iANNUAL,'IQR mean annual / median annual flow',rZERO), &
-     T_HI( 2,iANNUAL,'(Q10 - Q90)[annual] / median annual flow',rZERO), &
-     T_HI( 2,iANNUAL,'Skewness in annual flows',rZERO) &
-     ]
+  type (T_HI), dimension(4) :: TL = [ &
+    T_HI( 6,iDAILY,'Mean day-of-year of annual minimum',rZERO,lFALSE,B'01010001'), &      ! 1
+    T_HI( 6,iDAILY,'CV, day-of-year of annual minimum',rZERO,lFALSE,B'10001011'), &       ! 2
+    T_HI( 6,iDAILY,'Seasonal predictibility of low flow',rZERO,lFALSE,B'00000001'), &     ! 3
+    T_HI( 6,iDAILY,'Seasonal predictibility of non-low flow',rZERO,lFALSE,B'00000001') &  ! 4
+  ]
 
-     ML = [ &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, January',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, February',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, March',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, April',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, May',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, June',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, July',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, August',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, September',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, October',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, November',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean minimum monthly flow, December',rZERO), &
-     T_HI( 6,iMONTHLY,'CV of minimum monthly flows',rZERO), &
-     T_HI( 6,iMONTHLY,'Mean minimum daily flow / mean median annual flow',rZERO), &
-     T_HI( 6,iANNUAL,'Mean minimum annual flow / mean annual flow',rZERO), &
-     T_HI( 6,iANNUAL,'Median minimum annual flow / median annual flow',rZERO), &
-     T_HI( 6,iANNUAL,'7-day minimum flow / mean annual flow',rZERO), &
-     T_HI( 6,iANNUAL,'CV of ( mean minimum annual flow / mean annual flow )',rZERO), &
-     T_HI( 6,iANNUAL,'Mean of (minimum annual flow / mean annual flow ) * 100',rZERO), &
-     T_HI( 6,iANNUAL,'Ratio of baseflow volume to total flow volume',rZERO), &
-     T_HI( 6,iANNUAL,'CV of annual minimum flows',rZERO), &
-     T_HI( 6,iANNUAL,'Mean annual minimum flow divided by catchment area',rZERO) &
-     ]
+  type (T_HI), dimension(3) :: TH = [ &
+    T_HI( 6,iDAILY,'Mean day-of-year of annual maximum',rZERO,lFALSE,B'10001001'), &       ! 1
+    T_HI( 6,iDAILY,'CV, day-of-year of annual maximum',rZERO,lFALSE,B'10000001'), &        ! 2
+    T_HI( 6,iDAILY,'Seasonal predictibility of non-flooding',rZERO,lFALSE,B'01000111') &   ! 3
+  ]
 
-     MH = [ &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, January',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, February',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, March',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, April',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, May',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, June',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, July',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, August',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, September',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, October',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, November',rZERO), &
-     T_HI( 1,iMONTHLY,'Mean maximum monthly flow, December',rZERO), &
-     T_HI( 6,iMONTHLY,'CV of maximum monthly flows',rZERO), &
-     T_HI( 6,iANNUAL,'Median maximum annual flow / median annual flow',rZERO), &
-     T_HI( 6,iANNUAL,'Mean of Q1 values / median daily flow across all years',rZERO), &
-     T_HI( 6,iANNUAL,'Mean of Q10 values / median daily flow across all years',rZERO), &
-     T_HI( 6,iANNUAL,'Mean of Q25 values / median daily flow across all years',rZERO), &
-     T_HI( 6,iANNUAL,'CV of logarithmic annual maximum flows',rZERO), &
-     T_HI( 6,iANNUAL,'Skewness in annual maximum flows',rZERO), &
-     T_HI( 6,iANNUAL,'Mean annual maximum flow / catchment area',rZERO), &
-     T_HI( 6,iANNUAL,'High-flow volume (thresh = 1 * median annual flow)',rZERO), &
-     T_HI( 6,iANNUAL,'High-flow volume (thresh= 3 * median annual flow)',rZERO), &
-     T_HI( 6,iANNUAL,'High-flow volume (thresh = 7 * median annual flow)',rZERO), &
-     T_HI( 6,iANNUAL,'Maximum peak flow / median flow (thresh = 1 * median annual flow)',rZERO), &
-     T_HI( 6,iANNUAL,'Maximum peak flow / median flow (thresh = 3 * median annual flow)',rZERO), &
-     T_HI( 6,iANNUAL,'Maximum peak flow / median flow (thresh = 7 * median annual flow)',rZERO), &
-     T_HI( 6,iANNUAL,'Maximum peak flow / median flow (threshold = Q25)',rZERO) &
-     ]
+  type (T_HI), dimension(9) :: RA = [ &
+    T_HI( 7,iDAILY,'Mean of positive changes from one day to next (rise rate)',rZERO,lFALSE,B'10100001'), &                           ! 1
+    T_HI( 6,iDAILY,'CV, mean of positive changes from one day to next (rise rate)',rZERO,lFALSE,B'00000001'), &                       ! 2
+    T_HI( 7,iDAILY,'Mean of negative changes from one day to next (fall rate)',rZERO,lFALSE,B'00000001'), &                           ! 3
+    T_HI( 6,iDAILY,'CV, mean of negative changes from one day to next (fall rate)',rZERO,lFALSE,B'10000001'), &                       ! 4
+    T_HI( 6,iDAILY,'Ratio of days that are higher than previous day',rZERO,lFALSE,B'11001011'), &                                     ! 5
+    T_HI( 1,iDAILY,'Median of difference in log of flows over two consecutive days of rising flow',rZERO,lFALSE,B'01000111'), &       ! 6
+    T_HI( 1,iDAILY,'Median of difference in log of flows over two consecutive days of falling flow',rZERO,lFALSE,B'01000101'), &      ! 7
+    T_HI( 1,iDAILY,'Number of flow reversals from one day to the next',rZERO,lFALSE,B'00111011'), &                                   ! 8
+    T_HI( 1,iDAILY,'CV, number of flow reversals from one day to the next',rZERO,lFALSE,B'01011111') &                                ! 9
+  ]
+
+       integer(C_INT), dimension(0:149) :: iYr
+       real(C_FLOAT), dimension(0:365,0:149) :: rQ
+       real(C_FLOAT), dimension(0:45) :: rMA
+       real(C_FLOAT), dimension(0:45) :: rLMA
+       real(C_FLOAT), dimension(0:45) :: rUMA
+       real(C_FLOAT), dimension(0:22) :: rML
+       real(C_FLOAT), dimension(0:22) :: rLML
+       real(C_FLOAT), dimension(0:22) :: rUML
+       real(C_FLOAT), dimension(0:28) :: rMH
+       real(C_FLOAT), dimension(0:28) :: rLMH
+       real(C_FLOAT), dimension(0:28) :: rUMH
+       real(C_FLOAT), dimension(0:4) :: rFL
+       real(C_FLOAT), dimension(0:4) :: rLFL
+       real(C_FLOAT), dimension(0:4) :: rUFL
+       real(C_FLOAT), dimension(0:11) :: rFH
+       real(C_FLOAT), dimension(0:11) :: rLFH
+       real(C_FLOAT), dimension(0:11) :: rUFH
+       real(C_FLOAT), dimension(0:20) :: rDL
+       real(C_FLOAT), dimension(0:20) :: rLDL
+       real(C_FLOAT), dimension(0:20) :: rUDL
+       real(C_FLOAT), dimension(0:24) :: rDH
+       real(C_FLOAT), dimension(0:24) :: rLDH
+       real(C_FLOAT), dimension(0:24) :: rUDH
+
+       real(C_FLOAT), dimension(0:3) :: rUTA
+       real(C_FLOAT), dimension(0:3) :: rTA
+       real(C_FLOAT), dimension(0:3) :: rLTA
+
+       real(C_FLOAT), dimension(0:4) :: rUTL
+       real(C_FLOAT), dimension(0:4) :: rTL
+       real(C_FLOAT), dimension(0:4) :: rLTL
+
+       real(C_FLOAT), dimension(0:3) :: rUTH
+       real(C_FLOAT), dimension(0:3) :: rTH
+       real(C_FLOAT), dimension(0:3) :: rLTH
+
+       real(C_FLOAT), dimension(0:9) :: rRA
+       real(C_FLOAT), dimension(0:9) :: rLRA
+       real(C_FLOAT), dimension(0:9) :: rURA
+
+       integer :: i
+
+         ! default condition: calculate ALL indices
+         MA%lInclude = lTRUE
+         ML%lInclude = lTRUE
+         MH%lInclude = lTRUE
+         FL%lInclude = lTRUE
+         FH%lInclude = lTRUE
+         DL%lInclude = lTRUE
+         DH%lInclude = lTRUE
+         TA%lInclude = lTRUE
+         TL%lInclude = lTRUE
+         TH%lInclude = lTRUE
+         RA%lInclude = lTRUE
+
+         ! inactivate the indices which require peak flow values to calculate
+         FH(11)%lInclude = lFALSE
+         DH(22)%lInclude = lFALSE
+         DH(23)%lInclude = lFALSE
+         DH(24)%lInclude = lFALSE
+         TA(3)%lInclude = lFALSE
+         TL(3)%lInclude = lFALSE
+         TL(4)%lInclude = lFALSE
+         TH(3)%lInclude = lFALSE
 
   ! to work with the C++ code, non-leap years must have a -9999 (or missing value code)
   ! inserted in the space reserved for February 29.
@@ -284,20 +405,22 @@ program test_hi
   iYr(1) = 1994
   iYr(2) = 1995
 
-  ! make the actual call to the C++ routine provided by
-  call compute_hi(lUseMedian=.FALSE._C_BOOL, rCarea=1024., &
-      rLowerPercentile=25., rUpperPercentile=75., iYr=iYr, rQ=rQ, rMA=rMA, &
-      rLMA = rLMA, rUMA = rUMA, &
-      rML = rML, rLML = rLML, rUML = rUML, &
-      rMH = rMH, rLMH = rLMH, rUMH = rUMH, &
-      rFL = rFL, rLFL = rLFL, rUFL = rUFL, &
-      rFH = rFH, rLFH = rLFH, rUFH = rUFH, &
-      rDL = rDL, rLDL = rLDL, rUDL = rUDL, &
-      rDH = rDH, rLDH = rLDH, rUDH = rUDH, &
-      rTA = rTA, rLTA = rLTA, rUTA = rUTA, &
-      rTL = rTL, rLTL = rLTL, rUTL = rUTL, &
-      rTH = rTH, rLTH = rLTH, rUTH = rUTH, &
-      rRA = rRA, rLRA = rLRA, rURA = rURA )
+  print *, "About to call c++ routine...."
+
+       ! make the actual call to the C++ routine provided by
+       call compute_hi(lUseMedian=.FALSE._C_BOOL, rCarea=41.6, rNearHuge = rNEARHUGE, &
+         rLowerPercentile=25., rUpperPercentile=75., iYr=iYr, rQ=rQ, rMA=rMA, &
+         rLMA = rLMA, rUMA = rUMA, &
+         rML = rML, rLML = rLML, rUML = rUML, &
+         rMH = rMH, rLMH = rLMH, rUMH = rUMH, &
+         rFL = rFL, rLFL = rLFL, rUFL = rUFL, &
+         rFH = rFH, rLFH = rLFH, rUFH = rUFH, &
+         rDL = rDL, rLDL = rLDL, rUDL = rUDL, &
+         rDH = rDH, rLDH = rLDH, rUDH = rUDH, &
+         rTA = rTA, rLTA = rLTA, rUTA = rUTA, &
+         rTL = rTL, rLTL = rLTL, rUTL = rUTL, &
+         rTH = rTH, rLTH = rLTH, rUTH = rUTH, &
+         rRA = rRA, rLRA = rLRA, rURA = rURA )
 
   print *, "Done!!"
 
@@ -321,43 +444,43 @@ program test_hi
   enddo
 
   do i=1,3
-    write(*,fmt="('FL(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('FL(',i2') ',a,t50,3(f14.3,2x))") i,trim(FL(i)%sHydrologicIndex), &
       rLFL(i), rFL(i), rUFL(i)
   enddo
 
   do i=1,11
-    write(*,fmt="('FH(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('FH(',i2') ',a,t50,3(f14.3,2x))") i,trim(FH(i)%sHydrologicIndex), &
       rLFH(i), rFH(i), rUFH(i)
   enddo
 
   do i=1,20
-    write(*,fmt="('DL(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('DL(',i2') ',a,t50,3(f14.3,2x))") i,trim(DL(i)%sHydrologicIndex), &
       rLDL(i), rDL(i), rUDL(i)
   enddo
 
   do i=1,24
-    write(*,fmt="('DH(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('DH(',i2') ',a,t50,3(f14.3,2x))") i,trim(DH(i)%sHydrologicIndex), &
       rLDH(i), rDH(i), rUDH(i)
   enddo
 
   do i=1,3
-    write(*,fmt="('TA(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('TA(',i2') ',a,t50,3(f14.3,2x))") i,trim(TA(i)%sHydrologicIndex), &
       rLTA(i), rTA(i), rUTA(i)
   enddo
 
   do i=1,4
-    write(*,fmt="('TL(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('TL(',i2') ',a,t50,3(f14.3,2x))") i,trim(TL(i)%sHydrologicIndex), &
       rLTL(i), rTL(i), rUTL(i)
   enddo
 
   do i=1,3
-    write(*,fmt="('TH(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('TH(',i2') ',a,t50,3(f14.3,2x))") i,trim(TH(i)%sHydrologicIndex), &
       rLTH(i), rTH(i), rUTH(i)
   enddo
 
 
   do i=1,9
-    write(*,fmt="('RA(',i2') ',a,t50,3(f14.3,2x))") i,"  ", &
+    write(*,fmt="('RA(',i2') ',a,t50,3(f14.3,2x))") i,trim(RA(i)%sHydrologicIndex), &
       rLRA(i), rRA(i), rURA(i)
   enddo
 

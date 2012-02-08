@@ -2,6 +2,7 @@
 if(TARGET__TSPROC_EXECUTABLE)
 
   add_executable(tsproc
+
             tokenize.F90
 
             compute_hi.cpp
@@ -82,31 +83,23 @@ if(TARGET__TSPROC_LIBRARY)
             wdm_support/WDTMS1.FOR
             wdm_support/WDTMS2.FOR )
 
-   if(${CMAKE_HOST_WIN32})
-      install(TARGETS tsproclib
-              ARCHIVE
-              DESTINATION lib
-              )
-   endif()
-   if(${CMAKE_HOST_UNIX})
-      install(TARGETS tsproclib
-              ARCHIVE
-              DESTINATION lib
-              )
-   endif()
+   install(TARGETS tsproclib
+           ARCHIVE
+           DESTINATION lib )
+
 endif()
 
 
 add_executable(test_hi
+    tsp_data_structures.F90
     test_compute_hi.F90
     compute_hi.cpp
     )
 
-if (${CMAKE_HOST_UNIX})
-    target_link_libraries(test_hi stdc++)
-endif()
+target_link_libraries(test_hi stdc++)
+
 add_test(test_compute_hi test_hi)
-set_tests_properties(test_compute_hi 
+set_tests_properties(test_compute_hi
     PROPERTIES PASS_REGULAR_EXPRESSION "Done!!")
 
 set_target_properties(tsproc tsproclib test_hi
