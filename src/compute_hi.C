@@ -17,9 +17,9 @@
 							//  DH17-DH24,RA1,RA3,RA8
 
 //using namespace std;
-#ifdef __cplusplus
+//#ifdef __cplusplus
   extern "C" {
-#endif
+//#endif
 
 void stats (int, float*, float*, float*, float*);
 float percentile(float, int, float*);
@@ -4970,6 +4970,6 @@ void order(int flag, float *ydata, int nval)
 	}
 }
 
-#ifdef __cplusplus
- }
-#endif
+//#ifdef __cplusplus
+}
+//#endif

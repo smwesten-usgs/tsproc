@@ -28,9 +28,7 @@ set(PACKAGE_TARNAME "tsproc")
 set(PACKAGE_VERSION "2.0")
 
 cmake_minimum_required(VERSION 2.6)
-set(CMAKE_SYSTEM_IGNORE_PATH "c:/Python26;c:/Program Files (x86)")
 
-#
 option (MAKEFILE_VERBOSE
       "Produce verbose makefiles?" OFF)
 
@@ -51,19 +49,68 @@ set( CMAKE_BUILD_TYPE "Release" CACHE STRING
 #------------------------------------------------------------------------
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
-find_program(UNAME NAMES uname)
-
 #------------------------------------------------------------------------
 # Set platform-specific options
 #------------------------------------------------------------------------
 if(CMAKE_HOST_WIN32)
 
-   if (Fortran_COMPILER_NAME MATCHES "gfortran[.a-z]*")
+    if (Fortran_COMPILER_NAME MATCHES "gfortran[.a-z]*")
 
       message(" <-- setting options for gfortran on MinGW -->")
 
+      set_property(CACHE CMAKE_BUILD_TYPE
+                PROPERTY STRINGS "Release" "Debug")
+
+      FIND_LIBRARY(GCC_LIB libgcc.a
+      HINTS
+        C:/MinGW/lib/gcc
+        C:/MinGW/lib/gcc/mingw32
+        C:/MinGW32/lib/gcc
+        C:/MinGW32/lib/gcc/mingw32
+      PATH
+        C:/MinGW/lib/gcc
+        C:/MinGW/lib/gcc/mingw32
+        C:/MinGW32/lib/gcc
+        C:/MinGW32/lib/gcc/mingw32
+      PATH_SUFFIXES
+        4.6.2
+        4.6.1
+        4.5.2
+        4.5.1
+
+      )
+
+      FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
+        HINTS
+          C:/MinGW/lib/gcc
+          C:/MinGW/lib/gcc/mingw32
+          C:/MinGW32/lib/gcc
+          C:/MinGW32/lib/gcc/mingw32
+        PATH
+          C:/MinGW/lib/gcc
+          C:/MinGW/lib/gcc/mingw32
+          C:/MinGW32/lib/gcc
+          C:/MinGW32/lib/gcc/mingw32
+        PATH_SUFFIXES
+          4.6.2
+          4.6.1
+          4.5.2
+          4.5.1
+
+      )
+
+      message("  GCC_LIB = " ${GCC_LIB})
+      message("  GFORTRAN_LIB = " ${GFORTRAN_LIB})
+
       set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
-      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none")
+
+      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -gdb -Wall -Wextra -fcheck=all")
+      set (CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG} "-fexceptions -ffree-line-length-none")
+      set (CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG} "-static -static-libgcc")
+
+      SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libgfortran")
+
+      set(EXTRA_LIBS ${EXTRA_LIBS} ${GCC_LIB} ${GFORTRAN_LIB} ${STDC++_LIB})
 
       set_property(CACHE CMAKE_BUILD_TYPE
               PROPERTY STRINGS "Release" "Debug")
@@ -92,4 +139,3 @@ get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 enable_testing()
 add_subdirectory(src)
 add_subdirectory(tests)
-
