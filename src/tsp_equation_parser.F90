@@ -850,8 +850,7 @@ end subroutine equation
         DO 300 ITERM=1,NTERM-2
           IF(ATERM(ITERM)(1:6).EQ.'~#str_')THEN
             IF(ATERM(ITERM+2)(1:6).EQ.'~#fin_')THEN
-              CALL FUNCEVAL(JERR,NFUNCT,ATERM(ITERM),rterm(iterm+1),       &
-              DVAL,FUNCT)
+              CALL FUNCEVAL(JERR,ATERM(ITERM),rterm(iterm+1),DVAL)
               IF(JERR.NE.0)THEN
                 AFUNCT=FUNCT(JERR)
                 WRITE(amessage,170) trim(AFUNCT)
@@ -959,16 +958,15 @@ end subroutine equation
 
 
 
-      SUBROUTINE FUNCEVAL(JERR,NFUNCT,ATERM1,rterm,DVAL,FUNCT)
+      SUBROUTINE FUNCEVAL(JERR,ATERM1,rterm,DVAL)
 
 ! -- Subroutine FUNCEVAL evaluates a function.
 
 
       implicit none
-      INTEGER JERR,NFUNCT,IFN,IFAIL
+      INTEGER JERR,IFN,IFAIL
       DOUBLE PRECISION DVAL,DTEMP,rterm
       CHARACTER*(*) ATERM1
-      CHARACTER(*) FUNCT(NFUNCT)
 
 ! -- First we find out which function we are evaluating.
 

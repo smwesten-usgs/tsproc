@@ -557,7 +557,7 @@ subroutine moving_window(ifail)
        integer icontext,iseries,ixcon,ierr,itemp,iterm,i,j,wt2,l,winterms,imode,  &
        icount,is,ie,iiterm,k
        real rtemp,first_value,last_value
-       character (len=iTSNAMELENGTH) :: aname,atemp
+       character (len=iTSNAMELENGTH) :: aname
        character*15 aline,amode
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
@@ -4309,13 +4309,13 @@ subroutine compute_hydrologic_indices(ifail)
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
-       icontext,i,begdays,begsecs,enddays,endsecs,iseries,jtrans,javerage, &
+       icontext,begdays,begsecs,enddays,endsecs,iseries, &
        iterm,ibterm,ieterm,iiterm,itemp,ixcon, &
-       iitemp,jj,minaverage,maxaverage,ii,nnterm,jrange, j, ig
+       j, ig
        integer :: iCount, iStat, iIndex
        integer :: iNumberOfKeywords
        character*3 aaa
-       character (len=iTSNAMELENGTH) :: aname,atemp
+       character (len=iTSNAMELENGTH) :: aname
        character*15 aline
        character*25 aoption
        character (len=25) :: sStreamClass
@@ -4365,11 +4365,9 @@ subroutine compute_hydrologic_indices(ifail)
        integer :: iOrigin
        integer :: iStartJD, iStartMM, iStartDD, iStartYYYY
        integer :: iEndJD, iEndMM, iEndDD, iEndYYYY
-       integer iMM, iDD, iYYYY
        integer :: iBaseWY, iDayOfWY, iWY, iCurrWY
        integer (kind=T_INT) :: iStreamClass
        logical, dimension(1:9) :: lFlowComponent
-       integer :: iLoop
        real :: rTemp
 
        real(C_FLOAT) :: rCarea
@@ -4725,7 +4723,6 @@ subroutine compute_hydrologic_indices(ifail)
 
 ! -- The block has been read; now it is checked for correctness.
 
-200    continue
        if(iseries.eq.0)then
          write(amessage,210) trim(CurrentBlock_g)
 210      format('no SERIES_NAME keyword provided in ',a,' block.')

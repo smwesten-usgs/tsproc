@@ -1382,7 +1382,7 @@ subroutine pest_files(ifail,lastblock)
 810    format(t5,'Writing instruction file ',a,' ....')
        inquire(file=instructfile,exist=lexist)
        if(lexist)then
-812      write(6,*)
+         write(6,*)
 813      write(*,815,advance='no') trim(sString_g)
 815      format(' File ',a,' already exists. Overwrite it? [y/n]: ')
          read(5,'(a)') aa
@@ -2368,7 +2368,7 @@ subroutine pest_files(ifail,lastblock)
          inquire(file=micactlfile,exist=lexist)
          if(lexist)then
 2471       write(6,*)
-2472       write(*,815,advance='no') trim(sString_g)
+           write(*,815,advance='no') trim(sString_g)
            read(5,'(a)') aa
            call casetrans(aa,'lo')
            if((aa.ne.'y').and.(aa.ne.'n')) go to 2471
@@ -2729,14 +2729,12 @@ subroutine write_list_output(ifail)
                else
                  write(LU_OUT,300) trim(aname),mm,dd,yy,hhh,mmm,sss,series_g(j)%val(iterm)
                endif
-305            continue
              else
                write(LU_OUT,301) series_g(j)%val(iterm)
 301            format(4x,1pg14.7)
              end if
            end do
          end if
-505      continue
        end do
 
 ! -- If any S_TABLEs were requested, they are now written.
@@ -2980,7 +2978,6 @@ subroutine write_list_output(ifail)
 
 ! -- If any G_TABLES were requested, they are now written.
 
-2900    continue
        if(igtable.eq.0) go to 3100
        do i=1,igtable
          jgtable=iOutGtable_g(i)
@@ -3017,7 +3014,7 @@ subroutine write_list_output(ifail)
        call write_message(iunit=LU_REC,leadspace='yes')
        ifail=1
 
-9900   close(unit=LU_REC,iostat=ierr)
+       close(unit=LU_REC,iostat=ierr)
        return
 
 
