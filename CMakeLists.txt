@@ -33,7 +33,7 @@ set(PACKAGE_VERSION "2.0")
 cmake_minimum_required(VERSION 2.6)
 
 option (MAKEFILE_VERBOSE
-      "Produce verbose makefiles?" OFF)
+      "Produce verbose makefiles?" ON)
 
 option (TARGET__TSPROC_EXECUTABLE
       "Compile the main TSPROC executable?" ON)
@@ -42,8 +42,11 @@ option (TARGET__TSPROC_LIBRARY
       "Compile TSPROC as a library?" ON)
 
 #------------------------------------------------------------------------
-# Restrict CMAKE_BUILD_TYPE to "Release" or "Debug"
+# Restrict CMAKE_BUILD_TYPE to "Release" or "Debug" (GUI); set build type
 #------------------------------------------------------------------------
+set_property(CACHE CMAKE_BUILD_TYPE
+          PROPERTY STRINGS "Release" "Debug")
+
 set( CMAKE_BUILD_TYPE "Release" CACHE STRING
        "Compile in DEBUG or RELEASE mode" )
 
@@ -61,35 +64,8 @@ if(CMAKE_HOST_WIN32)
 
       message(" <-- setting options for gfortran on MinGW -->")
 
-      set_property(CACHE CMAKE_BUILD_TYPE
-                PROPERTY STRINGS "Release" "Debug")
-
       FIND_LIBRARY(GCC_LIB libgcc.a
-      HINTS
-        C:/MinGW/lib/gcc
-        C:/MinGW/lib/gcc/mingw32
-        C:/MinGW32/lib/gcc
-        C:/MinGW32/lib/gcc/mingw32
-      PATH
-        C:/MinGW/lib/gcc
-        C:/MinGW/lib/gcc/mingw32
-        C:/MinGW32/lib/gcc
-        C:/MinGW32/lib/gcc/mingw32
-      PATH_SUFFIXES
-        4.6.2
-        4.6.1
-        4.5.2
-        4.5.1
-
-      )
-
-      FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
-        HINTS
-          C:/MinGW/lib/gcc
-          C:/MinGW/lib/gcc/mingw32
-          C:/MinGW32/lib/gcc
-          C:/MinGW32/lib/gcc/mingw32
-        PATH
+        PATHS
           C:/MinGW/lib/gcc
           C:/MinGW/lib/gcc/mingw32
           C:/MinGW32/lib/gcc
@@ -99,7 +75,19 @@ if(CMAKE_HOST_WIN32)
           4.6.1
           4.5.2
           4.5.1
+      )
 
+      FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
+        PATHS
+          C:/MinGW/lib/gcc
+          C:/MinGW/lib/gcc/mingw32
+          C:/MinGW32/lib/gcc
+          C:/MinGW32/lib/gcc/mingw32
+        PATH_SUFFIXES
+          4.6.2
+          4.6.1
+          4.5.2
+          4.5.1
       )
 
       message("  GCC_LIB = " ${GCC_LIB})
@@ -109,7 +97,6 @@ if(CMAKE_HOST_WIN32)
 
       set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -gdb -Wall -Wextra -fcheck=all")
       set (CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG} "-fexceptions -ffree-line-length-none")
-      set (CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG} "-static -static-libgcc")
 
       SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libgfortran")
 
@@ -128,6 +115,37 @@ elseif(CMAKE_HOST_UNIX)
 
    # Accept CMAKE defaults...
    # I think compiler choice is keyed off of the FC environment variable.
+
+      message(" <-- setting options for gfortran on Linux -->")
+
+      FIND_LIBRARY(GCC_LIB libgcc.a
+        PATHS
+          C:/MinGW/lib/gcc
+          C:/MinGW/lib/gcc/mingw32
+          C:/MinGW32/lib/gcc
+          C:/MinGW32/lib/gcc/mingw32
+        PATH_SUFFIXES
+          4.6.2
+          4.6.1
+          4.5.2
+          4.5.1
+      )
+
+      FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
+        PATHS
+          C:/MinGW/lib/gcc
+          C:/MinGW/lib/gcc/mingw32
+          C:/MinGW32/lib/gcc
+          C:/MinGW32/lib/gcc/mingw32
+        PATH_SUFFIXES
+          4.6.2
+          4.6.1
+          4.5.2
+          4.5.1
+      )
+
+      message("  GCC_LIB = " ${GCC_LIB})
+      message("  GFORTRAN_LIB = " ${GFORTRAN_LIB})
 
 else()
 
