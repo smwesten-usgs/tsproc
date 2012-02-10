@@ -4373,7 +4373,8 @@ subroutine compute_hydrologic_indices(ifail)
        real(C_FLOAT) :: rCarea
 
        rCarea = 100.
-       lFlowComponent = lFALSE
+       lFlowComponent = lTRUE
+       iStreamClass = 0
 
        rQ = rTINY
        iYr = 0
@@ -4444,19 +4445,19 @@ subroutine compute_hydrologic_indices(ifail)
            select case(trim(adjustl(uppercase(sStreamClass) ) ) )
 
              case("HARSH_INTERMITTENT")
-               iStreamClass = 7
-             case("FLASHY_INTERMITTENT")
                iStreamClass = 6
-             case("SNOWMELT_PERENNIAL")
+             case("FLASHY_INTERMITTENT")
                iStreamClass = 5
-             case("SNOW_RAIN_PERENNIAL")
+             case("SNOWMELT_PERENNIAL")
                iStreamClass = 4
-             case("GROUNDWATER_PERENNIAL")
+             case("SNOW_RAIN_PERENNIAL")
                iStreamClass = 3
-             case("FLASHY_PERENNIAL")
+             case("GROUNDWATER_PERENNIAL")
                iStreamClass = 2
-             case("ALL_STREAMS")
+             case("FLASHY_PERENNIAL")
                iStreamClass = 1
+             case("ALL_STREAMS")
+               iStreamClass = 0
              case default
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
@@ -4472,6 +4473,9 @@ subroutine compute_hydrologic_indices(ifail)
          elseif(aoption .eq. 'FLOW_COMPONENT') then
            iNumberOfKeywords = iNumberOfKeywords + 1
            call getfile(ierr,cline,sFlowComponent,left_word(2),right_word(2))
+
+           ! start out with NOTHING selected
+           lFlowComponent = lFALSE
 
            select case(trim(adjustl(uppercase(sFlowComponent) ) ) )
 
