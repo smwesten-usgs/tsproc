@@ -10,7 +10,7 @@ module tsp_time_series_processors
     character (len=80)   :: sHydrologicIndex
     real(kind=T_REAL)   :: rValue
     logical(kind=T_LOGICAL) :: lInclude = lFALSE
-    integer(kind=T_SHORT) :: iMask = 0
+    integer(kind=T_INT) :: iMask = 0
   end type T_HI
 
   integer, parameter :: iDAILY = 0
@@ -83,15 +83,15 @@ module tsp_time_series_processors
   end interface
 
   type (T_HI), dimension(45) :: MA = [ &
-    T_HI( 1,iDAILY,'Mean, all daily flows',rZERO,lFALSE,B'00000001'), &                       ! 1
-    T_HI( 1,iDAILY,'Median, all daily flows',rZERO,lFALSE,B'00000001'), &                     ! 2
-    T_HI( 6,iDAILY,'CV, all daily flows',rZERO,lFALSE,B'00011011'), &                         ! 3
-    T_HI( 6,iDAILY,'CV, log of all daily flows',rZERO,lFALSE,B'00000001'), &                  ! 4
-    T_HI( 6,iDAILY,'Mean daily flow / median daily flow',rZERO,lFALSE,B'00000011'), &         ! 5
-    T_HI( 6,iDAILY,'Ratio, Q10 / Q90 for all daily flows',rZERO,lFALSE,B'00000001'), &        ! 6
-    T_HI( 6,iDAILY,'Ratio, Q20 / Q80 for all daily flows',rZERO,lFALSE,B'00000001'), &        ! 7
-    T_HI( 6,iDAILY,'Ratio, Q25 / Q75 for all daily flows',rZERO,lFALSE,B'00001001'), &        ! 8
-    T_HI( 2,iDAILY,'(Q10 - Q90) / median daily flow',rZERO,lFALSE,B'01000001'), &             ! 9
+    T_HI( 1,iDAILY,'Mean, all daily flows',rZERO,lFALSE,B'00000001'), &                       ! 1*
+    T_HI( 1,iDAILY,'Median, all daily flows',rZERO,lFALSE,B'00000001'), &                     ! 2*
+    T_HI( 6,iDAILY,'CV, all daily flows',rZERO,lFALSE,B'00011011'), &                         ! 3*
+    T_HI( 6,iDAILY,'CV, log of all daily flows',rZERO,lFALSE,B'00000001'), &                  ! 4*
+    T_HI( 6,iDAILY,'Mean daily flow / median daily flow',rZERO,lFALSE,B'00000011'), &         ! 5*
+    T_HI( 6,iDAILY,'Ratio, Q10 / Q90 for all daily flows',rZERO,lFALSE,B'00000001'), &        ! 6*
+    T_HI( 6,iDAILY,'Ratio, Q20 / Q80 for all daily flows',rZERO,lFALSE,B'00000001'), &        ! 7*
+    T_HI( 6,iDAILY,'Ratio, Q25 / Q75 for all daily flows',rZERO,lFALSE,B'00001001'), &        ! 8*
+    T_HI( 2,iDAILY,'(Q10 - Q90) / median daily flow',rZERO,lFALSE,B'01000001'), &             ! 9*
     T_HI( 2,iDAILY,'(Q20 - Q80) / median daily flow',rZERO,lFALSE,B'00000101'), &             ! 10
     T_HI( 2,iDAILY,'(Q25 - Q75) / median daily flow',rZERO,lFALSE,B'00000011'), &             ! 11
     T_HI( 1,iMONTHLY,'Mean monthly flow, January',rZERO,lFALSE,B'00000001'), &                ! 12
@@ -284,6 +284,17 @@ module tsp_time_series_processors
     T_HI( 1,iDAILY,'Median of difference in log of flows over two consecutive days of falling flow',rZERO,lFALSE,B'01000101'), &      ! 7
     T_HI( 1,iDAILY,'Number of flow reversals from one day to the next',rZERO,lFALSE,B'00111011'), &                                   ! 8
     T_HI( 1,iDAILY,'CV, number of flow reversals from one day to the next',rZERO,lFALSE,B'01011111') &                                ! 9
+  ]
+
+  character(len=23), dimension(0:7), parameter :: STREAM_CLASSIFICATIONS = [ &
+    'All indices            ', &  ! 0
+    'All streams            ', &  ! 1
+    'Flashy perennial       ', &  ! 2
+    'Groundwater perennial  ', &  ! 3
+    'Snow and rain perennial', &  ! 4
+    'Snowmelt perennial     ', &  ! 5
+    'Flashy intermittent    ', &  ! 6
+    'Harsh intermittent     ' &   ! 7
   ]
 
 
@@ -4312,7 +4323,7 @@ subroutine compute_hydrologic_indices(ifail)
        icontext,begdays,begsecs,enddays,endsecs,iseries, &
        iterm,ibterm,ieterm,iiterm,itemp,ixcon, &
        j, ig
-       integer :: iCount, iStat, iIndex
+       integer :: iCount, iStat, iIndex, iIndex2, iIndex3
        integer :: iNumberOfKeywords
        character*3 aaa
        character (len=iTSNAMELENGTH) :: aname
@@ -4416,14 +4427,16 @@ subroutine compute_hydrologic_indices(ifail)
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
-         call linesplit(ierr,2)
-         if(ierr.ne.0)then
-           call num2char(ILine_g,aline)
-           call addquote(sInfile_g,sString_g)
-           write(amessage,20) trim(aline),trim(sString_g)
-20         format('there should be 2 entries on line ',a,' of file ',a)
-           go to 9800
-         end if
+         if(.not. str_compare(cline,"CURRENT_DEFINITIONS") ) then
+           call linesplit(ierr,2)
+           if (ierr.ne.0 )then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,20) trim(aline),trim(sString_g)
+20           format('there should be 2 entries on line ',a,' of file ',a)
+             go to 9800
+           end if
+         endif
          aoption=cline(left_word(1):right_word(1))
          call casetrans(aoption,'hi')
          if(aoption.ne.'CONTEXT')then
@@ -4445,19 +4458,19 @@ subroutine compute_hydrologic_indices(ifail)
            select case(trim(adjustl(uppercase(sStreamClass) ) ) )
 
              case("HARSH_INTERMITTENT")
-               iStreamClass = 6
+               iStreamClass = 7
              case("FLASHY_INTERMITTENT")
-               iStreamClass = 5
+               iStreamClass = 6
              case("SNOWMELT_PERENNIAL")
-               iStreamClass = 4
+               iStreamClass = 5
              case("SNOW_RAIN_PERENNIAL")
-               iStreamClass = 3
+               iStreamClass = 4
              case("GROUNDWATER_PERENNIAL")
-               iStreamClass = 2
+               iStreamClass = 3
              case("FLASHY_PERENNIAL")
-               iStreamClass = 1
+               iStreamClass = 2
              case("ALL_STREAMS")
-               iStreamClass = 0
+               iStreamClass = 1
              case default
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
@@ -4474,7 +4487,8 @@ subroutine compute_hydrologic_indices(ifail)
            iNumberOfKeywords = iNumberOfKeywords + 1
            call getfile(ierr,cline,sFlowComponent,left_word(2),right_word(2))
 
-           ! start out with NOTHING selected
+           ! user is specifying components of flow; need to clear out this
+           ! set of flags so that the user can pick his/her own flow components
            lFlowComponent = lFALSE
 
            select case(trim(adjustl(uppercase(sFlowComponent) ) ) )
@@ -4508,6 +4522,91 @@ subroutine compute_hydrologic_indices(ifail)
            write(*,56) trim(sFlowComponent)
            write(LU_REC,56) trim(sFlowComponent)
 56         format(t5,'FLOW_COMPONENT ',a)
+
+         ! as a help to the user, print out all of the indices calculated
+         ! for a given stream classification (screen output only)
+         else if (str_compare(cline,"CURRENT_DEFINITIONS")) then
+           do iIndex2=0,6
+           write(*,fmt="(/,/,'Indices calculated for streams in classification ',a,':',/)") &
+              quote(STREAM_CLASSIFICATIONS(iIndex2))
+             do iIndex3=1, ubound(MA,1)
+               if (btest(MA(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  MA("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(MA(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(ML,1)
+               if (btest(ML(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  ML("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(ML(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(MH,1)
+               if (btest(MH(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  MH("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(MH(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(FL,1)
+               if (btest(FL(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  FL("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(FL(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(FH,1)
+               if (btest(FH(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  FH("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(FH(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(DL,1)
+               if (btest(DL(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  DL("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(DL(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(DH,1)
+               if (btest(DH(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  DH("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(DH(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(TA,1)
+               if (btest(TA(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  TA("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(TA(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(TL,1)
+               if (btest(TL(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  TL("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(TL(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(TH,1)
+               if (btest(TH(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  TH("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(TH(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+             write(*,fmt="(/)")
+             do iIndex3=1, ubound(RA,1)
+               if (btest(RA(iIndex3)%iMask,iIndex2)) then
+                 write(*,fmt="(a)") "  RA("//trim(int2char(iIndex3)) &
+                   //"):: "//trim(RA(iIndex3)%sHydrologicIndex)
+               endif
+             enddo
+           enddo
 
          else if(aoption.eq.'DRAINAGE_AREA')then
            call get_keyword_value(ierr,2,itemp,rCarea,'DRAINAGE_AREA')
@@ -4764,16 +4863,6 @@ subroutine compute_hydrologic_indices(ifail)
          TH%lInclude = lTRUE
          RA%lInclude = lTRUE
 
-         ! inactivate the indices which require peak flow values to calculate
-         FH(11)%lInclude = lFALSE
-         DH(22)%lInclude = lFALSE
-         DH(23)%lInclude = lFALSE
-         DH(24)%lInclude = lFALSE
-         TA(3)%lInclude = lFALSE
-         TL(3)%lInclude = lFALSE
-         TL(4)%lInclude = lFALSE
-         TH(3)%lInclude = lFALSE
-
        else
 
          ! i.e. if the STREAM_CLASSIFICATION is given as "FLASHY_INTERMITTENT",
@@ -4812,6 +4901,15 @@ subroutine compute_hydrologic_indices(ifail)
 
        endif
 
+       ! inactivate the indices which require peak flow values to calculate
+       FH(11)%lInclude = lFALSE
+       DH(22)%lInclude = lFALSE
+       DH(23)%lInclude = lFALSE
+       DH(24)%lInclude = lFALSE
+       TA(3)%lInclude = lFALSE
+       TL(3)%lInclude = lFALSE
+       TL(4)%lInclude = lFALSE
+       TH(3)%lInclude = lFALSE
 
 ! -- All is well with the block. The GTABLE is filled with requested statistics.
 

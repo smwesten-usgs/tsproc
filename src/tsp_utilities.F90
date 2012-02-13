@@ -2517,5 +2517,15 @@ end function int2char
 
 !------------------------------------------------------------------------------
 
+function quote(sString)                                   result(sQuotedString)
+
+  character (len=*), intent(in) :: sString
+  character (len=len_trim(adjustl(sString))+2) :: sQuotedString
+
+  sQuotedString = '"'//trim(adjustl(sString))//'"'
+
+end function quote
+
+!------------------------------------------------------------------------------
 
 end module tsp_utilities
