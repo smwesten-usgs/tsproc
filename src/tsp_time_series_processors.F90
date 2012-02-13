@@ -6108,6 +6108,256 @@ subroutine time_duration(ifail)
 
 end subroutine time_duration
 
+subroutine flow_duration(ifail)
+
+! -- Subroutine FLOW_DURATION calculates exceedence flows for a set of
+! -- user-specified exceedance quantiles.
+
+       use tsp_data_structures
+       use tsp_utilities
+       use tsp_command_processors
+
+       implicit none
+
+       integer, intent(out)   :: ifail
+
+       logical on,oldon
+       integer ierr,icontext,iseries,itunit,iflow,id,i,ndays,nsecs,j,oldndays,oldnsecs, &
+               nnterm,ixcon,iuo
+       real rtemp,fac,duration,fflow,vval,oldvval,timediff,accumulation,timedelay
+       character (len=iTSNAMELENGTH) :: aname,atemp
+       character*15 aline
+       character*25 aoption
+       character*25 acontext(MAXCONTEXT)
+
+       ifail=0
+       CurrentBlock_g='FLOW_DURATION'
+
+
+       write(*,10) trim(CurrentBlock_g)
+       write(LU_REC,10) trim(CurrentBlock_g)
+10     format(/,' Processing ',a,' block....')
+
+       icontext=0
+       iseries=0
+       aname=' '
+       itunit=0
+       iflow=0
+       ixcon=0
+       iuo=-999
+       do i=1,MAXTEMPDURFLOW
+         tempdtable_g%tdelay(i)=-1.1e36
+       end do
+
+! -- The EXCEEDENCE-TIME block is first parsed.
+
+       do
+         ILine_g=ILine_g+1
+         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         if(cline.eq.' ') cycle
+         if(cline(1:1).eq.'#') cycle
+         call linesplit(ierr,2)
+         if(ierr.ne.0)then
+           call num2char(ILine_g,aline)
+           call addquote(sInfile_g,sString_g)
+           write(amessage,20) trim(aline),trim(sString_g)
+20         format('there should be 2 entries on line ',a,' of file ',a)
+           go to 9800
+         end if
+         aoption=cline(left_word(1):right_word(1))
+         call casetrans(aoption,'hi')
+         if(aoption.ne.'CONTEXT')then
+           call test_context(ierr,icontext,acontext)
+           if(ierr.eq.-1)then
+             call find_end(ifail)
+             if(ifail.eq.1) go to 9800
+             return
+           else if(ierr.eq.1) then
+             go to 9800
+           end if
+           ixcon=1
+         end if
+         if(aoption.eq.'SERIES_NAME')then
+           call get_series_name(ierr,iseries,'SERIES_NAME')
+           if(ierr.ne.0) go to 9800
+         else if(aoption.eq.'CONTEXT')then
+           if(ixcon.ne.0)then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,41) trim(aline),trim(sString_g)
+41           format('CONTEXT keyword in incorrect location at line ',a,' of file ',a)
+             go to 9800
+           end if
+           call get_context(ierr,icontext,acontext)
+           if(ierr.ne.0) go to 9800
+         else if(aoption.eq.'NEW_G_TABLE_NAME')then
+           call get_new_table_name(ierr,iG_TABLE,aname)
+           if(ierr.ne.0) go to 9800
+         else if(aoption.eq.'FLOW')then
+           iflow=iflow+1
+           if(iflow.gt.MAXTEMPDURFLOW)then
+             call num2char(MAXTEMPDURFLOW,aline)
+             write(amessage,30) trim(aline), trim(CurrentBlock_g)
+30           format('a maximum of ',a,' FLOWs are allowed in an ',a,' block.')
+             go to 9800
+           end if
+           call char2num(ierr,cline(left_word(2):right_word(2)),rtemp)
+           if(ierr.ne.0)then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,120) trim(aline),trim(sString_g)
+120          format('cannot read flow from line ',a,' of file ',a)
+             go to 9800
+           end if
+           write(*,130) cline(left_word(2):right_word(2))
+           write(LU_REC,130) cline(left_word(2):right_word(2))
+130        format(t5,'FLOW ',a)
+           tempdtable_g%flow(iflow)=rtemp
+         else if(aoption.eq.'DELAY')then
+           if(iflow.eq.0)then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,320) trim(aline),trim(sString_g)
+320          format('DELAY not preceeded by FLOW at line ',a,' of file ',a)
+             go to 9800
+           end if
+           if(tempdtable_g%tdelay(iflow).gt.-1.0e36)then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,330) trim(aline),trim(sString_g)
+330          format('more than one DELAY associated with FLOW at line ',a,' of file ',a)
+             go to 9800
+           end if
+           call char2num(ierr,cline(left_word(2):right_word(2)),rtemp)
+           if(ierr.ne.0)then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,335) trim(aline),trim(sString_g)
+335          format('cannot read time delay from line ',a,' of file ',a)
+             go to 9800
+           end if
+           if(rtemp.lt.0.0)then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,336) trim(aline),trim(sString_g)
+336          format('time delay cannot be negative at line ',a,' of file ',a)
+             go to 9800
+           end if
+           write(*,340) cline(left_word(2):right_word(2))
+           write(LU_REC,340) cline(left_word(2):right_word(2))
+340        format(t5,'DELAY ',a)
+           tempdtable_g%tdelay(iflow)=rtemp
+         else if(aoption.eq.'END')then
+           go to 200
+         else
+           call num2char(ILine_g,aline)
+           call addquote(sInfile_g,sString_g)
+           write(amessage,90) trim(aoption),trim(CurrentBlock_g),trim(aline),trim(sString_g)
+90         format('unexpected keyword - "',a,'" in ',a,' block at line ',a, &
+           ' of file ',a)
+           go to 9800
+         end if
+       end do
+
+200    continue
+
+! -- The block has been read; now it is checked for absenses.
+
+       if(iseries.eq.0)then
+         write(amessage,210) trim(CurrentBlock_g)
+210      format('no SERIES_NAME keyword provided in ',a,' block.')
+         go to 9800
+       end if
+       if(aname.eq.' ')then
+         write(amessage,230) trim(CurrentBlock_g)
+230      format('no NEW_G_TABLE_NAME keyword provided in ',a,' block.')
+         go to 9800
+       end if
+       if(itunit.eq.0)then
+         write(amessage,218) trim(CurrentBlock_g)
+218      format('no EXCEEDENCE_TIME_UNITS keyword provided in ',a,' block.')
+         go to 9800
+       end if
+       if(icontext.eq.0)then
+         write(amessage,220) trim(CurrentBlock_g)
+220      format('no CONTEXT keyword(s) provided in ',a,' block.')
+         go to 9800
+       end if
+       if(iflow.eq.0)then
+         write(amessage,225) trim(CurrentBlock_g)
+225      format('no FLOW keywords provided in ',a,' block.')
+         go to 9800
+       end if
+       do i=1,iflow
+         if (tempdtable_g%tdelay(i).gt.-1.0e36) go to 360
+       end do
+       go to 400
+360    do i=1,iflow
+         if(tempdtable_g%tdelay(i).lt.-1.0e36)then
+           write(amessage,370) trim(CurrentBlock_g)
+370        format('if any FLOW is associated with a DELAY, than all flows must be associated ',  &
+           'with a DELAY in ',a,' block')
+           go to 9800
+         end if
+       end do
+400    continue
+       if(series_g(iseries)%nterm.eq.1)then
+         write(amessage,250) trim(series_g(iseries)%name)
+250      format('cannot calculate exceedence times because time series "',a,   &
+         '" has only one term.')
+         go to 9800
+       end if
+
+! -- Space is now allocated in a non-temporary G_TABLE.
+       do ig=1,MAXGTABLE
+         if(.not. gtable_g(ig)%active ) go to 300
+       end do
+       write(amessage,310)
+310    format('no more G_TABLE''s available for data storage - increase MAXGTABLE and ', &
+       'recompile program.')
+       go to 9800
+300    continue
+
+       if((begdays .lt. series_g(iseries)%days(1)).or.  &
+         ((begdays .eq. series_g(iseries)%days(1)).and. &
+          (begsecs .lt. series_g(iseries)%secs(1))))then
+         begdays=series_g(iseries)%days(1)
+         begsecs=series_g(iseries)%secs(1)
+       end if
+       iiterm=series_g(iseries)%nterm
+       if((enddays .gt. series_g(iseries)%days(iiterm)).or.  &
+         ((enddays .eq. series_g(iseries)%days(iiterm)).and. &
+          (endsecs .gt. series_g(iseries)%secs(iiterm))))then
+         enddays=series_g(iseries)%days(iiterm)
+         endsecs=series_g(iseries)%secs(iiterm)
+       end if
+
+       ! get the Julian date associated with John's "origin" term
+       iOrigin = julian_day(1970, 1, 1)
+
+       gtable_g(ig)%active = lTRUE
+       gtable_g(ig)%name = aname
+       gtable_g(ig)%series_name = series_g(iseries)%name
+
+       if(begdays.eq.-99999999)then
+         gtable_g(ig)%rec_begdays = series_g(iseries)%days(1)
+         gtable_g(ig)%rec_begsecs = series_g(iseries)%secs(1)
+       else
+         gtable_g(ig)%rec_begdays = begdays
+         gtable_g(ig)%rec_begsecs = begsecs
+       end if
+       if(enddays.eq.99999999)then
+         gtable_g(ig)%rec_enddays = series_g(iseries)%days(iiterm)
+         gtable_g(ig)%rec_endsecs = series_g(iseries)%secs(iiterm)
+       else
+         gtable_g(ig)%rec_enddays = enddays
+         gtable_g(ig)%rec_endsecs = endsecs
+       end if
+
+
+
+
+end subroutine flow_duration
 
 
 subroutine displace(ifail)
