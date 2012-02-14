@@ -141,7 +141,7 @@ subroutine pest_files(ifail,lastblock)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
@@ -960,7 +960,7 @@ subroutine pest_files(ifail,lastblock)
        do
          jline=jline+1
          read(iunit,'(a)',err=9400,end=320) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          f_numpargp=f_numpargp+1
        end do
@@ -984,7 +984,7 @@ subroutine pest_files(ifail,lastblock)
 325    jline=jline+1
        call num2char(jline,aline)
        READ(iunit,'(A)',ERR=9400,END=480) cline
-       if(cline.eq.' ') go to 325
+       if( len_trim(cline) == 0 ) go to 325
        if(cline(1:1).eq.'#') go to 325
        call casetrans(cline,'lo')
        call linesplit(ierr,7)
@@ -1107,7 +1107,7 @@ subroutine pest_files(ifail,lastblock)
        do
          jline=jline+1
          read(iunit,'(a)',err=9400,end=550) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          f_numpar=f_numpar+1
        end do
@@ -1130,7 +1130,7 @@ subroutine pest_files(ifail,lastblock)
 560    jline=jline+1
        call num2char(jline,aline)
        read(iunit,'(A)',ERR=9400,END=620) cline
-       if(cline.eq.' ') go to 560
+       if(len_trim(cline) == 0) go to 560
        if(cline(1:1).eq.'#') go to 560
        call casetrans(cline,'lo')
        call linesplit(ierr,9)
@@ -2512,7 +2512,7 @@ subroutine write_list_output(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
@@ -2983,8 +2983,8 @@ subroutine write_list_output(ifail)
          jgtable=iOutGtable_g(i)
          write(LU_OUT,2910) trim(gtable_g(jgtable)%name)
 2910     format(/,' G_TABLE "',a,'" ---->')
-         write(LU_OUT,2915)
-2915     format(t4,'Hydrologic Index and description (Olden and Poff, 2003)',t85,'Value')
+         write(LU_OUT,2915) gtable_g(jgtable)%g_table_header
+2915     format(t4,a75,t85,'Value')
          do j=1,ubound(gtable_g(jgtable)%sDescription, 1 )
            write(LU_OUT,fmt="(t4,a,t78,f12.3)") gtable_g(jgtable)%sDescription(j), &
               gtable_g(jgtable)%rValue(j)

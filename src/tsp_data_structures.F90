@@ -86,6 +86,7 @@ module tsp_data_structures
     logical :: active
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
+    character (len=80) :: g_table_header
     integer  rec_begdays
     integer  rec_begsecs
     integer  rec_enddays
@@ -290,6 +291,7 @@ module tsp_data_structures
    integer, parameter :: iNEW_TIME_BASE                = 305
    integer, parameter :: iVOLUME_CALCULATION           = 306
    integer, parameter :: iEXCEEDANCE_TIME              = 308
+   integer, parameter :: iFLOW_DURATION                = 309
    integer, parameter :: iSERIES_EQUATION              = 310
    integer, parameter :: iSERIES_DISPLACE              = 311
    integer, parameter :: iSERIES_CLEAN                 = 312

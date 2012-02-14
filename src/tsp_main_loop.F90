@@ -297,6 +297,10 @@ subroutine processBlock()
          else if(iBlockNumber == iEXCEEDANCE_TIME) then
            call time_duration(ifail)
 
+         ! flow duration
+         else if(iBlockNumber == iFLOW_DURATION) then
+           call flow_duration(ifail)
+
          ! series_g equation
          else if(iBlockNumber == iSERIES_EQUATION) then
            call equation(ifail)

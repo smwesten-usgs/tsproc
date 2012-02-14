@@ -1,0 +1,6 @@
+jhcoef_fac     log    factor    1.0      0.75          1.5         evap           1.000       0.000        1
+rnadj_fac      log    factor    1.0      0.75          1.5         prcp           1.000       0.000        1
+snwadj_fac     log    factor    1.0      0.75          1.5         prcp           1.000       0.000        1
+pfd_fac        log    factor    1.0      0.75          1.5         soilzone       1.000       0.000        1
+s2gw_fac       log    factor    1.0      0.75          1.5         ssres          1.000       0.000        1
+s2gwe_fac      log    factor    1.0      0.75          1.5         ssres          1.000       0.000        1

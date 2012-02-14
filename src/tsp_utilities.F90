@@ -9,6 +9,11 @@ module tsp_utilities
 
   ! declare generic interfaces
 
+  interface chomp
+    module procedure chomp_delim_sub
+    module procedure chomp_default_sub
+  end interface
+
   interface char2num
     module procedure a2i
     module procedure a2r
@@ -19,6 +24,11 @@ module tsp_utilities
     module procedure i2a
     module procedure r2a
     module procedure d2a
+  end interface
+
+  interface asChar
+    module procedure int2char
+    module procedure real2char
   end interface
 
   interface pos_test
@@ -49,6 +59,11 @@ module tsp_utilities
 !    module procedure uppercase_sub
     module procedure uppercase_fn
   end interface
+
+  character (len=1), parameter :: sTAB = achar(9)
+  character (len=2), parameter :: sWHITESPACE = achar(9)//" "
+  character (len=1), parameter :: sBACKSLASH = achar(92)
+  character (len=1), parameter :: sFORWARDSLASH = achar(47)
 
 contains
 
@@ -785,6 +800,57 @@ subroutine r2a(value,string,nchar)
 
 end subroutine r2a
 
+!> Convert an integer value into a formatted character string
+function int2char(iValue) result(sBuf)
+
+  integer (kind=T_INT) :: iValue
+  character(len=256) :: sBuf
+
+  write(UNIT=sBuf,FMT="(i14)") iValue
+  sBuf = ADJUSTL(sBuf)
+
+  return
+
+end function int2char
+
+!--------------------------------------------------------------------------
+
+!> Convert a real value into a formatted character string
+function real2char(rValue, iDec, iWidth) result(sBuf)
+
+  real (kind=T_SGL) :: rValue
+  integer (kind=T_INT), optional :: iDec
+  integer (kind=T_INT), optional :: iWidth
+
+  ![ LOCALS ]
+  character(len=256) :: sBuf, sFmt
+  integer (kind=T_INT) :: iD, iW
+
+
+
+  if(present(iDec)) then
+iD = iDec
+  else
+iD = 4
+  endif
+
+if(present(iWidth)) then
+iW = iWidth
+  else
+iW = 16
+  endif
+
+if(abs(rValue) < rNEAR_ZERO) then
+sBuf = "0."
+  else
+sFmt = "(G"//TRIM(int2char(iW))//"."//TRIM(int2char(iD))//")"
+    write(UNIT=sBuf,FMT=TRIM(sFmt)) rValue
+    sBuf = ADJUSTL(sBuf)
+  endif
+
+return
+
+end function real2char
 
    SUBROUTINE WRTSIG(IFAIL,VAL,WORD,NW,PRECIS,TVAL,NOPNT)
 ! --
@@ -2099,115 +2165,113 @@ subroutine Assert(lCondition,sErrorMessage,sFilename,iLineNo)
   return
 end subroutine Assert
 
-!--------------------------------------------------------------------------
-!!****s* types/Chomp_tab
-! NAME
-!   Chomp_tab - Chomps all text up to the first tab character from a text string.
-!
-! SYNOPSIS
-!   Chomps all text up to the first tab character from the text string in
-!   sRecord and returns it in sItem; leaves the remaining text in sRecord.
-!
-! INPUTS
-!   sRecord - Character string to operate on.
-!
-! OUTPUTS
-!   sRecord - Character string to operate on.
-!   sItem - Character string to operate on.
-!
-! EXAMPLE
-!   input:   sRecord = "THIS IS THE TIME"    sItem = ""
-!   output:  sRecord = " THE TIME"                sItem = "THIS IS"
-!
-! SOURCE
-
-subroutine Chomp_tab(sRecord, sItem)
+subroutine Chomp_delim_sub(sRecord, sItem, sDelimiters)
 
   ! ARGUMENTS
   character (len=*), intent(inout) :: sRecord
   character (len=256), intent(out) :: sItem
+  character (len=*), intent(in) :: sDelimiters
   ! LOCALS
-  integer (kind=T_INT) :: iR                      ! Index in sRecord
-  character (len=1), parameter :: cTab = ACHAR(9) ! ASCII tab character
+  integer (kind=T_INT) :: iR ! Index in sRecord
+  integer (kind=T_INT) :: iB !
+  integer (kind=T_INT) :: iLen
 
-  iR = SCAN(sRecord,cTab)
+  iB = 0
+
+#ifdef DEBUG_PRINT
+  write(*,fmt="(/,a)") trim(__FILE__)//":"//trim(int2char(__LINE__))
+  write(*,fmt="(a)") "Incoming sRecord: "//dquote(sRecord)
+#endif
+
+  ! eliminate any leading spaces
+  sRecord = adjustl(sRecord)
+  ! find the end position of 'sRecord'
+  iLen = len_trim(sRecord)
+
+  ! find the POSITION of the first delimiter found
+  iR = SCAN(trim(sRecord),sDelimiters)
 
   if(iR==0) then
-    sItem = trim(sRecord)      ! no tab found; return entirety of sRecord
-   sRecord = ""            ! as sItem
+sItem = trim(sRecord) ! no delimiters found; return entirety of sRecord
+    sRecord = "" ! as sItem
   else
-    sItem = trim(sRecord(1:iR-1))
-   sRecord = trim(sRecord(iR+1:))
-    do iR=1,len_trim(sRecord)
-     if (sRecord(iR:iR) == " " ) then
-        cycle
-     else
-       exit
-     end if
-   end do
-    sRecord = sRecord(iR:)
+sItem = trim(sRecord(1:iR-1))
+    sRecord = trim( adjustl(sRecord(iR+1:)) )
   end if
 
-  return
-end subroutine Chomp_tab
+#ifdef DEBUG_PRINT
+  write(*,fmt="(a)") "Exit sRecord: "//dquote(sRecord)
+  write(*,fmt="(a)") "Exit sItem: "//dquote(sItem)
+  write(*,fmt="(a,i3)") " iR: ", iR
+  write(*,fmt="(a,i3)") " iB: ", iB
+#endif
 
-!!***
+end subroutine Chomp_delim_sub
 
-!--------------------------------------------------------------------------
-!!****s* types/Chomp
-! NAME
-!   Chomp - Chomps the first space-delimited word from the
-!           beginning of a text string.
-!
-! SYNOPSIS
-!   Chomps the first space-delimited word from the the text string in
-!   sRecord and returns it in sItem; leaves the remaining text in sRecord.
-!
-! INPUTS
-!   sRecord - Character string to operate on.
-!
-! OUTPUTS
-!   sRecord - Character string to operate on.
-!   sItem - Character string to operate on.
-!
-! EXAMPLE
-!   input:   sRecord = "THIS IS THE TIME"    sItem = ""
-!   output:  sRecord = "IS THE TIME"         sItem = "THIS"
-!
-! SOURCE
+!------------------------------------------------------------------------------
 
-subroutine Chomp(sRecord, sItem)
+subroutine Chomp_default_sub(sRecord, sItem)
 
   ! ARGUMENTS
   character (len=*), intent(inout) :: sRecord
   character (len=256), intent(out) :: sItem
+
   ! LOCALS
-  integer (kind=T_INT) :: iR                      ! Index in sRecord
-  integer (kind=T_INT) :: iS                      ! Index in sItem
-  logical (kind=T_LOGICAL) :: lSkip               ! TRUE while skipping spaces
+  integer (kind=T_INT) :: iR ! Index in sRecord
+  integer (kind=T_INT) :: iB !
+  integer (kind=T_INT) :: iLen
 
-  ! Set my pointers and remove leading and trailing spaces
-  iR = 1
-  iS = 1
-  sItem = ""
-  lSkip = lTRUE
-  do iR=1,len_trim(sRecord)
-      if ( lSkip .and. sRecord(iR:iR) == " " ) then
-          cycle
-      else if ( .not. lSkip .and. sRecord(iR:iR) == " " ) then
-          exit
-      else
-          lSkip = lFALSE
-          sItem(iS:iS) = sRecord(iR:iR)
-          iS = iS+1
-      end if
+#ifdef DEBUG_PRINT
+  write(*,fmt="(/,a)") trim(__FILE__)//":"//trim(int2char(__LINE__))
+  write(*,fmt="(a)") "Incoming sRecord: "//dquote(sRecord)
+#endif
+
+  ! eliminate any leading spaces
+  sRecord = adjustl(sRecord)
+  ! find the end position of 'sRecord'
+! iLen = len_trim(sRecord)
+
+  ! find the POSITION of the first delimiter found
+  iR = SCAN(trim(sRecord),sWHITESPACE)
+
+  if(iR==0) then
+sItem = trim(sRecord) ! no delimiters found; return entirety of sRecord
+    sRecord = "" ! as sItem
+  else
+sItem = trim(adjustl(sRecord(1:iR-1)))
+    sRecord = trim(adjustl(sRecord(iR+1:)))
+  end if
+
+#ifdef DEBUG_PRINT
+  write(*,fmt="(a)") "Exit sRecord: "//dquote(sRecord)
+  write(*,fmt="(a)") "Exit sItem: "//dquote(sItem)
+  write(*,fmt="(a,i3)") " iR: ", iR
+#endif
+
+end subroutine Chomp_default_sub
+
+!--------------------------------------------------------------------------
+
+function count_fields(sRecord) result(iNumFields)
+
+  character (len=*), intent(inout) :: sRecord
+
+  character (len=256) :: sItem
+  integer(kind=T_INT) :: iNumFields, i
+
+  i=1
+
+  do
+    call chomp(sRecord,sItem, sWHITESPACE)
+    if(LEN_TRIM(sRecord)==0) exit
+    i=i+1
   end do
-  sRecord = sRecord(iR:)
 
-  return
-end subroutine Chomp
+  iNumFields = i
 
-!!***
+  end function count_fields
+
+!--------------------------------------------------------------------------
 
 subroutine GetSysTimeDate(sDateStr,sDateStrPretty)
 
@@ -2379,7 +2443,7 @@ function median(rData)   result(rMedian)
 
 End Function median
 
-function quantile( rQuantile, rData)  result(rValue)
+function quantile_scalar( rQuantile, rData) result(rValue)
 
   real (kind=T_SGL), intent(in) :: rQuantile
   real (kind=T_SGL), dimension(:), intent(in) :: rData
@@ -2401,7 +2465,7 @@ function quantile( rQuantile, rData)  result(rValue)
 
   iNumRecords = size(rDatacp)
 
-  if(iNumRecords > 0) then
+  if (iNumRecords > 0) then
     rRealIndex = rQuantile * REAL(iNumRecords,kind=T_SGL)
     iInitialIndex = max(INT(rRealIndex,kind=T_INT),1)
     rFractionalIndex = rRealIndex - REAL(iInitialIndex,kind=T_SGL)
@@ -2412,11 +2476,53 @@ function quantile( rQuantile, rData)  result(rValue)
     else
       rValue = rDatacp(iNumRecords)
     endif
+endif
+
+return
+
+end function quantile_scalar
+
+function quantile_vector( rQuantile, rData)  result(rValue)
+
+  real (kind=T_SGL), dimension(:), intent(in) :: rQuantile
+  real (kind=T_SGL), dimension(:), intent(in) :: rData
+  real (kind=T_SGL), dimension(size(rQuantile,1)) :: rValue
+
+  ! [ LOCALS ]
+  integer (kind=T_INT) :: iNumRecords
+  integer (kind=T_INT) :: iInitialIndex
+  real (kind=T_SGL) :: rRealIndex
+  real (kind=T_SGL) :: rFractionalIndex
+  real (kind=T_SGL), dimension(size(rData)) :: rDatacp
+  integer (kind=T_INT), dimension(size(rData)) :: iOriginalOrder
+  integer (kind=T_INT) :: iIndex
+
+  rDatacp = rData
+
+  CALL quick_sort(rDatacp, iOriginalOrder)
+
+  rValue = rZERO
+
+  iNumRecords = size(rDatacp)
+
+  if(iNumRecords > 0) then
+    do iIndex=1,size(rQuantile,1)
+      rRealIndex = rQuantile(iIndex) * REAL(iNumRecords + 1,kind=T_SGL)
+      iInitialIndex = max(INT(rRealIndex,kind=T_INT),1)
+      rFractionalIndex = rRealIndex - REAL(iInitialIndex,kind=T_SGL)
+      if(iInitialIndex < iNumRecords) then
+        rValue(iIndex) = rDatacp(iInitialIndex) &
+          + (rDatacp(iInitialIndex+1) - rDatacp(iInitialIndex)) &
+          * rFractionalIndex
+      else
+        rValue(iIndex) = rDatacp(iNumRecords)
+      endif
+    enddo
   endif
 
   return
 
-end function quantile
+end function quantile_vector
 
 function mean(rData)   result(rMean)
 
@@ -2501,19 +2607,6 @@ function uppercase_fn ( s )                               result(sOut)
 
   return
 end function uppercase_fn
-
-!> Convert an integer value into a formatted character string
-function int2char(iValue)  result(sBuf)
-
-  integer (kind=T_INT) :: iValue
-  character(len=256) :: sBuf
-
-  write(UNIT=sBuf,FMT="(i14)") iValue
-  sBuf = ADJUSTL(sBuf)
-
-  return
-
-end function int2char
 
 !------------------------------------------------------------------------------
 
