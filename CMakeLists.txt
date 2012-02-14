@@ -18,8 +18,8 @@ endif(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
 #------------------------------------------------------------------------
 # Set basic project settings
 #------------------------------------------------------------------------
-project (tsproc Fortran CXX)
-enable_language (Fortran CXX)
+project (tsproc Fortran C)
+enable_language (Fortran C)
 
 SET(CPACK_GENERATOR "TGZ")
 include(CPack)
@@ -44,8 +44,8 @@ option (TARGET__TSPROC_LIBRARY
 #------------------------------------------------------------------------
 # Restrict CMAKE_BUILD_TYPE to "Release" or "Debug" (GUI); set build type
 #------------------------------------------------------------------------
-set_property(CACHE CMAKE_BUILD_TYPE
-          PROPERTY STRINGS "Release" "Debug")
+#set_property(GLOBAL CMAKE_BUILD_TYPE
+#          PROPERTY STRINGS "Release" "Debug")
 
 set( CMAKE_BUILD_TYPE "Release" CACHE STRING
        "Compile in DEBUG or RELEASE mode" )
@@ -98,8 +98,7 @@ if(CMAKE_HOST_WIN32)
 
       set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
 
-      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -gdb -Wall -Wextra -fcheck=all")
-      set (CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG} "-fexceptions -ffree-line-length-none")
+      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none")
 
       SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libgfortran")
 
