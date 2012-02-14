@@ -6123,12 +6123,15 @@ subroutine flow_duration(ifail)
 
        logical on,oldon
        integer ierr,icontext,iseries,itunit,iflow,id,i,ndays,nsecs,j,oldndays,oldnsecs, &
-               nnterm,ixcon,iuo
+               nnterm,ixcon,iuo,iCount, iOrigin
+       integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2, &
+               begdays,begsecs,enddays,endsecs,iterm,ibterm,ieterm,iiterm,itemp, ig
        real rtemp,fac,duration,fflow,vval,oldvval,timediff,accumulation,timedelay
        character (len=iTSNAMELENGTH) :: aname,atemp
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
+       character*3 aaa
 
        ifail=0
        CurrentBlock_g='FLOW_DURATION'
@@ -6145,9 +6148,6 @@ subroutine flow_duration(ifail)
        iflow=0
        ixcon=0
        iuo=-999
-       do i=1,MAXTEMPDURFLOW
-         tempdtable_g%tdelay(i)=-1.1e36
-       end do
 
 ! -- The EXCEEDENCE-TIME block is first parsed.
 
@@ -6190,7 +6190,8 @@ subroutine flow_duration(ifail)
            end if
            call get_context(ierr,icontext,acontext)
            if(ierr.ne.0) go to 9800
-         else if(aoption.eq.'NEW_G_TABLE_NAME')then
+         else if(aoption.eq.'NEW_G_TABLE_NAME' &
+            .or. aoption .eq. 'NEW_TABLE_NAME')then
            call get_new_table_name(ierr,iG_TABLE,aname)
            if(ierr.ne.0) go to 9800
          else if(aoption.eq.'FLOW')then
@@ -6198,7 +6199,7 @@ subroutine flow_duration(ifail)
            if(iflow.gt.MAXTEMPDURFLOW)then
              call num2char(MAXTEMPDURFLOW,aline)
              write(amessage,30) trim(aline), trim(CurrentBlock_g)
-30           format('a maximum of ',a,' FLOWs are allowed in an ',a,' block.')
+30           format('a maximum of ',a,'  are allowed in an ',a,' block.')
              go to 9800
            end if
            call char2num(ierr,cline(left_word(2):right_word(2)),rtemp)
@@ -6354,8 +6355,40 @@ subroutine flow_duration(ifail)
          gtable_g(ig)%rec_endsecs = endsecs
        end if
 
+       ! here's where we populate the table
+       do j=1,size(RA%lInclude)
+         if(RA(j)%lInclude) then
+           gtable_g(ig)%rValue(iCount) = RA(j)%rValue
+           write(aaa,fmt="(i3)") j
+           gtable_g(ig)%sDescription(iCount) = "RA"//trim(adjustl(aaa))//": " &
+              //trim(RA(j)%sHydrologicIndex)
+!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLRA(j),gtable_g(ig)%rValue(iCount),rURA(j)
+           iCount = iCount +1
+         endif
+       enddo
 
+       write(6,380) trim(series_g(iseries)%name),trim(gtable_g(ig)%name)
+       write(LU_REC,380) trim(series_g(iseries)%name),trim(gtable_g(ig)%name)
+380    format(/,t5,'Flow duration for time series "',a,'" stored in ', &
+       'G_TABLE "',a,'".')
+       return
 
+9000   call num2char(ILine_g,aline)
+       call addquote(sInfile_g,sString_g)
+       write(amessage,9010) trim(aline), trim(sString_g)
+9010   format('cannot read line ',a,' of TSPROC input file ',a)
+       go to 9800
+9100   continue
+       call addquote(sInfile_g,sString_g)
+       write(amessage,9110) trim(sString_g),trim(CurrentBlock_g)
+9110   format('unexpected end encountered to TSPROC input file ',a,' while ', &
+       ' reading ',a,' block.')
+       go to 9800
+
+9800   call write_message(leadspace='yes',error='yes')
+       call write_message(iunit=LU_REC,leadspace='yes')
+       ifail=1
+       return
 
 end subroutine flow_duration
 
