@@ -2,7 +2,7 @@
 # Need input files over in build environment
 file(GLOB infiles
      RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-     *.ssf *.inp *.wdm *.R)
+     *.ssf *.inp *.wdm *.R BEC.* *.tpl *.dat)
 foreach(infilename ${infiles})
     set(infile  ${CMAKE_CURRENT_SOURCE_DIR}/${infilename})
     set(outfile ${CMAKE_CURRENT_BINARY_DIR}/${infilename})

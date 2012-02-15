@@ -65,14 +65,14 @@ END FLOW_DURATION
 
 START LIST_OUTPUT
   CONTEXT all
-  FILE hi_test_flow_duration_sim_output.txt
-  G_TABLE_NAME flow_dur_sim
+  FILE hi_test_flow_duration_obs_output.txt
+  G_TABLE_NAME flow_dur_obs
 END LIST_OUTPUT
 
 START LIST_OUTPUT
   CONTEXT all
-  FILE hi_test_flow_duration_obs_output.txt
-  G_TABLE_NAME flow_dur_obs
+  FILE hi_test_flow_duration_sim_output.txt
+  G_TABLE_NAME flow_dur_sim
 END LIST_OUTPUT
 
 START WRITE_PEST_FILES
