@@ -1180,6 +1180,7 @@ C               -107 - one or more attributes not present in data set
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   GPFLG, DREC, RETC, LEN, ZERO, FLAG, INDX
+      INTEGER   TMPTCODE(1), TMPTSTEP(1)
 C
 C     + + + EXTERNALS + + +
       EXTERNAL  ZIPI
@@ -1217,7 +1218,8 @@ C       get time step
         LEN = 1
         INDX= 33
         CALL WDBSGI ( WDMSFL, DSN, INDX, LEN,
-     $                TSTEP, RETC )
+     $                TMPTSTEP, RETC )
+        TSTEP = TMPTSTEP(1)
         IF (RETC .EQ. -107) THEN
 C         time step not present
           TSTEP = 0
@@ -1226,7 +1228,8 @@ C         time step not present
 C       get time units 
         INDX = 17
         CALL WDBSGI ( WDMSFL, DSN, INDX, LEN,
-     $                TCODE, RETC )
+     $                TMPTCODE, RETC )
+        TCODE = TMPTCODE(1)
         IF (RETC .EQ. -107) THEN
 C         time code not present
           TCODE = 0
