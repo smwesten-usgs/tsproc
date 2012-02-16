@@ -1994,6 +1994,9 @@ subroutine get_next_block(ifail)
          else if(sCurrentBlockName.eq.'EXCEEDENCE_TIME')then
            iBlockNumber = iEXCEEDANCE_TIME
 
+         else if(sCurrentBlockName.eq.'FLOW_DURATION')then
+           iBlockNumber = iFLOW_DURATION
+
          else if(sCurrentBlockName.eq.'SERIES_EQUATION')then
            iBlockNumber = iSERIES_EQUATION
 

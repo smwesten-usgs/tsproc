@@ -4799,9 +4799,11 @@ subroutine compute_hydrologic_indices(ifail)
          else if(aoption.eq.'NEW_G_TABLE_NAME')then
            call get_new_table_name(ierr,iG_TABLE,aname)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'SERIES_NAME')then
            call get_series_name(ierr,iseries,'SERIES_NAME')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'CONTEXT')then
            if(ixcon.ne.0)then
              call num2char(ILine_g,aline)
@@ -4812,6 +4814,7 @@ subroutine compute_hydrologic_indices(ifail)
            end if
            call get_context(ierr,icontext,acontext)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'END')then
            exit
          else
@@ -4841,6 +4844,7 @@ subroutine compute_hydrologic_indices(ifail)
 220      format('no CONTEXT keyword(s) provided in ',a,' block.')
          go to 9800
        end if
+
        call date_check(ierr,yy1,mm1,dd1,hh1,nn1,ss1,yy2,mm2,dd2,hh2,nn2,ss2,  &
        begdays,begsecs,enddays,endsecs)
        if(ierr.ne.0) go to 9800
@@ -4950,6 +4954,8 @@ subroutine compute_hydrologic_indices(ifail)
        gtable_g(ig)%active = lTRUE
        gtable_g(ig)%name = aname
        gtable_g(ig)%series_name = series_g(iseries)%name
+       gtable_g(ig)%g_table_header = &
+           'Hydrologic Index and description (Olden and Poff, 2003)'
 
        if(begdays.eq.-99999999)then
          gtable_g(ig)%rec_begdays = series_g(iseries)%days(1)
@@ -5784,6 +5790,7 @@ subroutine time_duration(ifail)
          end if
          aoption=cline(left_word(1):right_word(1))
          call casetrans(aoption,'hi')
+
          if(aoption.ne.'CONTEXT')then
            call test_context(ierr,icontext,acontext)
            if(ierr.eq.-1)then
@@ -5795,6 +5802,7 @@ subroutine time_duration(ifail)
            end if
            ixcon=1
          end if
+
          if(aoption.eq.'SERIES_NAME')then
            call get_series_name(ierr,iseries,'SERIES_NAME')
            if(ierr.ne.0) go to 9800
@@ -5808,12 +5816,15 @@ subroutine time_duration(ifail)
            end if
            call get_context(ierr,icontext,acontext)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'NEW_E_TABLE_NAME')then
            call get_new_table_name(ierr,3,aname)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'EXCEEDENCE_TIME_UNITS')then
            call get_time_units(ierr,itunit,2)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'UNDER_OVER')then
            call getfile(ierr,cline,atemp,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -5839,6 +5850,7 @@ subroutine time_duration(ifail)
            write(*,59) trim(sString_g)
            write(LU_REC,59) trim(sString_g)
 59         format(t5,'UNDER_OVER ',a)
+
          else if(aoption.eq.'FLOW')then
            iflow=iflow+1
            if(iflow.gt.MAXTEMPDURFLOW)then
@@ -5859,6 +5871,7 @@ subroutine time_duration(ifail)
            write(LU_REC,130) cline(left_word(2):right_word(2))
 130        format(t5,'FLOW ',a)
            tempdtable_g%flow(iflow)=rtemp
+
          else if(aoption.eq.'DELAY')then
            if(iflow.eq.0)then
              call num2char(ILine_g,aline)
@@ -5893,8 +5906,10 @@ subroutine time_duration(ifail)
            write(LU_REC,340) cline(left_word(2):right_word(2))
 340        format(t5,'DELAY ',a)
            tempdtable_g%tdelay(iflow)=rtemp
+
          else if(aoption.eq.'END')then
            go to 200
+
          else
            call num2char(ILine_g,aline)
            call addquote(sInfile_g,sString_g)
@@ -6108,6 +6123,329 @@ subroutine time_duration(ifail)
 
 end subroutine time_duration
 
+subroutine flow_duration(ifail)
+
+! -- Subroutine FLOW_DURATION calculates exceedence flows for a set of
+! -- user-specified exceedance quantiles.
+
+       use tsp_data_structures
+       use tsp_utilities
+       use tsp_command_processors
+
+       implicit none
+
+       integer, intent(out)   :: ifail
+
+       logical (kind=T_LOGICAL) :: lUseDefaultProbabilities
+       integer ierr,icontext,iseries,itunit,iPercentExceeded,id,i,ndays,nsecs,j,oldndays,oldnsecs, &
+               nnterm,ixcon,iuo,iCount, iOrigin, iStat, iIndex
+       integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2, &
+               begdays,begsecs,enddays,endsecs,iterm,ibterm,ieterm,iiterm,itemp, ig
+       real rtemp,fac,duration,fflow,vval,oldvval,timediff,accumulation,timedelay
+       character (len=iTSNAMELENGTH) :: aname,atemp
+       integer iNumProbabilities
+       real (kind=T_SGL), dimension(:), allocatable :: rResultVector
+       real (kind=T_SGL), dimension(14), parameter :: &
+          rDefaultExceedenceProbabilities = [ &
+            99., 98., 95., 90., 80., 70., 60., 50., 40., &
+            30., 20., 10., 5., 2. &
+          ]
+       real (kind=T_SGL), dimension(:), allocatable :: rCustomExceedenceProbabilities
+       integer (kind=T_INT), dimension(:), allocatable :: iSortOrder
+
+       character*15 aline
+       character*25 aoption
+       character*25 acontext(MAXCONTEXT)
+       character*3 aaa
+       character (len=256) :: sRecord, sItem
+
+       integer :: iStartJD, iStartMM, iStartDD, iStartYYYY
+       integer :: iEndJD, iEndMM, iEndDD, iEndYYYY
+
+       ifail=0
+       CurrentBlock_g='FLOW_DURATION'
+
+       write(*,10) trim(CurrentBlock_g)
+       write(LU_REC,10) trim(CurrentBlock_g)
+10     format(/,' Processing ',a,' block....')
+
+       lUseDefaultProbabilities = lTRUE
+       icontext=0
+       iseries=0
+       aname=' '
+       itunit=0
+       iPercentExceeded=0
+       ixcon=0
+       iuo=-999
+       yy1=-9999
+       hh1=-9999
+       yy2=-9999
+       hh2=-9999
+
+! -- The FLOW_DURATION block is first parsed.
+
+       do
+         ILine_g=ILine_g+1
+         read(LU_TSPROC_CONTROL,fmt='(a256)', err=9000, end=9100) sRecord
+         if(len_trim(sRecord) == 0) cycle
+         if(sRecord(1:1).eq.'#') cycle
+         cline = repeat(" ",400)
+         cline = adjustl(sRecord)
+         call linesplit(ierr,2)
+         if(ierr.ne.0)then
+           call num2char(ILine_g,aline)
+           call addquote(sInfile_g,sString_g)
+           write(amessage,20) trim(aline),trim(sString_g)
+20         format('there should be 2 entries on line ',a,' of file ',a)
+           go to 9800
+         end if
+         aoption=cline(left_word(1):right_word(1))
+         call casetrans(aoption,'hi')
+         if(aoption.ne.'CONTEXT')then
+           call test_context(ierr,icontext,acontext)
+           if(ierr.eq.-1)then
+             call find_end(ifail)
+             if(ifail.eq.1) go to 9800
+             return
+           else if(ierr.eq.1) then
+             go to 9800
+           end if
+           ixcon=1
+         end if
+
+         if(aoption.eq.'SERIES_NAME')then
+           call get_series_name(ierr,iseries,'SERIES_NAME')
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'CONTEXT')then
+           if(ixcon.ne.0)then
+             call num2char(ILine_g,aline)
+             call addquote(sInfile_g,sString_g)
+             write(amessage,41) trim(aline),trim(sString_g)
+41           format('CONTEXT keyword in incorrect location at line ',a,' of file ',a)
+             go to 9800
+           end if
+           call get_context(ierr,icontext,acontext)
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'NEW_G_TABLE_NAME' &
+            .or. aoption .eq. 'NEW_TABLE_NAME')then
+
+           call get_new_table_name(ierr,iG_TABLE,aname)
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'EXCEEDENCE_PROBABILITIES')then
+           lUseDefaultProbabilities = lFALSE
+
+           iCount = count_fields(cline) - 1
+           allocate(rCustomExceedenceProbabilities(iCount), stat=iStat)
+           call assert(iStat==0, &
+             "Problem alllocating memory for storing custom exceedence probabilities", &
+             trim(__FILE__),__LINE__)
+           allocate(iSortOrder(iCount), stat=iStat)
+           call assert(iStat==0, &
+             "Problem alllocating memory for storing sort order for " &
+             //"exceedence probabilities", trim(__FILE__),__LINE__)
+
+           sRecord = adjustl(sRecord)
+           ! read and throw away first value
+           call chomp(sRecord, sItem, " ")
+           ! now read in each of the probabilities
+           do iIndex = 1, iCount
+             call chomp(sRecord, sItem)
+             read(sItem,*) rCustomExceedenceProbabilities(iIndex)
+           enddo
+
+           call quick_sort(rCustomExceedenceProbabilities, iSortOrder)
+           ! sort returns values in ascending order
+
+           write(*,fmt="(a)") trim(cline)
+           write(LU_REC,fmt="(a)") trim(cline)
+
+         elseif(aoption.eq.'DATE_1')then
+           call get_date(ierr,dd1,mm1,yy1,'DATE_1')
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'DATE_2')then
+           call get_date(ierr,dd2,mm2,yy2,'DATE_2')
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'TIME_1')then
+           call get_time(ierr,hh1,nn1,ss1,'TIME_1')
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'TIME_2')then
+           call get_time(ierr,hh2,nn2,ss2,'TIME_2')
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'END')then
+           go to 200
+         else
+           call num2char(ILine_g,aline)
+           call addquote(sInfile_g,sString_g)
+           write(amessage,90) trim(aoption),trim(CurrentBlock_g),trim(aline),trim(sString_g)
+90         format('unexpected keyword - "',a,'" in ',a,' block at line ',a, &
+           ' of file ',a)
+           go to 9800
+         end if
+       end do
+
+200    continue
+
+       call date_check(ierr,yy1,mm1,dd1,hh1,nn1,ss1,yy2,mm2,dd2,hh2,nn2,ss2,  &
+       begdays,begsecs,enddays,endsecs)
+       if(ierr.ne.0) go to 9800
+       call beg_end_check(ierr,iseries,begdays,begsecs,enddays,endsecs)
+       if(ierr.ne.0) go to 9800
+
+! -- The block has been read; now it is checked for absences.
+
+       ! has user provided a SERIES_NAME?
+       if (iseries == 0) then
+         write(amessage,210) trim(CurrentBlock_g)
+210      format('no SERIES_NAME keyword provided in ',a,' block.')
+         go to 9800
+       end if
+
+       ! has user specified a new TABLE NAME?
+       if ( len_trim(aname) == 0 ) then
+         write(amessage,230) trim(CurrentBlock_g)
+230      format('no NEW_G_TABLE_NAME keyword provided in ',a,' block.')
+         go to 9800
+       end if
+
+       ! is a CONTEXT provided?
+       if (icontext == 0) then
+         write(amessage,220) trim(CurrentBlock_g)
+220      format('no CONTEXT keyword(s) provided in ',a,' block.')
+         go to 9800
+       end if
+
+       ! does the specified time series have enough data points
+       ! to bother with?
+       if (series_g(iseries)%nterm < 30 ) then
+         write(amessage,250) trim(series_g(iseries)%name)
+250      format('cannot calculate exceedence times because time series "',a,   &
+         '" has less than 30 values.')
+         go to 9800
+       end if
+
+! -- Find an inactive G_TABLE; activate.
+       do ig=1,MAXGTABLE
+         if(.not. gtable_g(ig)%active ) go to 300
+       end do
+       write(amessage,310)
+310    format('no more G_TABLE''s available for data storage - increase MAXGTABLE and ', &
+       'recompile program.')
+       go to 9800
+300    continue
+
+       if((begdays .lt. series_g(iseries)%days(1)).or.  &
+         ((begdays .eq. series_g(iseries)%days(1)).and. &
+          (begsecs .lt. series_g(iseries)%secs(1))))then
+         begdays=series_g(iseries)%days(1)
+         begsecs=series_g(iseries)%secs(1)
+       end if
+       iiterm=series_g(iseries)%nterm
+       if((enddays .gt. series_g(iseries)%days(iiterm)).or.  &
+         ((enddays .eq. series_g(iseries)%days(iiterm)).and. &
+          (endsecs .gt. series_g(iseries)%secs(iiterm))))then
+         enddays=series_g(iseries)%days(iiterm)
+         endsecs=series_g(iseries)%secs(iiterm)
+       end if
+
+       ! get the Julian date associated with John's "origin" term
+       iOrigin = julian_day(1970, 1, 1)
+
+       if (begdays < -9999999) then
+         gtable_g(ig)%rec_begdays = series_g(iseries)%days(1)
+         gtable_g(ig)%rec_begsecs = series_g(iseries)%secs(1)
+       else
+         gtable_g(ig)%rec_begdays = begdays
+         gtable_g(ig)%rec_begsecs = begsecs
+       end if
+       if (enddays > 9999999) then
+         gtable_g(ig)%rec_enddays = series_g(iseries)%days(iiterm)
+         gtable_g(ig)%rec_endsecs = series_g(iseries)%secs(iiterm)
+       else
+         gtable_g(ig)%rec_enddays = enddays
+         gtable_g(ig)%rec_endsecs = endsecs
+       end if
+
+       iStartJD = gtable_g(ig)%rec_begdays + iOrigin
+       iEndJD = gtable_g(ig)%rec_enddays + iOrigin
+
+       call gregorian_date(iStartJD, iStartYYYY, iStartMM, iStartDD)
+       call gregorian_date(iEndJD, iEndYYYY, iEndMM, iEndDD)
+
+       gtable_g(ig)%active = lTRUE
+       gtable_g(ig)%name = aname
+       gtable_g(ig)%series_name = series_g(iseries)%name
+       write(gtable_g(ig)%g_table_header, &
+          fmt="(a,a,' (',i2.2,'/',i2.2,'/',i4.4,' to ',i2.2,'/',i2.2,'/',i4.4,')')") &
+           'Flow-duration curve for series ', &
+           quote(series_g(iseries)%name), &
+             iStartMM, iStartDD, iStartYYYY, &
+             iEndMM, iEndDD, iEndYYYY
+
+       if (lUseDefaultProbabilities) then
+
+         iCount = size(rDefaultExceedenceProbabilities,1)
+         allocate(rResultVector(iCount), stat=iStat)
+         rResultVector = quantile_vector(rData=series_g(iseries)%val , &
+              rQuantile=(1.0 - (rDefaultExceedenceProbabilities / 100.)) )
+       else
+
+         iCount = size(rCustomExceedenceProbabilities,1)
+         allocate(rResultVector(iCount), stat=iStat)
+         rResultVector = quantile_vector(rData=series_g(iseries)%val , &
+              rQuantile=(1.0 - (rCustomExceedenceProbabilities / 100.) ) )
+       endif
+
+       allocate(gtable_g(ig)%rValue(iCount), stat=iStat)
+       allocate(gtable_g(ig)%sDescription(iCount), stat=iStat)
+
+       if (lUseDefaultProbabilities) then
+
+         do iIndex=1, iCount
+           gtable_g(ig)%rValue(iIndex) = rResultVector(iIndex)
+           gtable_g(ig)%sDescription(iIndex) = &
+             trim(asChar(rDefaultExceedenceProbabilities(iIndex)))//"% of flows" &
+             //" exceed: "
+         enddo
+       else
+           do iIndex=1,iCount
+             gtable_g(ig)%rValue(iIndex) = rResultVector(iCount - iIndex + 1)
+             gtable_g(ig)%sDescription(iIndex) = &
+               trim(asChar(rCustomExceedenceProbabilities(iCount - iIndex + 1))) &
+               //"% of flows exceed: "
+           enddo
+       endif
+
+       write(6,380) trim(series_g(iseries)%name),trim(gtable_g(ig)%name)
+       write(LU_REC,380) trim(series_g(iseries)%name),trim(gtable_g(ig)%name)
+380    format(/,t5,'Flow duration for time series "',a,'" stored in ', &
+       'G_TABLE "',a,'".')
+       return
+
+9000   call num2char(ILine_g,aline)
+       call addquote(sInfile_g,sString_g)
+       write(amessage,9010) trim(aline), trim(sString_g)
+9010   format('cannot read line ',a,' of TSPROC input file ',a)
+       go to 9800
+9100   continue
+       call addquote(sInfile_g,sString_g)
+       write(amessage,9110) trim(sString_g),trim(CurrentBlock_g)
+9110   format('unexpected end encountered to TSPROC input file ',a,' while ', &
+       ' reading ',a,' block.')
+       go to 9800
+
+9800   call write_message(leadspace='yes',error='yes')
+       call write_message(iunit=LU_REC,leadspace='yes')
+       ifail=1
+       return
+
+end subroutine flow_duration
 
 
 subroutine displace(ifail)

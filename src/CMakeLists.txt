@@ -9,7 +9,6 @@ if(TARGET__TSPROC_EXECUTABLE)
             tsp_command_processors.F90
             tsp_data_structures.F90
             tsp_equation_parser.F90
-            tsp_hydrologic_indices.F90
             tsp_input.F90
             tsp_main.F90
             tsp_main_loop.F90
@@ -52,7 +51,6 @@ if(TARGET__TSPROC_LIBRARY)
             tsp_command_processors.F90
             tsp_data_structures.F90
             tsp_equation_parser.F90
-            tsp_hydrologic_indices.F90
             tsp_input.F90
             tsp_main.F90
             tsp_main_loop.F90
