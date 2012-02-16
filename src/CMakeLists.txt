@@ -1,9 +1,11 @@
 
+add_subdirectory(flibs/src/libs/strings)
+
 if(TARGET__TSPROC_EXECUTABLE)
 
   add_executable(tsproc
 
-            tokenize.F90
+      #            tokenize.F90
 
             compute_hi.c
             tsp_command_processors.F90
@@ -37,6 +39,7 @@ if(TARGET__TSPROC_EXECUTABLE)
             wdm_support/WDTMS1.FOR
             wdm_support/WDTMS2.FOR )
 
+   target_link_libraries(tsproc flibs_strings)
    install(TARGETS tsproc
            RUNTIME
            DESTINATION bin
@@ -46,7 +49,7 @@ endif()
 if(TARGET__TSPROC_LIBRARY)
 
   add_library(tsproclib STATIC
-            tokenize.F90
+      #tokenize.F90
 
             compute_hi.c
             tsp_command_processors.F90
@@ -80,6 +83,7 @@ if(TARGET__TSPROC_LIBRARY)
             wdm_support/WDTMS1.FOR
             wdm_support/WDTMS2.FOR )
 
+   target_link_libraries(tsproclib flibs_strings)
    install(TARGETS tsproclib
            ARCHIVE
            DESTINATION lib )
@@ -95,6 +99,8 @@ add_executable(test_hi
     tsp_command_processors.F90
     test_compute_hi.F90
     )
+
+target_link_libraries(test_hi flibs_strings)
 
 add_test(test_compute_hi test_hi)
 set_tests_properties(test_compute_hi
