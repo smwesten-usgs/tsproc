@@ -1,6 +1,6 @@
 START SETTINGS
-#  CONTEXT pest_input
-  CONTEXT all
+  CONTEXT pest_input
+#  CONTEXT all
   DATE_FORMAT mm/dd/yyyy
 END SETTINGS
 
@@ -55,23 +55,27 @@ START FLOW_DURATION
   CONTEXT all
   SERIES_NAME Oq6500
   NEW_TABLE_NAME flow_dur_obs
+  EXCEEDENCE_PROBABILITIES 3. 7. 11. 99. 87. 66. 45. 33.
 END FLOW_DURATION
 
 START FLOW_DURATION
   CONTEXT all
   SERIES_NAME Sq6500
   NEW_TABLE_NAME flow_dur_sim
+  EXCEEDENCE_PROBABILITIES 3. 7. 11. 99. 87. 66. 45. 33.
 END FLOW_DURATION
 
 START LIST_OUTPUT
   CONTEXT all
-  FILE hi_test_flow_duration_obs_output.txt
+  FILE hi_test_flow_duration_obs_CUSTOM_output.txt
+  SERIES_FORMAT long
+  SERIES_NAME Oq6500
   G_TABLE_NAME flow_dur_obs
 END LIST_OUTPUT
 
 START LIST_OUTPUT
   CONTEXT all
-  FILE hi_test_flow_duration_sim_output.txt
+  FILE hi_test_flow_duration_sim_CUSTOM_output.txt
   G_TABLE_NAME flow_dur_sim
 END LIST_OUTPUT
 

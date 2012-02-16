@@ -6145,14 +6145,19 @@ subroutine flow_duration(ifail)
        character (len=iTSNAMELENGTH) :: aname,atemp
        integer iNumProbabilities
        real (kind=T_SGL), dimension(:), allocatable :: rResultVector
-       real (kind=T_SGL), dimension(9), parameter :: &
+       real (kind=T_SGL), dimension(14), parameter :: &
           rDefaultExceedenceProbabilities = [ &
-            90., 80., 70., 60., 50., 40., 30., 20., 10. &
+            99., 98., 95., 90., 80., 70., 60., 50., 40., &
+            30., 20., 10., 5., 2. &
           ]
+       real (kind=T_SGL), dimension(:), allocatable :: rCustomExceedenceProbabilities
+       integer (kind=T_INT), dimension(:), allocatable :: iSortOrder
+
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
        character*3 aaa
+       character (len=256) :: sRecord, sItem
 
        integer :: iStartJD, iStartMM, iStartDD, iStartYYYY
        integer :: iEndJD, iEndMM, iEndDD, iEndYYYY
@@ -6181,9 +6186,11 @@ subroutine flow_duration(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         read(LU_TSPROC_CONTROL,fmt='(a256)', err=9000, end=9100) sRecord
+         if(len_trim(sRecord) == 0) cycle
+         if(sRecord(1:1).eq.'#') cycle
+         cline = repeat(" ",400)
+         cline = adjustl(sRecord)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -6223,17 +6230,37 @@ subroutine flow_duration(ifail)
 
          else if(aoption.eq.'NEW_G_TABLE_NAME' &
             .or. aoption .eq. 'NEW_TABLE_NAME')then
+
            call get_new_table_name(ierr,iG_TABLE,aname)
            if(ierr.ne.0) go to 9800
 
          else if(aoption.eq.'EXCEEDENCE_PROBABILITIES')then
+           lUseDefaultProbabilities = lFALSE
 
+           iCount = count_fields(cline) - 1
+           allocate(rCustomExceedenceProbabilities(iCount), stat=iStat)
+           call assert(iStat==0, &
+             "Problem alllocating memory for storing custom exceedence probabilities", &
+             trim(__FILE__),__LINE__)
+           allocate(iSortOrder(iCount), stat=iStat)
+           call assert(iStat==0, &
+             "Problem alllocating memory for storing sort order for " &
+             //"exceedence probabilities", trim(__FILE__),__LINE__)
 
+           sRecord = adjustl(sRecord)
+           ! read and throw away first value
+           call chomp(sRecord, sItem, " ")
+           ! now read in each of the probabilities
+           do iIndex = 1, iCount
+             call chomp(sRecord, sItem)
+             read(sItem,*) rCustomExceedenceProbabilities(iIndex)
+           enddo
 
+           call quick_sort(rCustomExceedenceProbabilities, iSortOrder)
+           ! sort returns values in ascending order
 
-           write(*,130) cline(left_word(2):right_word(2))
-           write(LU_REC,130) cline(left_word(2):right_word(2))
-130        format(t5,'FLOW ',a)
+           write(*,fmt="(a)") trim(cline)
+           write(LU_REC,fmt="(a)") trim(cline)
 
          elseif(aoption.eq.'DATE_1')then
            call get_date(ierr,dd1,mm1,yy1,'DATE_1')
@@ -6270,7 +6297,6 @@ subroutine flow_duration(ifail)
        if(ierr.ne.0) go to 9800
        call beg_end_check(ierr,iseries,begdays,begsecs,enddays,endsecs)
        if(ierr.ne.0) go to 9800
-
 
 ! -- The block has been read; now it is checked for absences.
 
@@ -6362,25 +6388,18 @@ subroutine flow_duration(ifail)
              iStartMM, iStartDD, iStartYYYY, &
              iEndMM, iEndDD, iEndYYYY
 
-       ! here's where we populate the table
-!       do j=1,size(RA%lInclude)
-!         if(RA(j)%lInclude) then
-!           gtable_g(ig)%rValue(iCount) = RA(j)%rValue
-!           write(aaa,fmt="(i3)") j
-!           gtable_g(ig)%sDescription(iCount) = "RA"//trim(adjustl(aaa))//": " &
-!              //trim(RA(j)%sHydrologicIndex)
-!           write(*,fmt="(a,t75,3g14.3)") gtable_g(ig)%sDescription(iCount),rLRA(j),gtable_g(ig)%rValue(iCount),rURA(j)
-!           iCount = iCount +1
-!         endif
-!       enddo
-
        if (lUseDefaultProbabilities) then
+
          iCount = size(rDefaultExceedenceProbabilities,1)
          allocate(rResultVector(iCount), stat=iStat)
          rResultVector = quantile_vector(rData=series_g(iseries)%val , &
               rQuantile=(1.0 - (rDefaultExceedenceProbabilities / 100.)) )
        else
-         iCount = 1
+
+         iCount = size(rCustomExceedenceProbabilities,1)
+         allocate(rResultVector(iCount), stat=iStat)
+         rResultVector = quantile_vector(rData=series_g(iseries)%val , &
+              rQuantile=(1.0 - (rCustomExceedenceProbabilities / 100.) ) )
        endif
 
        allocate(gtable_g(ig)%rValue(iCount), stat=iStat)
@@ -6395,7 +6414,12 @@ subroutine flow_duration(ifail)
              //" exceed: "
          enddo
        else
-
+           do iIndex=1,iCount
+             gtable_g(ig)%rValue(iIndex) = rResultVector(iCount - iIndex + 1)
+             gtable_g(ig)%sDescription(iIndex) = &
+               trim(asChar(rCustomExceedenceProbabilities(iCount - iIndex + 1))) &
+               //"% of flows exceed: "
+           enddo
        endif
 
        write(6,380) trim(series_g(iseries)%name),trim(gtable_g(ig)%name)

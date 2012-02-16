@@ -2326,6 +2326,7 @@ INTEGER, DIMENSION (:), INTENT(OUT)  :: order
 ! Local variable
 INTEGER :: i
 
+! "order " is the ORIGINAL order in which the value are supplied
 DO i = 1, SIZE(list)
   order(i) = i
 END DO
