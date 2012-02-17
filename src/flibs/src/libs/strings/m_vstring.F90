@@ -1060,8 +1060,8 @@ contains
   !   If length is specified, then only the first length characters are used in the comparison.
   !
   function vstring_compare_vstring ( this , string2 , nocase , length ) result ( compare )
-    type ( t_vstring ) , intent(in) :: this
-    type ( t_vstring ) , intent(in) :: string2
+    type ( t_vstring )  :: this
+    type ( t_vstring )  :: string2
     logical , intent (in), optional :: nocase
     integer , intent ( in ), optional :: length
     integer                     :: compare
@@ -1910,6 +1910,8 @@ contains
     integer :: first
     integer :: firstrightbracket
     type(t_vstring) :: chars
+    character BACKSL
+    parameter (BACKSL = '\\')
     type(t_vstring) :: expanded
     logical :: nocase_real
     type(t_vstring) :: this_char1lower
@@ -1935,7 +1937,7 @@ contains
        return
     endif
     call vstring_new ( charstar , "*" )
-    call vstring_new ( backslash , "\" )
+    call vstring_new ( backslash , BACKSL )
     call vstring_new ( question , "?" )
     call vstring_new ( leftbracket , "[" )
     call vstring_new ( rightbracket , "]" )

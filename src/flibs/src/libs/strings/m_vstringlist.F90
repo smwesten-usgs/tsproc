@@ -1072,7 +1072,7 @@ contains
   !
 #define _QSORTARRAY_TYPE t_vstring
 #define _QSORTARRAY_MODULE m_vstring
-#include "../datastructures/qsortarray_template.f90"
+#include "../datastructures/qsortarray_template.F90"
   !
   ! vstrlist_sort_basic --
   !   This command sorts the elements of list and returns a new list in sorted order.

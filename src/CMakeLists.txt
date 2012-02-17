@@ -1,4 +1,8 @@
 
+set(CMAKE_Fortran_MODULE_DIRECTORY
+    ${PROJECT_BINARY_DIR}
+    )
+
 add_subdirectory(flibs/src/libs/strings)
 
 if(TARGET__TSPROC_EXECUTABLE)
