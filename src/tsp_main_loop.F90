@@ -23,7 +23,10 @@ module tsp_main_loop
 contains
 
 subroutine openControlfile(sFilename, sRecfile)
-
+  use m_vstring, only : t_vstring, vstring_cast
+  use m_vstringlist, only : t_vstringlist, vstrlist_new, vstrlist_index, &
+  vstrlist_append, vstrlist_length, vstrlist_free, vstrlist_iterator, &
+  vstrlist_iterator_reset
   use tokenize
 
   !f2py character(*), intent(in) :: sFilename
@@ -48,10 +51,12 @@ subroutine openControlfile(sFilename, sRecfile)
 !here.
   character (len=400) :: nline
   character (len=400) :: xline
+  type(t_vstringlist) :: tmpunit
   character (len=400) :: wordinner
   integer :: wordcount
   integer :: wordloopcnt
   integer :: innerloopcnt
+  integer :: i
 
 
        tempdtable_g%active=lTRUE
@@ -69,13 +74,8 @@ subroutine openControlfile(sFilename, sRecfile)
        OPEN(UNIT=bpunit, FILE=TRIM(ADJUSTL(sInfile_g)), STATUS="OLD", ACCESS='SEQUENTIAL', IOSTAT=ierr)
        call Assert(ierr==0,"Could not open file '"//TRIM(ADJUSTL(sInfile_g))//"'")
 
-       tmpunit = nextunit()
-       open (unit=tmpunit, file="temporary."//trim(int2char(tmpunit)), status='REPLACE', &
-          form='FORMATTED', access='SEQUENTIAL')
-!       OPEN (UNIT=tmpunit, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
-
        LU_TSPROC_CONTROL=nextunit()
-!       OPEN (UNIT=LU_TSPROC_CONTROL, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
+       !OPEN (UNIT=LU_TSPROC_CONTROL, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
        ! ** 64-bit Windows version of gfortran tries to place the scratch
        ! file into the c:\Windows directory. On most machines this is
        ! locked down tight, and so the program crashes.
@@ -84,6 +84,7 @@ subroutine openControlfile(sFilename, sRecfile)
 !      blocktype = 1 inside a block to NOT loop, 2 inside a block to loop
        blocktype = 0
        kline = 0
+       call vstrlist_new(tmpunit)
        DO
           kline = kline + 1
           READ (bpunit, '(A)', END=1200) cline
@@ -118,11 +119,10 @@ subroutine openControlfile(sFilename, sRecfile)
           IF (blocktype == 1) THEN
              WRITE(LU_TSPROC_CONTROL, '(A)') trim(cline)
           ENDIF
-
 ! -- Blocks that can be unrolled.
           IF (blocktype == 2) THEN
-
-! -- Store contents of block unchanged into tmpunit scratch file,-
+! -- Store contents of block unchanged into tmpunit variable length list of
+! strings
 ! -- Determine maximum number of tokens in the block (maxtokencnt)
              wordone = first_token(token, cline, tokenlen)
              nline = trim(wordone)
@@ -134,7 +134,9 @@ subroutine openControlfile(sFilename, sRecfile)
                 ENDIF
                 wordcount = wordcount + 1
              ENDDO
-             WRITE(tmpunit, '(A)') nline
+
+             call vstrlist_append(tmpunit, trim(nline))
+
              IF (wordcount > maxtokencnt) THEN
                 maxtokencnt = wordcount
              ENDIF
@@ -150,10 +152,10 @@ subroutine openControlfile(sFilename, sRecfile)
 ! -- This is the END of a block to unroll.  Unroll from tmpunit and write to LU_TSPROC_CONTROL.
              IF (trim(wordone) == 'END') THEN
                 DO wordloopcnt=2,maxtokencnt
-                   REWIND(tmpunit)
-                   DO
+
+                   DO i = 1,vstrlist_length(tmpunit)
                       lastword = ' '
-                      READ (tmpunit, '(A)', END=1205) xline
+                      call vstring_cast(vstrlist_index(tmpunit, i), xline)
                       wordinnerone = first_token(token, xline, tokenlen)
                       DO innerloopcnt=2,wordloopcnt
                           wordinner = trim(next_token(token, xline, tokenlen))
@@ -175,9 +177,8 @@ subroutine openControlfile(sFilename, sRecfile)
  1205              CONTINUE
                 ENDDO
 ! -- Have to close and reopen tmpunit to be ready for next block.
-                CLOSE(tmpunit)
-                open (unit=tmpunit, file="temporary.xxx",status='REPLACE', &
-                   form='FORMATTED', access='SEQUENTIAL')
+                call vstrlist_free(tmpunit)
+                call vstrlist_new(tmpunit)
                 maxtokencnt = 0
              ENDIF
           ENDIF
@@ -193,7 +194,6 @@ subroutine openControlfile(sFilename, sRecfile)
        call Assert(ierr==0,"Could not open file '"//TRIM(ADJUSTL(sRecFile))//"'")
 
 ! -- Cleanup
-       CLOSE(tmpunit, status='DELETE')
        CLOSE(bpunit, status='KEEP')
 
 ! -- More variables are initialised.
