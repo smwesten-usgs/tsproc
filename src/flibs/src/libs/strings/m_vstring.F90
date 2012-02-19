@@ -1060,8 +1060,8 @@ contains
   !   If length is specified, then only the first length characters are used in the comparison.
   !
   function vstring_compare_vstring ( this , string2 , nocase , length ) result ( compare )
-    type ( t_vstring )  :: this
-    type ( t_vstring )  :: string2
+    type ( t_vstring ), intent(in) :: this
+    type ( t_vstring ), intent(in) :: string2
     logical , intent (in), optional :: nocase
     integer , intent ( in ), optional :: length
     integer                     :: compare

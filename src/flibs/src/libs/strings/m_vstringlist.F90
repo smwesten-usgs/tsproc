@@ -121,6 +121,8 @@ module m_vstringlist
   public :: vstrlist_search
   public :: vstrlist_lsearch
   public :: vstrlist_sort
+  public :: vstrlist_iterator
+  public :: vstrlist_iterator_reset
   !
   ! t_vstringlist --
   !   A list of vstrings is implemented as an array of vstrings.
@@ -140,6 +142,7 @@ module m_vstringlist
 #ifdef _VSTRINGLIST_POINTER
      type ( t_vstring ) , dimension (:), pointer :: array
 #endif
+     integer :: iterator_counter = -1
   end type t_vstringlist
   !
   ! vstrlist_new --
@@ -421,6 +424,35 @@ contains
     vstrlist_exists = associated ( this % array )
 #endif
   end function vstrlist_exists
+  !
+  ! vstrlist_iterator_reset --
+  !   Resets the iteration of a vstrlist
+  !   
+  subroutine vstrlist_iterator_reset ( this ) 
+    type ( t_vstringlist ) , intent(inout) :: this
+    this % iterator_counter = -1
+  end subroutine vstrlist_iterator_reset
+  !
+  ! vstrlist_iterator --
+  !   Returns a vstring in order.
+  !   
+  !   First time called returns the first string, second time called returns the
+  !   second string, ...etc.  Similar to READing a file.
+  !
+  function vstrlist_iterator ( this ) result ( newstring )
+    type ( t_vstringlist ) , intent(inout) :: this
+    type ( t_vstring ) :: newstring
+    if (this % iterator_counter < 0) then
+       this % iterator_counter = 1
+    else
+       this % iterator_counter = this % iterator_counter + 1
+    end if
+    if (this % iterator_counter > vstrlist_length( this )) then
+       this % iterator_counter = 0
+       return
+    end if
+    call vstring_new ( newstring , this % array ( this % iterator_counter ) )
+  end function vstrlist_iterator
   !
   ! vstrlist_index --
   !   Returns a new vstring by getting the vstring at the given index "icomponent" 
