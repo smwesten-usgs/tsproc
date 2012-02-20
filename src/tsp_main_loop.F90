@@ -26,7 +26,7 @@ subroutine openControlfile(sFilename, sRecfile)
   use m_vstring, only : t_vstring, vstring_cast
   use m_vstringlist, only : t_vstringlist, vstrlist_new, vstrlist_index, &
   vstrlist_append, vstrlist_length, vstrlist_free, vstrlist_iterator, &
-  vstrlist_iterator_reset
+  vstrlist_iterator_reset, vstrlist_pop_first
   use tokenize
 
   !f2py character(*), intent(in) :: sFilename
@@ -81,6 +81,7 @@ subroutine openControlfile(sFilename, sRecfile)
        ! locked down tight, and so the program crashes.
        open (unit=LU_TSPROC_CONTROL, file='tsproc_unrolled.inp', &
           status='REPLACE', form='FORMATTED')
+       call vstrlist_new(lucontrol)
 !      blocktype = 1 inside a block to NOT loop, 2 inside a block to loop
        blocktype = 0
        kline = 0
@@ -118,6 +119,7 @@ subroutine openControlfile(sFilename, sRecfile)
 ! -- Handle the blocks that shouldn't be unrolled.
           IF (blocktype == 1) THEN
              WRITE(LU_TSPROC_CONTROL, '(A)') trim(cline)
+             call vstrlist_append(lucontrol, trim(cline))
           ENDIF
 ! -- Blocks that can be unrolled.
           IF (blocktype == 2) THEN
@@ -168,10 +170,13 @@ subroutine openControlfile(sFilename, sRecfile)
                       ENDDO
                       IF (wordinnerone == 'START') THEN
                          WRITE(LU_TSPROC_CONTROL, '(A)') trim(wordinnerone) // ' ' // trim(wordinner)
+             call vstrlist_append(lucontrol, trim(wordinnerone) // ' ' // trim(wordinner))
                       ELSEIF (wordinnerone == 'END') THEN
                          WRITE(LU_TSPROC_CONTROL, '(A,/)') trim(wordinnerone) // ' ' // trim(wordinner)
+             call vstrlist_append(lucontrol, trim(wordinnerone) // ' ' // trim(wordinner))
                       ELSE
                          WRITE(LU_TSPROC_CONTROL, '(A)') '  ' // trim(wordinnerone) // ' ' // trim(wordinner)
+             call vstrlist_append(lucontrol, '  ' // trim(wordinnerone) // ' ' // trim(wordinner))
                       ENDIF
                    ENDDO
  1205              CONTINUE

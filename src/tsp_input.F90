@@ -11,6 +11,8 @@ contains
       subroutine get_mul_series_gsflow_gage(ifail)
 
 ! -- Subroutine GET_MUL_SERIES_GSFLOW_GAGE reads multiple series fron a GSFLOW gage file.
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length 
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
@@ -58,7 +60,8 @@ contains
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
@@ -515,8 +518,10 @@ end subroutine get_mul_series_gsflow_gage
 
 subroutine get_mul_series_statvar(ifail)
 
-       implicit none
 ! -- Subroutine GET_MUL_SERIES_STATVAR reads multiple series from an MMS/GSFLOW statvar file.
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length 
+       implicit none
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
@@ -565,7 +570,8 @@ subroutine get_mul_series_statvar(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
@@ -1000,6 +1006,8 @@ subroutine get_mul_series_tetrad(ifail)
 
 ! -- Subroutine GET_MUL_SERIES_TETRAD reads multiple series fron a TETRAD
 !    PLT file.
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length 
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
@@ -1044,7 +1052,8 @@ subroutine get_mul_series_tetrad(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
@@ -1561,6 +1570,8 @@ subroutine get_mul_series_ssf(ifail)
 
 ! -- Subroutine GET_MUL_SERIES_SSF reads multiple series fron a site
 !    sample file.
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length 
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
@@ -1600,7 +1611,8 @@ subroutine get_mul_series_ssf(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
@@ -1977,6 +1989,8 @@ subroutine get_plt_series(ifail)
 
 ! -- Subroutine get_plt_series reads one or a number of time series from a HSPF
 !    PLTGEN file.
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length 
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
@@ -2021,7 +2035,8 @@ subroutine get_plt_series(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
@@ -2470,6 +2485,8 @@ end subroutine get_plt_series
 subroutine get_ssf_series(ifail)
 
 ! -- Subroutine get_ssf_series reads a time series from a site sample file.
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length 
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr,k,ixcon, &
@@ -2505,7 +2522,8 @@ subroutine get_ssf_series(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
@@ -2812,6 +2830,10 @@ end subroutine get_ssf_series
 subroutine get_ufore_series(ifail)
 
 ! -- Subroutine get_ufore_series reads a time series from a UFORE-HYDRO file.
+
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length 
+
        integer, intent(out)   :: ifail
 
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr,ixcon, &
@@ -2850,9 +2872,8 @@ subroutine get_ufore_series(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3177,6 +3198,8 @@ subroutine get_wdm_series (ifail)
 
 ! -- Subroutine get_wdm_series reads a time series from a HSPF WDM file.
 
+    use m_vstring, only: vstring_cast
+    use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
     IMPLICIT NONE
 
     INTEGER, INTENT (OUT) ::                                                &
@@ -3263,13 +3286,8 @@ subroutine get_wdm_series (ifail)
 !
     DO
        Iline_g = Iline_g + 1
-       READ(LU_TSPROC_CONTROL,'(a)',err=1725,end=1735) cline
-       IF (cline == ' ') THEN
-          CYCLE
-       ENDIF
-       IF (cline (1:1) == '#') THEN
-          CYCLE
-       ENDIF
+       if(vstrlist_length(lucontrol) .eq. 0) goto 1735
+       call vstring_cast(vstrlist_pop_first(lucontrol), cline)
        CALL linesplit (ierr, 2)
        IF (ierr /= 0) THEN
           CALL num2char (Iline_g, aline)

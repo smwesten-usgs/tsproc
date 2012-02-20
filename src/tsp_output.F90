@@ -15,6 +15,9 @@ subroutine pest_files(ifail,lastblock)
 
 ! -- Subroutine PEST_FILES generates a PEST input dataset.
 
+       use m_vstring, only : vstring_cast
+       use m_vstringlist, only : vstrlist_length, vstrlist_pop_first
+
        integer, intent(out)   :: ifail
        integer, intent(in)    :: lastblock
 
@@ -141,9 +144,8 @@ subroutine pest_files(ifail,lastblock)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2476,6 +2478,9 @@ subroutine write_list_output(ifail)
 
 ! -- Subroutine Write_List_Output writes TSPROC entities to an ASCII output file.
 
+       use m_vstring, only : vstring_cast
+       use m_vstringlist, only : vstrlist_length, vstrlist_pop_first
+
        integer, intent(out) :: ifail
 
        integer icontext,ierr,i,dd,mm,yy,ss,hhh,mmm,sss,nn,iterm,j, &
@@ -2512,9 +2517,8 @@ subroutine write_list_output(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

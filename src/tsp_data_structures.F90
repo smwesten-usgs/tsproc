@@ -1,5 +1,6 @@
 !     Last change:  J     9 Sep 2004    5:38 pm
 module tsp_data_structures
+  use m_vstringlist, only : t_vstringlist
 
   integer, parameter    :: MAXSERIES=10000
   integer, parameter    :: MAXSERIESREAD=10000
@@ -176,6 +177,9 @@ module tsp_data_structures
   type (d_table) dtable_g(MAXDTABLE)
 
   integer LU_TSPROC_CONTROL,LU_OUT
+  
+  type(t_vstringlist), save :: lucontrol
+
   integer NumProcBloc_g,ILine_g,IProcSetting_g
   character*25 Context_g
   character*25 sContextOverride_g

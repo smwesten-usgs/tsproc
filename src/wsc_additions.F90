@@ -3,6 +3,8 @@ module wsc_additions
    use tsp_data_structures
    use tsp_utilities
    use tsp_command_processors
+   use m_vstring, only: vstring_cast
+   use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
    implicit none
 
    contains
@@ -50,9 +52,8 @@ subroutine hydro_events(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -398,9 +399,8 @@ subroutine period_stats(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1096,9 +1096,8 @@ subroutine usgs_hysep(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1761,9 +1760,8 @@ subroutine hydro_peaks(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

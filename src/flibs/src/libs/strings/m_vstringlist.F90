@@ -123,6 +123,9 @@ module m_vstringlist
   public :: vstrlist_sort
   public :: vstrlist_iterator
   public :: vstrlist_iterator_reset
+  public :: vstrlist_pop_last
+  public :: vstrlist_pop_first
+  public :: vstrlist_del
   !
   ! t_vstringlist --
   !   A list of vstrings is implemented as an array of vstrings.
@@ -453,6 +456,55 @@ contains
     end if
     call vstring_new ( newstring , this % array ( this % iterator_counter ) )
   end function vstrlist_iterator
+  !
+  ! vstrlist_pop_last --
+  !   Return and delete the last string in the list.
+  !
+  function vstrlist_pop_last ( this ) result ( newstring )
+    type ( t_vstringlist ), intent(inout) :: this
+    type ( t_vstring ) :: newstring
+    if (vstrlist_length( this ) .eq. 0) then
+      return
+    end if
+    newstring = vstrlist_index( this, vstrlist_length( this ) )
+    call vstrlist_del ( this, vstrlist_length( this ))
+  end function vstrlist_pop_last
+  !
+  ! vstrlist_pop_first --
+  !   Return and delete the first string in the list.
+  !
+  function vstrlist_pop_first ( this ) result ( newstring )
+    type ( t_vstringlist ), intent(inout) :: this
+    type ( t_vstring ) :: newstring
+    if (vstrlist_length( this ) .eq. 0) then
+      return
+    end if
+    newstring = vstrlist_index( this, 1 )
+    call vstrlist_del ( this, 1 )
+  end function vstrlist_pop_first
+  !
+  ! vstrlist_del --
+  !   Delete the 'icomponent' string from list.
+  !
+  subroutine vstrlist_del ( this, icomponent ) 
+    type ( t_vstringlist ), intent(inout) :: this
+    integer , intent(in) :: icomponent
+    integer :: vlen
+    vlen = vstrlist_length(this)
+    if (vlen.eq.0) then
+      return
+    else if (vlen.eq.1) then
+      call vstrlist_free ( this )
+      call vstrlist_new ( this )
+    else if (icomponent.eq.1) then
+      this = vstrlist_range( this, 2, vlen )
+    else if (icomponent.eq.vlen) then
+      this = vstrlist_range( this, 1, vlen - 1)
+    else
+      this = vstrlist_concat(vstrlist_range( this, 1, icomponent - 1), &
+                             vstrlist_range( this, icomponent + 1, vlen))
+    end if
+  end subroutine vstrlist_del
   !
   ! vstrlist_index --
   !   Returns a new vstring by getting the vstring at the given index "icomponent" 

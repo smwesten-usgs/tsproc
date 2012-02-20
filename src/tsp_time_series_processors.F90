@@ -307,6 +307,8 @@ subroutine erase_entity(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -336,9 +338,8 @@ subroutine erase_entity(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -560,6 +561,8 @@ subroutine moving_window(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -593,9 +596,8 @@ subroutine moving_window(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -864,6 +866,8 @@ subroutine new_series_uniform(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -902,9 +906,8 @@ subroutine new_series_uniform(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1256,6 +1259,8 @@ subroutine series_difference(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -1283,9 +1288,8 @@ subroutine series_difference(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1420,6 +1424,8 @@ subroutine series_base_level(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -1455,9 +1461,8 @@ subroutine series_base_level(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1715,6 +1720,8 @@ subroutine vol_to_series(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -1744,9 +1751,8 @@ subroutine vol_to_series(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1938,6 +1944,8 @@ subroutine series_clean(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -1974,9 +1982,8 @@ subroutine series_clean(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2221,6 +2228,8 @@ subroutine bfilter(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -2271,9 +2280,8 @@ subroutine bfilter(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2966,6 +2974,8 @@ subroutine compare_series(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -3013,9 +3023,8 @@ subroutine compare_series(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3523,6 +3532,8 @@ subroutine reduce_span(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -3556,9 +3567,8 @@ subroutine reduce_span(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3728,6 +3738,8 @@ subroutine statistics(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -3775,9 +3787,8 @@ subroutine statistics(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -4314,6 +4325,8 @@ subroutine compute_hydrologic_indices(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -4424,9 +4437,8 @@ subroutine compute_hydrologic_indices(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          if(.not. str_compare(cline,"CURRENT_DEFINITIONS") ) then
            call linesplit(ierr,2)
            if (ierr.ne.0 )then
@@ -5193,6 +5205,8 @@ subroutine time_base(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -5241,9 +5255,8 @@ subroutine time_base(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -5412,6 +5425,8 @@ subroutine volume(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -5446,9 +5461,8 @@ subroutine volume(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -5734,6 +5748,8 @@ subroutine time_duration(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -5771,9 +5787,8 @@ subroutine time_duration(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -6117,6 +6132,8 @@ subroutine displace(ifail)
        use tsp_data_structures
        use tsp_utilities
        use tsp_command_processors
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
 
        implicit none
 
@@ -6148,9 +6165,8 @@ subroutine displace(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

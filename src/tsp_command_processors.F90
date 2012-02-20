@@ -1853,6 +1853,8 @@ subroutine find_end(ifail)
 
        use tsp_data_structures
        use tsp_utilities
+       use m_vstring, only : vstring_cast
+       use m_vstringlist, only : vstrlist_length, vstrlist_pop_first
 
        implicit none
 
@@ -1864,9 +1866,8 @@ subroutine find_end(ifail)
        ifail=0
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1905,6 +1906,8 @@ subroutine get_next_block(ifail)
 
        use tsp_data_structures
        use tsp_utilities
+       use m_vstring, only : vstring_cast
+       use m_vstringlist, only : vstrlist_length, vstrlist_pop_first
 
        implicit none
 
@@ -1917,9 +1920,8 @@ subroutine get_next_block(ifail)
        call addquote(sInfile_g,sString_g)
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=500) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 500
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          cline=adjustl(cline)
 
          call linesplit(ierr,2)
@@ -2111,6 +2113,8 @@ subroutine Process_Settings(ifail)
 
        use tsp_data_structures
        use tsp_utilities
+       use m_vstring, only : vstring_cast
+       use m_vstringlist, only : vstrlist_length, vstrlist_pop_first
 
        implicit none
 
@@ -2129,9 +2133,8 @@ subroutine Process_Settings(ifail)
        datestr=' '
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

@@ -12,6 +12,9 @@ contains
 subroutine equation(ifail)
 
 ! -- Subroutine EQUATION evaluates a relationship between time series.
+       use m_vstring, only: vstring_cast
+       use m_vstringlist, only: vstrlist_pop_first, vstrlist_length
+       
        implicit none
 
        integer, intent(out)   :: ifail
@@ -44,9 +47,8 @@ subroutine equation(ifail)
 
        do
          ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         if(vstrlist_length(lucontrol) .eq. 0) goto 9100
+         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
