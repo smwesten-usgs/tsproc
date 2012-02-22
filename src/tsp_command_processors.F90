@@ -1932,6 +1932,7 @@ subroutine get_next_block(ifail)
        integer :: innerloopcnt
        character (len=120) :: lastword
        integer :: i
+       type(t_vstringlist) :: tmpunit
 
        ifail=0
 

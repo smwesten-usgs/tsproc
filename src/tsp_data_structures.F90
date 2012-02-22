@@ -178,7 +178,7 @@ module tsp_data_structures
 
   integer LU_TSPROC_CONTROL,LU_OUT
   
-  type(t_vstringlist), save :: lucontrol, tmpunit
+  type(t_vstringlist), save :: lucontrol
 
   integer NumProcBloc_g,ILine_g,IProcSetting_g
   character*25 Context_g
