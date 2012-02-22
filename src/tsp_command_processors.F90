@@ -1925,7 +1925,6 @@ subroutine get_next_block(ifail)
        character(len=40) :: wordone
        character(len=40) :: wordinnerone
        character(len=400) :: nline
-       type(t_vstringlist) :: tmpunit
        character (len=400) :: xline
        character (len=400) :: wordinner
        integer :: wordcount
@@ -1935,6 +1934,12 @@ subroutine get_next_block(ifail)
        integer :: i
 
        ifail=0
+
+! -- If previously unrolled a block there will still be lines in lucontrol.  If
+!    so just return so that they can be processed by the same sCurrentBlockName
+       if (vstrlist_length(lucontrol) .gt. 1) THEN
+           RETURN
+       END IF
        call addquote(sInfile_g,sString_g)
        do
          ILine_g=ILine_g+1
@@ -2185,9 +2190,6 @@ subroutine get_next_block(ifail)
                    ENDDO
  1205              CONTINUE
                 ENDDO
-                maxtokencnt = 0
-                call vstrlist_free(tmpunit)
-                call vstrlist_new(tmpunit)
                 EXIT
              ENDIF
           ENDIF
