@@ -2098,10 +2098,10 @@ subroutine get_next_block(ifail)
        end if
 
        maxtokencnt = 0
-       if (vstrlist_exists(tmpunit) .eq. .TRUE.) THEN
+       if (vstrlist_exists(tmpunit) .eqv. .TRUE.) THEN
            call vstrlist_free(tmpunit)
        END IF
-       if (vstrlist_exists(lucontrol) .eq. .TRUE.) THEN
+       if (vstrlist_exists(lucontrol) .eqv. .TRUE.) THEN
            call vstrlist_free(lucontrol)
        END IF
        call vstrlist_new(tmpunit)
@@ -2130,7 +2130,7 @@ subroutine get_next_block(ifail)
           wordone = first_token(token, cline, tokenlen)
 
 ! -- Handle the blocks that shouldn't be unrolled.
-          IF (unroll == .FALSE.) THEN
+          IF (unroll .eqv. .FALSE.) THEN
              call vstrlist_append(lucontrol, trim(cline))
              IF (trim(wordone) == 'END') THEN
                  EXIT
