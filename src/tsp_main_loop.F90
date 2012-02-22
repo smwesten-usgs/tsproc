@@ -23,12 +23,6 @@ module tsp_main_loop
 contains
 
 subroutine openControlfile(sFilename, sRecfile)
-  use m_vstring, only : t_vstring, vstring_cast
-  use m_vstringlist, only : t_vstringlist, vstrlist_new, vstrlist_index, &
-  vstrlist_append, vstrlist_length, vstrlist_free, vstrlist_iterator, &
-  vstrlist_iterator_reset, vstrlist_pop_first
-  use tokenize
-
   !f2py character(*), intent(in) :: sFilename
   !f2py character(*), intent(in) :: sRecFile
   character (len=*) :: sFilename
@@ -36,28 +30,6 @@ subroutine openControlfile(sFilename, sRecfile)
 
   integer (kind=T_INT) :: ierr
   character (len=256) :: sDateStr, sDateStrPretty
-
-  integer :: blocktype
-  integer :: bpunit
-  integer :: kline
-  integer :: tokenlen
-  type(tokenizer) :: token
-  integer :: maxtokencnt
-  character (len=40) :: wordone
-  character (len=40) :: wordinnerone
-  character (len=120) :: word
-  character (len=120) :: lastword
-!-- TODO the allowable line length is referenced somewhere and should be used
-!here.
-  character (len=400) :: nline
-  character (len=400) :: xline
-  type(t_vstringlist) :: tmpunit
-  character (len=400) :: wordinner
-  integer :: wordcount
-  integer :: wordloopcnt
-  integer :: innerloopcnt
-  integer :: i
-
 
        tempdtable_g%active=lTRUE
        allocate(tempdtable_g%flow(MAXTEMPDURFLOW),   &
@@ -70,136 +42,13 @@ subroutine openControlfile(sFilename, sRecfile)
 
        sInfile_g = sFilename
 
-       bpunit = nextunit()
-       OPEN(UNIT=bpunit, FILE=TRIM(ADJUSTL(sInfile_g)), STATUS="OLD", ACCESS='SEQUENTIAL', IOSTAT=ierr)
+       LU_TSPROC_CONTROL = nextunit()
+       OPEN(UNIT=LU_TSPROC_CONTROL, FILE=TRIM(ADJUSTL(sInfile_g)), STATUS="OLD", ACCESS='SEQUENTIAL', IOSTAT=ierr)
        call Assert(ierr==0,"Could not open file '"//TRIM(ADJUSTL(sInfile_g))//"'")
-
-       LU_TSPROC_CONTROL=nextunit()
-       !OPEN (UNIT=LU_TSPROC_CONTROL, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
-       ! ** 64-bit Windows version of gfortran tries to place the scratch
-       ! file into the c:\Windows directory. On most machines this is
-       ! locked down tight, and so the program crashes.
-       open (unit=LU_TSPROC_CONTROL, file='tsproc_unrolled.inp', &
-          status='REPLACE', form='FORMATTED')
-       call vstrlist_new(lucontrol)
-!      blocktype = 1 inside a block to NOT loop, 2 inside a block to loop
-       blocktype = 0
-       kline = 0
-       call vstrlist_new(tmpunit)
-       DO
-          kline = kline + 1
-          READ (bpunit, '(A)', END=1200) cline
-
-! -- Get rid of blank lines and comments
-          IF (len_trim(cline) == 0) THEN
-             CYCLE
-          ENDIF
-          IF (cline (1:1) == '#') THEN
-             CYCLE
-          ENDIF
-
-          CALL set_tokenizer(token, ' ,', token_empty, token_quotes)
-          wordone = first_token(token, cline, tokenlen)
-! -- Identify the type of block - whether it can be unrolled or not
-          IF (trim(wordone) == 'START') THEN
-             maxtokencnt = 0
-             word = next_token(token, cline, tokenlen)
-             IF ((trim(word) == 'ERASE_ENTITY') .OR.                    &
-                 (trim(word) == 'SERIES_COMPARE') .OR.                  &
-                 (trim(word) == 'SERIES_EQUATION') .OR.                 &
-                 (trim(word) == 'SETTINGS') .OR.                        &
-                 (trim(word) == 'HYDROLOGIC_INDICES') .OR.              &
-                 (trim(word) == 'WRITE_PEST_FILES')) THEN
-                blocktype = 1
-             ELSE
-                blocktype = 2
-             ENDIF
-          ENDIF
-
-! -- Handle the blocks that shouldn't be unrolled.
-          IF (blocktype == 1) THEN
-             WRITE(LU_TSPROC_CONTROL, '(A)') trim(cline)
-             call vstrlist_append(lucontrol, trim(cline))
-          ENDIF
-! -- Blocks that can be unrolled.
-          IF (blocktype == 2) THEN
-! -- Store contents of block unchanged into tmpunit variable length list of
-! strings
-! -- Determine maximum number of tokens in the block (maxtokencnt)
-             wordone = first_token(token, cline, tokenlen)
-             nline = trim(wordone)
-             wordcount = 1
-             DO
-                nline = trim(nline) // ' ' // trim(next_token(token, cline, tokenlen))
-                IF (tokenlen == -1) THEN
-                   EXIT
-                ENDIF
-                wordcount = wordcount + 1
-             ENDDO
-
-             call vstrlist_append(tmpunit, trim(nline))
-
-             IF (wordcount > maxtokencnt) THEN
-                maxtokencnt = wordcount
-             ENDIF
-
-! -- The following error check only works with blocktype == 2, TODO move.
-             IF (((trim(wordone) == 'START') .OR. (trim(wordone) == 'END')) .AND. (wordcount /= 2)) THEN
-                 WRITE(*, *) 'Something is wrong with the START or END keywords'
-                 WRITE(*, *) 'at line: ', trim(cline)
-                 WRITE(*, *) 'at line number: ', kline
-                 CALL EXIT(1)
-             ENDIF
-
-! -- This is the END of a block to unroll.  Unroll from tmpunit and write to LU_TSPROC_CONTROL.
-             IF (trim(wordone) == 'END') THEN
-                DO wordloopcnt=2,maxtokencnt
-
-                   DO i = 1,vstrlist_length(tmpunit)
-                      lastword = ' '
-                      call vstring_cast(vstrlist_index(tmpunit, i), xline)
-                      wordinnerone = first_token(token, xline, tokenlen)
-                      DO innerloopcnt=2,wordloopcnt
-                          wordinner = trim(next_token(token, xline, tokenlen))
-                          IF (tokenlen == -1) THEN
-                             wordinner = lastword
-                             EXIT
-                          ELSE
-                             lastword = wordinner
-                          ENDIF
-                      ENDDO
-                      IF (wordinnerone == 'START') THEN
-                         WRITE(LU_TSPROC_CONTROL, '(A)') trim(wordinnerone) // ' ' // trim(wordinner)
-             call vstrlist_append(lucontrol, trim(wordinnerone) // ' ' // trim(wordinner))
-                      ELSEIF (wordinnerone == 'END') THEN
-                         WRITE(LU_TSPROC_CONTROL, '(A,/)') trim(wordinnerone) // ' ' // trim(wordinner)
-             call vstrlist_append(lucontrol, trim(wordinnerone) // ' ' // trim(wordinner))
-                      ELSE
-                         WRITE(LU_TSPROC_CONTROL, '(A)') '  ' // trim(wordinnerone) // ' ' // trim(wordinner)
-             call vstrlist_append(lucontrol, '  ' // trim(wordinnerone) // ' ' // trim(wordinner))
-                      ENDIF
-                   ENDDO
- 1205              CONTINUE
-                ENDDO
-! -- Have to close and reopen tmpunit to be ready for next block.
-                call vstrlist_free(tmpunit)
-                call vstrlist_new(tmpunit)
-                maxtokencnt = 0
-             ENDIF
-          ENDIF
-       ENDDO
- 1200  CONTINUE
-
-! -- "Unrolled" tsproc control file is now in scratch file LU_TSPROC_CONTROL.
-! -- REWIND to make ready for rest of PEST to read.
-       REWIND(LU_TSPROC_CONTROL)
 
        LU_REC=nextunit()
        open(unit=LU_REC,file=TRIM(ADJUSTL(sRecfile)),status='replace',iostat=ierr)
        call Assert(ierr==0,"Could not open file '"//TRIM(ADJUSTL(sRecFile))//"'")
-
-! -- Cleanup
-       CLOSE(bpunit, status='KEEP')
 
 ! -- More variables are initialised.
 

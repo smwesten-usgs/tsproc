@@ -185,7 +185,6 @@ module tsp_data_structures
   character*25 sContextOverride_g
   character*40 CurrentBlock_g
   character*120 sInfile_g,sRecfile_g,sOutfile_g,sString_g
-  integer :: tmpunit
 
 ! -- The following variables are global because they are used to exchange information
 !    between the LIST_OUTPUT block and the WRITE_PEST_FILES block.

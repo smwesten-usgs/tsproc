@@ -1907,7 +1907,10 @@ subroutine get_next_block(ifail)
        use tsp_data_structures
        use tsp_utilities
        use m_vstring, only : vstring_cast
-       use m_vstringlist, only : vstrlist_length, vstrlist_pop_first
+       use m_vstringlist, only : vstrlist_length, vstrlist_pop_first, &
+       t_vstringlist, vstrlist_index, vstrlist_new, vstrlist_free, &
+       vstrlist_append, vstrlist_exists
+       use tokenize
 
        implicit none
 
@@ -1915,13 +1918,30 @@ subroutine get_next_block(ifail)
 
        integer ierr
        character*15 aline
+       logical unroll
+       type(tokenizer) :: token
+       integer :: maxtokencnt
+       integer :: tokenlen
+       character(len=40) :: wordone
+       character(len=40) :: wordinnerone
+       character(len=400) :: nline
+       type(t_vstringlist) :: tmpunit
+       character (len=400) :: xline
+       character (len=400) :: wordinner
+       integer :: wordcount
+       integer :: wordloopcnt
+       integer :: innerloopcnt
+       character (len=120) :: lastword
+       integer :: i
 
        ifail=0
        call addquote(sInfile_g,sString_g)
        do
          ILine_g=ILine_g+1
-         if(vstrlist_length(lucontrol) .eq. 0) goto 500
-         call vstring_cast(vstrlist_pop_first(lucontrol), cline)
+         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=500) cline
+         if(cline.eq.' ') cycle
+         if(cline(1:1).eq.'#') cycle
+
          cline=adjustl(cline)
 
          call linesplit(ierr,2)
@@ -2077,6 +2097,103 @@ subroutine get_next_block(ifail)
          end if
        end if
 
+       maxtokencnt = 0
+       if (vstrlist_exists(tmpunit) .eq. .TRUE.) THEN
+           call vstrlist_free(tmpunit)
+       END IF
+       if (vstrlist_exists(lucontrol) .eq. .TRUE.) THEN
+           call vstrlist_free(lucontrol)
+       END IF
+       call vstrlist_new(tmpunit)
+       call vstrlist_new(lucontrol)
+
+! -- Identify the type of block - whether it can be unrolled or not
+       unroll = .TRUE.
+       IF ((trim(sCurrentBlockName) == 'ERASE_ENTITY') .OR.                    &
+           (trim(sCurrentBlockName) == 'SERIES_COMPARE') .OR.                  &
+           (trim(sCurrentBlockName) == 'SERIES_EQUATION') .OR.                 &
+           (trim(sCurrentBlockName) == 'SETTINGS') .OR.                        &
+           (trim(sCurrentBlockName) == 'HYDROLOGIC_INDICES') .OR.              &
+           (trim(sCurrentBlockName) == 'WRITE_PEST_FILES')) THEN
+          unroll = .FALSE.
+       ENDIF
+
+       DO
+          ILine_g=ILine_g+1
+          read(LU_TSPROC_CONTROL,'(a)',err=1200,end=1200) cline
+          if(cline.eq.' ') cycle
+          if(cline(1:1).eq.'#') cycle
+ 
+          cline=adjustl(cline)
+
+          CALL set_tokenizer(token, ' ,', token_empty, token_quotes)
+          wordone = first_token(token, cline, tokenlen)
+
+! -- Handle the blocks that shouldn't be unrolled.
+          IF (unroll == .FALSE.) THEN
+             call vstrlist_append(lucontrol, trim(cline))
+             IF (trim(wordone) == 'END') THEN
+                 EXIT
+             END IF
+! -- Blocks that can be unrolled.
+          ELSE 
+! -- Store contents of block unchanged into tmpunit variable length list of
+! strings
+! -- Determine maximum number of tokens in the block (maxtokencnt)
+             nline = trim(wordone)
+             wordcount = 1
+             DO
+                nline = trim(nline) // ' ' // trim(next_token(token, cline, tokenlen))
+                IF (tokenlen == -1) THEN
+                   EXIT
+                ENDIF
+                wordcount = wordcount + 1
+             ENDDO
+
+             IF (trim(wordone) .ne. 'START') THEN
+                call vstrlist_append(tmpunit, trim(nline))
+             END IF
+
+             IF (wordcount > maxtokencnt) THEN
+                maxtokencnt = wordcount
+             ENDIF
+
+! -- This is the END of a block to unroll.  Unroll from tmpunit and write to LU_TSPROC_CONTROL.
+             IF (trim(wordone) == 'END') THEN
+                DO wordloopcnt=2,maxtokencnt
+
+                   DO i = 1,vstrlist_length(tmpunit)
+                      lastword = ' '
+                      call vstring_cast(vstrlist_index(tmpunit, i), xline)
+                      wordinnerone = first_token(token, xline, tokenlen)
+                      DO innerloopcnt=2,wordloopcnt
+                          wordinner = trim(next_token(token, xline, tokenlen))
+                          IF (tokenlen == -1) THEN
+                             wordinner = lastword
+                             EXIT
+                          ELSE
+                             lastword = wordinner
+                          ENDIF
+                      ENDDO
+                      IF (wordinnerone == 'END') THEN
+                         call vstrlist_append(lucontrol, trim(wordinnerone) // &
+                         ' ' // trim(wordinner))
+                      ELSE
+                         call vstrlist_append(lucontrol, '  ' // &
+                              trim(wordinnerone) // ' ' // trim(wordinner))
+                      ENDIF
+                   ENDDO
+ 1205              CONTINUE
+                ENDDO
+                maxtokencnt = 0
+                call vstrlist_free(tmpunit)
+                call vstrlist_new(tmpunit)
+                EXIT
+             ENDIF
+          ENDIF
+       ENDDO
+ 1200  CONTINUE
+       
        return
 
 500    continue
