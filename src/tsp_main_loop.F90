@@ -52,7 +52,10 @@ subroutine openControlfile(sFilename, sRecfile)
   integer :: wordcount
   integer :: wordloopcnt
   integer :: innerloopcnt
-
+  integer :: tmpfnamecounter
+  character (len=40) :: tmpfname
+  character (len=40) :: lucfname
+  logical :: exists
 
        tempdtable_g%active=lTRUE
        allocate(tempdtable_g%flow(MAXTEMPDURFLOW),   &
@@ -69,19 +72,42 @@ subroutine openControlfile(sFilename, sRecfile)
        OPEN(UNIT=bpunit, FILE=TRIM(ADJUSTL(sInfile_g)), STATUS="OLD", ACCESS='SEQUENTIAL', IOSTAT=ierr)
        call Assert(ierr==0,"Could not open file '"//TRIM(ADJUSTL(sInfile_g))//"'")
 
+! -- Probably overkill, but just in case more than one tsproc was running the
+! in the same directory....  All of this just to open temporary files that will
+! be deleted.
        tmpunit = nextunit()
-       open (unit=tmpunit, file="temporary."//trim(int2char(tmpunit)), status='REPLACE', &
-          form='FORMATTED', access='SEQUENTIAL')
-!       OPEN (UNIT=tmpunit, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
+       tmpfnamecounter = 0
+       DO
+          tmpfnamecounter = tmpfnamecounter + 1
+          tmpfname = ".temporary."//TRIM(int2char(tmpfnamecounter))
+          INQUIRE(FILE = tmpfname, EXIST=exists)
+          IF (exists .eqv. .FALSE.) THEN
+             OPEN (UNIT=tmpunit, FILE=tmpfname, STATUS='REPLACE', &
+                FORM='FORMATTED', ACCESS='SEQUENTIAL')
+             EXIT
+          END IF
+       ENDDO
 
+! -- This is where the unrolled, clean (no comments or blank lines) tsproc
+! control file ends up.
        LU_TSPROC_CONTROL=nextunit()
 !       OPEN (UNIT=LU_TSPROC_CONTROL, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
        ! ** 64-bit Windows version of gfortran tries to place the scratch
        ! file into the c:\Windows directory. On most machines this is
        ! locked down tight, and so the program crashes.
-       open (unit=LU_TSPROC_CONTROL, file='tsproc_unrolled.inp', &
-          status='REPLACE', form='FORMATTED')
-!      blocktype = 1 inside a block to NOT loop, 2 inside a block to loop
+       tmpfnamecounter = 0
+       DO
+          tmpfnamecounter = tmpfnamecounter + 1
+          lucfname = ".tempunrolled."//TRIM(int2char(tmpfnamecounter))
+          INQUIRE(FILE = lucfname, EXIST=exists)
+          IF (exists .eqv. .FALSE.) THEN
+             OPEN (UNIT=LU_TSPROC_CONTROL, FILE=lucfname, STATUS='REPLACE', &
+                FORM='FORMATTED', ACCESS='SEQUENTIAL')
+             EXIT
+          END IF
+       ENDDO
+
+!      blocktype = 1 inside a block to NOT unroll, 2 inside a block to unroll
        blocktype = 0
        kline = 0
        DO
@@ -175,8 +201,8 @@ subroutine openControlfile(sFilename, sRecfile)
  1205              CONTINUE
                 ENDDO
 ! -- Have to close and reopen tmpunit to be ready for next block.
-                CLOSE(tmpunit)
-                open (unit=tmpunit, file="temporary.xxx",status='REPLACE', &
+                CLOSE(tmpunit, STATUS='DELETE')
+                open (unit=tmpunit, file=tmpfname ,status='REPLACE', &
                    form='FORMATTED', access='SEQUENTIAL')
                 maxtokencnt = 0
              ENDIF
@@ -215,13 +241,6 @@ subroutine openControlfile(sFilename, sRecfile)
 
 end subroutine openControlfile
 
-!------------------------------------------------------------------------------
-
-subroutine closeControlfile()
-
-  close(LU_TSPROC_CONTROL)
-
-end subroutine closeControlfile
 
 !------------------------------------------------------------------------------
 

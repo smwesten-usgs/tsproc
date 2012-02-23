@@ -1404,7 +1404,7 @@ subroutine write_message(increment,iunit,error,leadspace,endspace)
 end subroutine write_message
 
 subroutine close_files
-
+   use tsp_data_structures, only : LU_TSPROC_CONTROL
 ! -- Subroutine close_files closes all open files.
 
 ! -- Revision history:-
@@ -1412,6 +1412,7 @@ subroutine close_files
 
    integer         :: i,ierr
 
+   close(LU_TSPROC_CONTROL, STATUS='DELETE')
    do i=10,100
      close(unit=i,iostat=ierr)
    end do
