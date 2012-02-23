@@ -1,8 +1,0 @@
-precip     relative  0.1000  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
-evap       relative  0.1000  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
-solar      relative  0.1500  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
-snow       relative  0.1000  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
-precipadj  relative  1.E-02  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
-soilzone   relative  0.1000  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
-gwres      relative  0.1000  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
-ssres      relative  0.1000  1.E-05  switch 2.0  outside_pts  1.0E-4 0.5 smaller
