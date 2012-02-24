@@ -115,6 +115,16 @@ if(CMAKE_HOST_WIN32)
 
 elseif(CMAKE_HOST_UNIX)
 
+    if (Fortran_COMPILER_NAME MATCHES "^gfortran[.a-z]*")
+
+      message(" <-- setting options for gfortran on UNIX like OS -->")
+
+      set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
+
+      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -pg -fbounds-check -Wall -Wextra -fexceptions -ffree-line-length-none")
+
+    endif ()
+
     # set options specific to the Intel compiler on Linux
     if (Fortran_COMPILER_NAME MATCHES "ifort[.a-z]*")
 
