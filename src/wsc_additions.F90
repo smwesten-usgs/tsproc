@@ -51,8 +51,6 @@ subroutine hydro_events(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -399,8 +397,6 @@ subroutine period_stats(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1097,8 +1093,6 @@ subroutine usgs_hysep(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1762,8 +1756,6 @@ subroutine hydro_peaks(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

@@ -6,9 +6,10 @@ module tsp_utilities
 
   use tsp_data_structures
   implicit none
+  integer (kind=T_INT) :: UPPER_TO_LOWER = iachar( "a" ) - iachar( "A" )
+  integer (kind=T_INT) :: LOWER_TO_UPPER = iachar( "A" ) - iachar( "a" )
 
   ! declare generic interfaces
-
   interface char2num
     module procedure a2i
     module procedure a2r
@@ -46,8 +47,7 @@ module tsp_utilities
   end interface
 
   interface uppercase
-!    module procedure uppercase_sub
-    module procedure uppercase_fn
+    module procedure uppercase
   end interface
 
 contains
@@ -81,8 +81,8 @@ end subroutine addquote
 
 function str_compare(sString1, sString2)                   result(lBool)
 
-  character(len=*) :: sString1
-  character(len=*) :: sString2
+  character(len=*), intent(in) :: sString1
+  character(len=*), intent(in) :: sString2
   logical (kind=T_LOGICAL) :: lBool
 
   if(trim(adjustl(uppercase(sString1))) .eq. trim(adjustl(uppercase(sString2)))) then
@@ -2508,44 +2508,43 @@ function stddev(rData)   result(rStdDev)
 
 end function stddev
 
-subroutine uppercase_sub ( s )
-
-  ! ARGUMENTS
-  character (len=*), intent(inout) :: s
-  ! LOCALS
-  integer (kind=T_INT) :: i    ! do loop index
-  ! CONSTANTS
-  integer (kind=T_INT) :: LOWER_TO_UPPER = ichar( "A" ) - ichar( "a" )
-
-  do i=1,len_trim(s)
-      if ( ichar(s(i:i) ) >= ichar("a") .and. ichar(s) <= ichar("z") ) then
-          s(i:i) = char( ichar( s(i:i) ) + LOWER_TO_UPPER )
-      end if
-  end do
-
-  return
-end subroutine uppercase_sub
-
-function uppercase_fn ( s )                               result(sOut)
+function uppercase ( s )                               result(sOut)
 
   ! ARGUMENTS
   character (len=*), intent(in) :: s
   character(len=len(s)) :: sOut
   ! LOCALS
   integer (kind=T_INT) :: i    ! do loop index
-  ! CONSTANTS
-  integer (kind=T_INT) :: LOWER_TO_UPPER = ichar( "A" ) - ichar( "a" )
 
   sOut = s
 
   do i=1,len_trim(sOut)
-      if ( ichar(sOut(i:i) ) >= ichar("a") .and. ichar(sOut) <= ichar("z") ) then
-          sOut(i:i) = char( ichar( sOut(i:i) ) + LOWER_TO_UPPER )
+      if ( LGE(sOut(i:i), "a") .and. LLE(sOut(i:i), "z") ) then
+          sOut(i:i) = achar( iachar( sOut(i:i) ) + LOWER_TO_UPPER )
       end if
   end do
 
   return
-end function uppercase_fn
+end function uppercase
+
+function lowercase_fn ( s )                               result(sOut)
+
+  ! ARGUMENTS
+  character (len=*), intent(in) :: s
+  character(len=len(s)) :: sOut
+  ! LOCALS
+  integer (kind=T_INT) :: i    ! do loop index
+
+  sOut = s
+
+  do i=1,len_trim(sOut)
+      if ( LGE(sOut(i:i), "a") .and. LLE(sOut(i:i), "z") ) then
+          sOut(i:i) = achar( iachar( sOut(i:i) ) + UPPER_TO_LOWER )
+      end if
+  end do
+
+  return
+end function lowercase_fn
 
 !> Convert an integer value into a formatted character string
 function int2char(iValue)  result(sBuf)

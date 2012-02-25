@@ -36,8 +36,8 @@ subroutine get_new_series_name(ifail,aname)
          ' of file ',a)
          go to 9800
        end if
-!       aname=atemp(1:10)
-       aname = trim(adjustl(atemp))
+
+       aname = uppercase(trim(adjustl(atemp)))
        if(isspace(aname))then
          call num2char(ILine_g,aline)
          call addquote(sInfile_g,sString_g)
@@ -45,13 +45,12 @@ subroutine get_new_series_name(ifail,aname)
 81       format('space character in NEW_SERIES_NAME "',a,'" at line ',a,' of file ',a)
          go to 9800
        end if
-       call casetrans(aname,'lo')
        write(*,74) trim(aname)
        write(LU_REC,74) trim(aname)
 74     format(t5,'NEW_SERIES_NAME ',a)
        do i=1,MAXSERIES
          if(series_g(i)%active)then
-            if(str_compare(series_g(i)%name, aname ) )then
+            if(series_g(i)%name == aname) then
               call num2char(ILine_g,aline)
               call addquote(sInfile_g,sString_g)
               write(amessage,68) trim(aname),trim(aline),trim(sString_g)
@@ -64,7 +63,7 @@ subroutine get_new_series_name(ifail,aname)
 
          do i=1,MAXSTABLE
            if(stable_g(i)%active)then
-             if(str_compare(stable_g(i)%name, aname ) )then
+             if(stable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,61) trim(aname),trim(aline),trim(sString_g)
@@ -77,7 +76,7 @@ subroutine get_new_series_name(ifail,aname)
 
          do i=1,MAXGTABLE
            if(gtable_g(i)%active)then
-             if(str_compare(gtable_g(i)%name, aname ) )then
+             if(gtable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,79) trim(aname),trim(aline),trim(sString_g)
@@ -90,7 +89,7 @@ subroutine get_new_series_name(ifail,aname)
 
          do i=1,MAXVTABLE
            if(vtable_g(i)%active)then
-             if(str_compare(vtable_g(i)%name, aname ) )then
+             if(vtable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,69) trim(aname),trim(aline),trim(sString_g)
@@ -103,7 +102,7 @@ subroutine get_new_series_name(ifail,aname)
 
          do i=1,MAXDTABLE
            if(dtable_g(i)%active)then
-             if(str_compare(dtable_g(i)%name, aname ) )then
+             if(dtable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,66) trim(aname),trim(aline),trim(sString_g)
@@ -328,8 +327,7 @@ subroutine get_series_name(ifail,iseries,aword)
          ' of file ',a)
          go to 9800
        end if
-!       aname=atemp(1:10)
-       aname = trim(adjustl(atemp))
+       aname = uppercase(trim(adjustl(atemp)))
        if(isspace(aname))then
          call num2char(ILine_g,aline)
          call addquote(sInfile_g,sString_g)
@@ -337,14 +335,13 @@ subroutine get_series_name(ifail,iseries,aword)
 121      format('space character in series name "',a,'" at line ',a,' of file ',a)
          go to 9800
        end if
-       call casetrans(aname,'lo')
        write(*,140) trim(aword),trim(aname)
        write(LU_REC,140) trim(aword),trim(aname)
 140    format(t5,a,' ',a)
        do i=1,MAXSERIES
          if(.not.series_g(i)%active) cycle
 
-         if(str_compare(series_g(i)%name, aname ) )then
+         if(series_g(i)%name == aname) then
            iseries=i
            go to 130
          end if
@@ -409,8 +406,7 @@ subroutine get_table_name(ifail,itable,jtype)
          ' of file ',a)
          go to 9800
        end if
-!       aname=atemp(1:10)
-       aname= trim(adjustl(atemp))
+       aname= uppercase(trim(adjustl(atemp)))
        if(isspace(aname))then
          call num2char(ILine_g,aline)
          call addquote(sInfile_g,sString_g)
@@ -418,7 +414,6 @@ subroutine get_table_name(ifail,itable,jtype)
 121      format('space character in table name "',a,'" at line ',a,' of file ',a)
          go to 9800
        end if
-       call casetrans(aname,'lo')
        if(jtype.eq.1)then
          write(*,140) trim(aname)
          write(LU_REC,140) trim(aname)
@@ -488,7 +483,7 @@ subroutine get_table_name(ifail,itable,jtype)
        if(itype.eq.1)then
          do i=1,MAXSTABLE
            if(.not.stable_g(i)%active) cycle
-           if(str_compare(stable_g(i)%name, aname) )then
+           if(stable_g(i)%name == aname) then
              itable=i
              go to 130
            end if
@@ -504,7 +499,7 @@ subroutine get_table_name(ifail,itable,jtype)
        else if(itype.eq.2)then
          do i=1,MAXVTABLE
            if(.not.vtable_g(i)%active) cycle
-           if(str_compare(vtable_g(i)%name, aname) )then
+           if(vtable_g(i)%name == aname) then
              itable=i
              go to 131
            end if
@@ -520,7 +515,7 @@ subroutine get_table_name(ifail,itable,jtype)
        else if(itype.eq.3)then
          do i=1,MAXDTABLE
            if(.not.dtable_g(i)%active) cycle
-           if(str_compare(dtable_g(i)%name, aname) )then
+           if(dtable_g(i)%name == aname) then
              itable=i
              go to 132
            end if
@@ -536,7 +531,7 @@ subroutine get_table_name(ifail,itable,jtype)
        else if(itype.eq.4)then
          do i=1,MAXCTABLE
            if(.not.ctable_g(i)%active) cycle
-           if(str_compare(ctable_g(i)%name, aname) )then
+           if(ctable_g(i)%name == aname) then
              itable=i
              go to 172
            end if
@@ -552,7 +547,7 @@ subroutine get_table_name(ifail,itable,jtype)
        else if(itype == iG_TABLE)then
          do i=1,MAXGTABLE
            if(.not.gtable_g(i)%active) cycle
-           if(str_compare(gtable_g(i)%name, aname) )then
+           if(gtable_g(i)%name == aname) then
              itable=i
              go to 192
            end if
@@ -1212,8 +1207,7 @@ subroutine get_new_table_name(ifail,itype,aname)
          ' of file ',a)
          go to 9800
        end if
-!       aname=atemp(1:10)
-       aname=trim(adjustl(atemp))
+       aname=uppercase(trim(adjustl(atemp)))
        if(isspace(aname))then
          call num2char(ILine_g,aline)
          call addquote(sInfile_g,sString_g)
@@ -1221,7 +1215,6 @@ subroutine get_new_table_name(ifail,itype,aname)
 81       format('space character in new table name "',a,'" at line ',a,' of file ',a)
          go to 9800
        end if
-       call casetrans(aname,'lo')
 
        if(itype == iS_TABLE)then
 
@@ -1258,7 +1251,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 !       if(itype.eq.1)then
          do i=1,MAXSTABLE
            if(stable_g(i)%active)then
-             if(str_compare(stable_g(i)%name, aname) )then
+             if(stable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,68) trim(aname),trim(aline),trim(sString_g)
@@ -1271,7 +1264,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 !       else if(itype.eq.2)then
          do i=1,MAXVTABLE
            if(vtable_g(i)%active)then
-             if(str_compare(vtable_g(i)%name, aname) )then
+             if(vtable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,69) trim(aname),trim(aline),trim(sString_g)
@@ -1284,7 +1277,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 !       else if(itype.eq.3)then
          do i=1,MAXDTABLE
            if(dtable_g(i)%active)then
-             if(str_compare(dtable_g(i)%name, aname) )then
+             if(dtable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,66) trim(aname),trim(aline),trim(sString_g)
@@ -1297,7 +1290,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 !       else if(itype.eq.4)then
          do i=1,MAXCTABLE
            if(ctable_g(i)%active)then
-             if(str_compare(ctable_g(i)%name, aname) )then
+             if(ctable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,67) trim(aname),trim(aline),trim(sString_g)
@@ -1310,7 +1303,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 !       else if(itype.eq.5)then
          do i=1,MAXGTABLE
            if(gtable_g(i)%active)then
-             if(str_compare(gtable_g(i)%name, aname) )then
+             if(gtable_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,97) trim(aname),trim(aline),trim(sString_g)
@@ -1323,7 +1316,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 
          do i=1,MAXSERIES
            if(series_g(i)%active)then
-             if(str_compare(series_g(i)%name, aname ) )then
+             if(series_g(i)%name == aname) then
                call num2char(ILine_g,aline)
                call addquote(sInfile_g,sString_g)
                write(amessage,63) trim(aname),trim(aline),trim(sString_g)

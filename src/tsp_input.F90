@@ -59,8 +59,6 @@ contains
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -566,8 +564,6 @@ subroutine get_mul_series_statvar(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1045,8 +1041,6 @@ subroutine get_mul_series_tetrad(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1601,8 +1595,6 @@ subroutine get_mul_series_ssf(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2022,8 +2014,6 @@ subroutine get_plt_series(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2506,8 +2496,6 @@ subroutine get_ssf_series(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2851,8 +2839,6 @@ subroutine get_ufore_series(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3264,12 +3250,6 @@ subroutine get_wdm_series (ifail)
     DO
        Iline_g = Iline_g + 1
        READ(LU_TSPROC_CONTROL,'(a)',err=1725,end=1735) cline
-       IF (cline == ' ') THEN
-          CYCLE
-       ENDIF
-       IF (cline (1:1) == '#') THEN
-          CYCLE
-       ENDIF
        CALL linesplit (ierr, 2)
        IF (ierr /= 0) THEN
           CALL num2char (Iline_g, aline)

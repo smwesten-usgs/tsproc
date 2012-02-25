@@ -45,8 +45,6 @@ subroutine equation(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -753,7 +751,7 @@ end subroutine equation
          DO 20 J=1,NOPER
            IF(ATERM(ITERM)(1:1).EQ.OPERAT(J)) GO TO 200
 20       CONTINUE
-         AAPAR=ATERM(ITERM)
+         AAPAR=uppercase(trim(ATERM(ITERM)))
          NB=len_trim(AAPAR)
          IF(INDEX(AAPAR(1:NB),' ').NE.0)THEN
            if(itype.eq.0)then

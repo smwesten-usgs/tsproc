@@ -143,8 +143,6 @@ subroutine pest_files(ifail,lastblock)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -922,7 +920,7 @@ subroutine pest_files(ifail,lastblock)
              go to 9800
            end if
            do j=1,noterm
-             if(.not. str_compare(gtable_g(io)%sDescription(j),gtable_g(im)%sDescription(j)) )then
+             if(uppercase(trim(gtable_g(io)%sDescription(j))) /= uppercase(trim(gtable_g(im)%sDescription(j)) ) ) then
                write(amessage,3070) trim(aoname),trim(amname)
 3070           format('OBSERVATION_G_TABLE "',a,'"  has been matched to ', &
                'MODEL G_TABLE "',a,'". However the items in ', &
@@ -2514,8 +2512,6 @@ subroutine write_list_output(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

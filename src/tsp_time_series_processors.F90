@@ -337,8 +337,6 @@ subroutine erase_entity(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -594,8 +592,6 @@ subroutine moving_window(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -903,8 +899,6 @@ subroutine new_series_uniform(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1284,8 +1278,6 @@ subroutine series_difference(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1456,8 +1448,6 @@ subroutine series_base_level(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1745,8 +1735,6 @@ subroutine vol_to_series(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1975,8 +1963,6 @@ subroutine series_clean(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2272,8 +2258,6 @@ subroutine bfilter(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3014,8 +2998,6 @@ subroutine compare_series(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3557,8 +3539,6 @@ subroutine reduce_span(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3776,8 +3756,6 @@ subroutine statistics(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -4425,9 +4403,7 @@ subroutine compute_hydrologic_indices(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
-         if(.not. str_compare(cline,"CURRENT_DEFINITIONS") ) then
+         if(trim(adjustl(uppercase(cline))) /= "CURRENT_DEFINITIONS") then
            call linesplit(ierr,2)
            if (ierr.ne.0 )then
              call num2char(ILine_g,aline)
@@ -4525,7 +4501,7 @@ subroutine compute_hydrologic_indices(ifail)
 
          ! as a help to the user, print out all of the indices calculated
          ! for a given stream classification (screen output only)
-         else if (str_compare(cline,"CURRENT_DEFINITIONS")) then
+         else if (trim(adjustl(uppercase(cline))) == "CURRENT_DEFINITIONS") then
            do iIndex2=0,6
            write(*,fmt="(/,/,'Indices calculated for streams in classification ',a,':',/)") &
               quote(STREAM_CLASSIFICATIONS(iIndex2))
@@ -5242,8 +5218,6 @@ subroutine time_base(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -5447,8 +5421,6 @@ subroutine volume(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -5772,8 +5744,6 @@ subroutine time_duration(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -6149,8 +6119,6 @@ subroutine displace(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
