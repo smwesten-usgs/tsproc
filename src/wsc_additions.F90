@@ -49,8 +49,7 @@ subroutine hydro_events(ifail)
 ! -- The HYDRO_EVENTS block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -395,8 +394,7 @@ subroutine period_stats(ifail)
 ! -- The SERIES_STATISTICS block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1091,8 +1089,7 @@ subroutine usgs_hysep(ifail)
 ! -- The USGS_HYSEP block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1754,8 +1751,7 @@ subroutine hydro_peaks(ifail)
 ! -- The HYDRO_PEAKS block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

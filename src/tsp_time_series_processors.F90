@@ -335,8 +335,7 @@ subroutine erase_entity(ifail)
 10     format(/,' Processing ',a,' block....')
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -590,8 +589,7 @@ subroutine moving_window(ifail)
 ! -- The MOVING_MINIMUM block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -897,8 +895,7 @@ subroutine new_series_uniform(ifail)
 ! -- The NEW_SERIES_UNIFORM block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1276,8 +1273,7 @@ subroutine series_difference(ifail)
 ! -- The CLEAN_SERIES block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1446,8 +1442,7 @@ subroutine series_base_level(ifail)
 ! -- The SERIES_BASE_LEVEL block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1733,8 +1728,7 @@ subroutine vol_to_series(ifail)
 ! -- The V_TABLE_TO_SERIES block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1961,8 +1955,7 @@ subroutine series_clean(ifail)
 ! -- The CLEAN_SERIES block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2256,8 +2249,7 @@ subroutine bfilter(ifail)
 ! -- The DIGITAL_FILTER block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2996,8 +2988,7 @@ subroutine compare_series(ifail)
 ! -- The COMPARE_SERIES block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3537,8 +3528,7 @@ subroutine reduce_span(ifail)
 ! -- The REDUCE_TIME_SPAN block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3754,8 +3744,7 @@ subroutine statistics(ifail)
 ! -- The SERIES_STATISTICS block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -4401,8 +4390,7 @@ subroutine compute_hydrologic_indices(ifail)
 ! -- The HYDROLOGIC_INDICES block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          if(trim(adjustl(uppercase(cline))) /= "CURRENT_DEFINITIONS") then
            call linesplit(ierr,2)
            if (ierr.ne.0 )then
@@ -5216,8 +5204,7 @@ subroutine time_base(ifail)
 ! -- The NEW_TIME_BASE block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -5419,8 +5406,7 @@ subroutine volume(ifail)
 ! -- The VOLUME_CALCULATION block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -5742,8 +5728,7 @@ subroutine time_duration(ifail)
 ! -- The EXCEEDENCE-TIME block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -6117,8 +6102,7 @@ subroutine displace(ifail)
 ! -- The SERIES_DISPLACE block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

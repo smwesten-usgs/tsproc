@@ -57,8 +57,7 @@ contains
 ! -- The GET_MUL_SERIES_GSFLOW_GAGE block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -562,8 +561,7 @@ subroutine get_mul_series_statvar(ifail)
 ! -- The GET_MUL_SERIES_STATVAR block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1039,8 +1037,7 @@ subroutine get_mul_series_tetrad(ifail)
 ! -- The GET_SERIES_TETRAD block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1593,8 +1590,7 @@ subroutine get_mul_series_ssf(ifail)
 ! -- The GET_MUL_SERIES_SSF block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2012,8 +2008,7 @@ subroutine get_plt_series(ifail)
 ! -- The GET_SERIES_PLOTGEN block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2494,8 +2489,7 @@ subroutine get_ssf_series(ifail)
 ! -- The GET_SERIES_SSF block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -2837,8 +2831,7 @@ subroutine get_ufore_series(ifail)
 ! -- The GET_SERIES_UFORE_HYDRO block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -3248,8 +3241,7 @@ subroutine get_wdm_series (ifail)
 ! -- The GET_SERIES_WDM block is first parsed.
 !
     DO
-       Iline_g = Iline_g + 1
-       READ(LU_TSPROC_CONTROL,'(a)',err=1725,end=1735) cline
+       READ(LU_TSPROC_CONTROL,'(a/i20)',err=1725,end=1735)  cline,Iline_g
        CALL linesplit (ierr, 2)
        IF (ierr /= 0) THEN
           CALL num2char (Iline_g, aline)

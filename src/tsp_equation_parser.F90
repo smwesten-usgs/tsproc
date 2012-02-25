@@ -43,8 +43,7 @@ subroutine equation(ifail)
 ! -- The SERIES_EQUATION block is first parsed.
 
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)

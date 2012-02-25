@@ -76,36 +76,17 @@ subroutine openControlfile(sFilename, sRecfile)
 ! in the same directory....  All of this just to open temporary files that will
 ! be deleted.
        tmpunit = nextunit()
-       tmpfnamecounter = 0
-       DO
-          tmpfnamecounter = tmpfnamecounter + 1
-          tmpfname = ".temporary."//TRIM(int2char(tmpfnamecounter))
-          INQUIRE(FILE = tmpfname, EXIST=exists)
-          IF (exists .eqv. .FALSE.) THEN
-             OPEN (UNIT=tmpunit, FILE=tmpfname, STATUS='REPLACE', &
-                FORM='FORMATTED', ACCESS='SEQUENTIAL')
-             EXIT
-          END IF
-       ENDDO
+       OPEN (UNIT=tmpunit, FILE=trim(tmpfilename('tmpunit')), STATUS='REPLACE', &
+          FORM='FORMATTED', ACCESS='SEQUENTIAL')
 
-! -- This is where the unrolled, clean (no comments or blank lines) tsproc
-! control file ends up.
+! -- This is where the unrolled tsproc control file ends up.
        LU_TSPROC_CONTROL=nextunit()
 !       OPEN (UNIT=LU_TSPROC_CONTROL, STATUS='SCRATCH', ACCESS='SEQUENTIAL')
        ! ** 64-bit Windows version of gfortran tries to place the scratch
        ! file into the c:\Windows directory. On most machines this is
        ! locked down tight, and so the program crashes.
-       tmpfnamecounter = 0
-       DO
-          tmpfnamecounter = tmpfnamecounter + 1
-          lucfname = ".tempunrolled."//TRIM(int2char(tmpfnamecounter))
-          INQUIRE(FILE = lucfname, EXIST=exists)
-          IF (exists .eqv. .FALSE.) THEN
-             OPEN (UNIT=LU_TSPROC_CONTROL, FILE=lucfname, STATUS='REPLACE', &
-                FORM='FORMATTED', ACCESS='SEQUENTIAL')
-             EXIT
-          END IF
-       ENDDO
+       OPEN (UNIT=LU_TSPROC_CONTROL, FILE=trim(tmpfilename('tmptsproc')), STATUS='REPLACE', &
+          FORM='FORMATTED', ACCESS='SEQUENTIAL')
 
 !      blocktype = 1 inside a block to NOT unroll, 2 inside a block to unroll
        blocktype = 0
@@ -114,13 +95,9 @@ subroutine openControlfile(sFilename, sRecfile)
           kline = kline + 1
           READ (bpunit, '(A)', END=1200) cline
 
-! -- Get rid of blank lines and comments
-          IF (len_trim(cline) == 0) THEN
-             CYCLE
-          ENDIF
-          IF (cline (1:1) == '#') THEN
-             CYCLE
-          ENDIF
+          if((cline.eq.' ') .or. (cline(1:1).eq.'#')) then
+             cycle
+          end if 
 
           CALL set_tokenizer(token, ' ,', token_empty, token_quotes)
           wordone = first_token(token, cline, tokenlen)
@@ -143,6 +120,7 @@ subroutine openControlfile(sFilename, sRecfile)
 ! -- Handle the blocks that shouldn't be unrolled.
           IF (blocktype == 1) THEN
              WRITE(LU_TSPROC_CONTROL, '(A)') trim(cline)
+             WRITE(LU_TSPROC_CONTROL, '(I20)') kline
           ENDIF
 
 ! -- Blocks that can be unrolled.
@@ -193,17 +171,18 @@ subroutine openControlfile(sFilename, sRecfile)
                       IF (wordinnerone == 'START') THEN
                          WRITE(LU_TSPROC_CONTROL, '(A)') trim(wordinnerone) // ' ' // trim(wordinner)
                       ELSEIF (wordinnerone == 'END') THEN
-                         WRITE(LU_TSPROC_CONTROL, '(A,/)') trim(wordinnerone) // ' ' // trim(wordinner)
+                         WRITE(LU_TSPROC_CONTROL, '(A)') trim(wordinnerone) // ' ' // trim(wordinner)
                       ELSE
                          WRITE(LU_TSPROC_CONTROL, '(A)') '  ' // trim(wordinnerone) // ' ' // trim(wordinner)
                       ENDIF
+                      WRITE(LU_TSPROC_CONTROL, '(I20)') kline
                    ENDDO
  1205              CONTINUE
                 ENDDO
 ! -- Have to close and reopen tmpunit to be ready for next block.
                 CLOSE(tmpunit, STATUS='DELETE')
-                open (unit=tmpunit, file=tmpfname ,status='REPLACE', &
-                   form='FORMATTED', access='SEQUENTIAL')
+                OPEN (UNIT=tmpunit, FILE=trim(tmpfilename('tmpunit')), &
+                   STATUS='REPLACE', FORM='FORMATTED', ACCESS='SEQUENTIAL')
                 maxtokencnt = 0
              ENDIF
           ENDIF

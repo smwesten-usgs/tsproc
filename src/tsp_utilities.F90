@@ -1191,6 +1191,79 @@ end subroutine r2a
    RETURN
 end function numdays
 
+
+function tmpfilename(basename)
+   character (len=*) basename
+   character (len=100) tmpfilename
+   integer :: tmpfnamecounter
+   logical :: exists
+
+       tmpfnamecounter = 0
+       DO
+          tmpfnamecounter = tmpfnamecounter + 1
+          tmpfilename = TRIM(basename)//TRIM(int2char(tmpfnamecounter))
+          INQUIRE(FILE = tmpfilename, EXIST=exists)
+          IF (exists .eqv. .FALSE.) THEN
+             RETURN
+          END IF
+       ENDDO
+end function tmpfilename
+
+
+integer function newnumdays(DR,MR,YR,D,M,Y)
+   integer, intent(in)     :: dr,mr,yr,d,m,y
+
+   INTEGER FLAG,I,J,DA(12),YE,ME,DE,YL,ML,DL,numdays,DALY(12)
+
+   DATA DA   /1, 32,60,91,121,152,182,213,244,274,305,335/
+   DATA DALY /1, 32,61,92,122,153,183,214,245,275,306,336/
+   IF(Y.LT.YR)GO TO 10
+   IF((Y.EQ.YR).AND.(M.LT.MR)) GO TO 10
+   IF((Y.EQ.YR).AND.(M.EQ.MR).AND.(D.LT.DR)) GO TO 10
+   FLAG=0
+   YE=YR
+   ME=MR
+   DE=DR
+   YL=Y
+   ML=M
+   DL=D
+   GO TO 20
+10      FLAG=1
+   YE=Y
+   ME=M
+   DE=D
+   YL=YR
+   ML=MR
+   DL=DR
+
+20 numdays = 0
+   if ((YL - YE) >= 2) then
+      do J = YE + 1, YL -1
+         IF(leap(J)) then
+             numdays = numdays + 366
+         ELSE
+             numdays = numdays + 365
+         end if 
+      enddo
+   end if
+
+   if (leap(YE)) then
+      numdays = numdays + 366 - (DA(ME) + DE)
+   else
+      numdays = numdays + 365 - (DALY(ME) + DE)
+   end if
+
+   if (leap(YL)) then
+      numdays = numdays + (DA(ML) + DL)
+   else
+      numdays = numdays + (DALY(ML) + DL)
+   end if
+
+   if (flag == 1) numdays = -numdays
+   newnumdays = numdays
+
+end function newnumdays
+
 integer function numsecs(h1,m1,s1,h2,m2,s2)
 
 ! -- Subroutine NUMSECS calculates the number of seconds between two times.

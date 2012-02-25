@@ -1856,10 +1856,7 @@ subroutine find_end(ifail)
 
        ifail=0
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100) cline, Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
@@ -1909,10 +1906,7 @@ subroutine get_next_block(ifail)
        ifail=0
        call addquote(sInfile_g,sString_g)
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=500) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=500)  cline,Iline_g
          cline=adjustl(cline)
 
          call linesplit(ierr,2)
@@ -2121,10 +2115,7 @@ subroutine Process_Settings(ifail)
 
        datestr=' '
        do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
+         read(LU_TSPROC_CONTROL,'(a/i20)',err=9000,end=9100)  cline,Iline_g
          call linesplit(ierr,2)
          if(ierr.ne.0)then
            call num2char(ILine_g,aline)
