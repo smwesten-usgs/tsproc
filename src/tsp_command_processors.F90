@@ -854,6 +854,8 @@ subroutine numterms(iterm,ibterm,ieterm,begdays,begsecs,enddays,endsecs,iseries)
 ! -- Subroutine NUMTERMS counts the number of terms in a series between two dates
 !    and times. {Also: returns ibterm and ieterm}
 
+! ibterm = number of terms before the begin date
+! ieterm = the _index_ of the end date within series_g(iseries)%days
 !
 ! begdays, begsecs serve as means to subset the data
 ! enddays, endsecs serve as means to subset the data
@@ -876,25 +878,19 @@ subroutine numterms(iterm,ibterm,ieterm,begdays,begsecs,enddays,endsecs,iseries)
        ieterm=0
        iterm=0
        jterm=series_g(iseries)%nterm
-       do i=1,jterm
-         if((begdays .gt. series_g(iseries)%days(i)) .or.          &
-           ((begdays .eq. series_g(iseries)%days(i)) .and.         &
-            (begsecs .gt. series_g(iseries)%secs(i)))) cycle
-            if(ibterm.eq.0)ibterm=i
-         if((enddays .lt. series_g(iseries)%days(i)) .or.           &
-           ((enddays .eq. series_g(iseries)%days(i)) .and.          &
-            (endsecs .lt. series_g(iseries)%secs(i)))) go to 300
-         iterm=iterm+1
-       end do
-       ieterm=jterm
-       go to 310
-300    ieterm=i-1
-310    continue
+
+       ibterm = count((series_g(iseries)%days .lt. begdays).or. &
+                     ((series_g(iseries)%days .eq. begdays).and. &
+                      (series_g(iseries)%secs .lt. begsecs))) + 1
+       ieterm = count((series_g(iseries)%days .gt. enddays).or. &
+                     ((series_g(iseries)%days .eq. enddays).and. &
+                      (series_g(iseries)%secs .gt. endsecs)))
+       iterm = jterm - ibterm - ieterm + 1
+       ieterm = jterm - ieterm
 
        return
 
 end subroutine numterms
-
 
 
 subroutine time_interp_s(ifail,nbore,ndays,nsecs,value,intday,intsec, &
