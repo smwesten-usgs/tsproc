@@ -461,42 +461,41 @@ subroutine linesplit(ifail,num)
 !                returned as  1 if less than num segments
 !       num:     number of words to be extracted
 
-!    Revision history:-
-!       June-November, 1995: version 1.
-
-
-
    integer, intent(out)            :: ifail
    integer, intent(in)             :: num
-   integer                         :: nblc,j,i,nw
+   integer                         :: nblc,j,nw
    character (len=3)               :: aspace
-
+   integer                         :: posnxtspace
+   integer                         :: strttoken
    ifail=0; nw=0; j=0
    aspace=' ,'//achar(9)
    if(num.gt.NUM_WORD_DIM) call sub_error('LINESPLIT')
-   nblc=len_trim(cline)
-   if(nblc.eq.0) then
-     ifail=-1
-     return
-   end if
 
-5       if(nw.eq.num) return
-   do i=j+1,nblc
-     if(index(aspace,cline(i:i)).eq.0) go to 20
-   end do
-   ifail=1
-   return
-20      nw=nw+1
-   left_word(nw)=i
-   do i=left_word(nw)+1,nblc
-     if(index(aspace,cline(i:i)).ne.0) go to 40
-   end do
-   right_word(nw)=nblc
-   if(nw.lt.num) ifail=1
-   return
-40      right_word(nw)=i-1
-   j=right_word(nw)
-   go to 5
+   nw = 1
+   strttoken = 1
+   nblc = len_trim(cline)
+OUTER:DO 
+         DO
+            posnxtspace = scan(cline(strttoken:nblc), aspace)
+            if (posnxtspace > 1) then   ! a middle token
+                left_word(nw) = strttoken
+                right_word(nw) = strttoken + posnxtspace - 2
+                strttoken = right_word(nw) + 1
+                nw = nw + 1
+                cycle
+            end if
+            if (posnxtspace == 0) then  ! the last token
+                left_word(nw) = strttoken
+                right_word(nw) = nblc
+                exit OUTER
+            end if
+            if (posnxtspace == 1) then  ! a string of spaces
+                strttoken = strttoken + 1
+                cycle
+            end if
+         END DO
+       END DO OUTER
+       if(nw.lt.num) ifail=1
 
 end subroutine linesplit
 
@@ -1112,85 +1111,6 @@ end subroutine r2a
    RETURN
    END SUBROUTINE WRTSIG
 
-   integer function numdays(DR,MR,YR,D,M,Y)
-
-! -- Function numdays calculates the number of days between dates
-!    D-M-Y and DR-MR-YR. If the former preceeds the latter the answer is
-!    negative.
-
-! -- Arguments are as follows:-
-!       dr,mr,yr:     days, months and years of first date
-!       d,m,y:        days, months and years of second date
-!       numdays returns the number of elapsed days
-
-! -- Revision history:-
-!       22 July 1994:  version 1
-!       13 September 1995:  modified for Groundwater Data Utilities
-
-
-   integer, intent(in)     :: dr,mr,yr,d,m,y
-
-   INTEGER FLAG,I,J,DA(12),YE,ME,DE,YL,ML,DL
-
-   DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
-
-! --    THE SMALLER OF THE TWO DATES IS NOW CHOSEN TO DO THE COUNTING FROM.
-
-   IF(Y.LT.YR)GO TO 10
-   IF((Y.EQ.YR).AND.(M.LT.MR)) GO TO 10
-   IF((Y.EQ.YR).AND.(M.EQ.MR).AND.(D.LT.DR)) GO TO 10
-   FLAG=0
-   YE=YR
-   ME=MR
-   DE=DR
-   YL=Y
-   ML=M
-   DL=D
-   GO TO 20
-10      FLAG=1
-   YE=Y
-   ME=M
-   DE=D
-   YL=YR
-   ML=MR
-   DL=DR
-
-! --    IN THE ABOVE THE POSTSCRIPT "E" STANDS FOR EARLIER DATE, WHILE
-!       "L" STANDS FOR THE LATER DATE.
-
-20      numdays=0
-   IF((ME.EQ.ML).AND.(YL.EQ.YE))THEN
-   numdays=DL-DE
-   IF(FLAG.EQ.1) numdays=-numdays
-   RETURN
-   END IF
-
-   DO 30 J=ME,12
-   IF((ML.EQ.J).AND.(YE.EQ.YL))GOTO 40
-   numdays=numdays+DA(J)
-   IF((J.EQ.2).AND.(leap(ye)))numdays=numdays+1
-30      CONTINUE
-   GO TO 50
-40      numdays=numdays+DL-DE
-   IF(FLAG.EQ.1)numdays=-numdays
-   RETURN
-
-50      DO 60 I=YE+1,YL
-   DO 70 J=1,12
-   IF((YL.EQ.I).AND.(ML.EQ.J))GO TO 80
-   numdays=numdays+DA(J)
-   IF((J.EQ.2).AND.(leap(i))) numdays=numdays+1
-70      CONTINUE
-60      CONTINUE
-   call sub_error('NUMDAYS')
-   RETURN
-
-80      numdays=numdays+DL-DE
-   IF(FLAG.EQ.1) numdays=-numdays
-
-   RETURN
-end function numdays
-
 
 function tmpfilename(basename)
    character (len=*) basename
@@ -1210,10 +1130,11 @@ function tmpfilename(basename)
 end function tmpfilename
 
 
-integer function newnumdays(DR,MR,YR,D,M,Y)
+integer function numdays(DR,MR,YR,D,M,Y)
    integer, intent(in)     :: dr,mr,yr,d,m,y
 
-   INTEGER FLAG,I,J,DA(12),YE,ME,DE,YL,ML,DL,numdays,DALY(12)
+   INTEGER FLAG,J,YE,ME,DE,YL,ML,DL
+   INTEGER DA(12), DALY(12)
 
    DATA DA   /1, 32,60,91,121,152,182,213,244,274,305,335/
    DATA DALY /1, 32,61,92,122,153,183,214,245,275,306,336/
@@ -1237,6 +1158,16 @@ integer function newnumdays(DR,MR,YR,D,M,Y)
    DL=DR
 
 20 numdays = 0
+
+   if (YL == YE) then
+       if (leap(YE)) then
+           numdays = (DALY(ML) + DL) - (DALY(ME) + DE)
+       else
+           numdays = (DA(ML) + DL) - (DA(ME) + DE)
+       end if
+       goto 30       
+   end if
+
    if ((YL - YE) >= 2) then
       do J = YE + 1, YL -1
          IF(leap(J)) then
@@ -1248,21 +1179,21 @@ integer function newnumdays(DR,MR,YR,D,M,Y)
    end if
 
    if (leap(YE)) then
-      numdays = numdays + 366 - (DA(ME) + DE)
+      numdays = numdays + 366 - (DALY(ME) + DE)
    else
-      numdays = numdays + 365 - (DALY(ME) + DE)
+      numdays = numdays + 365 - (DA(ME) + DE)
    end if
 
    if (leap(YL)) then
-      numdays = numdays + (DA(ML) + DL)
-   else
       numdays = numdays + (DALY(ML) + DL)
+   else
+      numdays = numdays + (DA(ML) + DL)
    end if
 
-   if (flag == 1) numdays = -numdays
-   newnumdays = numdays
+30 if (flag == 1) numdays = -numdays
 
-end function newnumdays
+end function numdays
+
 
 integer function numsecs(h1,m1,s1,h2,m2,s2)
 
