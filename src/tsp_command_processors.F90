@@ -48,71 +48,8 @@ subroutine get_new_series_name(ifail,aname)
        write(*,74) trim(aname)
        write(LU_REC,74) trim(aname)
 74     format(t5,'NEW_SERIES_NAME ',a)
-       do i=1,MAXSERIES
-         if(series_g(i)%active)then
-            if(series_g(i)%name == aname) then
-              call num2char(ILine_g,aline)
-              call addquote(sInfile_g,sString_g)
-              write(amessage,68) trim(aname),trim(aline),trim(sString_g)
-68            format('the name "',a,'" at line ',a,' of file ',a,' is already used by ', &
-              'another active series.')
-              go to 9800
-            end if
-         end if
-       end do
 
-         do i=1,MAXSTABLE
-           if(stable_g(i)%active)then
-             if(stable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,61) trim(aname),trim(aline),trim(sString_g)
-61             format('the name "',a,'" at line ',a,' of file ',a,' is already used by ', &
-               'an active s_table.')
-               go to 9800
-             end if
-           end if
-         end do
-
-         do i=1,MAXGTABLE
-           if(gtable_g(i)%active)then
-             if(gtable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,79) trim(aname),trim(aline),trim(sString_g)
-79             format('the name "',a,'" at line ',a,' of file ',a,' is already used by ', &
-               'an active g_table.')
-               go to 9800
-             end if
-           end if
-         end do
-
-         do i=1,MAXVTABLE
-           if(vtable_g(i)%active)then
-             if(vtable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,69) trim(aname),trim(aline),trim(sString_g)
-69             format('the name "',a,'" at line ',a,' of file ',a,' is already used by ', &
-               'an active v_table.')
-               go to 9800
-             end if
-           end if
-         end do
-
-         do i=1,MAXDTABLE
-           if(dtable_g(i)%active)then
-             if(dtable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,66) trim(aname),trim(aline),trim(sString_g)
-66             format('the name "',a,'" at line ',a,' of file ',a,' is already used by ', &
-               'an active e_table.')
-               go to 9800
-             end if
-           end if
-         end do
-
+       call test_name_existence(aname, ifail)
 
        return
 
@@ -1244,84 +1181,7 @@ subroutine get_new_table_name(ifail,itype,aname)
 
        end if
 
-!       if(itype.eq.1)then
-         do i=1,MAXSTABLE
-           if(stable_g(i)%active)then
-             if(stable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,68) trim(aname),trim(aline),trim(sString_g)
-68             format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
-               'by an active s_table.')
-               go to 9800
-             end if
-           end if
-         end do
-!       else if(itype.eq.2)then
-         do i=1,MAXVTABLE
-           if(vtable_g(i)%active)then
-             if(vtable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,69) trim(aname),trim(aline),trim(sString_g)
-69             format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
-               'by an active v_table.')
-               go to 9800
-             end if
-           end if
-         end do
-!       else if(itype.eq.3)then
-         do i=1,MAXDTABLE
-           if(dtable_g(i)%active)then
-             if(dtable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,66) trim(aname),trim(aline),trim(sString_g)
-66             format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
-               'by an active e_table.')
-               go to 9800
-             end if
-           end if
-         end do
-!       else if(itype.eq.4)then
-         do i=1,MAXCTABLE
-           if(ctable_g(i)%active)then
-             if(ctable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,67) trim(aname),trim(aline),trim(sString_g)
-67             format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
-               'by an active c_table.')
-               go to 9800
-             end if
-           end if
-         end do
-!       else if(itype.eq.5)then
-         do i=1,MAXGTABLE
-           if(gtable_g(i)%active)then
-             if(gtable_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,97) trim(aname),trim(aline),trim(sString_g)
-97             format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
-               'by an active g_table.')
-               go to 9800
-             end if
-           end if
-         end do
-
-         do i=1,MAXSERIES
-           if(series_g(i)%active)then
-             if(series_g(i)%name == aname) then
-               call num2char(ILine_g,aline)
-               call addquote(sInfile_g,sString_g)
-               write(amessage,63) trim(aname),trim(aline),trim(sString_g)
-63             format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
-               'by an active series.')
-               go to 9800
-             end if
-           end if
-         end do
+       call test_name_existence(aname, ifail)
 
        return
 
@@ -1329,6 +1189,77 @@ subroutine get_new_table_name(ifail,itype,aname)
        return
 
 end subroutine get_new_table_name
+
+
+subroutine test_name_existence(aname, ifail)
+       use tsp_data_structures
+       use tsp_utilities
+       integer, intent(out)            :: ifail
+       character*(*), intent(in)      :: aname
+       character*20 aline,atemp
+
+       ifail = 0
+
+       if (any(stable_g(:)%active .and. (stable_g(:)%name == aname))) then
+         call num2char(ILine_g,aline)
+         call addquote(sInfile_g,sString_g)
+         write(amessage,68) trim(aname),trim(aline),trim(sString_g)
+68       format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
+         'by an active s_table.')
+         go to 9800
+       end if
+
+       if (any(vtable_g(:)%active .and. (vtable_g(:)%name == aname))) then
+         call num2char(ILine_g,aline)
+         call addquote(sInfile_g,sString_g)
+         write(amessage,69) trim(aname),trim(aline),trim(sString_g)
+69       format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
+         'by an active v_table.')
+         go to 9800
+       end if
+
+       if (any(dtable_g(:)%active .and. (dtable_g(:)%name == aname))) then
+         call num2char(ILine_g,aline)
+         call addquote(sInfile_g,sString_g)
+         write(amessage,66) trim(aname),trim(aline),trim(sString_g)
+66       format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
+         'by an active e_table.')
+         go to 9800
+       end if
+
+       if (any(ctable_g(:)%active .and. (ctable_g(:)%name == aname))) then
+         call num2char(ILine_g,aline)
+         call addquote(sInfile_g,sString_g)
+         write(amessage,67) trim(aname),trim(aline),trim(sString_g)
+67       format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
+         'by an active c_table.')
+         go to 9800
+       end if
+
+       if (any(gtable_g(:)%active .and. (gtable_g(:)%name == aname))) then
+         call num2char(ILine_g,aline)
+         call addquote(sInfile_g,sString_g)
+         write(amessage,97) trim(aname),trim(aline),trim(sString_g)
+97       format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
+         'by an active g_table.')
+         go to 9800
+       end if
+
+       if (any(series_g(:)%active .and. (series_g(:)%name == aname))) then
+         call num2char(ILine_g,aline)
+         call addquote(sInfile_g,sString_g)
+         write(amessage,63) trim(aname),trim(aline),trim(sString_g)
+63       format('the name "',a,'" at line ',a,' of file ',a,' is already used ', &
+         'by an active series.')
+         go to 9800
+       end if
+
+       return
+
+9800   ifail=1
+       return
+
+end subroutine test_name_existence
 
 
 
