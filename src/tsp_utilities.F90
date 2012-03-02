@@ -2230,7 +2230,7 @@ function day_of_week(yr, mn, dy)
 
   m = mod((m + 9), 12) + 1
 
-  w = int(mod((d + (2.6*m - 0.2) + y + y/4 + c/4 -2*c), 7.0))
+  w = int(modulo((d + (2.6*m - 0.2) + y + y/4 + c/4 -2*c), 7.0))
   day_of_week = day_names(w)
 end function day_of_week
 
