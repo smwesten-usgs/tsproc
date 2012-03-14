@@ -1,4 +1,4 @@
-# CMake project for swb
+# CMake project for tsproc
 
 # based in part on an example found at:
 # http://lagrange.mechse.illinois.edu/mwest/partmc/partmc-1.2.0/CMakeLists.txt
