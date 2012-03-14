@@ -5,7 +5,7 @@ if(TARGET__TSPROC_EXECUTABLE)
 
             tokenize.F90
 
-            compute_hi.C
+            compute_hi.c
             tsp_command_processors.F90
             tsp_data_structures.F90
             tsp_equation_parser.F90
@@ -40,9 +40,6 @@ if(TARGET__TSPROC_EXECUTABLE)
            RUNTIME
            DESTINATION bin
            )
-   if (${CMAKE_HOST_UNIX})
-       target_link_libraries(tsproc stdc++)
-   endif()
 endif()
 
 if(TARGET__TSPROC_LIBRARY)
@@ -50,7 +47,7 @@ if(TARGET__TSPROC_LIBRARY)
   add_library(tsproclib STATIC
             tokenize.F90
 
-            compute_hi.C
+            compute_hi.c
             tsp_command_processors.F90
             tsp_data_structures.F90
             tsp_equation_parser.F90
@@ -89,12 +86,13 @@ endif()
 
 
 add_executable(test_hi
+    compute_hi.c
     tsp_data_structures.F90
+    tsp_time_series_processors.F90
+    tsp_utilities.F90
+    tsp_command_processors.F90
     test_compute_hi.F90
-    compute_hi.C
     )
-
-#target_link_libraries(test_hi stdc++)
 
 add_test(test_compute_hi test_hi)
 set_tests_properties(test_compute_hi

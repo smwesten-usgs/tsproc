@@ -12,13 +12,15 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <stdbool.h>
+
 //extern bool usemedian;		// Flag indicating median is to be used in computing MA3,MA12-MA35,ML1-ML12,ML14,
 							//  ML14,ML15,ML17,ML19,ML22,MH1-MH12,MH20,FL1,FL3,FH1,FH3-FH11,DL1-DL5,DL18,
 							//  DH17-DH24,RA1,RA3,RA8
 
 //using namespace std;
 //#ifdef __cplusplus
-  extern "C" {
+//  extern "C" {
 //#endif
 
 void stats (int, float*, float*, float*, float*);
@@ -42,10 +44,10 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		float TH[4],float LTH[4],float UTH[4],
 		float RA[10], float LRA[10], float URA[10])
 {
-	float *data;
-	float *mdata;
-	float *baseflow;
-	float *tempdata;
+	//float *data;
+	//float *mdata;
+	//float *baseflow;
+	//float *tempdata;
 //	CStdioFile ifile, ofile;
 //	CString line;
 	bool isData;
@@ -157,9 +159,27 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	int nval;		// Max number of values
 
 	nval = nyrs * 366;
-	data = new float[nval];
-	mdata = new float[nval];
-	baseflow = new float[nval];
+	//data = new float[nval];
+    float *data = (float *) malloc(nval * sizeof (float));
+    if (data == NULL) 
+    {
+        printf("Could not allocate memory");
+        exit(EXIT_FAILURE);
+    }
+	//mdata = new float[nval];
+    float *mdata = (float *) malloc(nval * sizeof (float));
+    if (mdata == NULL)
+    {
+        printf("Could not allocate memory");
+        exit(EXIT_FAILURE);
+    }
+	//baseflow = new float[nval];
+    float *baseflow = (float *) malloc(nval * sizeof (float));
+    if (baseflow == NULL) 
+    {
+        printf("Could not allocate memory");
+        exit(EXIT_FAILURE);
+    }
 
 // Remove missing data
 
@@ -889,7 +909,13 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	nmv = 0;
 	maxqm = -10000000.;
 	minqm = 10000000.;
-	tempdata = new float[numvalidmonths];  // create a new array for VALID months ONLY!
+	//tempdata = new float[numvalidmonths];  // create a new array for VALID months ONLY!
+    float *tempdata = (float *) malloc(numvalidmonths * sizeof (float));
+    if (tempdata == NULL) 
+    {
+        printf("Could not allocate memory");
+        exit(EXIT_FAILURE);
+    }
 
 // Transfer the monthly means to a single array and compute the max and min for the entire data set
 
@@ -4841,9 +4867,9 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	RA[9] = 0.;
 	if(qmean != 0.) RA[9] = 100.*qstdv / qmean;
 
-	delete data;
-	delete mdata;
-	delete baseflow;
+	free(data);
+	free(mdata);
+	free(baseflow);
 }
 
 // Compute basic statistics
@@ -4971,5 +4997,5 @@ void order(int flag, float *ydata, int nval)
 }
 
 //#ifdef __cplusplus
-}
+//}
 //#endif
