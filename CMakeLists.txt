@@ -30,7 +30,7 @@ set(PACKAGE_STRING "tsproc 2.0")
 set(PACKAGE_TARNAME "tsproc")
 set(PACKAGE_VERSION "2.0")
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 option (MAKEFILE_VERBOSE
       "Produce verbose makefiles?" OFF)
@@ -40,6 +40,12 @@ option (TARGET__TSPROC_EXECUTABLE
 
 option (TARGET__TSPROC_LIBRARY
       "Compile TSPROC as a library?" ON)
+
+option (OPTION__UNROLL_CONTROL_FILE
+      "Compile the code with support for control file unrolling?" OFF)
+if(OPTION__UNROLL_CONTROL_FILE)
+  set ( PREPROCESSOR_DEFINES ${PREPROCESSOR_DEFINES} "UNROLL_CONTROL_FILE")
+endif()
 
 #------------------------------------------------------------------------
 # Restrict CMAKE_BUILD_TYPE to "Release" or "Debug" (GUI); set build type
@@ -96,7 +102,7 @@ if(CMAKE_HOST_WIN32)
       message("  GCC_LIB = " ${GCC_LIB})
       message("  GFORTRAN_LIB = " ${GFORTRAN_LIB})
 
-      set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
+      set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -mtune=native -ffree-line-length-none -static-libgcc -static-libgfortran")
 
       set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none")
 

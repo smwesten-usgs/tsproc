@@ -2405,6 +2405,7 @@ END DO
 END SUBROUTINE interchange_sort
 
 END SUBROUTINE quick_sort
+
 !-------------------------------------------------------------------------------------------
 
 function median(rData)   result(rMedian)
@@ -2532,8 +2533,6 @@ function mean(rData)   result(rMean)
 
   rMean = SUM(rData) / real(size(rData),kind=T_SGL)
 
-  return
-
 end function mean
 
 function variance(rData)   result(rVariance)
@@ -2551,8 +2550,6 @@ function variance(rData)   result(rVariance)
 
   rVariance = rSum / real(size(rData)-1,kind=T_SGL)
 
-  return
-
 end function variance
 
 function stddev(rData)   result(rStdDev)
@@ -2565,8 +2562,6 @@ function stddev(rData)   result(rStdDev)
 
   rVariance = variance(rData)
   rStdDev = sqrt(rVariance)
-
-  return
 
 end function stddev
 
