@@ -1393,7 +1393,7 @@ subroutine get_time_units(ifail,itunit,itype)
        else if(itype.eq.2)then
          write(*,121) trim(aunit)
          write(LU_REC,120) trim(aunit)
-121      format(t5,'EXCEEDENCE_TIME_UNITS ',a)
+121      format(t5,'EXCEEDANCE_TIME_UNITS ',a)
        end if
        return
 
@@ -1991,8 +1991,14 @@ subroutine get_next_block(ifail)
          else if(sCurrentBlockName.eq.'VOLUME_CALCULATION')then
            iBlockNumber = iVOLUME_CALCULATION
 
-         else if(sCurrentBlockName.eq.'EXCEEDENCE_TIME')then
+         else if(sCurrentBlockName.eq.'EXCEEDENCE_TIME') then
            iBlockNumber = iEXCEEDANCE_TIME
+
+         else if(sCurrentBlockName.eq.'EXCEEDANCE_TIME') then
+           iBlockNumber = iEXCEEDANCE_TIME
+
+         else if(sCurrentBlockName.eq.'FLOW_DURATION')then
+           iBlockNumber = iFLOW_DURATION
 
          else if(sCurrentBlockName.eq.'SERIES_EQUATION')then
            iBlockNumber = iSERIES_EQUATION

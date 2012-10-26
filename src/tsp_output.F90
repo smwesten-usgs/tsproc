@@ -141,7 +141,7 @@ subroutine pest_files(ifail,lastblock)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
@@ -363,6 +363,8 @@ subroutine pest_files(ifail,lastblock)
 804          format('a maximum of ',a,' g_tables can be cited in a ',a,' block.')
              go to 9800
            end if
+           ! after call below, obsgtable(iotable) should contain the
+           ! index of the gtable with the user supplied name
            call get_table_name(ierr,obsgtable(iogtable),15)
            if(ierr.ne.0) go to 9800
 
@@ -852,7 +854,7 @@ subroutine pest_files(ifail,lastblock)
            im=moddtable(i)
            aoname=dtable_g(io)%name
            amname=dtable_g(im)%name
-           if(io.eq.im) go to 1079
+           if(io.eq.im) go to 1066  ! was 1079 previously SMW
            noterm=dtable_g(io)%nterm
            nmterm=dtable_g(im)%nterm
            if(noterm.ne.nmterm)then
@@ -869,7 +871,9 @@ subroutine pest_files(ifail,lastblock)
              'have different UNDER_OVER specifications.')
              go to 9800
            end if
-           do j=1,noterm
+           ! check that the sequence and content of each item in the table
+           ! is identical between observation and model table
+1066       do j=1,noterm
              rotemp=dtable_g(io)%flow(j)
              rmtemp=dtable_g(im)%flow(j)
              rprecis=5*spacing(rmtemp)
@@ -898,18 +902,22 @@ subroutine pest_files(ifail,lastblock)
              if(im.eq.iOutDtable_g(j)) go to 1078
            end do
            write(amessage,1037) 'D',trim(amname),trim(CurrentBlock_g)
+!1037       format('MODEL_',a,'_TABLE "',a,'" is not listed in the ', &
+!           'LIST_OUTPUT block immediately preceding the ',a,' block.')
            go to 9800
 1078       continue
          end do
        end if
 
+       ! check for a one-to-one correspondence in the items contained
+       ! within each G_TABLE
        if(iogtable.ne.0)then
          do i=1,iogtable
            io=obsgtable(i)
            im=modgtable(i)
            aoname=gtable_g(io)%name
            amname=gtable_g(im)%name
-           if(io.eq.im) go to 3079
+           if(io.eq.im) go to 3066  ! was 3079
            noterm = ubound(gtable_g(io)%sDescription, 1)
            nmterm = ubound(gtable_g(im)%sDescription, 1)
            if(noterm.ne.nmterm)then
@@ -919,7 +927,7 @@ subroutine pest_files(ifail,lastblock)
              'have different numbers of entries.')
              go to 9800
            end if
-           do j=1,noterm
+3066       do j=1,noterm
              if(.not. str_compare(gtable_g(io)%sDescription(j),gtable_g(im)%sDescription(j)) )then
                write(amessage,3070) trim(aoname),trim(amname)
 3070           format('OBSERVATION_G_TABLE "',a,'"  has been matched to ', &
@@ -933,6 +941,8 @@ subroutine pest_files(ifail,lastblock)
              if(im.eq.iOutGtable_g(j)) go to 3078
            end do
            write(amessage,1037) 'G',trim(amname),trim(CurrentBlock_g)
+!1037       format('MODEL_',a,'_TABLE "',a,'" is not listed in the ', &
+!           'LIST_OUTPUT block immediately preceding the ',a,' block.')
            go to 9800
 3078       continue
          end do
@@ -960,7 +970,7 @@ subroutine pest_files(ifail,lastblock)
        do
          jline=jline+1
          read(iunit,'(a)',err=9400,end=320) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          f_numpargp=f_numpargp+1
        end do
@@ -984,7 +994,7 @@ subroutine pest_files(ifail,lastblock)
 325    jline=jline+1
        call num2char(jline,aline)
        READ(iunit,'(A)',ERR=9400,END=480) cline
-       if(cline.eq.' ') go to 325
+       if( len_trim(cline) == 0 ) go to 325
        if(cline(1:1).eq.'#') go to 325
        call casetrans(cline,'lo')
        call linesplit(ierr,7)
@@ -1107,7 +1117,7 @@ subroutine pest_files(ifail,lastblock)
        do
          jline=jline+1
          read(iunit,'(a)',err=9400,end=550) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          f_numpar=f_numpar+1
        end do
@@ -1130,7 +1140,7 @@ subroutine pest_files(ifail,lastblock)
 560    jline=jline+1
        call num2char(jline,aline)
        read(iunit,'(A)',ERR=9400,END=620) cline
-       if(cline.eq.' ') go to 560
+       if(len_trim(cline) == 0) go to 560
        if(cline(1:1).eq.'#') go to 560
        call casetrans(cline,'lo')
        call linesplit(ierr,9)
@@ -1607,7 +1617,7 @@ subroutine pest_files(ifail,lastblock)
          nsterm=dtable_g(io)%nterm
          aname=dtable_g(im)%name
          nobsgp=nobsgp+1
-         obgnme(nobsgp)=aname
+         obgnme(nobsgp)=aname                                  !!!*** is this correct??
          call make_basename(ierr,iout,nsterm,aname,basename)
          if(ierr.ne.0) go to 9800
          atemp=basename(iout)
@@ -1640,13 +1650,13 @@ subroutine pest_files(ifail,lastblock)
          nsterm=ubound(gtable_g(io)%sDescription, 1)
          aname=gtable_g(im)%name
          nobsgp=nobsgp+1
-         obgnme(nobsgp)=aname
+         obgnme(nobsgp)=aname                                  !!!*** is this correct??
          call make_basename(ierr,iout,nsterm,aname,basename)
          if(ierr.ne.0) go to 9800
          atemp=basename(iout)
          do iterm=1,nsterm
            call num2char(iterm,anum)
-           aname='['//trim(atemp)//trim(anum)//']75:89'
+           aname='['//trim(atemp)//trim(anum)//']82:96'
            if(iterm.eq.1)then
              write(iunit,1230) trim(aname)
            else
@@ -2512,7 +2522,7 @@ subroutine write_list_output(ifail)
        do
          ILine_g=ILine_g+1
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if(cline.eq.' ') cycle
+         if( len_trim(cline) == 0 ) cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
          if(ierr.ne.0)then
@@ -2983,10 +2993,10 @@ subroutine write_list_output(ifail)
          jgtable=iOutGtable_g(i)
          write(LU_OUT,2910) trim(gtable_g(jgtable)%name)
 2910     format(/,' G_TABLE "',a,'" ---->')
-         write(LU_OUT,2915)
-2915     format(t4,'Hydrologic Index and description (Olden and Poff, 2003)',t85,'Value')
+         write(LU_OUT,2915) gtable_g(jgtable)%g_table_header
+2915     format(t4,a75,t90,'Value')
          do j=1,ubound(gtable_g(jgtable)%sDescription, 1 )
-           write(LU_OUT,fmt="(t4,a,t78,f12.3)") gtable_g(jgtable)%sDescription(j), &
+           write(LU_OUT,fmt="(t4,a,t82,f14.4)") gtable_g(jgtable)%sDescription(j), &
               gtable_g(jgtable)%rValue(j)
          end do
        end do

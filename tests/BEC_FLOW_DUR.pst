@@ -1,0 +1,38 @@
+pcf
+* control data
+restart estimation
+      6      8      4      0      1
+     1     1   single   point   1   0   0
+5.0   2.0    0.3    0.03    10  999
+5.0   5.0   1.0e-3
+0.1   aui
+30   .005  4   4  .005   4
+1    1    1
+* parameter groups
+evap         relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
+prcp         relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
+soilzone     relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
+ssres        relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
+* parameter data
+jhcoef_fac   log    factor        1.0000       0.75000        1.5000      evap           1.000       0.000        1
+rnadj_fac    log    factor        1.0000       0.75000        1.5000      prcp           1.000       0.000        1
+snwadj_fac   log    factor        1.0000       0.75000        1.5000      prcp           1.000       0.000        1
+pfd_fac      log    factor        1.0000       0.75000        1.5000      soilzone       1.000       0.000        1
+s2gwe_fac    log    factor        1.0000       0.75000        1.5000      ssres          1.000       0.000        1
+s2gw_fac     log    factor        1.0000       0.75000        1.5000      ssres          1.000       0.000        1
+* observation groups
+flow_dur_sim
+* observation data
+flow_dur_sim1          20.00000         1.00000      flow_dur_sim
+flow_dur_sim2          26.00000         1.00000      flow_dur_sim
+flow_dur_sim3          33.00000         1.00000      flow_dur_sim
+flow_dur_sim4          38.00000         1.00000      flow_dur_sim
+flow_dur_sim5          42.00000         1.00000      flow_dur_sim
+flow_dur_sim6          58.00000         1.00000      flow_dur_sim
+flow_dur_sim7          68.00000         1.00000      flow_dur_sim
+flow_dur_sim8          94.00000         1.00000      flow_dur_sim
+* model command line
+modelcmd.bat
+* model input/output
+par2par_base.tpl   par2par_base.dat
+sim_vals_flowdur.ins   hi_test_flow_duration_sim_CUSTOM_output.txt

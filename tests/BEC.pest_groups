@@ -1,0 +1,4 @@
+prcp         relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
+evap         relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
+soilzone     relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
+ssres        relative     1.0000E-02  1.0000E-05  switch      2.000      outside_pts
