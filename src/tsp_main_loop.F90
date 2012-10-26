@@ -54,7 +54,10 @@ module tsp_main_loop
   integer :: wordcount
   integer :: wordloopcnt
   integer :: innerloopcnt
-
+  integer :: tmpfnamecounter
+  character (len=40) :: tmpfname
+  character (len=40) :: lucfname
+  logical :: exists
 
   tempdtable_g % active = lTRUE
   allocate(tempdtable_g % flow(MAXTEMPDURFLOW),   &

@@ -1,4 +1,6 @@
 
+add_executable(xcat xcat.F90)
+
 # Need input files over in build environment
 file(GLOB infiles
      RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
@@ -15,6 +17,7 @@ get_target_property(tsproclocation tsproc LOCATION)
 set(tests
     #  BEC_TSPROC_GSFLOW.inp    # requires 'statvar.dat'
        hi_test_01.inp
+       step4f.inp
        hi_test_all_classes.inp
        hi_test_inv_indices.inp
     #  hi_test_write_pest.inp   # requires interactive input
@@ -33,4 +36,5 @@ foreach(testfname ${tests})
    add_test(${basename} ${tsproclocation} ${CMAKE_CURRENT_SOURCE_DIR}/${testfname} ${CMAKE_CURRENT_BINARY_DIR}/${basename}.rec)
    set_tests_properties(${basename} PROPERTIES PASS_REGULAR_EXPRESSION "no more blocks to process")
    set_tests_properties(${basename} PROPERTIES FAIL_REGULAR_EXPRESSION "Error: ")
+
 endforeach()

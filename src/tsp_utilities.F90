@@ -1470,7 +1470,7 @@ subroutine write_message(increment,iunit,error,leadspace,endspace)
 end subroutine write_message
 
 subroutine close_files
-
+   use tsp_data_structures, only : LU_TSPROC_CONTROL
 ! -- Subroutine close_files closes all open files.
 
 ! -- Revision history:-
@@ -1478,6 +1478,7 @@ subroutine close_files
 
    integer         :: i,ierr
 
+   close(LU_TSPROC_CONTROL, STATUS='DELETE')
    do i=10,100
      close(unit=i,iostat=ierr)
    end do
@@ -2270,6 +2271,14 @@ function count_fields(sRecord) result(iNumFields)
   iNumFields = i
 
   end function count_fields
+function day_of_week(yr, mn, dy)
+  ! Algorithm from wikipedia
+  ! http://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week
+  character(LEN=3) day_of_week
+  character(LEN=3), parameter :: day_names(0:6) = &
+    (/ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' /)
+  integer yr,mn,dy
+  integer c,y,m,d,w
 
 !--------------------------------------------------------------------------
 
@@ -2287,7 +2296,7 @@ subroutine GetSysTimeDate(sDateStr,sDateStrPretty)
   character (len=256) :: sTime
   character (len=256) :: sYear
 
-  sRecord = FDATE()
+  sRecord = ctime_subst()
 
   call chomp(sRecord,sDay)
   call chomp(sRecord,sMon)

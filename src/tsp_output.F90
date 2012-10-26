@@ -70,6 +70,8 @@ subroutine pest_files(ifail,lastblock)
                                     parchglim(:),pargp(:)
        character*19, allocatable :: f_partrans(:),partrans(:)
 
+       integer system
+
        ifail=0
        CurrentBlock_g='WRITE_PEST_FILES'
        ieqnerr=0
