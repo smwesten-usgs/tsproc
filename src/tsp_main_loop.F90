@@ -298,7 +298,7 @@ subroutine processBlock()
          else if(iBlockNumber == iVOLUME_CALCULATION) then
            call volume(ifail)
 
-         ! exceedence time
+         ! exceedance time
          else if(iBlockNumber == iEXCEEDANCE_TIME) then
            call time_duration(ifail)
 

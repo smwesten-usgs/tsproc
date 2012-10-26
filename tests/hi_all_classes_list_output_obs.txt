@@ -1,0 +1,81 @@
+
+ G_TABLE "bec_hyd_indx" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   ML1: Mean minimum monthly flow, January                                         28.200
+   ML13: CV of minimum monthly flows                                               26.621
+   ML15: Mean minimum annual flow / mean annual flow                                0.581
+
+ G_TABLE "bec_hyd_indx02" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   ML6: Mean minimum monthly flow, June                                            33.700
+   ML15: Mean minimum annual flow / mean annual flow                                0.581
+   ML16: Median minimum annual flow / median annual flow                            0.680
+   ML22: Mean annual minimum flow divided by catchment area                         0.589
+
+ G_TABLE "bec_hyd_indx03" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   ML13: CV of minimum monthly flows                                               26.621
+   ML22: Mean annual minimum flow divided by catchment area                         0.589
+
+ G_TABLE "bec_hyd_indx04" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   ML13: CV of minimum monthly flows                                               26.621
+   ML14: Mean minimum daily flow / mean median annual flow                          0.669
+
+ G_TABLE "bec_hyd_indx05" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   ML14: Mean minimum daily flow / mean median annual flow                          0.669
+   ML16: Median minimum annual flow / median annual flow                            0.680
+   ML18: CV of ( mean minimum annual flow / mean annual flow )                     17.655
+
+ G_TABLE "bec_hyd_indx06" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   ML14: Mean minimum daily flow / mean median annual flow                          0.669
+   ML16: Median minimum annual flow / median annual flow                            0.680
+   ML17: 7-day minimum flow / mean annual flow                                      0.581
+
+ G_TABLE "bec_hyd_indx07" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   ML4: Mean minimum monthly flow, April                                           36.000
+   ML17: 7-day minimum flow / mean annual flow                                      0.581
+   ML18: CV of ( mean minimum annual flow / mean annual flow )                     17.655
+   ML21: CV of annual minimum flows                                                17.661
+
+ G_TABLE "bec_hyd_indx08" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA2: Median, all daily flows                                                    37.000
+   MA3: CV, all daily flows                                                        63.004
+   MA4: CV, log of all daily flows                                                 32.863
+   ML4: Mean minimum monthly flow, April                                           36.000
+   ML17: 7-day minimum flow / mean annual flow                                      0.581
+   ML18: CV of ( mean minimum annual flow / mean annual flow )                     17.655
+   ML21: CV of annual minimum flows                                                17.661
+
+ G_TABLE "bec_hyd_indx09" ---->
+   Hydrologic Index and description (Olden and Poff, 2003)                          Value
+   MA3: CV, all daily flows                                                        63.004
+   MA8: Ratio, Q25 / Q75 for all daily flows                                        1.533
+   MA41: Mean annual runoff                                                         1.034
+   ML14: Mean minimum daily flow / mean median annual flow                          0.669
+   ML16: Median minimum annual flow / median annual flow                            0.680
+   ML18: CV of ( mean minimum annual flow / mean annual flow )                     17.655
+   MH10: Mean maximum monthly flow, October                                        67.400
+   MH17: Mean of Q25 values / median daily flow across all years                    1.243
+   MH19: Skewness in annual maximum flows                                          -0.106
+   FL1: Annual low flow pulse count; number of periods < 25th percentile            7.400
+   FL2: CV of low flow pulse count                                                 79.616
+   FL3: Num. low flow spells (< 5% of mean flow) / record length (yrs)              0.000
+   FH3: Num. high flow spells (>3 * median annual flow)                             7.500
+   FH6: Num. high flow spells (>3 * median annual flow) / record length (yrs)       4.100
+   DL9: CV, annual minimum of 30-day mean of flow                                  15.833
+   DL11: Mean of 1-day minimum of flow                                              0.662
+   DL16: Low flow pulse duration (Mean duration of FL1)                             7.895
+   DH11: Mean of 1-day maximum of flow                                              9.916
+   DH15: Mean duration of flood pulses > 75th percentile flow                       6.048
+   DH20: Mean duration of flood pulses > 25th percentile of median flow             7.760
+   TA1: Constancy (see Colwell, 1974)                                               0.707
+   TL2: CV, day-of-year of annual minimum                                          78.327
+   TH1: Mean day-of-year of annual maximum                                        114.081
+   RA5: Ratio of days that are higher than previous day                             0.237
+   RA8: Number of flow reversals from one day to the next                         100.100
+   RA9: CV, number of flow reversals from one day to the next                      10.619

@@ -5735,7 +5735,7 @@ end subroutine volume
 
 subroutine time_duration(ifail)
 
-! -- Subroutine TIME_DURATION calculations exceedence durations for certain flows.
+! -- Subroutine TIME_DURATION calculates exceedance durations for certain flows.
 
        use tsp_data_structures
        use tsp_utilities
@@ -5755,8 +5755,7 @@ subroutine time_duration(ifail)
        character*25 acontext(MAXCONTEXT)
 
        ifail=0
-       CurrentBlock_g='EXCEEDENCE_TIME'
-
+       CurrentBlock_g='EXCEEDANCE_TIME'
 
        write(*,10) trim(CurrentBlock_g)
        write(LU_REC,10) trim(CurrentBlock_g)
@@ -5773,7 +5772,7 @@ subroutine time_duration(ifail)
          tempdtable_g%tdelay(i)=-1.1e36
        end do
 
-! -- The EXCEEDENCE-TIME block is first parsed.
+! -- The EXCEEDANCE-TIME block is first parsed.
 
        do
          ILine_g=ILine_g+1
@@ -5822,6 +5821,10 @@ subroutine time_duration(ifail)
            if(ierr.ne.0) go to 9800
 
          else if(aoption.eq.'EXCEEDENCE_TIME_UNITS')then
+           call get_time_units(ierr,itunit,2)
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'EXCEEDANCE_TIME_UNITS')then
            call get_time_units(ierr,itunit,2)
            if(ierr.ne.0) go to 9800
 
@@ -5936,7 +5939,7 @@ subroutine time_duration(ifail)
        end if
        if(itunit.eq.0)then
          write(amessage,218) trim(CurrentBlock_g)
-218      format('no EXCEEDENCE_TIME_UNITS keyword provided in ',a,' block.')
+218      format('no EXCEEDENCE_TIME_UNITS or EXEEDANCE_TIME_UNITS keyword provided in ',a,' block.')
          go to 9800
        end if
        if(icontext.eq.0)then
@@ -5964,7 +5967,7 @@ subroutine time_duration(ifail)
 400    continue
        if(series_g(iseries)%nterm.eq.1)then
          write(amessage,250) trim(series_g(iseries)%name)
-250      format('cannot calculate exceedence times because time series "',a,   &
+250      format('cannot calculate exceedance times because time series "',a,   &
          '" has only one term.')
          go to 9800
        end if
@@ -6101,7 +6104,7 @@ subroutine time_duration(ifail)
 
        write(*,440) trim(aname)
        write(LU_REC,440) trim(aname)
-440    format(t5,'Exceedence times calculated and stored in e_table "',a,'".')
+440    format(t5,'Exceedance times calculated and stored in e_table "',a,'".')
        return
 
 9000   call num2char(ILine_g,aline)
@@ -6125,7 +6128,7 @@ end subroutine time_duration
 
 subroutine flow_duration(ifail)
 
-! -- Subroutine FLOW_DURATION calculates exceedence flows for a set of
+! -- Subroutine FLOW_DURATION calculates exceedance flows for a set of
 ! -- user-specified exceedance quantiles.
 
        use tsp_data_structures
@@ -6145,12 +6148,11 @@ subroutine flow_duration(ifail)
        character (len=iTSNAMELENGTH) :: aname,atemp
        integer iNumProbabilities
        real (kind=T_SGL), dimension(:), allocatable :: rResultVector
-       real (kind=T_SGL), dimension(14), parameter :: &
-          rDefaultExceedenceProbabilities = [ &
-            99., 98., 95., 90., 80., 70., 60., 50., 40., &
-            30., 20., 10., 5., 2. &
+       real (kind=T_SGL), dimension(13), parameter :: &
+          rDefaultExceedanceProbabilities = [ &
+            99.5, 99., 98., 95., 90., 75., 50., 25., 10., 5., 2. , 1., 0.5  &
           ]
-       real (kind=T_SGL), dimension(:), allocatable :: rCustomExceedenceProbabilities
+       real (kind=T_SGL), dimension(:), allocatable :: rCustomExceedanceProbabilities
        integer (kind=T_INT), dimension(:), allocatable :: iSortOrder
 
        character*15 aline
@@ -6234,18 +6236,18 @@ subroutine flow_duration(ifail)
            call get_new_table_name(ierr,iG_TABLE,aname)
            if(ierr.ne.0) go to 9800
 
-         else if(aoption.eq.'EXCEEDENCE_PROBABILITIES')then
+         else if(aoption.eq.'EXCEEDANCE_PROBABILITIES')then
            lUseDefaultProbabilities = lFALSE
 
            iCount = count_fields(cline) - 1
-           allocate(rCustomExceedenceProbabilities(iCount), stat=iStat)
+           allocate(rCustomExceedanceProbabilities(iCount), stat=iStat)
            call assert(iStat==0, &
-             "Problem alllocating memory for storing custom exceedence probabilities", &
+             "Problem allocating memory for storing custom exceedance probabilities", &
              trim(__FILE__),__LINE__)
            allocate(iSortOrder(iCount), stat=iStat)
            call assert(iStat==0, &
-             "Problem alllocating memory for storing sort order for " &
-             //"exceedence probabilities", trim(__FILE__),__LINE__)
+             "Problem allocating memory for storing sort order for " &
+             //"exceedance probabilities", trim(__FILE__),__LINE__)
 
            sRecord = adjustl(sRecord)
            ! read and throw away first value
@@ -6253,10 +6255,10 @@ subroutine flow_duration(ifail)
            ! now read in each of the probabilities
            do iIndex = 1, iCount
              call chomp(sRecord, sItem)
-             read(sItem,*) rCustomExceedenceProbabilities(iIndex)
+             read(sItem,*) rCustomExceedanceProbabilities(iIndex)
            enddo
 
-           call quick_sort(rCustomExceedenceProbabilities, iSortOrder)
+           call quick_sort(rCustomExceedanceProbabilities, iSortOrder)
            ! sort returns values in ascending order
 
            write(*,fmt="(a)") trim(cline)
@@ -6325,7 +6327,7 @@ subroutine flow_duration(ifail)
        ! to bother with?
        if (series_g(iseries)%nterm < 30 ) then
          write(amessage,250) trim(series_g(iseries)%name)
-250      format('cannot calculate exceedence times because time series "',a,   &
+250      format('cannot calculate exceedance times because time series "',a,   &
          '" has less than 30 values.')
          go to 9800
        end if
@@ -6390,16 +6392,16 @@ subroutine flow_duration(ifail)
 
        if (lUseDefaultProbabilities) then
 
-         iCount = size(rDefaultExceedenceProbabilities,1)
+         iCount = size(rDefaultExceedanceProbabilities,1)
          allocate(rResultVector(iCount), stat=iStat)
          rResultVector = quantile_vector(rData=series_g(iseries)%val , &
-              rQuantile=(1.0 - (rDefaultExceedenceProbabilities / 100.)) )
+              rQuantile=(1.0 - (rDefaultExceedanceProbabilities / 100.)) )
        else
 
-         iCount = size(rCustomExceedenceProbabilities,1)
+         iCount = size(rCustomExceedanceProbabilities,1)
          allocate(rResultVector(iCount), stat=iStat)
          rResultVector = quantile_vector(rData=series_g(iseries)%val , &
-              rQuantile=(1.0 - (rCustomExceedenceProbabilities / 100.) ) )
+              rQuantile=(1.0 - (rCustomExceedanceProbabilities / 100.) ) )
        endif
 
        allocate(gtable_g(ig)%rValue(iCount), stat=iStat)
@@ -6410,14 +6412,14 @@ subroutine flow_duration(ifail)
          do iIndex=1, iCount
            gtable_g(ig)%rValue(iIndex) = rResultVector(iIndex)
            gtable_g(ig)%sDescription(iIndex) = &
-             trim(asChar(rDefaultExceedenceProbabilities(iIndex)))//"% of flows" &
+             trim(asChar(rDefaultExceedanceProbabilities(iIndex)))//"% of flows" &
              //" exceed: "
          enddo
        else
            do iIndex=1,iCount
              gtable_g(ig)%rValue(iIndex) = rResultVector(iCount - iIndex + 1)
              gtable_g(ig)%sDescription(iIndex) = &
-               trim(asChar(rCustomExceedenceProbabilities(iCount - iIndex + 1))) &
+               trim(asChar(rCustomExceedanceProbabilities(iCount - iIndex + 1))) &
                //"% of flows exceed: "
            enddo
        endif
