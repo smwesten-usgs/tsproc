@@ -2271,6 +2271,9 @@ function count_fields(sRecord) result(iNumFields)
   iNumFields = i
 
   end function count_fields
+
+!--------------------------------------------------------------------------
+
 function day_of_week(yr, mn, dy)
   ! Algorithm from wikipedia
   ! http://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week
@@ -2279,6 +2282,44 @@ function day_of_week(yr, mn, dy)
     (/ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' /)
   integer yr,mn,dy
   integer c,y,m,d,w
+  y = yr
+  m = mn
+  d = dy
+  if (mn < 3) then
+y = y - 1
+  end if
+
+c = int(y/100)
+  y = y - c*100
+
+  m = mod((m + 9), 12) + 1
+
+  w = int(modulo((d + (2.6*m - 0.2) + y + y/4 + c/4 -2*c), 7.0))
+  day_of_week = day_names(w)
+
+end function day_of_week
+
+!--------------------------------------------------------------------------
+
+function ctime_subst()
+  character(24) :: ctime_subst
+
+  character(8) :: date
+  character(10) :: time
+character(5) :: zone
+  integer, dimension(8) :: values
+
+  character(LEN=3), parameter :: months(1:12) = &
+    (/ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', &
+       'Sep', 'Oct', 'Nov', 'Dec' /)
+
+  call date_and_time(date, time, zone, values)
+
+  ctime_subst = day_of_week(values(1), values(2), values(3))//' '// &
+          months(values(2))//' '//date(7:8)//' '//time(1:2)// &
+          ':'//time(3:4)//':'//time(5:6)//' '//date(1:4)
+
+end function ctime_subst
 
 !--------------------------------------------------------------------------
 
