@@ -6,7 +6,7 @@ del /F /Q CMakeCache.txt
 set PATH=C:\MinGW64\bin
 set PATH=%PATH%;C:\MinGW64\include;C:\MinGW64\lib
 
-:: recreate virgin environment
+:: recreate windows environment from scratch
 set PATH=%PATH%;c:\windows;c:\windows\system32;c:\windows\system32\Wbem
 set PATH=%PATH%;C:\Program Files (x86)\7-Zip
 set PATH=%PATH%;C:\Program Files (x86)\CMake 2.8\bin
@@ -14,7 +14,6 @@ set PATH=%PATH%;C:\Program Files (x86)\CMake 2.8\bin
 set PATH=%PATH%;C:\Program Files (x86)\CMake 2.8\share
 set PATH=%PATH%;c:\Program Files (x86)\Zeus
 set PATH=%PATH%;D:\DOS\gnuwin32\bin
-set PATH=%PATH%;d:\saga_2.0.8;d:\saga_2.0.8\modules;d:\saga_2.0.8\dll;.
 
 set FC=c:\MinGW64\bin\gfortran
 set CC=c:\MinGW64\bin\gcc
@@ -48,4 +47,4 @@ set CMAKE_LIBRARY_PATH=%LIB%
 
 :: add --trace to see copious details re: CMAKE
 
-cmake ..\.. -G "MinGW Makefiles" -DPLATFORM_TYPE="x64" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX:PATH="D:\DOS" -DCMAKE_MAKE_PROGRAM="c:\MinGW64\bin\make.exe" -DCMAKE_RANLIB:FILEPATH="c:\MinGW64\bin\ranlib.exe" -DCMAKE_C_COMPILER:FILEPATH="c:\MinGW64\bin\gcc.exe" -DCMAKE_Fortran_COMPILER:FILEPATH="c:\MinGW64\bin\gfortran.exe"
+cmake ..\.. -G "MinGW Makefiles" -DPLATFORM_TYPE="x64" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX:PATH="D:\DOS" -DCMAKE_MAKE_PROGRAM="c:/MinGW64/bin/make.exe" -DCMAKE_RANLIB:FILEPATH="c:\MinGW64\bin\ranlib.exe" -DCMAKE_C_COMPILER:FILEPATH="c:\MinGW64\bin\gcc.exe" -DCMAKE_Fortran_COMPILER:FILEPATH="c:\MinGW64\bin\gfortran.exe"
