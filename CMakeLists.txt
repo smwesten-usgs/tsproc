@@ -68,43 +68,37 @@ if(CMAKE_HOST_WIN32)
 
     if (Fortran_COMPILER_NAME MATCHES "gfortran[.a-z]*")
 
+      if( PLATFORM_TYPE MATCHES "x64" )
+
+        set( MINGWDIR "C:/MinGW64" )
+
+      else()
+
+        set( MINGWDIR "C:/MinGW32" )
+
+      endif()
+
       message(" <-- setting options for gfortran on MinGW -->")
+      message(" PLATFORM_TYPE = " ${PLATFORM_TYPE} )
+      message(" MINGWDIR = " ${MINGWDIR} )
 
       set(CMAKE_INSTALL_PREFIX "d:/DOS" CACHE STRING
           "Location for installation of the executable")
 
       FIND_LIBRARY(GCC_LIB libgcc.a
-        PATHS
-          C:/MinGW/lib/gcc
-          C:/MinGW/lib/gcc/mingw32
-          C:/MinGW32/lib/gcc
-          C:/MinGW32/lib/gcc/mingw32
-        PATH_SUFFIXES
-          4.6.2
-          4.6.1
-          4.5.2
-          4.5.1
+        HINTS
+          ${MINGWDIR}
       )
 
       FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
-        PATHS
-          C:/MinGW/lib/gcc
-          C:/MinGW/lib/gcc/mingw32
-          C:/MinGW32/lib/gcc
-          C:/MinGW32/lib/gcc/mingw32
-        PATH_SUFFIXES
-          4.6.2
-          4.6.1
-          4.5.2
-          4.5.1
+        HINTS
+        ${MINGWDIR}
       )
 
-      message("  GCC_LIB = " ${GCC_LIB})
-      message("  GFORTRAN_LIB = " ${GFORTRAN_LIB})
 
-      set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -mtune=native -ffree-line-length-none -static-libgcc -static-libgfortran")
+      set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -mtune=native -ffree-line-length-none -static-libgcc -static-libgfortran -finit-local-zero")
 
-      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none")
+      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none -finit-local-zero")
 
       SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libgfortran")
 
@@ -113,7 +107,7 @@ if(CMAKE_HOST_WIN32)
       set_property(CACHE CMAKE_BUILD_TYPE
               PROPERTY STRINGS "Release" "Debug")
 
-      add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
+      add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
 #     SET(CMAKE_INSTALL_PREFIX "../../../lib/win32" CACHE PATHFILE "Installation directory")
 
