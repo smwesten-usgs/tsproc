@@ -3212,7 +3212,8 @@ subroutine get_wdm_series (ifail)
       , begsecs                                                             &
       , enddays                                                             &
       , endsecs                                                             &
-      , ixcon
+      , ixcon                                                               &
+      , ddays
     INTEGER                                                                 &
         lsdat (6)                                                           &
       , ledat (6)                                                           &
@@ -3273,7 +3274,9 @@ subroutine get_wdm_series (ifail)
 !    hh1 = - 9999
 !    yy2 = - 9999
 !    hh2 = - 9999
-    hhd = - 9999
+    hhd = 0
+    nnd = 0
+    ssd = 0
     dsn = - 99999999
     filter = - 1.0E37
     ixcon = 0
@@ -3449,47 +3452,6 @@ subroutine get_wdm_series (ifail)
          ' block in file ', A)
        GOTO 9800
     ENDIF
-!    CALL date_check (ierr, yy1, mm1, dd1, hh1, nn1, ss1, yy2, mm2, dd2, hh2 &
-!      , nn2, ss2, begdays, begsecs, enddays, endsecs)
-!    IF (ierr /= 0) THEN
-!       GOTO 9800
-!    ENDIF
-!
-!
-! -- There appear to be no errors in the block, so now it is processed.
-!
-!   In order for WDM date/times to come out correct, need to make the first
-!   hour 0...
-!    IF (hh1 == 24) THEN
-!        hh1 = 0
-!    ENDIF
-
-!     lsdat (1) = yy1
-!     lsdat (2) = mm1
-!     lsdat (3) = dd1
-!     lsdat (4) = hh1
-!     lsdat (5) = nn1
-!     lsdat (6) = ss1
-!     ledat (1) = yy2
-!     ledat (2) = mm2
-!     ledat (3) = dd2
-!     ledat (4) = hh2
-!     ledat (5) = nn2
-!     ledat (6) = ss2
-
-!     print *, "yy1: ", lsdat(1)
-!     print *, "mm1: ", lsdat(2)
-!     print *, "dd1: ", lsdat(3)
-!     print *, "hh1: ", lsdat(4)
-!     print *, "nn1: ", lsdat(5)
-!     print *, "ss1: ", lsdat(6)
-
-!     print *, "yy2: ", ledat(1)
-!     print *, "mm2: ", ledat(2)
-!     print *, "dd2: ", ledat(3)
-!     print *, "hh2: ", ledat(4)
-!     print *, "nn2: ", ledat(5)
-!     print *, "ss2: ", ledat(6)
 
     CALL addquote (afile, sString_g)
     WRITE (*, 1635) TRIM (sString_g)
@@ -3567,11 +3529,8 @@ subroutine get_wdm_series (ifail)
        ledat (HOUR) = hh2; ledat (MINUTE) = nn2; ledat (SECOND) = ss2
     endif
 
-    ! In order for WDM date/times to come out correct, need to make the first
-    ! hour 0...
-    IF (lsdat(HOUR) == 24) THEN
-        lsdat(HOUR) = 0
-    ENDIF
+    CALL timcvt (lsdat)
+    CALL timcvt (ledat)
 
     ! check to see if user supplied date range
     ! (assuming that one has been provided) is valid
@@ -3580,8 +3539,6 @@ subroutine get_wdm_series (ifail)
          ledat(YEAR),  ledat(MONTH), ledat(DAY), &
          ledat(HOUR), ledat(MINUTE), ledat(SECOND), &
          begdays, begsecs, enddays, endsecs )
-!    CALL date_check (ierr, yy1, mm1, dd1, hh1, nn1, ss1, yy2, mm2, dd2, hh2 &
-!      , nn2, ss2, begdays, begsecs, enddays, endsecs)
 
     IF (ierr /= 0) THEN
        GOTO 9800
@@ -3622,7 +3579,7 @@ subroutine get_wdm_series (ifail)
     IF (ierr /= 0) THEN
        GOTO 9800
     ENDIF
-
+ 
     dtran = 0
     qualfg = 30
     CALL wdtget (wdmunit, &
@@ -3661,6 +3618,16 @@ subroutine get_wdm_series (ifail)
 !              -82 - data set exists, but is wrong DSTYP
 !              -84 - data set number out of range
 
+    ! DEF_TIME is only used for time series day or greater
+    IF (tcode >= 4) THEN
+        IF (hhd == 24) THEN
+            hhd = 0
+            ddays = 1
+        ELSE
+            ddays = 0
+        ENDIF
+    ENDIF
+
     DO icnt = 1, iterm
 
        CALL timadd (lsdat, tcode, tstep, icnt - 1, adddate)
@@ -3672,10 +3639,10 @@ subroutine get_wdm_series (ifail)
        CALL timcvt (adddate)
 
        tempseries_g%days (icnt) = &
-         numdays (1, 1, 1970, adddate(DAY), adddate(MONTH), adddate(YEAR) )
+         numdays (1, 1, 1970, adddate(DAY), adddate(MONTH), adddate(YEAR) ) + ddays
 
        tempseries_g%secs (icnt) = &
-         numsecs (0, 0, 0, adddate(HOUR), adddate(MINUTE), adddate(SECOND) )
+         numsecs (0, 0, 0, adddate(HOUR) + hhd, adddate(MINUTE) + nnd, adddate(SECOND) + ssd)
 
     ENDDO
 
