@@ -3301,7 +3301,6 @@ subroutine get_wdm_series (ifail)
           GOTO 9800
        ENDIF
        aoption = cline (left_word (1) :right_word (1) )
-       print *, "aoption: '"//aoption//"'"
        CALL casetrans (aoption, 'hi')
        IF (aoption /= 'CONTEXT') THEN
           CALL test_context (ierr, icontext, acontext)
@@ -3453,6 +3452,12 @@ subroutine get_wdm_series (ifail)
        GOTO 9800
     ENDIF
 
+!   In order for WDM date/times to come out correct, need to make the first
+!   hour 0...
+    IF (hh1 == 24) THEN
+        hh1 = 0
+    ENDIF
+
     CALL addquote (afile, sString_g)
     WRITE (*, 1635) TRIM (sString_g)
     WRITE (LU_REC, 1635) TRIM (sString_g)
@@ -3468,11 +3473,6 @@ subroutine get_wdm_series (ifail)
 !
 !   Make sure we can read the data set.
     CALL wdatim (wdmunit, dsn, llsdat, lledat, tstep, tcode, retcode)
-
-    print *, "DSN: ", dsn
-    print *, "llsdat: ", llsdat
-    print *, "lledat: ", lledat
-    print *, "tstep: ", tstep
 
     IF (retcode == - 6) THEN
        WRITE (amessage, 1645) TRIM (sString_g)
@@ -3499,12 +3499,6 @@ subroutine get_wdm_series (ifail)
        GOTO 9800
     ENDIF
 
-    !> call to timcvt will convert a date/time like this:
-    !> 12/31/2011    24:00:00
-    !>  to
-    !> 01/01/2012    00:00:00
-    CALL timcvt (llsdat)
-    CALL timcvt (lledat)
 
     !> assign default date bounds equal to the data date bounds;
     !> these are overwritten below if the user has specified values
@@ -3512,7 +3506,6 @@ subroutine get_wdm_series (ifail)
     lsdat = llsdat
     ledat = lledat
 
-    !> override default date/time range with any user-specified date/time
     if (lDate1HasBeenProvided) then
        lsdat (YEAR) = yy1; lsdat (MONTH) = mm1; lsdat (DAY) = dd1
     endif
@@ -3529,6 +3522,7 @@ subroutine get_wdm_series (ifail)
        ledat (HOUR) = hh2; ledat (MINUTE) = nn2; ledat (SECOND) = ss2
     endif
 
+    !> override default date/time range with any user-specified date/time
     CALL timcvt (lsdat)
     CALL timcvt (ledat)
 
