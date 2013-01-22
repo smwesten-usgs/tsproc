@@ -3269,10 +3269,6 @@ subroutine get_wdm_series (ifail)
     afile = ' '
     aname = ' '
     icontext = 0
-!    yy1 = - 9999
-!    hh1 = - 9999
-!    yy2 = - 9999
-!    hh2 = - 9999
     hhd = - 9999
     dsn = - 99999999
     filter = - 1.0E37
@@ -3449,47 +3445,6 @@ subroutine get_wdm_series (ifail)
          ' block in file ', A)
        GOTO 9800
     ENDIF
-!    CALL date_check (ierr, yy1, mm1, dd1, hh1, nn1, ss1, yy2, mm2, dd2, hh2 &
-!      , nn2, ss2, begdays, begsecs, enddays, endsecs)
-!    IF (ierr /= 0) THEN
-!       GOTO 9800
-!    ENDIF
-!
-!
-! -- There appear to be no errors in the block, so now it is processed.
-!
-!   In order for WDM date/times to come out correct, need to make the first
-!   hour 0...
-!    IF (hh1 == 24) THEN
-!        hh1 = 0
-!    ENDIF
-
-!     lsdat (1) = yy1
-!     lsdat (2) = mm1
-!     lsdat (3) = dd1
-!     lsdat (4) = hh1
-!     lsdat (5) = nn1
-!     lsdat (6) = ss1
-!     ledat (1) = yy2
-!     ledat (2) = mm2
-!     ledat (3) = dd2
-!     ledat (4) = hh2
-!     ledat (5) = nn2
-!     ledat (6) = ss2
-
-!     print *, "yy1: ", lsdat(1)
-!     print *, "mm1: ", lsdat(2)
-!     print *, "dd1: ", lsdat(3)
-!     print *, "hh1: ", lsdat(4)
-!     print *, "nn1: ", lsdat(5)
-!     print *, "ss1: ", lsdat(6)
-
-!     print *, "yy2: ", ledat(1)
-!     print *, "mm2: ", ledat(2)
-!     print *, "dd2: ", ledat(3)
-!     print *, "hh2: ", ledat(4)
-!     print *, "nn2: ", ledat(5)
-!     print *, "ss2: ", ledat(6)
 
     CALL addquote (afile, sString_g)
     WRITE (*, 1635) TRIM (sString_g)
@@ -3506,11 +3461,6 @@ subroutine get_wdm_series (ifail)
 !
 !   Make sure we can read the data set.
     CALL wdatim (wdmunit, dsn, llsdat, lledat, tstep, tcode, retcode)
-
-    print *, "DSN: ", dsn
-    print *, "llsdat: ", llsdat
-    print *, "lledat: ", lledat
-    print *, "tstep: ", tstep
 
     IF (retcode == - 6) THEN
        WRITE (amessage, 1645) TRIM (sString_g)
