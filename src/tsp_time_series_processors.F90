@@ -2971,12 +2971,12 @@ subroutine compare_series(ifail)
 
        integer, intent(out)   :: ifail
 
-       integer isseries,ioseries,jbias,jse,jrbias,jrse,jns,jce,jia,  &
+       integer isseries,ioseries,jbias,jse,jrbias,jrse,jns,jce,jia,jve,  &
        ibseries,ibbterm,ibeterm,ibterm,exponent,l
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
        icontext,i,begdays,begsecs,enddays,endsecs, &
        j,isbterm,iobterm,iseterm,ioeterm,iiterm,ixcon,isterm,ioterm,k
-       real rtemp,rtemp1,tsum1,tsum2,tsum3,tsum4
+       real rtemp,rtemp1,tsum1,tsum2,tsum3,tsum4,tsum5, mean3
        character*3 aaa
        character (len=iTSNAMELENGTH) :: aname
        character*15 aline
@@ -3001,6 +3001,7 @@ subroutine compare_series(ifail)
        jns=0
        jce=0
        jia=0
+       jve=0
        exponent=-9999
        yy1=-9999
        hh1=-9999
@@ -3040,18 +3041,23 @@ subroutine compare_series(ifail)
          if(aoption.eq.'NEW_C_TABLE_NAME')then
            call get_new_table_name(ierr,4,aname)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'DATE_1')then
            call get_date(ierr,dd1,mm1,yy1,'DATE_1')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'DATE_2')then
            call get_date(ierr,dd2,mm2,yy2,'DATE_2')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'TIME_1')then
            call get_time(ierr,hh1,nn1,ss1,'TIME_1')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'TIME_2')then
            call get_time(ierr,hh2,nn2,ss2,'TIME_2')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'SERIES_NAME_SIM')then
            if(isseries.ne.0)then
              write(amessage,26)
@@ -3068,6 +3074,7 @@ subroutine compare_series(ifail)
            end if
            call get_series_name(ierr,ioseries,'SERIES_NAME_OBS')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'CONTEXT')then
            if(ixcon.ne.0)then
              call num2char(ILine_g,aline)
@@ -3078,6 +3085,7 @@ subroutine compare_series(ifail)
            end if
            call get_context(ierr,icontext,acontext)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'BIAS')then
            call get_yes_no(ierr,jbias)
            if(ierr.ne.0) go to 9800
@@ -3089,6 +3097,7 @@ subroutine compare_series(ifail)
            write(*,128) trim(aaa)
            write(LU_REC,128) trim(aaa)
 128        format(t5,'BIAS ',a)
+
          else if(aoption.eq.'STANDARD_ERROR')then
            call get_yes_no(ierr,jse)
            if(ierr.ne.0) go to 9800
@@ -3100,6 +3109,7 @@ subroutine compare_series(ifail)
            write(*,129) trim(aaa)
            write(LU_REC,129) trim(aaa)
 129        format(t5,'STANDARD_ERROR ',a)
+
          else if(aoption.eq.'RELATIVE_BIAS')then
            call get_yes_no(ierr,jrbias)
            if(ierr.ne.0) go to 9800
@@ -3111,6 +3121,7 @@ subroutine compare_series(ifail)
            write(*,132) trim(aaa)
            write(LU_REC,132) trim(aaa)
 132        format(t5,'RELATIVE_BIAS ',a)
+
          else if(aoption.eq.'RELATIVE_STANDARD_ERROR')then
            call get_yes_no(ierr,jrse)
            if(ierr.ne.0) go to 9800
@@ -3122,6 +3133,7 @@ subroutine compare_series(ifail)
            write(*,133) trim(aaa)
            write(LU_REC,133) trim(aaa)
 133        format(t5,'RELATIVE_STANDARD_ERROR ',a)
+
          else if(aoption.eq.'NASH_SUTCLIFFE')then
            call get_yes_no(ierr,jns)
            if(ierr.ne.0) go to 9800
@@ -3133,6 +3145,19 @@ subroutine compare_series(ifail)
            write(*,134) trim(aaa)
            write(LU_REC,134) trim(aaa)
 134        format(t5,'NASH_SUTCLIFFE ',a)
+
+         else if(aoption.eq.'VOLUMETRIC_EFFICIENCY')then
+           call get_yes_no(ierr,jve)
+           if(ierr.ne.0) go to 9800
+           if(jve.eq.1)then
+             aaa='yes'
+           else
+             aaa='no'
+           end if
+           write(*,140) trim(aaa)
+           write(LU_REC,140) trim(aaa)
+140        format(t5,'VOLUMETRIC_EFFICIENCY ',a)
+
          else if(aoption.eq.'COEFFICIENT_OF_EFFICIENCY')then
            call get_yes_no(ierr,jce)
            if(ierr.ne.0) go to 9800
@@ -3144,6 +3169,7 @@ subroutine compare_series(ifail)
            write(*,135) trim(aaa)
            write(LU_REC,135) trim(aaa)
 135        format(t5,'COEFFICIENT_OF_EFFICIENCY ',a)
+
          else if(aoption.eq.'INDEX_OF_AGREEMENT')then
            call get_yes_no(ierr,jia)
            if(ierr.ne.0) go to 9800
@@ -3155,6 +3181,7 @@ subroutine compare_series(ifail)
            write(*,136) trim(aaa)
            write(LU_REC,136) trim(aaa)
 136        format(t5,'INDEX_OF_AGREEMENT ',a)
+
          else if(aoption.eq.'EXPONENT')then
            call get_keyword_value(ierr,1,exponent,rtemp,'EXPONENT')
            if(ierr.ne.0) go to 9800
@@ -3166,11 +3193,14 @@ subroutine compare_series(ifail)
              ' of file ',a)
              go to 9800
            end if
+
          else if(aoption.eq.'SERIES_NAME_BASE')then
            call get_series_name(ierr,ibseries,'SERIES_NAME_BASE')
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'END')then
            go to 200
+
          else
            call num2char(ILine_g,aline)
            call addquote(sInfile_g,sString_g)
@@ -3179,6 +3209,7 @@ subroutine compare_series(ifail)
            ' of file ',a)
            go to 9800
          end if
+
        end do
 
 ! -- The block has been read; now it is checked for correctness.
@@ -3331,6 +3362,8 @@ subroutine compare_series(ifail)
        tsum2=0.0
        tsum3=0.0
        tsum4=0.0
+       tsum5=0.0
+
        k=iobterm-1
        do j=isbterm,iseterm
          k=k+1
@@ -3344,41 +3377,74 @@ subroutine compare_series(ifail)
 !             go to 9800
 !           end if
 !         end if
-         rtemp1=series_g(isseries)%val(j)-rtemp
-         tsum1=tsum1+rtemp1
-         tsum2=tsum2+rtemp1*rtemp1
-         tsum3=tsum3+rtemp
+
+         ! difference between simulated and observed (Vsim - Vobs)
+         rtemp1 = series_g(isseries)%val(j) - rtemp
+
+         ! running sum of differences
+         tsum1 = tsum1 + rtemp1
+
+         ! running sum of the square of the differences
+         tsum2 = tsum2 + ( rtemp1 * rtemp1 )
+
+         ! running sum of observed values
+         tsum3 = tsum3 + rtemp
+
+         ! calculate this if we need INDEX of AGREEMENT or COEFFICIENT of EFFICIENCY
+         ! running sum of absolute value of difference raised to a power
          if((jia.ne.0).or.(jce.ne.0))then
-           tsum4=tsum4+abs(rtemp1)**exponent
+           tsum4 = tsum4 + abs(rtemp1)**exponent
          end if
+
+         ! running sum of the absolute value of the difference between
+         ! simulated and observed
+         tsum5 = tsum5 + abs(rtemp1)
        end do
-       tsum3=tsum3/isterm
+
+       ! this was formerly reassigned to tsum3
+       ! mean3 is the mean of OBSERVED values
+       mean3=tsum3/isterm
+
+       ! VOLUMETRIC EFFICIENCY
+       if (jve /= 0) then
+         ctable_g(i)%ve = 1.0 - (tsum5 / tsum3)
+       else
+         ctable_g(i)%ve = -1.0e37
+       endif
+
+       ! BIAS
        if(jbias.ne.0)then
-         ctable_g(i)%bias=tsum1/isterm
+         ctable_g(i)%bias = tsum1 / isterm
        else
-         ctable_g(i)%bias=-1.0e37
+         ctable_g(i)%bias = -1.0e37
        end if
+
+       ! STANDARD ERROR
        if(jse.ne.0)then
-         ctable_g(i)%se=sqrt(tsum2/(isterm-1))
+         ctable_g(i)%se = sqrt( tsum2 / (isterm - 1) )
        else
-         ctable_g(i)%se=-1.0e37
+         ctable_g(i)%se = -1.0e37
        end if
+
+       ! RELATIVE BIAS
        if(jrbias.ne.0)then
-         if(tsum3.eq.0.0)then
+         if(mean3 .eq. 0.0)then
            ctable_g(i)%rbias=1.0e30
          else
-           ctable_g(i)%rbias=tsum1/isterm/tsum3
+           ctable_g(i)%rbias = tsum1 / isterm / mean3
          end if
        else
-         ctable_g(i)%rbias=-1.0e37
+         ctable_g(i)%rbias = -1.0e37
        end if
+
+       ! RELATIVE STANDARD ERROR; NASH-SUTCLIFFE
        if((jrse.ne.0).or.(jns.ne.0))then
          tsum1=0.0
          k=iobterm-1
          do j=isbterm,iseterm
            k=k+1
-           rtemp1=series_g(ioseries)%val(k)-tsum3
-           tsum1=tsum1+rtemp1*rtemp1
+           rtemp1 = series_g(ioseries)%val(k) - tsum3
+           tsum1 = tsum1 + ( rtemp1 * rtemp1 )
          end do
          if(tsum1.le.0.0)then
            write(amessage,390) trim(series_g(ioseries)%name)
@@ -3388,27 +3454,29 @@ subroutine compare_series(ifail)
            go to 9800
          end if
          if(jrse.ne.0)then
-           ctable_g(i)%rse=sqrt(tsum2/(isterm-1))/sqrt(tsum1/(isterm-1))
+           ctable_g(i)%rse = sqrt( tsum2 / (isterm - 1) )/ sqrt( tsum1 / (isterm-1) )
          else
            ctable_g(i)%rse=-1.0e37
          end if
          if(jns.ne.0)then
-           ctable_g(i)%ns=1.0-tsum2/tsum1
+           ctable_g(i)%ns = 1.0 - ( tsum2 / tsum1 )
          else
-           ctable_g(i)%ns=-1.0e37
+           ctable_g(i)%ns = -1.0e37
          end if
        else
-           ctable_g(i)%rse=-1.0e37
-           ctable_g(i)%ns=-1.0e37
+           ctable_g(i)%rse = -1.0e37
+           ctable_g(i)%ns = -1.0e37
        end if
+
+       ! calculate COEFFICIENT of EFFICIENCY
        if(jce.ne.0)then
          tsum1=0.0
          k=iobterm-1
          if(ibseries.eq.0)then
            do j=isbterm,iseterm
              k=k+1
-             rtemp1=(abs(series_g(ioseries)%val(k)-tsum3))**exponent
-             tsum1=tsum1+rtemp1
+             rtemp1=(abs(series_g(ioseries)%val(k) - mean3 ) )**exponent
+             tsum1 = tsum1 + rtemp1
            end do
            if(tsum1.le.0.0)then
              write(amessage,410) trim(series_g(ioseries)%name)
@@ -3420,8 +3488,8 @@ subroutine compare_series(ifail)
          else
            do j=ibbterm,ibeterm
              k=k+1
-             rtemp1=(abs(series_g(ioseries)%val(k)-series_g(ibseries)%val(j)))**exponent
-             tsum1=tsum1+rtemp1
+             rtemp1=(abs(series_g(ioseries)%val(k) - series_g(ibseries)%val(j)))**exponent
+             tsum1 = tsum1 + rtemp1
            end do
            if(tsum1.le.0.0)then
              write(amessage,420) trim(series_g(ioseries)%name),  &
@@ -3432,10 +3500,12 @@ subroutine compare_series(ifail)
              go to 9800
            end if
          end if
-         ctable_g(i)%ce=1.0-tsum4/tsum1
+         ctable_g(i)%ce = 1.0 - ( tsum4 / tsum1 )
        else
-         ctable_g(i)%ce=-1.0e37
+         ctable_g(i)%ce = -1.0e37
        end if
+
+       ! calculate INDEX of AGREEMENT
        if(jia.ne.0)then
          tsum1=0.0
          k=iobterm-1
@@ -3443,9 +3513,9 @@ subroutine compare_series(ifail)
          if(ibseries.eq.0)then
            do j=isbterm,iseterm
              k=k+1
-             rtemp1=(abs(series_g(ioseries)%val(k)-tsum3)+   &
-                     abs(series_g(isseries)%val(j)-tsum3))**exponent
-             tsum1=tsum1+rtemp1
+             rtemp1=(abs(series_g(ioseries)%val(k) - mean3 )+   &
+                     abs(series_g(isseries)%val(j) - mean3 ) )**exponent
+             tsum1 = tsum1 + rtemp1
            end do
            if(tsum1.le.0.0)then
              write(amessage,430) trim(series_g(ioseries)%name), &
@@ -3460,8 +3530,8 @@ subroutine compare_series(ifail)
            do j=ibbterm,ibeterm
              k=k+1
              l=l+1
-             rtemp1=(abs(series_g(ioseries)%val(k)-series_g(ibseries)%val(j))+  &
-                     abs(series_g(isseries)%val(l)-series_g(ibseries)%val(j)))  &
+             rtemp1=(abs(series_g(ioseries)%val(k) - series_g(ibseries)%val(j))+  &
+                     abs(series_g(isseries)%val(l) - series_g(ibseries)%val(j)))  &
                      **exponent
              tsum1=tsum1+rtemp1
            end do
@@ -3474,9 +3544,9 @@ subroutine compare_series(ifail)
              go to 9800
            end if
          end if
-         ctable_g(i)%ia=1.0-tsum4/tsum1
+         ctable_g(i)%ia = 1.0 - tsum4 / tsum1
        else
-         ctable_g(i)%ia=-1.0e37
+         ctable_g(i)%ia = -1.0e37
        end if
 
        write(6,380) trim(aname)

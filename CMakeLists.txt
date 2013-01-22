@@ -30,6 +30,8 @@ set(PACKAGE_STRING "tsproc 2.0")
 set(PACKAGE_TARNAME "tsproc")
 set(PACKAGE_VERSION "2.0")
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 cmake_minimum_required(VERSION 2.8)
 
 option (MAKEFILE_VERBOSE
@@ -60,6 +62,21 @@ set( CMAKE_BUILD_TYPE "Release" CACHE STRING
 # What Fortran compiler are we using?
 #------------------------------------------------------------------------
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
+
+#------------------------------------------------------------------------
+# Locate utility programs
+#------------------------------------------------------------------------
+
+find_program( R_SCRIPT Rscript.exe Rscript
+			  HINTS
+			  ENV R_HOME
+              PATHS
+			  "c:/Program Files/R"
+			  "c:/Program Files (x86)/R"
+)
+
+message("Rscript.exe is defined as: " ${R_SCRIPT})
+
 
 #------------------------------------------------------------------------
 # Set platform-specific options

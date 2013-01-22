@@ -133,6 +133,7 @@ module tsp_data_structures
     real     ns
     real     ce
     real     ia
+    real     ve  ! volumetric efficiency
     integer  rec_icount
     integer  rec_begdays
     integer  rec_begsecs

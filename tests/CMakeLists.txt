@@ -1,5 +1,13 @@
 
-add_executable(xcat xcat.F90)
+#add_executable(xcat xcat.F90)
+
+find_program(TSPROC_EXECUTABLE tsproc.exe tsproc
+             PATH
+			 ${CMAKE_CURRENT_SOURCE_DIR}
+			 ${CMAKE_CURRENT_BINAry_DIR}
+)
+
+message("TSPROC LOCATION: " ${TSPROC_EXECUTABLE} )
 
 # Need input files over in build environment
 file(GLOB infiles
@@ -11,9 +19,6 @@ foreach(infilename ${infiles})
     set(outfile ${CMAKE_CURRENT_BINARY_DIR}/${infilename})
     configure_file(${infile} ${outfile} COPYONLY)
 endforeach()
-
-# Find the tsproc that this build environment created
-get_target_property(tsproclocation tsproc LOCATION)
 
 set(tests_that_should_pass
        test__read_statvar_file.inp    # requires 'statvar.dat'
@@ -32,7 +37,7 @@ set(R_script_tests
        tsp_compare_flow_duration_output.R
    )
 
-# process all tests_that_should-pass
+# process all tests_that_should_pass
 foreach(test_filename ${tests_that_should_pass})
    #
    get_filename_component(basename ${test_filename} NAME_WE)
@@ -41,8 +46,13 @@ foreach(test_filename ${tests_that_should_pass})
    # **    example: add_test(testname executable_name arg1 arg2 ... )
    #
    add_test(NAME ${basename}
-            COMMAND ${tsproclocation}
-            ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${CMAKE_CURRENT_BINARY_DIR}/${basename}.rec)
+            COMMAND ${TSPROC_EXECUTABLE}
+            ${test_filename} ${basename}.rec)
+
+   message("Test string: " ${basename})
+   message("   COMMAND " ${TSPROC_EXECUTABLE} " "
+            ${CMAKE_CURRENT_BINARY_DIR}/${test_filename} " " ${CMAKE_CURRENT_BINARY_DIR}/${basename}.rec )
+   message(" ")
 
    # set criteria for success of each test
    set_tests_properties(${basename}
@@ -55,19 +65,23 @@ foreach(test_filename ${tests_that_should_pass})
 
 endforeach()
 
-foreach(test_filename ${R_script_tests})
-   get_filename_component(basename ${test_filename} NAME_WE)
+if(DEFINED R_SCRIPT)
 
-   add_test(NAME ${basename}
-            COMMAND RScript --vanilla
-            ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${tsproclocation} )
+  foreach(test_filename ${R_script_tests})
+     get_filename_component(basename ${test_filename} NAME_WE)
 
-   # set criteria for success of each test
-   set_tests_properties(${basename}
-                     PROPERTIES PASS_REGULAR_EXPRESSION "PASS")
+     add_test(NAME ${basename}
+              COMMAND ${R_SCRIPT} --vanilla
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${TSPROC_EXECUTABLE} )
 
-   # set criteria for failure of each test
-   set_tests_properties(${basename}
-                     PROPERTIES FAIL_REGULAR_EXPRESSION "FAIL")
+     # set criteria for success of each test
+     set_tests_properties(${basename}
+                       PROPERTIES PASS_REGULAR_EXPRESSION "PASS")
 
-endforeach()
+     # set criteria for failure of each test
+     set_tests_properties(${basename}
+                       PROPERTIES FAIL_REGULAR_EXPRESSION "FAIL")
+
+  endforeach()
+
+endif()

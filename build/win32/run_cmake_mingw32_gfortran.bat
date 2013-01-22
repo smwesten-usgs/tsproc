@@ -14,6 +14,7 @@ set PATH=%PATH%;C:\Program Files (x86)\CMake 2.8\bin
 set PATH=%PATH%;C:\Program Files (x86)\CMake 2.8\share
 set PATH=%PATH%;c:\Program Files (x86)\Zeus
 set PATH=%PATH%;D:\DOS\gnuwin32\bin
+set R_HOME=C:\Program Files\R\R-2.15.2\bin
 set PATH=%PATH%;d:\saga_2.0.8;d:\saga_2.0.8\modules;d:\saga_2.0.8\dll;.
 
 set FC=c:\MinGW32\bin\gfortran
@@ -45,6 +46,7 @@ set CPPFLAGS="-DgFortran"
 
 set CMAKE_INCLUDE_PATH=%INCLUDE%
 set CMAKE_LIBRARY_PATH=%LIB%
+set CTEST_OUTPUT_ON_FAILURE=1
 
 :: add --trace to see copious details re: CMAKE
 
