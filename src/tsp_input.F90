@@ -3212,7 +3212,8 @@ subroutine get_wdm_series (ifail)
       , begsecs                                                             &
       , enddays                                                             &
       , endsecs                                                             &
-      , ixcon
+      , ixcon                                                               &
+      , ddays
     INTEGER                                                                 &
         lsdat (6)                                                           &
       , ledat (6)                                                           &
@@ -3269,7 +3270,9 @@ subroutine get_wdm_series (ifail)
     afile = ' '
     aname = ' '
     icontext = 0
-    hhd = - 9999
+    hhd = 0
+    nnd = 0
+    ssd = 0
     dsn = - 99999999
     filter = - 1.0E37
     ixcon = 0
@@ -3294,7 +3297,6 @@ subroutine get_wdm_series (ifail)
           GOTO 9800
        ENDIF
        aoption = cline (left_word (1) :right_word (1) )
-       print *, "aoption: '"//aoption//"'"
        CALL casetrans (aoption, 'hi')
        IF (aoption /= 'CONTEXT') THEN
           CALL test_context (ierr, icontext, acontext)
@@ -3446,6 +3448,12 @@ subroutine get_wdm_series (ifail)
        GOTO 9800
     ENDIF
 
+!   In order for WDM date/times to come out correct, need to make the first
+!   hour 0...
+    IF (hh1 == 24) THEN
+        hh1 = 0
+    ENDIF
+
     CALL addquote (afile, sString_g)
     WRITE (*, 1635) TRIM (sString_g)
     WRITE (LU_REC, 1635) TRIM (sString_g)
@@ -3487,12 +3495,6 @@ subroutine get_wdm_series (ifail)
        GOTO 9800
     ENDIF
 
-    !> call to timcvt will convert a date/time like this:
-    !> 12/31/2011    24:00:00
-    !>  to
-    !> 01/01/2012    00:00:00
-    CALL timcvt (llsdat)
-    CALL timcvt (lledat)
 
     !> assign default date bounds equal to the data date bounds;
     !> these are overwritten below if the user has specified values
@@ -3500,7 +3502,6 @@ subroutine get_wdm_series (ifail)
     lsdat = llsdat
     ledat = lledat
 
-    !> override default date/time range with any user-specified date/time
     if (lDate1HasBeenProvided) then
        lsdat (YEAR) = yy1; lsdat (MONTH) = mm1; lsdat (DAY) = dd1
     endif
@@ -3517,11 +3518,9 @@ subroutine get_wdm_series (ifail)
        ledat (HOUR) = hh2; ledat (MINUTE) = nn2; ledat (SECOND) = ss2
     endif
 
-    ! In order for WDM date/times to come out correct, need to make the first
-    ! hour 0...
-    IF (lsdat(HOUR) == 24) THEN
-        lsdat(HOUR) = 0
-    ENDIF
+    !> override default date/time range with any user-specified date/time
+    CALL timcvt (lsdat)
+    CALL timcvt (ledat)
 
     ! check to see if user supplied date range
     ! (assuming that one has been provided) is valid
@@ -3530,8 +3529,6 @@ subroutine get_wdm_series (ifail)
          ledat(YEAR),  ledat(MONTH), ledat(DAY), &
          ledat(HOUR), ledat(MINUTE), ledat(SECOND), &
          begdays, begsecs, enddays, endsecs )
-!    CALL date_check (ierr, yy1, mm1, dd1, hh1, nn1, ss1, yy2, mm2, dd2, hh2 &
-!      , nn2, ss2, begdays, begsecs, enddays, endsecs)
 
     IF (ierr /= 0) THEN
        GOTO 9800
@@ -3572,7 +3569,7 @@ subroutine get_wdm_series (ifail)
     IF (ierr /= 0) THEN
        GOTO 9800
     ENDIF
-
+ 
     dtran = 0
     qualfg = 30
     CALL wdtget (wdmunit, &
@@ -3611,6 +3608,16 @@ subroutine get_wdm_series (ifail)
 !              -82 - data set exists, but is wrong DSTYP
 !              -84 - data set number out of range
 
+    ! DEF_TIME is only used for time series day or greater
+    IF (tcode >= 4) THEN
+        IF (hhd == 24) THEN
+            hhd = 0
+            ddays = 1
+        ELSE
+            ddays = 0
+        ENDIF
+    ENDIF
+
     DO icnt = 1, iterm
 
        CALL timadd (lsdat, tcode, tstep, icnt - 1, adddate)
@@ -3622,10 +3629,10 @@ subroutine get_wdm_series (ifail)
        CALL timcvt (adddate)
 
        tempseries_g%days (icnt) = &
-         numdays (1, 1, 1970, adddate(DAY), adddate(MONTH), adddate(YEAR) )
+         numdays (1, 1, 1970, adddate(DAY), adddate(MONTH), adddate(YEAR) ) + ddays
 
        tempseries_g%secs (icnt) = &
-         numsecs (0, 0, 0, adddate(HOUR), adddate(MINUTE), adddate(SECOND) )
+         numsecs (0, 0, 0, adddate(HOUR) + hhd, adddate(MINUTE) + nnd, adddate(SECOND) + ssd)
 
     ENDDO
 

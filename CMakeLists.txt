@@ -30,7 +30,7 @@ set(PACKAGE_STRING "tsproc 2.0")
 set(PACKAGE_TARNAME "tsproc")
 set(PACKAGE_VERSION "2.0")
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.6)
 
 option (MAKEFILE_VERBOSE
       "Produce verbose makefiles?" OFF)

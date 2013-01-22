@@ -2287,6 +2287,8 @@ subroutine GetSysTimeDate(sDateStr,sDateStrPretty)
   character (len=256) :: sTime
   character (len=256) :: sYear
 
+  character fdate
+
   sRecord = FDATE()
 
   call chomp(sRecord,sDay)
