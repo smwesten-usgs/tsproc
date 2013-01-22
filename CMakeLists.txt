@@ -96,12 +96,10 @@ if(CMAKE_HOST_WIN32)
 		$(MINGWDIR)
       )
 
-      message("  GCC_LIB = " ${GCC_LIB})
-      message("  GFORTRAN_LIB = " ${GFORTRAN_LIB})
 
-      set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -mtune=native -ffree-line-length-none -static-libgcc -static-libgfortran")
+      set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -mtune=native -ffree-line-length-none -static-libgcc -static-libgfortran -finit-local-zero")
 
-      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none")
+      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none -finit-local-zero")
 
       SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libgfortran")
 

@@ -6246,8 +6246,8 @@ subroutine flow_duration(ifail)
              trim(__FILE__),__LINE__)
            allocate(iSortOrder(iCount), stat=iStat)
            call assert(iStat==0, &
-             "Problem allocating memory for storing sort order for " &
-             //"exceedance probabilities", trim(__FILE__),__LINE__)
+             "Problem allocating memory for storing sort order for exceedance probabilities", &
+             trim(__FILE__),__LINE__)
 
            sRecord = adjustl(sRecord)
            ! read and throw away first value

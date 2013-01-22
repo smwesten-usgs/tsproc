@@ -3181,6 +3181,8 @@ subroutine get_wdm_series (ifail)
 
     INTEGER, INTENT (OUT) ::                                                &
         ifail
+
+    ! [ LOCALS ]
     INTEGER                                                                 &
         dd1                                                                 &
       , mm1                                                                 &
@@ -3210,7 +3212,8 @@ subroutine get_wdm_series (ifail)
       , begsecs                                                             &
       , enddays                                                             &
       , endsecs                                                             &
-      , ixcon
+      , ixcon                                                               &
+      , ddays
     INTEGER                                                                 &
         lsdat (6)                                                           &
       , ledat (6)                                                           &
@@ -3240,6 +3243,23 @@ subroutine get_wdm_series (ifail)
     INTEGER, EXTERNAL::                                                     &
         timchk
 
+    integer (kind=T_INT), parameter :: YEAR    = 1
+    integer (kind=T_INT), parameter :: MONTH   = 2
+    integer (kind=T_INT), parameter :: DAY     = 3
+    integer (kind=T_INT), parameter :: HOUR    = 4
+    integer (kind=T_INT), parameter :: MINUTE  = 5
+    integer (kind=T_INT), parameter :: SECOND  = 6
+
+    logical (kind=T_LOGICAL) :: lDate1HasBeenProvided
+    logical (kind=T_LOGICAL) :: lDate2HasBeenProvided
+    logical (kind=T_LOGICAL) :: lTime1HasBeenProvided
+    logical (kind=T_LOGICAL) :: lTime2HasBeenProvided
+
+    lDate1HasBeenProvided = lFALSE
+    lDate2HasBeenProvided = lFALSE
+    lTime1HasBeenProvided = lFALSE
+    lTime2HasBeenProvided = lFALSE
+
     ifail = 0
     CurrentBlock_g= 'GET_SERIES_WDM'
 
@@ -3250,11 +3270,9 @@ subroutine get_wdm_series (ifail)
     afile = ' '
     aname = ' '
     icontext = 0
-    yy1 = - 9999
-    hh1 = - 9999
-    yy2 = - 9999
-    hh2 = - 9999
-    hhd = - 9999
+    hhd = 0
+    nnd = 0
+    ssd = 0
     dsn = - 99999999
     filter = - 1.0E37
     ixcon = 0
@@ -3293,11 +3311,13 @@ subroutine get_wdm_series (ifail)
           ENDIF
           ixcon = 1
        ENDIF
+
        IF (aoption == 'FILE') THEN
           CALL get_file_name (ierr, afile)
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'DSN') THEN
           CALL char2num (ierr, cline (left_word (2) :right_word (2) ), dsn  &
             )
@@ -3312,36 +3332,47 @@ subroutine get_wdm_series (ifail)
           WRITE (*, 1585) TRIM (aline)
           WRITE (LU_REC, 1585) TRIM (aline)
 1585      FORMAT ( T5, 'DSN ', A)
+
        ELSEIF (aoption == 'DATE_1') THEN
           CALL get_date (ierr, dd1, mm1, yy1, 'DATE_1')
+          lDate1HasBeenProvided = lTRUE
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'DATE_2') THEN
           CALL get_date (ierr, dd2, mm2, yy2, 'DATE_2')
+          lDate2HasBeenProvided = lTRUE
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'TIME_1') THEN
           CALL get_time (ierr, hh1, nn1, ss1, 'TIME_1')
+          lTime1HasBeenProvided = lTRUE
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'TIME_2') THEN
           CALL get_time (ierr, hh2, nn2, ss2, 'TIME_2')
+          lTime2HasBeenProvided = lTRUE
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'DEF_TIME') THEN
           CALL get_time (ierr, hhd, nnd, ssd, 'DEF_TIME')
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'NEW_SERIES_NAME') THEN
           call get_new_series_name(ierr,aname)
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'CONTEXT') THEN
           IF (ixcon /= 0) THEN
              CALL num2char (Iline_g, aline)
@@ -3355,6 +3386,7 @@ subroutine get_wdm_series (ifail)
           IF (ierr /= 0) THEN
              GOTO 9800
           ENDIF
+
        ELSEIF (aoption == 'FILTER') THEN
           CALL char2num (ierr, cline (left_word (2) :right_word (2) ),      &
             filter)
@@ -3369,8 +3401,10 @@ subroutine get_wdm_series (ifail)
           WRITE (*, 1600) cline (left_word (2) :right_word (2) )
           WRITE (LU_REC, 1600) cline (left_word (2) :right_word (2) )
 1600      FORMAT ( T5, 'FILTER ', A)
+
        ELSEIF (aoption == 'END') THEN
           GOTO 1610
+
        ELSE
           CALL num2char (Iline_g, aline)
           CALL addquote (sInfile_g, sString_g)
@@ -3380,6 +3414,7 @@ subroutine get_wdm_series (ifail)
             ' block at line ', A, ' of file ', A)
           GOTO 9800
        ENDIF
+
     ENDDO
 !
 ! -- If there are any absences in the GETSERIES block, this is now reported.
@@ -3412,33 +3447,12 @@ subroutine get_wdm_series (ifail)
          ' block in file ', A)
        GOTO 9800
     ENDIF
-    CALL date_check (ierr, yy1, mm1, dd1, hh1, nn1, ss1, yy2, mm2, dd2, hh2 &
-      , nn2, ss2, begdays, begsecs, enddays, endsecs)
-    IF (ierr /= 0) THEN
-       GOTO 9800
-    ENDIF
-!
-!
-! -- There appear to be no errors in the block, so now it is processed.
-!
+
 !   In order for WDM date/times to come out correct, need to make the first
 !   hour 0...
     IF (hh1 == 24) THEN
         hh1 = 0
     ENDIF
-
-    lsdat (1) = yy1
-    lsdat (2) = mm1
-    lsdat (3) = dd1
-    lsdat (4) = hh1
-    lsdat (5) = nn1
-    lsdat (6) = ss1
-    ledat (1) = yy2
-    ledat (2) = mm2
-    ledat (3) = dd2
-    ledat (4) = hh2
-    ledat (5) = nn2
-    ledat (6) = ss2
 
     CALL addquote (afile, sString_g)
     WRITE (*, 1635) TRIM (sString_g)
@@ -3455,69 +3469,184 @@ subroutine get_wdm_series (ifail)
 !
 !   Make sure we can read the data set.
     CALL wdatim (wdmunit, dsn, llsdat, lledat, tstep, tcode, retcode)
+
     IF (retcode == - 6) THEN
        WRITE (amessage, 1645) TRIM (sString_g)
 1645   FORMAT (                                                             &
          'there is no data pertaining to the nominated DSN in WDM file ', A &
          )
        GOTO 9800
+
     ELSEIF (retcode == - 81) THEN
        WRITE (amessage, 1650) TRIM (sString_g)
 1650   FORMAT ('the nominated data set does not exist in WDM file ', A)
        GOTO 9800
+
     ELSEIF (retcode == - 82) THEN
        WRITE (amessage, 1655) TRIM (sString_g)
 1655   FORMAT (                                                             &
          'the nominated data set is not a time-series data set in file ', A &
          )
        GOTO 9800
+
     ELSEIF (retcode /= 0) THEN
        WRITE (amessage, 1660) TRIM (sString_g)
 1660   FORMAT ('cannot retrieve data for nominated data set from file ', A)
        GOTO 9800
     ENDIF
-!
-    CALL timcvt (llsdat)
-    CALL timcvt (lledat)
-!
+
+
+    !> assign default date bounds equal to the data date bounds;
+    !> these are overwritten below if the user has specified values
+    !> for DATE_1, DATE_2, etc.
+    lsdat = llsdat
+    ledat = lledat
+
+    if (lDate1HasBeenProvided) then
+       lsdat (YEAR) = yy1; lsdat (MONTH) = mm1; lsdat (DAY) = dd1
+    endif
+
+    if (lTime1HasBeenProvided) then
+       lsdat (HOUR) = hh1; lsdat (MINUTE) = nn1; lsdat (SECOND) = ss1
+    endif
+
+    if (lDate2HasBeenProvided) then
+       ledat (YEAR) = yy2; ledat (MONTH) = mm2; ledat (DAY) = dd2
+    endif
+
+    if (lTime2HasBeenProvided) then
+       ledat (HOUR) = hh2; ledat (MINUTE) = nn2; ledat (SECOND) = ss2
+    endif
+
+    !> override default date/time range with any user-specified date/time
+    CALL timcvt (lsdat)
+    CALL timcvt (ledat)
+
+    ! check to see if user supplied date range
+    ! (assuming that one has been provided) is valid
+    call date_check( ierr, lsdat(YEAR),  lsdat(MONTH), lsdat(DAY), &
+         lsdat(HOUR), lsdat(MINUTE), lsdat(SECOND), &
+         ledat(YEAR),  ledat(MONTH), ledat(DAY), &
+         ledat(HOUR), ledat(MINUTE), ledat(SECOND), &
+         begdays, begsecs, enddays, endsecs )
+
+    IF (ierr /= 0) THEN
+       GOTO 9800
+    ENDIF
+
 ! -- Next we ensure that our dates are no wider than those of the actual time series.
 !   and check that requested start and end dates are reasonable.
+
+! Function definition for timchk: WDM library, file UTDATE.FOR
+!     Determine the calendar order of two dates.
+!     The dates are assumed to be valid.
+!     TIMCHK = 1 if DATE1 < DATE2
+!            = 0 if DATE1 = DATE2
+!            =-1 if DATE1 > DATE2
+
     IF (timchk (lsdat, llsdat) > 0) THEN
+
        WRITE (amessage, 1665) TRIM (sString_g)
 1665   FORMAT (                                                             &
          'the requested start date is before the beginning date of the datas&
          &et in the wdm file ', A)
        GOTO 9800
+
     ELSEIF (timchk (ledat, lledat) < 0) THEN
+
        WRITE (amessage, 1670) TRIM (sString_g)
 1670   FORMAT (                                                             &
          'the requested end date is after the end date of the dataset in the&
          & wdm file ', A)
        GOTO 9800
+
     ENDIF
-!
+
 !   Collect the number of values (iterm, a.k.a. nvals).
     CALL timdif (lsdat, ledat, tcode, tstep, iterm)
-!
+
     CALL alloc_tempseries (ierr, iterm)
     IF (ierr /= 0) THEN
        GOTO 9800
     ENDIF
-!
+ 
     dtran = 0
     qualfg = 30
-    CALL wdtget (wdmunit, dsn, tstep, lsdat, iterm,                         &
-      dtran, qualfg, tcode, tempseries_g%val, retcode)
+    CALL wdtget (wdmunit, &
+                 dsn,     &
+                 tstep,   &
+                 lsdat,   &
+                 iterm,   &
+                 dtran,   &
+                 qualfg,  &
+                 tcode,   &
+                 tempseries_g%val, &
+                 retcode)
 
-!
+!     + + + ARGUMENT DEFINITIONS: subroutine wdtget, file WDTMS1.FOR
+!     WDMSFL - watershed data management file unit number
+!     DSN    - data-set number
+!     DELT   - time step for get
+!     DATES  - starting date
+!     NVAL   - number of values
+!     DTRAN  - transformation code
+!              0 - ave,same
+!              1 - sum,div
+!              2 - max
+!              3 - min
+!     QUALFG - allowed quality code
+!     TUNITS - time units for get
+!     RVAL   - array to place retrieved values in
+!     RETCOD - return code
+!                0 - everything O.K.
+!               -8 - invalid date
+!              -14 - date specified not within valid range for data set
+!              -20 - problem with one or more of following:
+!                    GPFLG, DXX, NVAL, QUALVL, LTSTEP, LTUNIT
+!              -21 - date from WDM doesn't match expected date
+!              -81 - data set does not exist
+!              -82 - data set exists, but is wrong DSTYP
+!              -84 - data set number out of range
+
+    ! DEF_TIME is only used for time series day or greater
+    IF (tcode >= 4) THEN
+        IF (hhd == 24) THEN
+            hhd = 0
+            ddays = 1
+        ELSE
+            ddays = 0
+        ENDIF
+    ENDIF
+
     DO icnt = 1, iterm
+
        CALL timadd (lsdat, tcode, tstep, icnt - 1, adddate)
+
+       ! Convert a date that uses the midnight convention of 24:00
+       ! to the convention 00:00.  For example, 1982/09/30 24:00:00
+       ! would be converted to the date 1982/10/01 00:00:00.
+
        CALL timcvt (adddate)
-       tempseries_g%days (icnt) = numdays (1, 1, 1970, adddate (3), adddate   &
-         (2), adddate (1) )
-       tempseries_g%secs (icnt) = numsecs (0, 0, 0, adddate (4), adddate (    &
-         5), adddate (6) )
+
+       tempseries_g%days (icnt) = &
+         numdays (1, 1, 1970, adddate(DAY), adddate(MONTH), adddate(YEAR) ) + ddays
+
+       tempseries_g%secs (icnt) = &
+         numsecs (0, 0, 0, adddate(HOUR) + hhd, adddate(MINUTE) + nnd, adddate(SECOND) + ssd)
+
     ENDDO
+
+!     + + + ARGUMENT DEFINITIONS: timadd, file UTDATE.FOR
+!     DATE1  - starting date
+!     TCODE  - time units
+!              1 - second          5 - month
+!              2 - minute          6 - year
+!              3 - hour            7 - century
+!              4 - day
+!     TSTEP  - time step in TCODE units
+!     NVALS  - number of time steps to be added
+!     DATE2  - new date
+
 !
 ! -- The time series is now copied to a real time series and filter applied.
 !
@@ -3540,12 +3669,13 @@ subroutine get_wdm_series (ifail)
 1685   FORMAT ('cannot allocate memory for another time series.')
        GOTO 9800
     ENDIF
-!
+
     series_g (i) %active = .TRUE.
     series_g (i) %name = aname
     series_g (i) %nterm = iterm
     series_g (i) %type = 'ts'
     jterm = 0
+
     IF (filter < - 1.0E35) THEN
        DO j = 1, iterm
           series_g (i) %val (j) = tempseries_g%val (j)
@@ -3553,12 +3683,22 @@ subroutine get_wdm_series (ifail)
           series_g (i) %secs (j) = tempseries_g%secs (j)
        ENDDO
     ELSE
+       !> SPACING: intrinsic that determines the distance between the
+       !>          argument and the nearest adjacent number of the same
+       !>          type; the construct below is designed to avoid
+       !>          equivalence testing of real values, a definite "no-no"!
        fspace = ABS (3.0*SPACING (filter) )
        DO j = 1, iterm
+
           fval = tempseries_g%val (j)
+
+          !> test to see if the difference between the data value and the
+          !> filter value is close to machine resolution; if it is, assume
+          !> that the value should be filtered
           IF (ABS (fval - filter) < fspace) THEN
-             GOTO 1710
+            GOTO 1710
           ENDIF
+
           jterm = jterm + 1
           series_g (i) %val (jterm) = fval
           series_g (i) %days (jterm) = tempseries_g%days (j)
@@ -3567,6 +3707,7 @@ subroutine get_wdm_series (ifail)
        ENDDO
        series_g (i) %nterm = jterm
     ENDIF
+
     CALL addquote (afile, sString_g)
     WRITE (*, 1720) TRIM (aname), TRIM (sString_g)
     WRITE (LU_REC, 1720) TRIM (aname), TRIM (sString_g)
@@ -3575,8 +3716,9 @@ subroutine get_wdm_series (ifail)
     IF (wdmunit /= 0) THEN
        CALL WDFLCL(wdmunit, ifail)
     ENDIF
+
     GOTO 1750
-!
+
 1725 CONTINUE
     CALL num2char (Iline_g, aline)
     CALL addquote (sInfile_g, sString_g)
@@ -3594,7 +3736,7 @@ subroutine get_wdm_series (ifail)
     CALL write_message (leadspace = 'yes', error = 'yes')
     CALL write_message (iunit = LU_REC, leadspace = 'yes')
     ifail = 1
-!
+
 1750 CONTINUE
 
     RETURN
