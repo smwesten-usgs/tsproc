@@ -1478,7 +1478,12 @@ subroutine close_files
 
    integer         :: i,ierr
 
+#ifdef UNROLL_CONTROL_FILE
    close(LU_TSPROC_CONTROL, STATUS='DELETE')
+#else
+   close(LU_TSPROC_CONTROL, STATUS='KEEP')
+#endif
+
    do i=10,100
      close(unit=i,iostat=ierr)
    end do

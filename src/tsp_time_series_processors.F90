@@ -2976,7 +2976,7 @@ subroutine compare_series(ifail)
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
        icontext,i,begdays,begsecs,enddays,endsecs, &
        j,isbterm,iobterm,iseterm,ioeterm,iiterm,ixcon,isterm,ioterm,k
-       real rtemp,rtemp1,tsum1,tsum2,tsum3,tsum4,tsum5, mean3
+       real (kind=T_DBL) :: rtemp,rtemp1,tsum1,tsum2,tsum3,tsum4,tsum5, mean3
        character*3 aaa
        character (len=iTSNAMELENGTH) :: aname
        character*15 aline
@@ -3243,12 +3243,14 @@ subroutine compare_series(ifail)
        if(ierr.ne.0) go to 9800
        call beg_end_check(ierr,ioseries,begdays,begsecs,enddays,endsecs)
        if(ierr.ne.0) go to 9800
+
        if((jbias.eq.0).and.(jse.eq.0).and.(jrbias.eq.0)  &
-         .and.(jrse.eq.0).and.(jns.eq.0).and.(jce.eq.0).and.(jia.eq.0))then
+         .and.(jrse.eq.0).and.(jns.eq.0).and.(jce.eq.0).and.(jia.eq.0) &
+         .and. jve == 0 ) then
          write(amessage,240) trim(CurrentBlock_g)
 240      format('at least one of the BIAS, STANDARD_ERROR, RELATIVE_BIAS, ',     &
          'RELATIVE_STANDARD_ERROR, NASH_SUTCLIFFE, ', &
-         'COEFFICIENT_OF_EFFICIENCY or INDEX_OF_AGREEMENT keywords must ', &
+         'VOLUMETRIC_EFFICIENCY, COEFFICIENT_OF_EFFICIENCY or INDEX_OF_AGREEMENT keywords must ', &
          'be supplied within a ',a,' block.')
          go to 9800
        end if
@@ -3403,25 +3405,25 @@ subroutine compare_series(ifail)
 
        ! this was formerly reassigned to tsum3
        ! mean3 is the mean of OBSERVED values
-       mean3=tsum3/isterm
+       mean3=tsum3 / real(isterm, kind=T_DBL)
 
        ! VOLUMETRIC EFFICIENCY
        if (jve /= 0) then
-         ctable_g(i)%ve = 1.0 - (tsum5 / tsum3)
+         ctable_g(i)%ve = 1.0_T_DBL - (tsum5 / tsum3)
        else
          ctable_g(i)%ve = -1.0e37
        endif
 
        ! BIAS
        if(jbias.ne.0)then
-         ctable_g(i)%bias = tsum1 / isterm
+         ctable_g(i)%bias = tsum1 / real(isterm, kind=T_DBL)
        else
          ctable_g(i)%bias = -1.0e37
        end if
 
        ! STANDARD ERROR
        if(jse.ne.0)then
-         ctable_g(i)%se = sqrt( tsum2 / (isterm - 1) )
+         ctable_g(i)%se = sqrt( tsum2 / real(isterm - 1, kind=T_DBL) )
        else
          ctable_g(i)%se = -1.0e37
        end if
@@ -3431,7 +3433,7 @@ subroutine compare_series(ifail)
          if(mean3 .eq. 0.0)then
            ctable_g(i)%rbias=1.0e30
          else
-           ctable_g(i)%rbias = tsum1 / isterm / mean3
+           ctable_g(i)%rbias = tsum1 / real(isterm, kind=T_DBL) / mean3
          end if
        else
          ctable_g(i)%rbias = -1.0e37
@@ -3443,7 +3445,7 @@ subroutine compare_series(ifail)
          k=iobterm-1
          do j=isbterm,iseterm
            k=k+1
-           rtemp1 = series_g(ioseries)%val(k) - tsum3
+           rtemp1 = series_g(ioseries)%val(k) - mean3
            tsum1 = tsum1 + ( rtemp1 * rtemp1 )
          end do
          if(tsum1.le.0.0)then
@@ -3454,7 +3456,8 @@ subroutine compare_series(ifail)
            go to 9800
          end if
          if(jrse.ne.0)then
-           ctable_g(i)%rse = sqrt( tsum2 / (isterm - 1) )/ sqrt( tsum1 / (isterm-1) )
+           ctable_g(i)%rse = sqrt( tsum2 / real(isterm - 1, kind=T_DBL ) ) &
+               / sqrt( tsum1 / real(isterm-1, kind=T_DBL) )
          else
            ctable_g(i)%rse=-1.0e37
          end if

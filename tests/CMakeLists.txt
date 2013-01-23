@@ -35,6 +35,7 @@ set(tests_that_should_pass
 
 set(R_script_tests
        tsp_compare_flow_duration_output.R
+	   test_series_compare_output.R
    )
 
 # process all tests_that_should_pass
@@ -70,9 +71,14 @@ if(DEFINED R_SCRIPT)
   foreach(test_filename ${R_script_tests})
      get_filename_component(basename ${test_filename} NAME_WE)
 
+   message("Test string: " ${basename})
+   message("   COMMAND " ${R_SCRIPT} " --vanilla "
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " " ${CMAKE_CURRENT_BINARY_DIR} )
+   message(" ")
+
      add_test(NAME ${basename}
               COMMAND ${R_SCRIPT} --vanilla
-              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${TSPROC_EXECUTABLE} )
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${CMAKE_CURRENT_BINARY_DIR} )
 
      # set criteria for success of each test
      set_tests_properties(${basename}

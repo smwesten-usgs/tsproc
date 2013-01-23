@@ -2922,6 +2922,11 @@ subroutine write_list_output(ifail)
           if(ctable_g(jctable)%ia.gt.-1.0e35)then
             write(LU_OUT,1340) ctable_g(jctable)%ia
 1340        format(t5,'Index of agreement:',t55,1pg14.7)
+          endif
+
+          if (ctable_g(jctable)%ve .gt. -1.0e35) then
+            write(LU_OUT,1350) ctable_g(jctable)%ve
+1350        format(t5,'Volumetric efficiency:',t55,1pg14.7)
           end if
        end do
 

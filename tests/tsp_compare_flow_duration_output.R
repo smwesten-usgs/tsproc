@@ -3,11 +3,11 @@ myargs <- commandArgs(trailingOnly = TRUE)
 # this is where CMake BUILDS the TSPROC executable
 bin_dir <- myargs[1]
 
-tsproc_exe <- paste(bin_dir,"src/tsproc.exe",sep="/")
+tsproc_exe <- paste(bin_dir,"../src/tsproc.exe",sep="/")
 tsproc_inp <- "tsproc_test_flow_duration.inp"
 tsproc_log <- "tsproc_test_flow_duration.log"
 
-setwd(paste(bin_dir,"tests", sep="/"))
+setwd(bin_dir)
 
 read_ssf <- function(filename) {
   

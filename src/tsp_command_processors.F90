@@ -1,5 +1,10 @@
 module tsp_command_processors
 
+  interface get_keyword_value
+    module procedure get_keyword_value_single
+    module procedure get_keyword_value_double
+  end interface
+
 contains
 
 !     Last change:  JD   22 Sep 2001    9:36 pm
@@ -1517,7 +1522,7 @@ subroutine volume_interp_s(ifail,num,days,secs,flows,bdays,bsecs,fdays,fsecs,vol
 end subroutine volume_interp_s
 
 
-subroutine get_keyword_value(ifail,itype,ival,rval,aword)
+subroutine get_keyword_value_single(ifail,itype,ival,rval,aword)
 
 ! -- Subroutine GET_KEYWORD_VALUE retreives a keyword value from a TSPROC input file.
 
@@ -1561,7 +1566,7 @@ subroutine get_keyword_value(ifail,itype,ival,rval,aword)
 9800   ifail=1
        return
 
-end subroutine get_keyword_value
+end subroutine get_keyword_value_single
 
 
 subroutine get_keyword_value_double(ifail,itype,ival,rval,aword)
