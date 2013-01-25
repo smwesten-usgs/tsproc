@@ -1721,12 +1721,18 @@ subroutine vol_to_series(ifail)
        integer, intent(out)   :: ifail
 
        integer ivtable,nsterm,idiff,ihalf,isecs,icontext,ixcon,ierr,iser, &
-       j,idays
+       j,idays, itemp
        character (len=iTSNAMELENGTH) :: aname,abscissa
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
+       logical (kind=T_LOGICAL) :: lCumulativeValues
+       real (kind=T_DBL) :: dpCumulativeVolume
+       real :: factor
 
+       lCumulativeValues = lFALSE
+       dpCumulativeVolume = 0_T_DBL
+       factor = 1.0
        ifail=0
        CurrentBlock_g='V_TABLE_TO_SERIES'
 
@@ -1748,13 +1754,13 @@ subroutine vol_to_series(ifail)
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
          call linesplit(ierr,2)
-         if(ierr.ne.0)then
-           call num2char(ILine_g,aline)
-           call addquote(sInfile_g,sString_g)
-           write(amessage,20) trim(aline),trim(sString_g)
-20         format('there should be 2 entries on line ',a,' of file ',a)
-           go to 9800
-         end if
+!         if(ierr.ne.0)then
+!           call num2char(ILine_g,aline)
+!           call addquote(sInfile_g,sString_g)
+!           write(amessage,20) trim(aline),trim(sString_g)
+!20         format('there should be 2 entries on line ',a,' of file ',a)
+!           go to 9800
+!         end if
          aoption=cline(left_word(1):right_word(1))
          call casetrans(aoption,'hi')
          if(aoption.ne.'CONTEXT')then
@@ -1771,9 +1777,18 @@ subroutine vol_to_series(ifail)
          if(aoption.eq.'V_TABLE_NAME')then
            call get_table_name(ierr,ivtable,2)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'NEW_SERIES_NAME')then
            call get_new_series_name(ierr,aname)
            if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'FACTOR')then
+           call get_keyword_value(ierr,2,itemp,factor,'FACTOR')
+           if(ierr.ne.0) go to 9800
+
+         else if(aoption.eq.'CUMULATIVE')then
+           lCumulativeValues = lTRUE
+
          else if(aoption.eq.'CONTEXT')then
            if(ixcon.ne.0)then
              call num2char(ILine_g,aline)
@@ -1784,6 +1799,7 @@ subroutine vol_to_series(ifail)
            end if
            call get_context(ierr,icontext,acontext)
            if(ierr.ne.0) go to 9800
+
          else if(aoption.eq.'TIME_ABSCISSA')then
            call getfile(ierr,cline,abscissa,left_word(2),right_word(2))
            if(ierr.ne.0)then
@@ -1808,6 +1824,7 @@ subroutine vol_to_series(ifail)
            write(*,60) trim(abscissa)
            write(LU_REC,60) trim(abscissa)
 60         format(t5,'TIME_ABSCISSA ',a)
+
          else if(aoption.eq.'END')then
            go to 200
          else
@@ -1900,9 +1917,18 @@ subroutine vol_to_series(ifail)
            series_g(iser)%secs(j)=isecs
          end do
        end if
-       do j=1,nsterm
-         series_g(iser)%val(j)=vtable_g(ivtable)%vol(j)
-       end do
+
+       ! assign volumes to time series elements
+       if(lCumulativeValues) then
+         do j=1,nsterm
+           dpCumulativeVolume = dpCumulativeVolume + vtable_g(ivtable)%vol(j) * factor
+           series_g(iser)%val(j) = dpCumulativeVolume
+         end do
+       else
+         do j=1,nsterm
+           series_g(iser)%val(j)=vtable_g(ivtable)%vol(j) * factor
+         end do
+       endif
 
        write(6,390) trim(aname)
        write(LU_REC,390) trim(aname)
