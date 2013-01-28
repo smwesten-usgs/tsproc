@@ -22,7 +22,6 @@ endforeach()
 
 set(tests_that_should_pass
        test__read_statvar_file.inp    # requires 'statvar.dat'
-       hi_test_01.inp
        step4f.inp
        hi_test_all_classes.inp
        hi_test_inv_indices.inp
