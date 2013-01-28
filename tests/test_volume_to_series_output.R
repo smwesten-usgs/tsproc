@@ -175,6 +175,9 @@ tsp_sim_vol <- read_ssf("test__volume_to_series_sim.ssf")
 tsp_obs_cum_vol <- read_ssf("test__volume_to_series_cumulative_obs.ssf")
 tsp_sim_cum_vol <- read_ssf("test__volume_to_series_cumulative_sim.ssf")
 
+mydates <- read.table("dates_6500.txt", as.is=TRUE)
+mydates$date_1 <- strptime(paste(mydates$V1, mydates$V2),format="%m/%d/%Y %H:%M:%S")
+mydates$date_2 <- strptime(paste(mydates$V3, mydates$V4),format="%m/%d/%Y %H:%M:%S")
 
 my_sim_subset <- subset(my_sim_data$dat, datetime >= DATE_1 & datetime <= DATE_2)
 my_obs_subset <- subset(my_obs_data$dat, datetime >= DATE_1 & datetime <= DATE_2)
