@@ -3003,7 +3003,7 @@ subroutine write_list_output(ifail)
          write(LU_OUT,2915) gtable_g(jgtable)%g_table_header
 2915     format(t4,a75,t90,'Value')
          do j=1,ubound(gtable_g(jgtable)%sDescription, 1 )
-           write(LU_OUT,fmt="(t4,a,t82,f14.4)") gtable_g(jgtable)%sDescription(j), &
+           write(LU_OUT,fmt="(t4,a,t82,g14.7)") gtable_g(jgtable)%sDescription(j), &
               gtable_g(jgtable)%rValue(j)
          end do
        end do

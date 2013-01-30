@@ -85,41 +85,32 @@ if(CMAKE_HOST_WIN32)
 
     if (Fortran_COMPILER_NAME MATCHES "gfortran[.a-z]*")
 
-      if( PLATFORM_TYPE MATCHES "x64" )
-
-		set( MINGWDIR "C:/MinGW64" )
-
-	  else()
-
-	    set( MINGWDIR "C:/MinGW32" )
-
-	  endif()
-
-      message(" <-- setting options for gfortran on MinGW -->")
+      message("")
+      message(" ***** setting options for gfortran on MinGW *****")
 	  message("  PLATFORM_TYPE = " ${PLATFORM_TYPE} )
-	  message("  MINGWDIR = " ${MINGWDIR} )
+	  message("  MINGWDIR = " ${MINGWBASE} )
 
       set(CMAKE_INSTALL_PREFIX "d:/DOS" CACHE STRING
           "Location for installation of the executable")
 
       FIND_LIBRARY(GCC_LIB libgcc.a
+	    ENV
+		${LIBRARY_PATH}
 	    HINTS
-		$(MINGWDIR)
-		C:/mingw64/lib/gcc/x86_64-w64-mingw32/4.7.2
+		${MINGWBASE}
       )
 
       FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
+	    ENV
+		${LIBRARY_PATH}
 	    HINTS
-		$(MINGWDIR)
+		${MINGWBASE}
       )
 
-
       set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -mtune=native -ffree-line-length-none -static-libgcc -static-libgfortran -finit-local-zero")
-
       set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none -finit-local-zero")
 
       SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libgfortran")
-
       set(EXTRA_LIBS ${EXTRA_LIBS} ${GCC_LIB} ${GFORTRAN_LIB})
 
       set_property(CACHE CMAKE_BUILD_TYPE
@@ -127,18 +118,16 @@ if(CMAKE_HOST_WIN32)
 
       add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
-#     SET(CMAKE_INSTALL_PREFIX "../../../lib/win32" CACHE PATHFILE "Installation directory")
-
    endif ()
 
 elseif(CMAKE_HOST_UNIX)
 
     if (Fortran_COMPILER_NAME MATCHES "^gfortran[.a-z]*")
 
-      message(" <-- setting options for gfortran on UNIX like OS -->")
+      message("")
+      message(" ***** setting options for gfortran on UNIX like OS *****")
 
       set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
-
       set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -pg -fbounds-check -Wall -Wextra -fexceptions -ffree-line-length-none")
 
     endif ()
@@ -146,7 +135,8 @@ elseif(CMAKE_HOST_UNIX)
     # set options specific to the Intel compiler on Linux
     if (Fortran_COMPILER_NAME MATCHES "ifort[.a-z]*")
 
-      message(" <-- setting options for Intel fortran on Linux -->")
+      message("")
+      message(" ***** setting options for Intel fortran on Linux *****")
 
       set(CMAKE_INSTALL_PREFIX "/usr/local/bin" CACHE STRING
           "Location for installation of the executable")
@@ -155,7 +145,7 @@ elseif(CMAKE_HOST_UNIX)
       set (CMAKE_Fortran_FLAGS_DEBUG "-warn all -traceback ")
 
       SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel -static-libgcc")
-      #set(EXTRA_LIBS "${EXTRA_LIBS} libgcc.a libgfortran.a"} )
+      set(EXTRA_LIBS "${EXTRA_LIBS} libgcc.a libgfortran.a"} )
       add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc ${CMAKE_INSTALL_PREFIX}/tsproc )
 
     endif()
@@ -169,8 +159,10 @@ else()
 
 endif()
 
-link_directories(${PROJECT_SOURCE_DIR}/lib/${PLATFORM_SUBDIR})
+message(" *****")
+message("")
 
 enable_testing()
 add_subdirectory(src)
-add_subdirectory(tests)
+add_subdirectory(tests/io)
+add_subdirectory(tests/calcs)

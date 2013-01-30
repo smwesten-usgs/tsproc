@@ -4503,6 +4503,7 @@ subroutine compute_hydrologic_indices(ifail)
        TL%lInclude = lFALSE
        TH%lInclude = lFALSE
        RA%lInclude = lFALSE
+       lFlowComponent = lFALSE
 
        iNumberOfKeywords = 0
 
@@ -4588,7 +4589,6 @@ subroutine compute_hydrologic_indices(ifail)
 
            ! user is specifying components of flow; need to clear out this
            ! set of flags so that the user can pick his/her own flow components
-           lFlowComponent = lFALSE
 
            select case(trim(adjustl(uppercase(sFlowComponent) ) ) )
 
