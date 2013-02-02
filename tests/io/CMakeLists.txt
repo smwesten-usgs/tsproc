@@ -11,7 +11,7 @@ message("TSPROC LOCATION: " ${TSPROC_EXECUTABLE} )
 # Need input files over in build environment
 file(GLOB infiles
      RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-     *.ssf *.inp *.wdm *.R BEC.* *.tpl *.dat *.ggo)
+     *.ssf *.inp *.wdm *.R BEC.* *.tpl *.dat *.ggo *.plt)
 
 foreach(infilename ${infiles})
     set(infile  ${CMAKE_CURRENT_SOURCE_DIR}/${infilename})
@@ -20,9 +20,10 @@ foreach(infilename ${infiles})
 endforeach()
 
 set(tests_that_should_pass
-       read_statvar_file.inp              # requires 'statvar.dat'
-	   read_wdm_file.inp		          # requires testdata.wdm
-	   read_gsflow_modflow_ggo_file.inp   # requires testdata.ggo
+       GET_MUL_SERIES_STATVAR__basic_read.inp        # requires statvar.dat
+	   GET_SERIES_WDM__basic_read.inp	             # requires testdata.wdm
+	   GET_MUL_SERIES_GSFLOW_GAGE__basic_read.inp    # requires testdata.ggo
+	   GET_MUL_SERIES_PLOTGEN__basic_read.inp        # requires testdata.plt
        )
 
 # process all tests_that_should_pass
@@ -52,3 +53,34 @@ foreach(test_filename ${tests_that_should_pass})
 
 
 endforeach()
+
+set(R_script_tests
+    GET_MUL_SERIES_SSF__verify_read.R
+)
+
+
+if(DEFINED R_SCRIPT)
+
+  foreach(test_filename ${R_script_tests})
+     get_filename_component(basename ${test_filename} NAME_WE)
+
+   message("Test string: " ${basename})
+   message("   COMMAND " ${R_SCRIPT} " --vanilla "
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " " ${TSPROC_EXECUTABLE} )
+   message(" ")
+
+     add_test(NAME ${basename}
+              COMMAND ${R_SCRIPT} --vanilla
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${TSPROC_EXECUTABLE} )
+
+     # set criteria for success of each test
+     set_tests_properties(${basename}
+                       PROPERTIES PASS_REGULAR_EXPRESSION "PASS")
+
+     # set criteria for failure of each test
+     set_tests_properties(${basename}
+                       PROPERTIES FAIL_REGULAR_EXPRESSION "FAIL")
+
+  endforeach()
+
+endif()

@@ -1,0 +1,21 @@
+START SETTINGS
+# CONTEXT pest_input
+  CONTEXT all
+  DATE_FORMAT mm/dd/yyyy
+END SETTINGS
+
+###########################################################################
+# Process observed and simulated data:
+# BLACK EARTH CREEK AT BLACK EARTH (05406500)
+###########################################################################
+
+#==> Read in SIMULATED data for BLACK EARTH CREEK AT BLACK EARTH (05406500)
+START GET_MUL_SERIES_GSFLOW_GAGE
+  CONTEXT all
+  FILE testdata.ggo
+  DATA_TYPE flow
+  NEW_SERIES_NAME Sq6500i
+  MODEL_REFERENCE_DATE 01/01/1985
+  MODEL_REFERENCE_TIME 00:00:00
+END GET_MUL_SERIES_GGO
+

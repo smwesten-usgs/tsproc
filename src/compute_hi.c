@@ -23,43 +23,43 @@
 //  extern "C" {
 //#endif
 
-void stats (int, float*, float*, float*, float*);
-float percentile(float, int, float*);
-void order(int,float*,int);
+void stats (int, double*, double*, double*, double*);
+double percentile(double, int, double*);
+void order(int,double*,int);
 
-//void compute_hi(int datatype, float carea,
-//		float m_lp, float m_up, int yr[], float q[][366])
+//void compute_hi(int datatype, double carea,
+//		double m_lp, double m_up, int yr[], double q[][366])
 
-void compute_hi(bool usemedian, float carea, float nearhuge,
-		float m_lp, float m_up, int yr[150], float q[150][366],
-		float MA[46], float LMA[46], float UMA[46],
-		float ML[23],float LML[23],float UML[23],
-		float MH[28],float LMH[28],float UMH[28],
-		float FL[4],float LFL[4],float UFL[4],
-		float FH[12],float LFH[12],float UFH[12],
-		float DL[21],float LDL[21],float UDL[21],
-		float DH[25],float LDH[25],float UDH[25],
-		float TA[4],float LTA[4],float UTA[4],
-		float TL[5],float LTL[5],float UTL[5],
-		float TH[4],float LTH[4],float UTH[4],
-		float RA[10], float LRA[10], float URA[10])
+void compute_hi(bool usemedian, double carea, double nearhuge,
+		double m_lp, double m_up, int yr[150], double q[150][366],
+		double MA[46], double LMA[46], double UMA[46],
+		double ML[23],double LML[23],double UML[23],
+		double MH[28],double LMH[28],double UMH[28],
+		double FL[4],double LFL[4],double UFL[4],
+		double FH[12],double LFH[12],double UFH[12],
+		double DL[21],double LDL[21],double UDL[21],
+		double DH[25],double LDH[25],double UDH[25],
+		double TA[4],double LTA[4],double UTA[4],
+		double TL[5],double LTL[5],double UTL[5],
+		double TH[4],double LTH[4],double UTH[4],
+		double RA[10], double LRA[10], double URA[10])
 {
-	//float *data;
-	//float *mdata;
-	//float *baseflow;
-	//float *tempdata;
+	//double *data;
+	//double *mdata;
+	//double *baseflow;
+	//double *tempdata;
 //	CStdioFile ifile, ofile;
 //	CString line;
 	bool isData;
 //	int yr[150];		// Array of data years
-//	float q[150][366];	// Array of daily flows for each year
+//	double q[150][366];	// Array of daily flows for each year
 	int day;			// Day of the year index
 	int nyrs;			// Number of years
 	int i, j, k;
 	bool dopeak;		// Flag indicating that indices using peak flow are to be computed
-	float lb, ub;		// Lower and upper limit percentile fractions
-	float peak[150];	// Annual peak hourly flows
-	float f24[150];		// Average daily flow for the peak flow day
+	double lb, ub;		// Lower and upper limit percentile fractions
+	double peak[150];	// Annual peak hourly flows
+	double f24[150];		// Average daily flow for the peak flow day
 	int npyrs;			// Number of years of peak flow data
 
 	lb = m_lp / 100;
@@ -114,68 +114,68 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Begin calculation of the indices (average flow conditions)
 
-/*	float MA1, LMA1, UMA1;		// Average flow for all flows
- *	float MA2, LMA2, UMA2;		// Median flow for all flows
- *	float MA3, LMA3, UMA3;		// Variability in daily flows 1 (coefficient of variation)
- *	float MA4;					// Variability in daily flows 2
- *	float MA5;					// Skewness in daily flows
- *	float MA6, MA7, MA8;		// Ranges in daily flows
- *	float MA9, MA10, MA11;		// Spreads in daily flows
- *	float MA12, LMA12, UMA12;	// January means
- *	float MA13, LMA13, UMA13;	// February means
- *	float MA14, LMA14, UMA14;	// March means
- *	float MA15, LMA15, UMA15;	// April means
- *	float MA16, LMA16, UMA16;	// May means
- *	float MA17, LMA17, UMA17;	// June means
- *	float MA18, LMA18, UMA18;	// July means
- *	float MA19, LMA19, UMA19;	// August means
- *	float MA20, LMA20, UMA20;	// September means
- *	float MA21, LMA21, UMA21;	// October means
- *	float MA22, LMA22, UMA22;	// November means
- *	float MA23, LMA23, UMA23;	// December means
- *	float MA24, LMA24, UMA24;	// January coefficient of variation
- *	float MA25, LMA25, UMA25;	// February coefficient of variation
- *	float MA26, LMA26, UMA26;	// March coefficient of variation
- *	float MA27, LMA27, UMA27;	// April coefficient of variation
- *	float MA28, LMA28, UMA28;	// May coefficient of variation
- *	float MA29, LMA29, UMA29;	// June coefficient of variation
- *	float MA30, LMA30, UMA30;	// July coefficient of variation
- *	float MA31, LMA31, UMA31;	// August coefficient of variation
- *	float MA32, LMA32, UMA32;	// September coefficient of variation
- *	float MA33, LMA33, UMA33;	// October coefficient of variation
- *	float MA34, LMA34, UMA34;	// November coefficient of variation
- *	float MA35, LMA35, UMA35;	// December coefficient of variation
- *	float MA36;		// Variability across monthly flows 1 (range)
- *	float MA37;		// Variability across monthly flows 1 (interquartile)
- *	float MA38;		// Variability across monthly flows 1 (90th - 10th percentile)
- *	float MA39;		// Variability across monthly flows 2 (CV in monthly mean flows)
- *	float MA40;		// Skewness in monthly flows
- *	float MA41, LMA41, UMA41;		// Mean annual runoff
- *	float MA42;		// Variability across annual flows 1 (range)
- *	float MA43;		// Variability across annual flows 1 (interquartile)
- *	float MA44;		// Variability across annual flows 1 (90th - 10th percentile)
- *	float MA45;		// Skewness in annual flows */
+/*	double MA1, LMA1, UMA1;		// Average flow for all flows
+ *	double MA2, LMA2, UMA2;		// Median flow for all flows
+ *	double MA3, LMA3, UMA3;		// Variability in daily flows 1 (coefficient of variation)
+ *	double MA4;					// Variability in daily flows 2
+ *	double MA5;					// Skewness in daily flows
+ *	double MA6, MA7, MA8;		// Ranges in daily flows
+ *	double MA9, MA10, MA11;		// Spreads in daily flows
+ *	double MA12, LMA12, UMA12;	// January means
+ *	double MA13, LMA13, UMA13;	// February means
+ *	double MA14, LMA14, UMA14;	// March means
+ *	double MA15, LMA15, UMA15;	// April means
+ *	double MA16, LMA16, UMA16;	// May means
+ *	double MA17, LMA17, UMA17;	// June means
+ *	double MA18, LMA18, UMA18;	// July means
+ *	double MA19, LMA19, UMA19;	// August means
+ *	double MA20, LMA20, UMA20;	// September means
+ *	double MA21, LMA21, UMA21;	// October means
+ *	double MA22, LMA22, UMA22;	// November means
+ *	double MA23, LMA23, UMA23;	// December means
+ *	double MA24, LMA24, UMA24;	// January coefficient of variation
+ *	double MA25, LMA25, UMA25;	// February coefficient of variation
+ *	double MA26, LMA26, UMA26;	// March coefficient of variation
+ *	double MA27, LMA27, UMA27;	// April coefficient of variation
+ *	double MA28, LMA28, UMA28;	// May coefficient of variation
+ *	double MA29, LMA29, UMA29;	// June coefficient of variation
+ *	double MA30, LMA30, UMA30;	// July coefficient of variation
+ *	double MA31, LMA31, UMA31;	// August coefficient of variation
+ *	double MA32, LMA32, UMA32;	// September coefficient of variation
+ *	double MA33, LMA33, UMA33;	// October coefficient of variation
+ *	double MA34, LMA34, UMA34;	// November coefficient of variation
+ *	double MA35, LMA35, UMA35;	// December coefficient of variation
+ *	double MA36;		// Variability across monthly flows 1 (range)
+ *	double MA37;		// Variability across monthly flows 1 (interquartile)
+ *	double MA38;		// Variability across monthly flows 1 (90th - 10th percentile)
+ *	double MA39;		// Variability across monthly flows 2 (CV in monthly mean flows)
+ *	double MA40;		// Skewness in monthly flows
+ *	double MA41, LMA41, UMA41;		// Mean annual runoff
+ *	double MA42;		// Variability across annual flows 1 (range)
+ *	double MA43;		// Variability across annual flows 1 (interquartile)
+ *	double MA44;		// Variability across annual flows 1 (90th - 10th percentile)
+ *	double MA45;		// Skewness in annual flows */
 
 	int nval;		// Max number of values
 
 	nval = nyrs * 366;
-	//data = new float[nval];
-    float *data = (float *) malloc(nval * sizeof (float));
-    if (data == NULL) 
+	//data = new double[nval];
+    double *data = (double *) malloc(nval * sizeof (double));
+    if (data == NULL)
     {
         printf("Could not allocate memory");
         exit(EXIT_FAILURE);
     }
-	//mdata = new float[nval];
-    float *mdata = (float *) malloc(nval * sizeof (float));
+	//mdata = new double[nval];
+    double *mdata = (double *) malloc(nval * sizeof (double));
     if (mdata == NULL)
     {
         printf("Could not allocate memory");
         exit(EXIT_FAILURE);
     }
-	//baseflow = new float[nval];
-    float *baseflow = (float *) malloc(nval * sizeof (float));
-    if (baseflow == NULL) 
+	//baseflow = new double[nval];
+    double *baseflow = (double *) malloc(nval * sizeof (double));
+    if (baseflow == NULL)
     {
         printf("Could not allocate memory");
         exit(EXIT_FAILURE);
@@ -218,12 +218,12 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 //			coefficient of variation for each year of flows.  Compute the mean of the annual coefficients
 //			of variation.  (%)
 
-	float ydata[366];		// Daily flow values for a year
-	float stdv[150];		// Standard deviation for each year
-	float qmean;			// Mean of the monthly means
-	float qmedian;			// Median of the monthly means
-	float qstdv;			// Standard deviation of the monthly means
-	float temp;
+	double ydata[366];		// Daily flow values for a year
+	double stdv[150];		// Standard deviation for each year
+	double qmean;			// Mean of the monthly means
+	double qmedian;			// Median of the monthly means
+	double qstdv;			// Standard deviation of the monthly means
+	double temp;
 
 	for(i=0;i<nyrs;i++)
 	{
@@ -262,11 +262,11 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute percentiles (5th, 10th,...,95th)
 
-	float p[19] = {.05,.1,.15,.2,.25,.3,.35,.4,.45,.5,.55,.6,.65,.7,.75,.8,.85,.9,.95};
-	float pctile[19];		// Array of calculated percentiles
-	float meanp;			// Mean of the calculated percentiles
-	float medianp;			// Median of the calculated percentiles
-	float stdp;				// Standard deviation of the calculated percentiles
+	double p[19] = {.05,.1,.15,.2,.25,.3,.35,.4,.45,.5,.55,.6,.65,.7,.75,.8,.85,.9,.95};
+	double pctile[19];		// Array of calculated percentiles
+	double meanp;			// Mean of the calculated percentiles
+	double medianp;			// Median of the calculated percentiles
+	double stdp;				// Standard deviation of the calculated percentiles
 
 	order(1,data,ndv);		// Order data in ascending order
 	for(i=0;i<19;i++)
@@ -360,9 +360,9 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 	int nmv;		// Number of monthly values
 	int zcount;		// Number of months with flow = 0;
-	float total;
-	float total2;
-	float dum;				// Dummy variable
+	double total;
+	double total2;
+	double dum;				// Dummy variable
 
 // Compile a data set for each month and compute the means and CV
 
@@ -863,14 +863,14 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute variability across monthly flows 1
 
-	float meanm[12][150];		// Mean flows for each month and year
-	float minm[12][150];		// Minimum flows for each month and year
-	float maxm[12][150];		// Maximum flows for each month and year
+	double meanm[12][150];		// Mean flows for each month and year
+	double minm[12][150];		// Minimum flows for each month and year
+	double maxm[12][150];		// Maximum flows for each month and year
 	int strt[12] = {0,31,61,92,123,152,183,213,244,274,305,336};
 	int end[12] = {31,61,92,123,152,183,213,244,274,305,336,366};
-	float maxqm, minqm;		// Max and min of the monthly means
-	float q1, q3;			// First and third quartiles of the monthly means
-	float q10, q90;			// Tenth and 90th percentiles of the monthly means
+	double maxqm, minqm;		// Max and min of the monthly means
+	double q1, q3;			// First and third quartiles of the monthly means
+	double q10, q90;			// Tenth and 90th percentiles of the monthly means
 	int numvalidmonths;
 
 // Compute the minimum, maximum, and mean flows for each month and year in the data set
@@ -909,9 +909,9 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	nmv = 0;
 	maxqm = -10000000.;
 	minqm = 10000000.;
-	//tempdata = new float[numvalidmonths];  // create a new array for VALID months ONLY!
-    float *tempdata = (float *) malloc(numvalidmonths * sizeof (float));
-    if (tempdata == NULL) 
+	//tempdata = new double[numvalidmonths];  // create a new array for VALID months ONLY!
+    double *tempdata = (double *) malloc(numvalidmonths * sizeof (double));
+    if (tempdata == NULL)
     {
         printf("Could not allocate memory");
         exit(EXIT_FAILURE);
@@ -984,7 +984,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute variability across annual flows and annual runoff
 
-	float meana[150];		// Mean annual flows
+	double meana[150];		// Mean annual flows
 
 // Compute the mean annual flows
 
@@ -1075,28 +1075,28 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 //***************   Low flow conditions  **************************
 
-/*	float ML1, LML1, UML1;	// January minimum monthly flows across all years
- *	float ML2, LML2, UML2;	// February minimum monthly flows across all years
- *	float ML3, LML3, UML3;	// March minimum monthly flows across all years
- *	float ML4, LML4, UML4;	// April minimum monthly flows across all years
- *	float ML5, LML5, UML5;	// May minimum monthly flows across all years
- *	float ML6, LML6, UML6;	// June minimum monthly flows across all years
- *	float ML7, LML7, UML7;	// July minimum monthly flows across all years
- *	float ML8, LML8, UML8;	// August minimum monthly flows across all years
- *	float ML9, LML9, UML9;	// September minimum monthly flows across all years
- *	float ML10, LML10, UML10;	// October minimum monthly flows across all years
- *	float ML11, LML11, UML11;	// November minimum monthly flows across all years
- *	float ML12, LML12, UML12;	// December minimum monthly flows across all years
- *	float ML13;		// Variability across minimum monthly flows
- *	float ML14, LML14, UML14;		// Mean of annual minimum flows
- *	float ML15, LML15, UML15;		// Low flow index
- *	float ML16, LML16, UML16;		// Median of annual minimum flows 2
- *	float ML17, LML17, UML17;		// Baseflow Index 1
- *	float ML18;		// Variability in Baseflow Index 1
- *	float ML19, LML19, UML19;		// Baseflow Index 2
- *	float ML20;		// Baseflow Index 3
- *	float ML21;		// Variability across annual minimum flows
- *	float ML22, LML22, UML22;		// Specific mean annual minimum flows
+/*	double ML1, LML1, UML1;	// January minimum monthly flows across all years
+ *	double ML2, LML2, UML2;	// February minimum monthly flows across all years
+ *	double ML3, LML3, UML3;	// March minimum monthly flows across all years
+ *	double ML4, LML4, UML4;	// April minimum monthly flows across all years
+ *	double ML5, LML5, UML5;	// May minimum monthly flows across all years
+ *	double ML6, LML6, UML6;	// June minimum monthly flows across all years
+ *	double ML7, LML7, UML7;	// July minimum monthly flows across all years
+ *	double ML8, LML8, UML8;	// August minimum monthly flows across all years
+ *	double ML9, LML9, UML9;	// September minimum monthly flows across all years
+ *	double ML10, LML10, UML10;	// October minimum monthly flows across all years
+ *	double ML11, LML11, UML11;	// November minimum monthly flows across all years
+ *	double ML12, LML12, UML12;	// December minimum monthly flows across all years
+ *	double ML13;		// Variability across minimum monthly flows
+ *	double ML14, LML14, UML14;		// Mean of annual minimum flows
+ *	double ML15, LML15, UML15;		// Low flow index
+ *	double ML16, LML16, UML16;		// Median of annual minimum flows 2
+ *	double ML17, LML17, UML17;		// Baseflow Index 1
+ *	double ML18;		// Variability in Baseflow Index 1
+ *	double ML19, LML19, UML19;		// Baseflow Index 2
+ *	double ML20;		// Baseflow Index 3
+ *	double ML21;		// Variability across annual minimum flows
+ *	double ML22, LML22, UML22;		// Specific mean annual minimum flows
  * */
 // Compute the mean minimum flows for each month across all years
 
@@ -1348,8 +1348,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute the minimum annual flows from the minimum monthly flows
 
-	float minaq[150];		// Minumum annual flows
-	float min_med;			// Median of annual minimum flows
+	double minaq[150];		// Minumum annual flows
+	double min_med;			// Median of annual minimum flows
 
 	for(j=0;j<nyrs;j++)
 	{
@@ -1362,8 +1362,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute the mean and median flows for each year
 
-	float total3[150];
-	float mediana[150];
+	double total3[150];
+	double mediana[150];
 	total = total2 = 0.;
 	for(i=0;i<nyrs;i++)
 	{
@@ -1452,9 +1452,11 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 			nmv = 0;
 			for(k=j;k<j+7;k++)
 			{
-				if(q[i][j] < nearhuge)
+//				if(q[i][j] < nearhuge)
+				if(q[i][k] < nearhuge)
 				{
-					total = total + q[i][j];
+//					total = total + q[i][j];
+					total = total + q[i][k];
 					nmv++;
 				}
 			}
@@ -1557,7 +1559,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Fill in missing values using linear interpolation
 
-	float incr;		// Linear interpolation increment
+	double incr;		// Linear interpolation increment
 	int is, ie;		// Starting and ending index for missing values
 	int nzv;		// Number of zero values
 
@@ -1623,8 +1625,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute the total flow and total baseflow
 
-	float tflow;		// Total flow
-	float tbflow;		// Total base flow
+	double tflow;		// Total flow
+	double tbflow;		// Total base flow
 
 	tflow = tbflow = 0.;
 	for(i=0;i<ndv;i++){tflow = tflow + data[i];}
@@ -1680,31 +1682,31 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 //***************   High flow conditions  **************************
 
-/*	float MH1, LMH1, UMH1;	// January maximum monthly flows across all years
- *	float MH2, LMH2, UMH2;	// February maximum monthly flows across all years
- *	float MH3, LMH3, UMH3;	// March maximum monthly flows across all years
- *	float MH4, LMH4, UMH4;	// April maximum monthly flows across all years
- *	float MH5, LMH5, UMH5;	// May maximum monthly flows across all years
- *	float MH6, LMH6, UMH6;	// June maximum monthly flows across all years
- *	float MH7, LMH7, UMH7;	// July maximum monthly flows across all years
- *	float MH8, LMH8, UMH8;	// August maximum monthly flows across all years
- *	float MH9, LMH9, UMH9;	// September maximum monthly flows across all years
- *	float MH10, LMH10, UMH10;	// October maximum monthly flows across all years
- *	float MH11, LMH11, UMH11;	// November maximum monthly flows across all years
- *	float MH12, LMH12, UMH12;	// December maximum monthly flows across all years
- *	float MH13;		// Variability across maximum monthly flows
- *	float MH14, LMH14, UMH14;		// Median of annual minimum flows
- *	float MH15, MH16, MH17;		// High flow discharge metrics
- *	float MH18;		// Variability across annual maximum flows
- *	float MH19;		// Skewness in annual maximum flows
- *	float MH20, LMH20, UMH20;		// Specific mean annual maximum flows
- *	float MH21, LMH21, UMH21;		// High flow volume metrics
- *	float MH22, LMH22, UMH22;		// High flow volume metrics
- *	float MH23, LMH23, UMH23;		// High flow volume metrics
- *	float MH24, LMH24, UMH24;		// High peak flow 1 metrics
- *	float MH25, LMH25, UMH25;		// High peak flow 1 metrics
- *	float MH26, LMH26, UMH26;		// High peak flow 1 metrics
- *	float MH27, LMH27, UMH27;		// High peak flow 2 metric */
+/*	double MH1, LMH1, UMH1;	// January maximum monthly flows across all years
+ *	double MH2, LMH2, UMH2;	// February maximum monthly flows across all years
+ *	double MH3, LMH3, UMH3;	// March maximum monthly flows across all years
+ *	double MH4, LMH4, UMH4;	// April maximum monthly flows across all years
+ *	double MH5, LMH5, UMH5;	// May maximum monthly flows across all years
+ *	double MH6, LMH6, UMH6;	// June maximum monthly flows across all years
+ *	double MH7, LMH7, UMH7;	// July maximum monthly flows across all years
+ *	double MH8, LMH8, UMH8;	// August maximum monthly flows across all years
+ *	double MH9, LMH9, UMH9;	// September maximum monthly flows across all years
+ *	double MH10, LMH10, UMH10;	// October maximum monthly flows across all years
+ *	double MH11, LMH11, UMH11;	// November maximum monthly flows across all years
+ *	double MH12, LMH12, UMH12;	// December maximum monthly flows across all years
+ *	double MH13;		// Variability across maximum monthly flows
+ *	double MH14, LMH14, UMH14;		// Median of annual minimum flows
+ *	double MH15, MH16, MH17;		// High flow discharge metrics
+ *	double MH18;		// Variability across annual maximum flows
+ *	double MH19;		// Skewness in annual maximum flows
+ *	double MH20, LMH20, UMH20;		// Specific mean annual maximum flows
+ *	double MH21, LMH21, UMH21;		// High flow volume metrics
+ *	double MH22, LMH22, UMH22;		// High flow volume metrics
+ *	double MH23, LMH23, UMH23;		// High flow volume metrics
+ *	double MH24, LMH24, UMH24;		// High peak flow 1 metrics
+ *	double MH25, LMH25, UMH25;		// High peak flow 1 metrics
+ *	double MH26, LMH26, UMH26;		// High peak flow 1 metrics
+ *	double MH27, LMH27, UMH27;		// High peak flow 2 metric */
 
 // Compute the mean maximum flows for each month across all years
 
@@ -1967,7 +1969,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute the maximum annual flows from the maximum monthly flows
 
-	float maxaq[150];		// Maxumum annual flows
+	double maxaq[150];		// Maxumum annual flows
 
 	for(j=0;j<nyrs;j++)
 	{
@@ -2054,13 +2056,13 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute variability across annual maximum flows
 
-	float lmaxaq[150];		// Log10 of annual maximums
+	double lmaxaq[150];		// Log10 of annual maximums
 	for(i=0;i<nyrs;i++)
 	{
 		if(maxaq[i] != 0.)
-			lmaxaq[i] = (float)log10((double)maxaq[i]);
+			lmaxaq[i] = (double)log10((double)maxaq[i]);
 		else
-			lmaxaq[i] = (float)log10(.01);
+			lmaxaq[i] = (double)log10(.01);
 	}
 	stats(nyrs,lmaxaq,&qmean,&qmedian,&qstdv);
 
@@ -2090,10 +2092,10 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	double sumlq3;		// Sum of the log max flows cubed
 	double sumlq2;		// Sum of the log max flows squared
 	double sumlq;		// Sum of the log max flows
-	float n;			// Number of years
+	double n;			// Number of years
 
 	sumlq3 = sumlq2 = sumlq = 0.;
-	n = (float)nyrs;
+	n = (double)nyrs;
 	for(i=0;i<nyrs;i++)
 	{
 		sumlq3 = sumlq3 + lmaxaq[i]*lmaxaq[i]*lmaxaq[i];
@@ -2123,7 +2125,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute the high volume flow metrics
 
-	float threshold;	// Threshold for computing volumes
+	double threshold;	// Threshold for computing volumes
 	int nevents;		// Number of events
 	int flag;			// Indicates pulse is occuring
 
@@ -2494,16 +2496,16 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 //******************  Low Flow Conditions  *************************************
 
-/*	float FL1, LFL1, UFL1;		// Low flood pulse count
- *	float FL2;					// Variability in low flow pulse count
- *	float FL3, LFL3, UFL3;		// Frequency of low flow spells */
+/*	double FL1, LFL1, UFL1;		// Low flood pulse count
+ *	double FL2;					// Variability in low flow pulse count
+ *	double FL3, LFL3, UFL3;		// Frequency of low flow spells */
 
-	float np[150];		// Number of pulse occurrences for each year
-	float p25;			// 25th percentile flow
-	float p5;			// 5% of mean annual flow
+	double np[150];		// Number of pulse occurrences for each year
+	double p25;			// 25th percentile flow
+	double p5;			// 5% of mean annual flow
 	int pdur;			// Pulse duration
-	float lfdur[150];	// Average low flow pulse duration for each year
-	float hfdur[150];	// Average high flow pulse duration for each year
+	double lfdur[150];	// Average low flow pulse duration for each year
+	double hfdur[150];	// Average high flow pulse duration for each year
 
 	p25 = percentile(.25,ndv,data);
 	p5 = .05 * MA[1];
@@ -2581,18 +2583,18 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 //**************************  High Flow Conditions  *****************************
 
-/*	float FH1, LFH1, UFH1;	// High flood pulse count 1
- *	float FH2;				// Variability in high flood pulse count 1
- *	float FH3, LFH3, UFH3;	// High flood pulse count 2
- *	float FH4, LFH4, UFH4;	// High flood pulse count 2
- *	float FH5, LFH5, UFH5;	// Flood frequency 1
- *	float FH6, LFH6, UFH6;	// Flood frequency 1
- *	float FH7, LFH7, UFH7;	// Flood frequency 1
- *	float FH8, LFH8, UFH8;	// Flood frequency 2
- *	float FH9, LFH9, UFH9;	// Flood frequency 2
- *	float FH10, LFH10, UFH10;		// Flood frequency 3
- *	float FH11, LFH11, UFH11;		// Flood frequency 4 */
-	float p75;				// 75th percentile flow
+/*	double FH1, LFH1, UFH1;	// High flood pulse count 1
+ *	double FH2;				// Variability in high flood pulse count 1
+ *	double FH3, LFH3, UFH3;	// High flood pulse count 2
+ *	double FH4, LFH4, UFH4;	// High flood pulse count 2
+ *	double FH5, LFH5, UFH5;	// Flood frequency 1
+ *	double FH6, LFH6, UFH6;	// Flood frequency 1
+ *	double FH7, LFH7, UFH7;	// Flood frequency 1
+ *	double FH8, LFH8, UFH8;	// Flood frequency 2
+ *	double FH9, LFH9, UFH9;	// Flood frequency 2
+ *	double FH10, LFH10, UFH10;		// Flood frequency 3
+ *	double FH11, LFH11, UFH11;		// Flood frequency 4 */
+	double p75;				// 75th percentile flow
 
 	p75 = percentile(.75,ndv,data);
 	for(i=0;i<nyrs;i++)
@@ -2920,14 +2922,14 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 // the log10 of the average daily flow. The threshold is 10 to the log10 (average daily flow)
 // power (cubic feet/second).
 
-	float l24[150];			// Log10 of average daily flow for the peak flow day
-	float lpeak[150];		// Log10 of annual peak hourly flows
-	float xmean;			// Mean of the logs of peak flows
-	float ymean;			// Mean of the logs of average daily flows
-	float lq167;			// Log10 of 1.67 year threshold
-	float lq5;				// Log10 of 5 year threshold
-	float numerator, denominator;
-	float a, b;
+	double l24[150];			// Log10 of average daily flow for the peak flow day
+	double lpeak[150];		// Log10 of annual peak hourly flows
+	double xmean;			// Mean of the logs of peak flows
+	double ymean;			// Mean of the logs of average daily flows
+	double lq167;			// Log10 of 1.67 year threshold
+	double lq5;				// Log10 of 5 year threshold
+	double numerator, denominator;
+	double a, b;
 
 // Compute the logs of 24hr flows
 
@@ -2936,7 +2938,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		total = 0.;
 		for(i=0;i<npyrs;i++)
 		{
-			l24[i] = (float)log10((double)f24[i]);
+			l24[i] = (double)log10((double)f24[i]);
 			total = total + l24[i];
 		}
 		ymean = total / npyrs;
@@ -2946,7 +2948,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		total = 0.;
 		for(i=0;i<npyrs;i++)
 		{
-			lpeak[i] = (float)log10((double)peak[i]);
+			lpeak[i] = (double)log10((double)peak[i]);
 			total = total + lpeak[i];
 		}
 		xmean = total / npyrs;
@@ -2967,7 +2969,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		order(1,lpeak,npyrs);		// Order data in ascending order
 		temp = percentile(.60,npyrs,lpeak);
 		lq167 = a + b*temp;
-		threshold = (float)pow(10.,(double)lq167);
+		threshold = (double)pow(10.,(double)lq167);
 
 		for(i=0;i<nyrs;i++)
 		{
@@ -3003,42 +3005,42 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 //***************************  Duration of flow events  *************************
 
-/*	float DL1, LDL1, UDL1;		// Annual minimum of 1 day means of daily discharge
- *	float DL2, LDL2, UDL2;		// Annual minimum of 3 day means of daily discharge
- *	float DL3, LDL3, UDL3;		// Annual minimum of 7 day means of daily discharge
- *	float DL4, LDL4, UDL4;		// Annual minimum of 30 day means of daily discharge
- *	float DL5, LDL5, UDL5;		// Annual minimum of 90 day means of daily discharge
- *	float DL6, DL7, DL8, DL9, DL10;	// Variability in annual minima of 1,2,7,30,90 day means of daily discharge
- *	float DL11, LDL11, UDL11;		// Means of 1 day minimum of daily discharge
- *	float DL12, LDL12, UDL12;		// Means of 7 day minimum of daily discharge
- *	float DL13, LDL13, UDL13;		// Means of 30 day minimum of daily discharge
- *	float DL14, DL15;				// Low exceedence flows (75% and 90%)
- *	float DL16, LDL16, UDL16;		// Low flow pulse duration
- *	float DL17;						// Variability in low flow pulse duration
- *	float DL18, LDL18, UDL18;		// Number of zero-flow days
- *	float DL19;						// Variability in number of zero-flow days
- *	float DL20;						// Percent of zero-flow months
+/*	double DL1, LDL1, UDL1;		// Annual minimum of 1 day means of daily discharge
+ *	double DL2, LDL2, UDL2;		// Annual minimum of 3 day means of daily discharge
+ *	double DL3, LDL3, UDL3;		// Annual minimum of 7 day means of daily discharge
+ *	double DL4, LDL4, UDL4;		// Annual minimum of 30 day means of daily discharge
+ *	double DL5, LDL5, UDL5;		// Annual minimum of 90 day means of daily discharge
+ *	double DL6, DL7, DL8, DL9, DL10;	// Variability in annual minima of 1,2,7,30,90 day means of daily discharge
+ *	double DL11, LDL11, UDL11;		// Means of 1 day minimum of daily discharge
+ *	double DL12, LDL12, UDL12;		// Means of 7 day minimum of daily discharge
+ *	double DL13, LDL13, UDL13;		// Means of 30 day minimum of daily discharge
+ *	double DL14, DL15;				// Low exceedence flows (75% and 90%)
+ *	double DL16, LDL16, UDL16;		// Low flow pulse duration
+ *	double DL17;						// Variability in low flow pulse duration
+ *	double DL18, LDL18, UDL18;		// Number of zero-flow days
+ *	double DL19;						// Variability in number of zero-flow days
+ *	double DL20;						// Percent of zero-flow months
  */
-/* 	float DH1, LDH1, UDH1;		// Annual maximum of 1 day means of daily discharge
- * 	float DH2, LDH2, UDH2;		// Annual maximum of 3 day means of daily discharge
- * 	float DH3, LDH3, UDH3;		// Annual maximum of 7 day means of daily discharge
- * 	float DH4, LDH4, UDH4;		// Annual maximum of 30 day means of daily discharge
- * 	float DH5, LDH5, UDH5;		// Annual maximum of 90 day means of daily discharge
- * 	float DH6, DH7, DH8, DH9, DH10;	// Variability in annual maxima of 1,2,7,30,90 day means of daily discharge
- * 	float DH11, LDH11, UDH11;		// Means of 1 day maximum of daily discharge
- * 	float DH12, LDH12, UDH12;		// Means of 7 day maximum of daily discharge
- * 	float DH13, LDH13, UDH13;		// Means of 30 day maximum of daily discharge
- * 	float DH14;						// Flood duration 1
- * 	float DH15, LDH15, UDH15;		// High flow pulse duration
- * 	float DH16;						// Variability in high flow pulse duration
- * 	float DH17, LDH17, UDH17;		// High flow duration 1
- * 	float DH18, LDH18, UDH18;		// High flow duration 1
- * 	float DH19, LDH19, UDH19;		// High flow duration 1
- * 	float DH20, LDH20, UDH20;		// High flow duration 2
- * 	float DH21, LDH21, UDH21;		// High flow duration 2
- * 	float DH22, LDH22, UDH22;				// Flood interval
- * 	float DH23, LDH23, UDH23;				// Flood duration 2
- * 	float DH24, LDH24, UDH24;				// Flood free days */
+/* 	double DH1, LDH1, UDH1;		// Annual maximum of 1 day means of daily discharge
+ * 	double DH2, LDH2, UDH2;		// Annual maximum of 3 day means of daily discharge
+ * 	double DH3, LDH3, UDH3;		// Annual maximum of 7 day means of daily discharge
+ * 	double DH4, LDH4, UDH4;		// Annual maximum of 30 day means of daily discharge
+ * 	double DH5, LDH5, UDH5;		// Annual maximum of 90 day means of daily discharge
+ * 	double DH6, DH7, DH8, DH9, DH10;	// Variability in annual maxima of 1,2,7,30,90 day means of daily discharge
+ * 	double DH11, LDH11, UDH11;		// Means of 1 day maximum of daily discharge
+ * 	double DH12, LDH12, UDH12;		// Means of 7 day maximum of daily discharge
+ * 	double DH13, LDH13, UDH13;		// Means of 30 day maximum of daily discharge
+ * 	double DH14;						// Flood duration 1
+ * 	double DH15, LDH15, UDH15;		// High flow pulse duration
+ * 	double DH16;						// Variability in high flow pulse duration
+ * 	double DH17, LDH17, UDH17;		// High flow duration 1
+ * 	double DH18, LDH18, UDH18;		// High flow duration 1
+ * 	double DH19, LDH19, UDH19;		// High flow duration 1
+ * 	double DH20, LDH20, UDH20;		// High flow duration 2
+ * 	double DH21, LDH21, UDH21;		// High flow duration 2
+ * 	double DH22, LDH22, UDH22;				// Flood interval
+ * 	double DH23, LDH23, UDH23;				// Flood duration 2
+ * 	double DH24, LDH24, UDH24;				// Flood free days */
 
 //***************************  Low flow conditions  *****************************
 
@@ -3424,7 +3426,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 // DL[20]		Number of zero-flow months.  While computing the mean monthly flow values, count the
 //			number of months in which there was no flow over the entire flow record.  (number of months)
 
-	DL[20] = (float)zcount*100. / (12.*(float)nyrs);	// zcount is computed with monthly statistics
+	DL[20] = (double)zcount*100. / (12.*(double)nyrs);	// zcount is computed with monthly statistics
 
 
 //***************************  High flow conditions  *****************************
@@ -4006,7 +4008,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 	if(dopeak)
 	{
-		threshold = (float)pow(10.,(double)lq167);
+		threshold = (double)pow(10.,(double)lq167);
 		for(i=0;i<nyrs;i++)
 		{
 			flag = 0;
@@ -4071,7 +4073,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 					pdur++;
 				}
 			}
-			np[i] = (float)pdur;
+			np[i] = (double)pdur;
 
 			if(np[i] > 0.)	// Exclude years with no floods
 			{
@@ -4142,18 +4144,18 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 //***************************  Timing of flow events  *************************
 
-/*	float TA1;			// Constancy
- *	float TA2;			// Predictability of flow
- *	float TA3;			// Seasonal predictability of flooding
+/*	double TA1;			// Constancy
+ *	double TA2;			// Predictability of flow
+ *	double TA3;			// Seasonal predictability of flooding
  *
- *	float TL1;			// Julian date of annual minimum
- *	float TL2;			// Variability in Julian date of annual minimum
- *	float TL3;			// Seasonal predictability of low flow
- *	float TL4;			// Seasonal predictability of non-low flow
+ *	double TL1;			// Julian date of annual minimum
+ *	double TL2;			// Variability in Julian date of annual minimum
+ *	double TL3;			// Seasonal predictability of low flow
+ *	double TL4;			// Seasonal predictability of non-low flow
  *
- *	float TH1;			// Julian date of annual maximum
- *	float TH2;			// Variability in Julian date of annual maximum
- *	float TH3;			// Seasonal predictability of non-flooding */
+ *	double TH1;			// Julian date of annual maximum
+ *	double TH2;			// Variability in Julian date of annual maximum
+ *	double TH3;			// Seasonal predictability of non-flooding */
 
 
 //**************************  Average flow conditions  *************************
@@ -4189,8 +4191,8 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 // 1.5, 1.75, 2., and 2.25 times the log of the overall mean.
 // Columns are 365 (skip Feb 29th) days of water year
 
-	float lma1;				// Log10 of overall mean
-	float lq;				// Log of daily flow value
+	double lma1;				// Log10 of overall mean
+	double lq;				// Log of daily flow value
 	int cell[11][365];		// Cell values of Colwell table containing number of times
 							// flows fell within flow categories for each day in year.
 	int nrows = 11;			// Number of rows
@@ -4235,20 +4237,20 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute the Shannon information statistics
 
-	float XJ[365];		// Column totals
-	float YI[11];		// Row totals
-	float Z;			// Grand total
-	float HX;			// Uncertainty with respect to time
-	float HY;			// Uncertainty with respect to state
-	float HXY;			// Uncertainty with respect to the interaction of state and time
-	float HxY;			// Conditional uncertainty with regard to state with time given
+	double XJ[365];		// Column totals
+	double YI[11];		// Row totals
+	double Z;			// Grand total
+	double HX;			// Uncertainty with respect to time
+	double HY;			// Uncertainty with respect to state
+	double HXY;			// Uncertainty with respect to the interaction of state and time
+	double HxY;			// Conditional uncertainty with regard to state with time given
 
 	for(i=0;i<nrows;i++)
 	{
 		YI[i] = 0;
 		for(j=0;j<ncol;j++)
 		{
-			YI[i] = YI[i] + (float)cell[i][j];
+			YI[i] = YI[i] + (double)cell[i][j];
 		}
 	}
 	for(j=0;j<ncol;j++)
@@ -4256,7 +4258,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		XJ[j] = 0;
 		for(i=0;i<nrows;i++)
 		{
-			XJ[j] = XJ[j] + (float)cell[i][j];
+			XJ[j] = XJ[j] + (double)cell[i][j];
 		}
 	}
 	Z = 0;
@@ -4311,7 +4313,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 	if(dopeak)
 	{
-		threshold = (float)pow(10.,(double)lq167);
+		threshold = (double)pow(10.,(double)lq167);
 		tflds = maxf = 0;
 		nfloods[0] = nfloods[1] = nfloods[2] = nfloods[3] = nfloods[4] = nfloods[5] = 0;
 		for(i=0;i<nyrs;i++)
@@ -4366,7 +4368,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 			}
 		}
 		TA[3] = 999999;
-		if(tflds > 0.) TA[3] = (float)maxf / (float)tflds;
+		if(tflds > 0.) TA[3] = (double)maxf / (double)tflds;
 	}
 
 
@@ -4385,9 +4387,9 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 // Formulas came from Julian Olden of CSU.
 
 
-	float xbar, ybar;		// X and Y components of circular equivalent of Julian day
+	double xbar, ybar;		// X and Y components of circular equivalent of Julian day
 	int date[150];			// Julian day for annual minimum
-	float pi = 3.141592654;
+	double pi = 3.141592654;
 	double ratio;			// Ratio of Y to X component values
 
 	for(i=0;i<nyrs;i++)
@@ -4408,7 +4410,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	}
 	for(i=0;i<nyrs;i++)
 	{
-		temp = (float)date[i]*2.*pi/365.25;
+		temp = (double)date[i]*2.*pi/365.25;
 		np[i] = cos(temp);
 		mdata[i] = sin(temp);
 	}
@@ -4460,7 +4462,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 		temp = percentile(.80,npyrs,lpeak);
 		lq5 = a + b*temp;
-		threshold = (float)pow(10.,(double)lq5);
+		threshold = (double)pow(10.,(double)lq5);
 
 		tnlf = 0;
 		maxlf = 0;
@@ -4517,7 +4519,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 			}
 		}
 		TL[3] = 999999;
-		if(tnlf > 0.) TL[3] = (float)maxlf / (float)tnlf;
+		if(tnlf > 0.) TL[3] = (double)maxlf / (double)tnlf;
 
 // Compute seasonal predictability of non-low flow
 
@@ -4537,7 +4539,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 				if(q[i][j] >= nearhuge) continue;
 				if(q[i][j] > threshold) tnlf++;
 			}
-			temp = (float)tnlf / (float)day;
+			temp = (double)tnlf / (double)day;
 			if(temp > TL[4]) TL[4] = temp;
 		}
 	}
@@ -4574,7 +4576,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	}
 	for(i=0;i<nyrs;i++)
 	{
-		temp = (float)date[i]*2.*pi/365.25;
+		temp = (double)date[i]*2.*pi/365.25;
 		np[i] = cos(temp);
 		mdata[i] = sin(temp);
 	}
@@ -4613,7 +4615,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 	if(dopeak)
 	{
-		threshold = (float)pow(10.,(double)lq167);
+		threshold = (double)pow(10.,(double)lq167);
 		TH[3] = 0.;
 		nnflds = 0;
 		for(i=0;i<365;i++){nfdur[i] = 0;}
@@ -4642,21 +4644,21 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 		{
 			if(nfdur[i] > maxlf) maxlf = nfdur[i];
 		}
-		TH[3] = (float)maxlf / 365;
+		TH[3] = (double)maxlf / 365;
 	}
 
 
 //**************************  Rate of change in flow events  *********************
 
-/*	float RA1, LRA1, URA1;	// Rise rate
- *	float RA2;				// Variability in rise rate
- *	float RA3, LRA3, URA3;	// Fall rate
- *	float RA4;				// Variability in fall rate
- *	float RA5;				// No day rises
- *	float RA6, LRA6, URA6;	// Change of flow (increasing)
- *	float RA7, LRA7, URA7;	// Change of flow (descreasing)
- *	float RA8, LRA8, URA8;	// Number of reversals
- *	float RA9;				// Variability in reversals */
+/*	double RA1, LRA1, URA1;	// Rise rate
+ *	double RA2;				// Variability in rise rate
+ *	double RA3, LRA3, URA3;	// Fall rate
+ *	double RA4;				// Variability in fall rate
+ *	double RA5;				// No day rises
+ *	double RA6, LRA6, URA6;	// Change of flow (increasing)
+ *	double RA7, LRA7, URA7;	// Change of flow (descreasing)
+ *	double RA8, LRA8, URA8;	// Number of reversals
+ *	double RA9;				// Variability in reversals */
 
 // Compute rise rate
 
@@ -4670,8 +4672,11 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 	{
 		for(j=0;j<366;j++)
 		{
+
 			if(q[i][j]  < nearhuge)
 			{
+
+			printf("yearno: %i  dayno: %i  Q: %12.3f\n", i, j, q[i][j]);
 				data[ndv] = q[i][j];
 				ndv++;
 			}
@@ -4712,7 +4717,7 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 //			days in the flow record.  (dimensionless)
 //			Limits are not computed.
 
-	RA[5] = (float)nmv / (float)ndv;
+	RA[5] = (double)nmv / (double)ndv;
 
 // Compute fall rate
 
@@ -4874,11 +4879,11 @@ void compute_hi(bool usemedian, float carea, float nearhuge,
 
 // Compute basic statistics
 
-void stats(int ndv, float *data, float *v1, float *v2, float *v3)
+void stats(int ndv, double *data, double *v1, double *v2, double *v3)
 {
 	int i, j;
 	double total, temp;
-	float dtmp;
+	double dtmp;
 	int icen;		// Center index for curve points
 
 	*v1 = *v2 = *v3 = 0.;
@@ -4891,7 +4896,7 @@ void stats(int ndv, float *data, float *v1, float *v2, float *v3)
 	{
 		total = total + (double)data[i];
 	}
-	*v1 = (float)(total / (double)ndv);
+	*v1 = (double)(total / (double)ndv);
 	temp = total / (double)ndv;
 
 // compute the standard deviation
@@ -4901,7 +4906,7 @@ void stats(int ndv, float *data, float *v1, float *v2, float *v3)
 	{
 		total = total + ((double)data[i]-temp) * ((double)data[i]-temp);
 	}
-	*v3 = (float)sqrt(total/(double)(ndv-1));
+	*v3 = (double)sqrt(total/(double)(ndv-1));
 
 // Compute the median
 
@@ -4926,12 +4931,12 @@ void stats(int ndv, float *data, float *v1, float *v2, float *v3)
 		*v2 = data[icen];
 }
 
-float percentile(float p, int ndv, float *data)
+double percentile(double p, int ndv, double *data)
 {
 	int k;
-	float d;
-	float value;
-	float yp;		// Percentile value
+	double d;
+	double value;
+	double yp;		// Percentile value
 
 	yp = 0.;
 	if(ndv == 0) return(yp);
@@ -4953,10 +4958,10 @@ float percentile(float p, int ndv, float *data)
 /////////////////////////////////////////////////////////////////////////////
 //	order - Sorts in ascending or descending order for values for a data set
 //
-void order(int flag, float *ydata, int nval)
+void order(int flag, double *ydata, int nval)
 {
 	int i, j;				//	Loop counters
-	float tmp;
+	double tmp;
 
 	if(flag == 0)
 	{

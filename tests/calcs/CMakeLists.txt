@@ -20,8 +20,9 @@ foreach(infilename ${infiles})
 endforeach()
 
 set(R_script_tests
-       compare_FLOW_DURATION_to_R.R
-	   compare_SERIES_COMPARE_to_R.R
+       FLOW_DURATION__compare_to_R_calculation.R
+	   SERIES_COMPARE__compare_to_R_calculation.R
+	   HYDROLOGICAL_INDICES__compare_to_HIT_calculation.R
    )
 
 if(DEFINED R_SCRIPT)
