@@ -1,6 +1,9 @@
 !     Last change:  J     9 Sep 2004    5:38 pm
 module tsp_data_structures
 
+  use ISO_C_BINDING
+  implicit none
+
   integer, parameter    :: MAXSERIES=10000
   integer, parameter    :: MAXSERIESREAD=10000
   integer, parameter    :: MAXSTABLE=1000
@@ -45,6 +48,11 @@ module tsp_data_structures
   real (kind=T_SGL), public, parameter :: rHUGE = HUGE(rNODATA)
   real (kind=T_SGL), public, parameter :: rNEARHUGE = HUGE(rNODATA) - 100.
   real (kind=T_SGL), public, parameter :: rTINY = -HUGE(rNODATA)
+
+  real (kind=C_DOUBLE), public, parameter :: cdNODATA = -99999_C_DOUBLE
+  real (kind=C_DOUBLE), public, parameter :: cdHUGE = HUGE(cdNODATA)
+  real (kind=C_DOUBLE), public, parameter :: cdNEARHUGE = HUGE(cdNODATA) - 100.
+
 
   type T_MONTH
     character (len=3) :: sAbbreviation

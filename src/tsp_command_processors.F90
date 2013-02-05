@@ -1957,7 +1957,8 @@ subroutine get_next_block(ifail)
          else if(sCurrentBlockName.eq.'GET_SERIES_SSF')then
            iBlockNumber = iGET_SSF_SERIES
 
-         else if(sCurrentBlockName.eq.'GET_SERIES_PLOTGEN')then
+         else if(sCurrentBlockName.eq.'GET_SERIES_PLOTGEN' &
+           .or. sCurrentBlockName.eq.'GET_MUL_SERIES_PLOTGEN' )then
            iBlockNumber = iGET_PLT_SERIES
 
          else if(sCurrentBlockName.eq.'GET_SERIES_TETRAD')then
@@ -1969,10 +1970,12 @@ subroutine get_next_block(ifail)
          else if(sCurrentBlockName.eq.'GET_SERIES_UFORE_HYDRO')then
            iBlockNumber = iGET_UFORE_SERIES
 
-         else if(sCurrentBlockName.eq.'GET_MUL_SERIES_GSFLOW_GAGE')then
+         else if(sCurrentBlockName.eq.'GET_MUL_SERIES_GSFLOW_GAGE' &
+           .or. sCurrentBlockName.eq.'GET_SERIES_GSFLOW_GAGE')then
            iBlockNumber = iGET_MUL_SERIES_GSFLOW_GAGE
 
-         else if(sCurrentBlockName.eq.'GET_MUL_SERIES_STATVAR')then
+         else if(sCurrentBlockName.eq.'GET_MUL_SERIES_STATVAR' &
+           .or. sCurrentBlockName.eq.'GET_SERIES_STATVAR' )then
            iBlockNumber = iGET_MUL_SERIES_STATVAR
 
          else if(sCurrentBlockName.eq.'LIST_OUTPUT')then

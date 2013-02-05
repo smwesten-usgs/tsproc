@@ -84,19 +84,5 @@ if(TARGET__TSPROC_LIBRARY)
 
 endif()
 
-
-add_executable(test_hi
-    compute_hi.c
-    tsp_data_structures.F90
-    tsp_time_series_processors.F90
-    tsp_utilities.F90
-    tsp_command_processors.F90
-    test_compute_hi.F90
-    )
-
-add_test(test_compute_hi test_hi)
-set_tests_properties(test_compute_hi
-    PROPERTIES PASS_REGULAR_EXPRESSION "Done!!")
-
-set_target_properties(tsproc tsproclib test_hi
+set_target_properties(tsproc tsproclib
     PROPERTIES LINKER_LANGUAGE Fortran)

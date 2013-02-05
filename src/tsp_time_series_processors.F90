@@ -8,7 +8,7 @@ module tsp_time_series_processors
     integer(kind=T_INT) :: iUnits
     integer(kind=T_INT) :: iTemporalAspect
     character (len=80)   :: sHydrologicIndex
-    real(kind=T_REAL)   :: rValue
+    real(kind=T_DBL)   :: rValue
     logical(kind=T_LOGICAL) :: lInclude = lFALSE
     integer(kind=T_INT) :: iMask = 0
   end type T_HI
@@ -36,49 +36,49 @@ module tsp_time_series_processors
       rRA, rLRA, rURA) BIND(C)
       use ISO_C_BINDING
       logical(  C_BOOL), value :: lUseMedian
-      real(C_FLOAT), value :: rCarea
-      real(C_FLOAT), value :: rNearHuge
-      real(C_FLOAT), value :: rLowerPercentile
-      real(C_FLOAT), value :: rUpperPercentile
+      real(C_DOUBLE), value :: rCarea
+      real(C_DOUBLE), value :: rNearHuge
+      real(C_DOUBLE), value :: rLowerPercentile
+      real(C_DOUBLE), value :: rUpperPercentile
       integer(C_INT), dimension(150) :: iYr
-      real(C_FLOAT), dimension(0:365,0:149) :: rQ
-      real(C_FLOAT), dimension(0:45) :: rMA
-      real(C_FLOAT), dimension(0:45) :: rLMA
-      real(C_FLOAT), dimension(0:45) :: rUMA
-      real(C_FLOAT), dimension(0:22) :: rML
-      real(C_FLOAT), dimension(0:22) :: rLML
-      real(C_FLOAT), dimension(0:22) :: rUML
-      real(C_FLOAT), dimension(0:28) :: rMH
-      real(C_FLOAT), dimension(0:28) :: rLMH
-      real(C_FLOAT), dimension(0:28) :: rUMH
-      real(C_FLOAT), dimension(0:4) :: rFL
-      real(C_FLOAT), dimension(0:4) :: rLFL
-      real(C_FLOAT), dimension(0:4) :: rUFL
-      real(C_FLOAT), dimension(0:11) :: rFH
-      real(C_FLOAT), dimension(0:11) :: rLFH
-      real(C_FLOAT), dimension(0:11) :: rUFH
-      real(C_FLOAT), dimension(0:20) :: rDL
-      real(C_FLOAT), dimension(0:20) :: rLDL
-      real(C_FLOAT), dimension(0:20) :: rUDL
-      real(C_FLOAT), dimension(0:24) :: rDH
-      real(C_FLOAT), dimension(0:24) :: rLDH
-      real(C_FLOAT), dimension(0:24) :: rUDH
+      real(C_DOUBLE), dimension(0:365,0:149) :: rQ
+      real(C_DOUBLE), dimension(0:45) :: rMA
+      real(C_DOUBLE), dimension(0:45) :: rLMA
+      real(C_DOUBLE), dimension(0:45) :: rUMA
+      real(C_DOUBLE), dimension(0:22) :: rML
+      real(C_DOUBLE), dimension(0:22) :: rLML
+      real(C_DOUBLE), dimension(0:22) :: rUML
+      real(C_DOUBLE), dimension(0:28) :: rMH
+      real(C_DOUBLE), dimension(0:28) :: rLMH
+      real(C_DOUBLE), dimension(0:28) :: rUMH
+      real(C_DOUBLE), dimension(0:4) :: rFL
+      real(C_DOUBLE), dimension(0:4) :: rLFL
+      real(C_DOUBLE), dimension(0:4) :: rUFL
+      real(C_DOUBLE), dimension(0:11) :: rFH
+      real(C_DOUBLE), dimension(0:11) :: rLFH
+      real(C_DOUBLE), dimension(0:11) :: rUFH
+      real(C_DOUBLE), dimension(0:20) :: rDL
+      real(C_DOUBLE), dimension(0:20) :: rLDL
+      real(C_DOUBLE), dimension(0:20) :: rUDL
+      real(C_DOUBLE), dimension(0:24) :: rDH
+      real(C_DOUBLE), dimension(0:24) :: rLDH
+      real(C_DOUBLE), dimension(0:24) :: rUDH
 
-      real(C_FLOAT), dimension(0:3) :: rUTA
-      real(C_FLOAT), dimension(0:3) :: rTA
-      real(C_FLOAT), dimension(0:3) :: rLTA
+      real(C_DOUBLE), dimension(0:3) :: rUTA
+      real(C_DOUBLE), dimension(0:3) :: rTA
+      real(C_DOUBLE), dimension(0:3) :: rLTA
 
-      real(C_FLOAT), dimension(0:4) :: rUTL
-      real(C_FLOAT), dimension(0:4) :: rTL
-      real(C_FLOAT), dimension(0:4) :: rLTL
+      real(C_DOUBLE), dimension(0:4) :: rUTL
+      real(C_DOUBLE), dimension(0:4) :: rTL
+      real(C_DOUBLE), dimension(0:4) :: rLTL
 
-      real(C_FLOAT), dimension(0:3) :: rUTH
-      real(C_FLOAT), dimension(0:3) :: rTH
-      real(C_FLOAT), dimension(0:3) :: rLTH
+      real(C_DOUBLE), dimension(0:3) :: rUTH
+      real(C_DOUBLE), dimension(0:3) :: rTH
+      real(C_DOUBLE), dimension(0:3) :: rLTH
 
-      real(C_FLOAT), dimension(0:9) :: rRA
-      real(C_FLOAT), dimension(0:9) :: rLRA
-      real(C_FLOAT), dimension(0:9) :: rURA
+      real(C_DOUBLE), dimension(0:9) :: rRA
+      real(C_DOUBLE), dimension(0:9) :: rLRA
+      real(C_DOUBLE), dimension(0:9) :: rURA
     end subroutine compute_hi
   end interface
 
@@ -148,7 +148,7 @@ module tsp_time_series_processors
     T_HI( 6,iANNUAL,'Mean minimum annual flow / mean annual flow',rZERO,lFALSE,B'11000001'), &             ! 15
     T_HI( 6,iANNUAL,'Median minimum annual flow / median annual flow',rZERO,lFALSE,B'01001101'), &         ! 16
     T_HI( 6,iANNUAL,'7-day minimum flow / mean annual flow',rZERO,lFALSE,B'00000111'), &                   ! 17
-    T_HI( 6,iANNUAL,'CV of ( mean minimum annual flow / mean annual flow )',rZERO,lFALSE,B'00001011'), &   ! 18
+    T_HI( 6,iANNUAL,'CV of ( 7-day minimum flow / mean annual flow )',rZERO,lFALSE,B'00001011'), &         ! 18
     T_HI( 6,iANNUAL,'Mean of (minimum annual flow / mean annual flow ) * 100',rZERO,lFALSE,B'00000001'), & ! 19
     T_HI( 6,iANNUAL,'Ratio of baseflow volume to total flow volume',rZERO,lFALSE,B'00000001'), &           ! 20
     T_HI( 6,iANNUAL,'CV of annual minimum flows',rZERO,lFALSE,B'00000011'), &                              ! 21
@@ -4433,44 +4433,44 @@ subroutine compute_hydrologic_indices(ifail)
        character*25 acontext(MAXCONTEXT)
 
        integer(C_INT), dimension(0:149) :: iYr
-       real(C_FLOAT), dimension(0:365,0:149) :: rQ
-       real(C_FLOAT), dimension(0:45) :: rMA
-       real(C_FLOAT), dimension(0:45) :: rLMA
-       real(C_FLOAT), dimension(0:45) :: rUMA
-       real(C_FLOAT), dimension(0:22) :: rML
-       real(C_FLOAT), dimension(0:22) :: rLML
-       real(C_FLOAT), dimension(0:22) :: rUML
-       real(C_FLOAT), dimension(0:28) :: rMH
-       real(C_FLOAT), dimension(0:28) :: rLMH
-       real(C_FLOAT), dimension(0:28) :: rUMH
-       real(C_FLOAT), dimension(0:4) :: rFL
-       real(C_FLOAT), dimension(0:4) :: rLFL
-       real(C_FLOAT), dimension(0:4) :: rUFL
-       real(C_FLOAT), dimension(0:11) :: rFH
-       real(C_FLOAT), dimension(0:11) :: rLFH
-       real(C_FLOAT), dimension(0:11) :: rUFH
-       real(C_FLOAT), dimension(0:20) :: rDL
-       real(C_FLOAT), dimension(0:20) :: rLDL
-       real(C_FLOAT), dimension(0:20) :: rUDL
-       real(C_FLOAT), dimension(0:24) :: rDH
-       real(C_FLOAT), dimension(0:24) :: rLDH
-       real(C_FLOAT), dimension(0:24) :: rUDH
+       real(C_DOUBLE), dimension(0:365,0:149) :: rQ
+       real(C_DOUBLE), dimension(0:45) :: rMA
+       real(C_DOUBLE), dimension(0:45) :: rLMA
+       real(C_DOUBLE), dimension(0:45) :: rUMA
+       real(C_DOUBLE), dimension(0:22) :: rML
+       real(C_DOUBLE), dimension(0:22) :: rLML
+       real(C_DOUBLE), dimension(0:22) :: rUML
+       real(C_DOUBLE), dimension(0:28) :: rMH
+       real(C_DOUBLE), dimension(0:28) :: rLMH
+       real(C_DOUBLE), dimension(0:28) :: rUMH
+       real(C_DOUBLE), dimension(0:4) :: rFL
+       real(C_DOUBLE), dimension(0:4) :: rLFL
+       real(C_DOUBLE), dimension(0:4) :: rUFL
+       real(C_DOUBLE), dimension(0:11) :: rFH
+       real(C_DOUBLE), dimension(0:11) :: rLFH
+       real(C_DOUBLE), dimension(0:11) :: rUFH
+       real(C_DOUBLE), dimension(0:20) :: rDL
+       real(C_DOUBLE), dimension(0:20) :: rLDL
+       real(C_DOUBLE), dimension(0:20) :: rUDL
+       real(C_DOUBLE), dimension(0:24) :: rDH
+       real(C_DOUBLE), dimension(0:24) :: rLDH
+       real(C_DOUBLE), dimension(0:24) :: rUDH
 
-       real(C_FLOAT), dimension(0:3) :: rUTA
-       real(C_FLOAT), dimension(0:3) :: rTA
-       real(C_FLOAT), dimension(0:3) :: rLTA
+       real(C_DOUBLE), dimension(0:3) :: rUTA
+       real(C_DOUBLE), dimension(0:3) :: rTA
+       real(C_DOUBLE), dimension(0:3) :: rLTA
 
-       real(C_FLOAT), dimension(0:4) :: rUTL
-       real(C_FLOAT), dimension(0:4) :: rTL
-       real(C_FLOAT), dimension(0:4) :: rLTL
+       real(C_DOUBLE), dimension(0:4) :: rUTL
+       real(C_DOUBLE), dimension(0:4) :: rTL
+       real(C_DOUBLE), dimension(0:4) :: rLTL
 
-       real(C_FLOAT), dimension(0:3) :: rUTH
-       real(C_FLOAT), dimension(0:3) :: rTH
-       real(C_FLOAT), dimension(0:3) :: rLTH
+       real(C_DOUBLE), dimension(0:3) :: rUTH
+       real(C_DOUBLE), dimension(0:3) :: rTH
+       real(C_DOUBLE), dimension(0:3) :: rLTH
 
-       real(C_FLOAT), dimension(0:9) :: rRA
-       real(C_FLOAT), dimension(0:9) :: rLRA
-       real(C_FLOAT), dimension(0:9) :: rURA
+       real(C_DOUBLE), dimension(0:9) :: rRA
+       real(C_DOUBLE), dimension(0:9) :: rLRA
+       real(C_DOUBLE), dimension(0:9) :: rURA
 
        integer :: iOrigin
        integer :: iStartJD, iStartMM, iStartDD, iStartYYYY
@@ -4478,12 +4478,17 @@ subroutine compute_hydrologic_indices(ifail)
        integer :: iBaseWY, iDayOfWY, iWY, iCurrWY
        integer (kind=T_INT) :: iStreamClass
        logical, dimension(1:9) :: lFlowComponent
+       logical (kind=T_LOGICAL) :: lFlowComponentFirstCall
+       logical (kind=C_BOOL) :: lUseMedian
        real :: rTemp
 
-       real(C_FLOAT) :: rCarea
+       real(C_DOUBLE) :: rCarea
 
        rCarea = 100.
+       lUseMedian = .FALSE._C_BOOL
+       ! the default behavior is to calculate indices for *ALL* flow components
        lFlowComponent = lTRUE
+       lFlowComponentFirstCall = lTRUE
        iStreamClass = 0
 
        rQ = rTINY
@@ -4526,7 +4531,8 @@ subroutine compute_hydrologic_indices(ifail)
          read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
          if(cline.eq.' ') cycle
          if(cline(1:1).eq.'#') cycle
-         if(.not. str_compare(cline,"CURRENT_DEFINITIONS") ) then
+         if(.not. str_compare(cline,"CURRENT_DEFINITIONS") &
+            .and. .not. str_compare(cline,"USE_MEDIAN")) then
            call linesplit(ierr,2)
            if (ierr.ne.0 )then
              call num2char(ILine_g,aline)
@@ -4586,9 +4592,16 @@ subroutine compute_hydrologic_indices(ifail)
            iNumberOfKeywords = iNumberOfKeywords + 1
            call getfile(ierr,cline,sFlowComponent,left_word(2),right_word(2))
 
+           if(lFlowComponentFirstCall) then
+             ! if this is the first instance of FLOW_COMPONENT, then
+             ! turn off all flow components... the code that follows
+             ! will then activate just the flow components that the user requests
+             lFlowComponentFirstCall = lFALSE
+             lFlowComponent = lFALSE
+           endif
+
            ! user is specifying components of flow; need to clear out this
            ! set of flags so that the user can pick his/her own flow components
-           lFlowComponent = lFALSE
 
            select case(trim(adjustl(uppercase(sFlowComponent) ) ) )
 
@@ -4621,6 +4634,9 @@ subroutine compute_hydrologic_indices(ifail)
            write(*,56) trim(sFlowComponent)
            write(LU_REC,56) trim(sFlowComponent)
 56         format(t5,'FLOW_COMPONENT ',a)
+
+         elseif(aoption .eq. 'USE_MEDIAN') then
+           lUseMedian = .TRUE._C_BOOL
 
          ! as a help to the user, print out all of the indices calculated
          ! for a given stream classification (screen output only)
@@ -5115,8 +5131,8 @@ subroutine compute_hydrologic_indices(ifail)
        enddo
 
        ! make the actual call to the C++ routine provided by
-       call compute_hi(lUseMedian=.FALSE._C_BOOL, rCarea=rCarea, rNearHuge = rNEARHUGE, &
-         rLowerPercentile=25., rUpperPercentile=75., iYr=iYr, rQ=rQ, rMA=rMA, &
+       call compute_hi(lUseMedian=lUseMedian, rCarea=rCarea, rNearHuge = cdNEARHUGE, &
+         rLowerPercentile=25._C_DOUBLE, rUpperPercentile=75._C_DOUBLE, iYr=iYr, rQ=rQ, rMA=rMA, &
          rLMA = rLMA, rUMA = rUMA, &
          rML = rML, rLML = rLML, rUML = rUML, &
          rMH = rMH, rLMH = rLMH, rUMH = rUMH, &
