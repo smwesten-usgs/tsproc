@@ -20,7 +20,8 @@ foreach(infilename ${infiles})
 endforeach()
 
 set(tests_that_should_pass
-       GET_MUL_SERIES_STATVAR__basic_read.inp        # requires statvar.dat
+       GET_MUL_SERIES_STATVAR__basic_read.inp            # requires statvar.dat
+       GET_MUL_SERIES_STATVAR__test_of_partial_read.inp  # requires statvar.dat
 	   GET_SERIES_WDM__basic_read.inp	             # requires testdata.wdm
 	   GET_MUL_SERIES_GSFLOW_GAGE__basic_read.inp    # requires testdata.ggo
 	   GET_MUL_SERIES_PLOTGEN__basic_read.inp        # requires testdata.plt

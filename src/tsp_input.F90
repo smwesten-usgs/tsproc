@@ -715,7 +715,7 @@ subroutine get_mul_series_statvar(ifail)
          end if
        end do
 
-! -- If there are any absences in the GET_MUL_SERIES_SSF block, these are now reported.
+! -- If there are any absences in the GET_MUL_SERIES_STATVAR block, these are now reported.
 
 100    continue
        if(afile.eq.' ')then
@@ -786,6 +786,10 @@ subroutine get_mul_series_statvar(ifail)
        if(nstatseries.le.0) go to 9350
        datcol=0               ! an array
        icount=0
+
+!       write(amessage,fmt="(a,i0)" ) "*** nstatseries = ", nstatseries
+!       call write_message(iunit=LU_REC,leadspace='yes')
+
        do i=1,nstatseries
          jline=jline+1
          read(iunit,'(a)',err=9200,end=9200) cline
@@ -818,11 +822,11 @@ subroutine get_mul_series_statvar(ifail)
            if((site(j).eq.varname).and.(itemp.eq.locid(j))) then
              datcol(j)=i
              icount=icount+1
-             if(icount.lt.jseries)then
-               go to 390
-             else
-               go to 400
-             end if
+!             if(icount.lt.jseries)then
+!               go to 390
+!             else
+!               go to 400
+!             end if
            end if
          end do
 390      continue
@@ -840,6 +844,7 @@ subroutine get_mul_series_statvar(ifail)
        end if
 
 ! -- The file is now read a first time in order to establish memory requirements.
+
        allocate(rval(nstatseries),stat=ierr)
        if(ierr.ne.0)then
          write(amessage,420)
@@ -849,6 +854,9 @@ subroutine get_mul_series_statvar(ifail)
        icount=0
        jcount=0
        do
+         write(amessage,fmt="(a,i0)" ) "*** nstatseries = ", nstatseries
+         call write_message(iunit=LU_REC,leadspace='yes')
+
          read(iunit,*,err=9270,end=450) modday,yys,mms,dds,hhs,nns,sss,(rval(i),i=1,nstatseries)
          jcount=jcount+1
          ddays=numdays(1,1,1970,dds,mms,yys)
@@ -901,8 +909,13 @@ subroutine get_mul_series_statvar(ifail)
 371      format('cannot re-wind STATVAR file ',a)
          go to 9800
        end if
+       !
+       ! read past the header information...
        do i=1,nstatseries+1
          read(iunit,'(a)') cline
+         write(amessage,fmt="(a)" ) "'"//trim(cline)//"'"
+         call write_message(iunit=LU_REC,leadspace='yes')
+
        end do
        icount=0
        jcount=0
@@ -3569,7 +3582,7 @@ subroutine get_wdm_series (ifail)
     IF (ierr /= 0) THEN
        GOTO 9800
     ENDIF
- 
+
     dtran = 0
     qualfg = 30
     CALL wdtget (wdmunit, &

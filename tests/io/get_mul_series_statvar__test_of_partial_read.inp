@@ -1,0 +1,27 @@
+START SETTINGS
+#  CONTEXT pest_input
+  CONTEXT all
+  DATE_FORMAT mm/dd/yyyy
+END SETTINGS
+
+
+###########################################################################
+# Process ALL STATVAR file data....
+###########################################################################
+#==> Read in STATVAR variables
+START GET_MUL_SERIES_STATVAR
+  CONTEXT all
+  FILE statvar.dat
+  VARIABLE_NAME sub_cfs
+  LOCATION_ID 1
+  NEW_SERIES_NAME Sq6540i
+  VARIABLE_NAME sub_cfs
+  LOCATION_ID 2
+  NEW_SERIES_NAME Sq6500i
+  VARIABLE_NAME sub_cfs
+  LOCATION_ID 3
+  NEW_SERIES_NAME Sqa6491i
+  VARIABLE_NAME sub_cfs
+  LOCATION_ID 4
+  NEW_SERIES_NAME Sq6470i
+ END GET_MUL_SERIES_STATVAR
