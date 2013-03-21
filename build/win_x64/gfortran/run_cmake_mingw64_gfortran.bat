@@ -27,8 +27,6 @@ set INSTALL_PREFIX=d:\DOS
 :: define other variables for use in the CMakeList.txt file
 :: options are "Release" or "Debug"
 set BUILD_TYPE="Release"
-:: options are "x86" (32-bit) or "x64" (64-bit)
-set PLATFORM_TYPE="x64"
 
 :: IMPORTANT!! Make sure a valid TEMP directory exists!!
 set TEMP=d:\TEMP

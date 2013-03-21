@@ -46,28 +46,28 @@ program tsp_main
 
   end if
 
-   write(unit=LU_STD_OUT,fmt="(/,a)")  " TSPROC -- "//trim(sVersionString)
-   write(unit=LU_STD_OUT, fmt="(a,/)") "           compiled on: "  // &
-      TRIM(__DATE__) //" "// TRIM(__TIME__)
-
    write(unit=LU_STD_OUT,fmt="(a,/,a,/,a,/,a)") &
      ' Program TSPROC is a general time-series processor. It can ', &
      ' also be used for PEST input file preparation where time series data, ', &
      ' or processed time series data, comprises at least part of the observation ',&
      ' dataset.'
 
+   write(unit=LU_STD_OUT,fmt="(/,a)")  " TSPROC -- "//trim(sVersionString)
+   write(unit=LU_STD_OUT, fmt="(11x,a)") "compiled on: "  // &
+      TRIM(__DATE__) //" "// TRIM(__TIME__)
+
 #ifdef __GFORTRAN__
-    write(UNIT=*,FMT="(/,a,/)") " compiled with GNU gfortran version " &
+    write(UNIT=*,FMT="(11x,a,/)") "compiled with GNU gfortran version " &
       //TRIM(__VERSION__)
 #endif
 
 #ifdef __INTEL_COMPILER
-    write(UNIT=*,FMT="(/,a,/)") " compiled with Intel Fortran version " &
+    write(UNIT=*,FMT="(11x,a,/)") "compiled with Intel Fortran version " &
       //TRIM(int2char(__INTEL_COMPILER))
 #endif
 
 #ifdef __G95__
-    write(UNIT=*,FMT="(/,a,/)") " compiled with G95 minor version " &
+    write(UNIT=*,FMT="(11x,a,/)") "compiled with G95 minor version " &
       //TRIM(int2char(__G95_MINOR__))
 #endif
 

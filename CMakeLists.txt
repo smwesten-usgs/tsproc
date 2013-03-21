@@ -18,8 +18,8 @@ endif(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
 #------------------------------------------------------------------------
 # Set basic project settings
 #------------------------------------------------------------------------
-project (tsproc Fortran C)
-enable_language (Fortran C)
+project (tsproc Fortran CXX)
+enable_language (Fortran CXX)
 
 SET(CPACK_GENERATOR "TGZ")
 include(CPack)
@@ -77,21 +77,12 @@ find_program( R_SCRIPT Rscript.exe Rscript
 
 message("Rscript.exe is defined as: " ${R_SCRIPT})
 
-
 #------------------------------------------------------------------------
 # Set platform-specific options
 #------------------------------------------------------------------------
 if(CMAKE_HOST_WIN32)
 
     if (Fortran_COMPILER_NAME MATCHES "gfortran[.a-z]*")
-
-      message("")
-      message(" ***** setting options for gfortran on MinGW *****")
-	  message("  PLATFORM_TYPE = " ${PLATFORM_TYPE} )
-	  message("  MINGWDIR = " ${MINGWBASE} )
-
-      set(CMAKE_INSTALL_PREFIX "d:/DOS" CACHE STRING
-          "Location for installation of the executable")
 
       FIND_LIBRARY(GCC_LIB libgcc.a
 	    ENV
@@ -107,28 +98,32 @@ if(CMAKE_HOST_WIN32)
 		${MINGWBASE}
       )
 
-      set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -mtune=native -ffree-line-length-none -static-libgcc -static-libgfortran -finit-local-zero")
-      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -Wall -Wextra -fcheck=all -fexceptions -ffree-line-length-none -finit-local-zero")
-
-      SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libgfortran")
       set(EXTRA_LIBS ${EXTRA_LIBS} ${GCC_LIB} ${GFORTRAN_LIB})
 
       set_property(CACHE CMAKE_BUILD_TYPE
               PROPERTY STRINGS "Release" "Debug")
 
-      add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
-
    endif ()
+
+  add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
 elseif(CMAKE_HOST_UNIX)
 
     if (Fortran_COMPILER_NAME MATCHES "^gfortran[.a-z]*")
 
-      message("")
-      message(" ***** setting options for gfortran on UNIX like OS *****")
+      FIND_LIBRARY(GCC_LIB libgcc.a
+	    ENV
+		${LIBRARY_PATH}
+	    HINTS
+		${MINGWBASE}
+      )
 
-      set (CMAKE_Fortran_FLAGS_RELEASE "-Ofast -fwhole-file -ffree-line-length-none")
-      set (CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -pg -fbounds-check -Wall -Wextra -fexceptions -ffree-line-length-none")
+      FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
+	    ENV
+		${LIBRARY_PATH}
+	    HINTS
+		${MINGWBASE}
+      )
 
     endif ()
 
@@ -138,24 +133,19 @@ elseif(CMAKE_HOST_UNIX)
       message("")
       message(" ***** setting options for Intel fortran on Linux *****")
 
-      set(CMAKE_INSTALL_PREFIX "/usr/local/bin" CACHE STRING
-          "Location for installation of the executable")
-
-      set (CMAKE_Fortran_FLAGS_RELEASE "-fast -arch ")
-      set (CMAKE_Fortran_FLAGS_DEBUG "-warn all -traceback ")
-
       SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel -static-libgcc")
       set(EXTRA_LIBS "${EXTRA_LIBS} libgcc.a libgfortran.a"} )
-      add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc ${CMAKE_INSTALL_PREFIX}/tsproc )
 
     endif()
 
    # If not Linux and ifort, accept CMAKE defaults...
    # I think compiler choice is keyed off of the FC environment variable.
 
+   add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc ${CMAKE_INSTALL_PREFIX}/tsproc )
+
 else()
 
-   message(FATAL_ERROR "Windows (32/64)/gfortran/MinGW or Linux-64/Intel environments were not detected!")
+   message(FATAL_ERROR "Windows (32/64)/gfortran/MinGW/Intel or Linux-64/Intel environments were not detected!")
 
 endif()
 

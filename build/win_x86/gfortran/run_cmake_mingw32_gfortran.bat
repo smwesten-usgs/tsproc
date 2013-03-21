@@ -1,3 +1,4 @@
+@echo off
 ::
 ::  The purpose of this batch file is to eliminate all existing Windows environment
 ::  variables and replace them with only those variables that CMake needs to see.
@@ -27,18 +28,16 @@ set INSTALL_PREFIX=d:\DOS
 :: define other variables for use in the CMakeList.txt file
 :: options are "Release" or "Debug"
 set BUILD_TYPE="Release"
-:: options are "x86" (32-bit) or "x64" (64-bit)
-set PLATFORM_TYPE="x86"
 
 :: IMPORTANT!! Make sure a valid TEMP directory exists!!
 set TEMP=d:\TEMP
 
 :: set path to include important MinGW locations
 set PATH=%MINGWBASE%\bin;%MINGWBASE%\include;%MINGWBASE%\lib
+set PATH=%PATH%;%R_HOME%;%INSTALL_PREFIX%
 
 :: recreate clean Windows environment
-set PATH=%PATH%;c:\windows;c:\windows\system32;c:\windows\system32\Wbem
-set PATH=%PATH%;C:\Program Files (x86)\7-Zip
+set PATH=%PATH%;c:\windows;c:\windows\system32
 set PATH=%PATH%;%CMAKEROOT%\bin;%CMAKEROOT%\share
 
 :: not every installation will have these; I (SMW) find them useful
@@ -46,8 +45,8 @@ set PATH=%PATH%;c:\Program Files (x86)\Zeus
 set PATH=%PATH%;D:\DOS\gnuwin32\bin
 
 :: set important environment variables
-set FC=%MINGWBASE%\bin\gfortran
-set CC=%MINGWBASE%\bin\gcc
+set FC=%MINGWBASE%\bin\gfortran.exe
+set CC=%MINGWBASE%\bin\gcc.exe
 set CXX=%MINGWBASE%\bin\g++.exe
 set AR=%MINGWBASE%\bin\ar.exe
 set NM=%MINGWBASE%\bin\nm.exe
@@ -71,10 +70,9 @@ set CTEST_OUTPUT_ON_FAILURE=1
 
 cmake ..\..\.. -G "MinGW Makefiles" ^
 -DMINGWBASE=%MINGWBASE% ^
--DPLATFORM_TYPE=%PLATFORM_TYPE% ^
 -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL_PREFIX% ^
 -DCMAKE_MAKE_PROGRAM=%MINGWBASE%\bin\make.exe ^
--DCMAKE_RANLIB:FILEPATH=%MINGWBASE%\bin\ranlib.exe ^
--DCMAKE_C_COMPILER:FILEPATH=%MINGWBASE%\bin\gcc.exe ^
--DCMAKE_Fortran_COMPILER:FILEPATH=%MINGWBASE%\bin\gfortran.exe
+-DCMAKE_RANLIB:FILEPATH=%CMAKE_RANLIB% ^
+-DCMAKE_CXX_COMPILER:FILEPATH=%CXX% ^
+-DCMAKE_Fortran_COMPILER:FILEPATH=%FC%

@@ -5,7 +5,7 @@ if(TARGET__TSPROC_EXECUTABLE)
 
             tokenize.F90
 
-            compute_hi.c
+            compute_hi.cpp
             tsp_command_processors.F90
             tsp_data_structures.F90
             tsp_equation_parser.F90
@@ -47,7 +47,7 @@ if(TARGET__TSPROC_LIBRARY)
   add_library(tsproclib STATIC
             tokenize.F90
 
-            compute_hi.c
+            compute_hi.cpp
             tsp_command_processors.F90
             tsp_data_structures.F90
             tsp_equation_parser.F90

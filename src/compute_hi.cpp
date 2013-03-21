@@ -1,27 +1,12 @@
 //		Compute Hydrologic Indices
 
-//#include "stdafx.h"
-//
-// These include files are from the Boost C++ library
-/*#include <cstdlib>
-#include <cstdio>
-#include <cmath>
-#include <vector> */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-#include <stdbool.h>
-
 //extern bool usemedian;		// Flag indicating median is to be used in computing MA3,MA12-MA35,ML1-ML12,ML14,
 							//  ML14,ML15,ML17,ML19,ML22,MH1-MH12,MH20,FL1,FL3,FH1,FH3-FH11,DL1-DL5,DL18,
 							//  DH17-DH24,RA1,RA3,RA8
-
-//using namespace std;
-//#ifdef __cplusplus
-//  extern "C" {
-//#endif
 
 void stats (int, double*, double*, double*, double*);
 double percentile(double, int, double*);
@@ -30,7 +15,7 @@ void order(int,double*,int);
 //void compute_hi(int datatype, double carea,
 //		double m_lp, double m_up, int yr[], double q[][366])
 
-void compute_hi(bool usemedian, double carea, double nearhuge,
+extern "C" void compute_hi(bool usemedian, double carea, double nearhuge,
 		double m_lp, double m_up, int yr[150], double q[150][366],
 		double MA[46], double LMA[46], double UMA[46],
 		double ML[23],double LML[23],double UML[23],
@@ -44,15 +29,7 @@ void compute_hi(bool usemedian, double carea, double nearhuge,
 		double TH[4],double LTH[4],double UTH[4],
 		double RA[10], double LRA[10], double URA[10])
 {
-	//double *data;
-	//double *mdata;
-	//double *baseflow;
-	//double *tempdata;
-//	CStdioFile ifile, ofile;
-//	CString line;
-	bool isData;
-//	int yr[150];		// Array of data years
-//	double q[150][366];	// Array of daily flows for each year
+
 	int day;			// Day of the year index
 	int nyrs;			// Number of years
 	int i, j, k;
@@ -5000,7 +4977,3 @@ void order(int flag, double *ydata, int nval)
 		}
 	}
 }
-
-//#ifdef __cplusplus
-//}
-//#endif
