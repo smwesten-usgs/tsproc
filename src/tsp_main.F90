@@ -46,7 +46,8 @@ program tsp_main
 
   end if
 
-   write(unit=LU_STD_OUT,fmt="(/,a,/)")  " TSPROC -- compiled on: "  // &
+   write(unit=LU_STD_OUT,fmt="(/,a)")  " TSPROC -- "//trim(sVersionString)
+   write(unit=LU_STD_OUT, fmt="(a,/)") "           compiled on: "  // &
       TRIM(__DATE__) //" "// TRIM(__TIME__)
 
    write(unit=LU_STD_OUT,fmt="(a,/,a,/,a,/,a)") &

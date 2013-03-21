@@ -4,6 +4,8 @@ module tsp_data_structures
   use ISO_C_BINDING
   implicit none
 
+  character (len=256) :: sVersionString = "version 1.0.3"
+
   integer, parameter    :: MAXSERIES=10000
   integer, parameter    :: MAXSERIESREAD=10000
   integer, parameter    :: MAXSTABLE=1000

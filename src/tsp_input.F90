@@ -854,9 +854,6 @@ subroutine get_mul_series_statvar(ifail)
        icount=0
        jcount=0
        do
-         write(amessage,fmt="(a,i0)" ) "*** nstatseries = ", nstatseries
-         call write_message(iunit=LU_REC,leadspace='yes')
-
          read(iunit,*,err=9270,end=450) modday,yys,mms,dds,hhs,nns,sss,(rval(i),i=1,nstatseries)
          jcount=jcount+1
          ddays=numdays(1,1,1970,dds,mms,yys)
