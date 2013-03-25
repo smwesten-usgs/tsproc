@@ -26,9 +26,9 @@ include(CPack)
 
 set(PACKAGE_BUGREPORT "smwesten@usgs.gov")
 set(PACKAGE_NAME "tsproc")
-set(PACKAGE_STRING "tsproc 2.0")
+set(PACKAGE_STRING "tsproc 1.0.3")
 set(PACKAGE_TARNAME "tsproc")
-set(PACKAGE_VERSION "2.0")
+set(PACKAGE_VERSION "1.0.3")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
