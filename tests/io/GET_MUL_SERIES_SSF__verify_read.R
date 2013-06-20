@@ -2,7 +2,6 @@ myargs <- commandArgs(trailingOnly = TRUE)
 
 source("function__read_ssf_file.R")
 
-# this is where CMake BUILDS the TSPROC executable
 tsproc_exe <- myargs[1]
 
 tsproc_inp <- "tsproc_get_mul_series_ssf.inp"
@@ -60,9 +59,7 @@ my_control_file <- c(
 writeLines(text=my_control_file,
            con=tsproc_inp)
 
-retval <- shell(cmd=paste(tsproc_exe, tsproc_inp, tsproc_log, sep=" "),
-                 intern=TRUE,
-                 ignore.stdout=FALSE)
+retval <- system2(tsproc_exe, args=paste(tsproc_inp, tsproc_log, sep=" "))
 
 tsp_result <- read_ssf("test__get_mul_series_ssf.ssf")
 

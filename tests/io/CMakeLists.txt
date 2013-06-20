@@ -1,11 +1,4 @@
 
-find_program(TSPROC_EXECUTABLE tsproc.exe tsproc
-             PATH
-			 ${CMAKE_BINARY_DIR}
- 			 ${CMAKE_BINARY_DIR}/src
-			 ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 message("TSPROC LOCATION: " ${TSPROC_EXECUTABLE} )
 
 # Need input files over in build environment
@@ -20,10 +13,10 @@ foreach(infilename ${infiles})
 endforeach()
 
 set(tests_that_should_pass
-       GET_MUL_SERIES_STATVAR__basic_read.inp            # requires statvar.dat
-       GET_MUL_SERIES_STATVAR__test_of_partial_read.inp  # requires statvar.dat
-	   GET_SERIES_WDM__basic_read.inp	             # requires testdata.wdm
-	   GET_MUL_SERIES_GSFLOW_GAGE__basic_read.inp    # requires testdata.ggo
+       get_mul_series_statvar__basic_read.inp            # requires statvar.dat
+       get_mul_series_statvar__test_of_partial_read.inp  # requires statvar.dat
+	   get_series_wdm__basic_read.inp	             # requires testdata.wdm
+	   get_mul_series_gsflow_gage__basic_read.inp    # requires testdata.ggo
 	   GET_MUL_SERIES_PLOTGEN__basic_read.inp        # requires testdata.plt
        )
 
@@ -35,8 +28,8 @@ foreach(test_filename ${tests_that_should_pass})
    # ** add_test: Add a test to the project with the specified arguments.
    # **    example: add_test(testname executable_name arg1 arg2 ... )
    #
-   add_test(NAME ${basename}
-            COMMAND ${TSPROC_EXECUTABLE}
+   add_test(${basename}
+            ${TSPROC_EXECUTABLE}
             ${test_filename} ${basename}.rec)
 
    message("Test string: " ${basename})
@@ -70,9 +63,11 @@ if(DEFINED R_SCRIPT)
               ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " " ${TSPROC_EXECUTABLE} )
    message(" ")
 
-     add_test(NAME ${basename}
-              COMMAND ${R_SCRIPT} --vanilla
-              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${TSPROC_EXECUTABLE} )
+     add_test(${basename}
+              ${R_SCRIPT}
+              --vanilla
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename}
+              ${TSPROC_EXECUTABLE})
 
      # set criteria for success of each test
      set_tests_properties(${basename}

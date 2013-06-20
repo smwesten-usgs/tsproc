@@ -32,7 +32,7 @@ set(PACKAGE_VERSION "1.0.3")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.6)
 
 option (MAKEFILE_VERBOSE
       "Produce verbose makefiles?" OFF)
@@ -67,10 +67,10 @@ get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 # Locate utility programs
 #------------------------------------------------------------------------
 
-find_program( R_SCRIPT Rscript.exe Rscript
-			  HINTS
-			  ENV R_HOME
-              PATHS
+find_program( R_SCRIPT
+              NAMES Rscript.exe Rscript
+			  HINTS ENV R_HOME
+              PATHS ENV PATH
 			  "c:/Program Files/R"
 			  "c:/Program Files (x86)/R"
 )
@@ -107,52 +107,11 @@ if(CMAKE_HOST_WIN32)
 
   add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
-elseif(CMAKE_HOST_UNIX)
-
-    if (Fortran_COMPILER_NAME MATCHES "^gfortran[.a-z]*")
-
-      FIND_LIBRARY(GCC_LIB libgcc.a
-	    ENV
-		${LIBRARY_PATH}
-	    HINTS
-		${MINGWBASE}
-      )
-
-      FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
-	    ENV
-		${LIBRARY_PATH}
-	    HINTS
-		${MINGWBASE}
-      )
-
-    endif ()
-
-    # set options specific to the Intel compiler on Linux
-    if (Fortran_COMPILER_NAME MATCHES "ifort[.a-z]*")
-
-      message("")
-      message(" ***** setting options for Intel fortran on Linux *****")
-
-      SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel -static-libgcc")
-      set(EXTRA_LIBS "${EXTRA_LIBS} libgcc.a libgfortran.a"} )
-
-    endif()
-
-   # If not Linux and ifort, accept CMAKE defaults...
-   # I think compiler choice is keyed off of the FC environment variable.
-
-   add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/tsproc ${CMAKE_INSTALL_PREFIX}/tsproc )
-
-else()
-
-   message(FATAL_ERROR "Windows (32/64)/gfortran/MinGW/Intel or Linux-64/Intel environments were not detected!")
-
 endif()
 
 message(" *****")
 message("")
 
-enable_testing()
 add_subdirectory(src)
-add_subdirectory(tests/io)
-add_subdirectory(tests/calcs)
+enable_testing()
+add_subdirectory(tests)

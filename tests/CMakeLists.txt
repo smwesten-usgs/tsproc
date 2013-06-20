@@ -1,11 +1,7 @@
 
 #add_executable(xcat xcat.F90)
 
-find_program(TSPROC_EXECUTABLE tsproc.exe tsproc
-             PATH
-			 ${CMAKE_CURRENT_SOURCE_DIR}
-			 ${CMAKE_CURRENT_BINAry_DIR}
-)
+get_target_property(TSPROC_EXECUTABLE tsproc LOCATION)
 
 message("TSPROC LOCATION: " ${TSPROC_EXECUTABLE} )
 
@@ -45,8 +41,8 @@ foreach(test_filename ${tests_that_should_pass})
    # ** add_test: Add a test to the project with the specified arguments.
    # **    example: add_test(testname executable_name arg1 arg2 ... )
    #
-   add_test(NAME ${basename}
-            COMMAND ${TSPROC_EXECUTABLE}
+   add_test(${basename}
+            ${TSPROC_EXECUTABLE}
             ${test_filename} ${basename}.rec)
 
    message("Test string: " ${basename})
@@ -72,12 +68,15 @@ if(DEFINED R_SCRIPT)
 
    message("Test string: " ${basename})
    message("   COMMAND " ${R_SCRIPT} " --vanilla "
-              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " " ${CMAKE_CURRENT_BINARY_DIR} )
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " "
+              ${TSPROC_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR})
    message(" ")
 
-     add_test(NAME ${basename}
-              COMMAND ${R_SCRIPT} --vanilla
-              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${CMAKE_CURRENT_BINARY_DIR} )
+     add_test(${basename}
+              ${R_SCRIPT}
+              --vanilla
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename}
+              ${TSPROC_EXECUTABLE})
 
      # set criteria for success of each test
      set_tests_properties(${basename}
@@ -90,3 +89,7 @@ if(DEFINED R_SCRIPT)
   endforeach()
 
 endif()
+
+add_subdirectory(io)
+add_subdirectory(calcs)
+

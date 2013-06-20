@@ -2,15 +2,14 @@ myargs <- commandArgs(trailingOnly = TRUE)
 
 # this is where CMake BUILDS the TSPROC executable
 #bin_dir <- myargs[1]
-bin_dir <- "d:/SMWData/Source_Code/tsproc/build/win32/tests"
+#bin_dir <- "d:/SMWData/Source_Code/tsproc/build/win32/tests"
 
 exponent <- 1.0
 
-tsproc_exe <- paste(bin_dir,"../src/tsproc.exe",sep="/")
+#tsproc_exe <- paste(bin_dir,"../src/tsproc.exe",sep="/")
+tsproc_exe <- myargs[1]
 tsproc_inp <- "tsproc_test_v_table_to_series.inp"
 tsproc_log <- "tsproc_test_v_table_to_series.log"
-
-setwd(bin_dir)
 
 DATE_1 <- as.POSIXlt("1990-10-02")
 DATE_2 <- as.POSIXlt("2000-10-01")

@@ -85,4 +85,4 @@ if(TARGET__TSPROC_LIBRARY)
 endif()
 
 set_target_properties(tsproc tsproclib
-    PROPERTIES LINKER_LANGUAGE Fortran)
+    PROPERTIES LINKER_LANGUAGE CXX)

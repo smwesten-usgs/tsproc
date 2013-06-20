@@ -1,15 +1,10 @@
 myargs <- commandArgs(trailingOnly = TRUE)
 
-# this is where CMake BUILDS the TSPROC executable
-bin_dir <- myargs[1]
-
 exponent <- 1.0
 
-tsproc_exe <- paste(bin_dir,"../src/tsproc.exe",sep="/")
+tsproc_exe <- myargs[1]
 tsproc_inp <- "tsproc_test_series_compare.inp"
 tsproc_log <- "tsproc_test_series_compare.log"
-
-setwd(bin_dir)
 
 DATE_1 <- as.POSIXlt("1990-10-02")
 DATE_2 <- as.POSIXlt("2000-10-01")
@@ -104,9 +99,7 @@ my_control_file <- c(
 writeLines(text=my_control_file,
            con=tsproc_inp)
 
-retval <- shell(cmd=paste(tsproc_exe, tsproc_inp, tsproc_log, sep=" "),
-                 intern=TRUE,
-                 ignore.stdout=FALSE)
+retval <- system2(tsproc_exe, args=paste(tsproc_inp, tsproc_log, sep=" "))
 
 tsp_result <- read.table("test__series_compare.txt",
            skip=9, 
