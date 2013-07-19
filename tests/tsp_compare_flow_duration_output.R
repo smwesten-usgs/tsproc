@@ -3,11 +3,9 @@ myargs <- commandArgs(trailingOnly = TRUE)
 # this is where CMake BUILDS the TSPROC executable
 bin_dir <- myargs[1]
 
-tsproc_exe <- paste(bin_dir,"../src/tsproc.exe",sep="/")
+tsproc_exe <- myargs[1]
 tsproc_inp <- "tsproc_test_flow_duration.inp"
 tsproc_log <- "tsproc_test_flow_duration.log"
-
-setwd(bin_dir)
 
 read_ssf <- function(filename) {
   
@@ -59,9 +57,7 @@ my_control_file <- c(
 writeLines(text=my_control_file,
            con=tsproc_inp)
 
-retval <- shell(cmd=paste(tsproc_exe, tsproc_inp, tsproc_log, sep=" "),
-                 intern=TRUE,
-                 ignore.stdout=FALSE)
+retval <- system2(tsproc_exe, args=paste(tsproc_inp, tsproc_log, sep=" "))
 
 tsp_result <- read.table("test__flow_duration.txt",
            skip=3, 

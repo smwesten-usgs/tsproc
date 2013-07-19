@@ -66,9 +66,7 @@ my_control_file <- c(
 writeLines(text=my_control_file,
            con=tsproc_inp)
 
-retval <- shell(cmd=paste(tsproc_exe, tsproc_inp, tsproc_log, sep=" "),
-                 intern=TRUE,
-                 ignore.stdout=FALSE)
+retval <- system2(tsproc_exe, args=paste(tsproc_inp, tsproc_log, sep=" "))
 
 tsp_result <- read.fortran("test__hydraulic_indices.txt",
            skip=3, 

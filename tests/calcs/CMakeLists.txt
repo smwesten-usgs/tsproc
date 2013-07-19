@@ -35,9 +35,11 @@ if(DEFINED R_SCRIPT)
               ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " " ${TSPROC_EXECUTABLE} )
    message(" ")
 
-     add_test(NAME ${basename}
-              COMMAND ${R_SCRIPT} --vanilla
-              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} ${TSPROC_EXECUTABLE} )
+     add_test(${basename}
+              ${R_SCRIPT}
+              --vanilla
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename}
+              ${TSPROC_EXECUTABLE})
 
      # set criteria for success of each test
      set_tests_properties(${basename}
