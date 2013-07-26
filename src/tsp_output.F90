@@ -166,6 +166,7 @@ subroutine pest_files(ifail,lastblock)
            end if
            ixcon=1
          end if
+
          if(aoption.eq.'TEMPLATE_FILE')then
            itempfile=itempfile+1
            if(itempfile.gt.MAXTEMPFILE)then
@@ -335,6 +336,7 @@ subroutine pest_files(ifail,lastblock)
 109        format('current version of TSPROC does not allow C_TABLES to be ', &
            'used for parameter estimation.')
            go to 9800
+
          else if(aoption.eq.'OBSERVATION_V_TABLE_NAME')then
            iovtable=iovtable+1
            if(iovtable.gt.MAXVTABLE)then
@@ -407,6 +409,7 @@ subroutine pest_files(ifail,lastblock)
          else if(aoption.eq.'MODEL_C_TABLE_NAME')then
            write(amessage,109)
            go to 9800
+
          else if(aoption.eq.'MODEL_V_TABLE_NAME')then
            correct_keyword='OBSERVATION_V_TABLE_NAME'
            if(last_keyword.ne.correct_keyword) go to 9300
@@ -1443,7 +1446,7 @@ subroutine pest_files(ifail,lastblock)
          do iterm=1,nsterm
            call num2char(iterm,anum)
            if(sSeriesFormat_g.eq.'long')then
-             aname='['//trim(atemp)//trim(anum)//']37:55'
+             aname='['//trim(atemp)//trim(anum)//']42:60'
            else
              aname='['//trim(atemp)//trim(anum)//']2:20'
            end if
@@ -2736,7 +2739,7 @@ subroutine write_list_output(ifail)
                sss=ss-hhh*3600-mmm*60
                if(datespec.eq.1) then
                  write(LU_OUT,300) trim(aname),dd,mm,yy,hhh,mmm,sss,series_g(j)%val(iterm)
-300              format(1x,a,t15,i2.2,'/',i2.2,'/',i4.4,3x,i2.2,':',i2.2,':',   &
+300              format(1x,a,t20,i2.2,'/',i2.2,'/',i4.4,3x,i2.2,':',i2.2,':',   &
                  i2.2,3x,1pg14.7)
                else
                  write(LU_OUT,300) trim(aname),mm,dd,yy,hhh,mmm,sss,series_g(j)%val(iterm)
@@ -2775,17 +2778,17 @@ subroutine write_list_output(ifail)
           else
             write(LU_OUT,520) mms1,dds1,yys1
           end if
-520       format(t5,'Beginning date of data accumulation:',t55,i2.2,'/',i2.2,'/',i4)
+520       format(t5,'Starting date for data accumulation:',t55,i2.2,'/',i2.2,'/',i4)
           write(LU_OUT,530) hhs1,nns1,sss1
-530       format(t5,'Beginning time of data accumulation:',t55,i2.2,':',i2.2,':',i2.2)
+530       format(t5,'Starting time for data accumulation:',t55,i2.2,':',i2.2,':',i2.2)
           if(datespec.eq.1)then
             write(LU_OUT,540) dds2,mms2,yys2
           else
             write(LU_OUT,540) mms2,dds2,yys2
           end if
-540       format(t5,'Finishing date of data accumulation:',t55,i2.2,'/',i2.2,'/',i4)
+540       format(t5,'Ending date for data accumulation:',t55,i2.2,'/',i2.2,'/',i4)
           write(LU_OUT,550) hhs2,nns2,sss2
-550       format(t5,'Finishing time of data accumulation:',t55,i2.2,':',i2.2,':',i2.2)
+550       format(t5,'Ending time for data accumulation:',t55,i2.2,':',i2.2,':',i2.2)
           call num2char(stable_g(jstable)%rec_icount,aline)
           write(LU_OUT,555) trim(aline)
 555       format(t5,'Number of series terms in this interval:',t55,a)

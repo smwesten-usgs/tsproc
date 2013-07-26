@@ -470,17 +470,17 @@ subroutine get_table_name(ifail,itable,jtype)
 146      format(t5,'OBSERVATION_G_TABLE_NAME ',a)
 
        else if(jtype.eq.21)then
-         write(*,146) trim(aname)
+         write(*,147) trim(aname)
          write(LU_REC,147) trim(aname)
 147      format(t5,'MODEL_S_TABLE_NAME ',a)
 
        else if(jtype.eq.22)then
-         write(*,147) trim(aname)
+         write(*,148) trim(aname)
          write(LU_REC,148) trim(aname)
 148      format(t5,'MODEL_V_TABLE_NAME ',a)
 
        else if(jtype.eq.23)then
-         write(*,148) trim(aname)
+         write(*,149) trim(aname)
          write(LU_REC,149) trim(aname)
 149      format(t5,'MODEL_E_TABLE_NAME ',a)
 

@@ -19,7 +19,7 @@ rmdir /S /Q CMakeFiles
 :: set CMAKE-related and build-related variables
 set CMAKEROOT=C:\Program Files (x86)\CMake 2.8
 set MINGWBASE=c:\MinGW64
-set R_HOME=C:\Program Files\R\R-2.15.2\bin
+set R_HOME=C:\Program Files\R\R-3.0.1\bin
 
 :: define where 'make copy' will place executables
 set INSTALL_PREFIX=d:\DOS

@@ -486,11 +486,12 @@ subroutine period_stats(ifail)
               (statistic.ne.'std_dev').and.  &
               (statistic.ne.'maximum').and.  &
               (statistic.ne.'minimum').and.  &
+              (statistic.ne.'median').and.  &
               (statistic.ne.'range'))then
              call num2char(ILine_g,aline)
              call addquote(sInfile_g,sString_g)
              write(amessage,43) trim(aline),trim(sString_g)
-43           format('statistic must be "mean", "std_dev", "sum", ', &
+43           format('statistic must be "mean", "median", "std_dev", "sum", ', &
              '"maximum", "minimum" or "range" at line ',a,' of file ',a)
              go to 9800
            end if
@@ -553,14 +554,14 @@ subroutine period_stats(ifail)
              go to 9800
            end if
            call casetrans(abscissa,'lo')
-           if(abscissa.eq.'center')abscissa='centre'
+           if(abscissa.eq.'center') abscissa='centre'
            if((abscissa.ne.'start').and.   &
               (abscissa.ne.'centre').and.  &
               (abscissa.ne.'end'))then
              call num2char(ILine_g,aline)
              call addquote(sInfile_g,sString_g)
              write(amessage,49) trim(aline),trim(sString_g)
-49           format('time abscissa must be "start", "centre" or "end" ', &
+49           format('time abscissa must be "start", "center", "centre" or "end" ', &
              'at line ',a,' of file ',a)
              go to 9800
            end if
@@ -724,7 +725,7 @@ subroutine period_stats(ifail)
                case('water_high')
                  if(mm.ge.10)wy=yy+1
                case('water_low')
-               if(mm.ge.4)wy=yy+1
+                 if(mm.ge.4)wy=yy+1
              end select
              if(wy.eq.cwy) then
                nvals=nvals+1

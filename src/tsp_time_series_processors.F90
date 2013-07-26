@@ -36,6 +36,7 @@ module tsp_time_series_processors
       rRA, rLRA, rURA) BIND(C)
 
       use ISO_C_BINDING
+
       logical(  C_BOOL), value :: lUseMedian
       real(C_DOUBLE), value :: rCarea
       real(C_DOUBLE), value :: rNearHuge
