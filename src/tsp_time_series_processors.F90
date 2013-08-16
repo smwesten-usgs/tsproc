@@ -5329,6 +5329,7 @@ subroutine time_base(ifail)
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
+       logical (kind=T_LOGICAL) :: lDatesAreOK
 
 !interface
 !	subroutine time_interp_s(ifail,nbore,ndays,nsecs,value,intday, &
@@ -5443,20 +5444,46 @@ subroutine time_base(ifail)
          go to 9800
        end if
 
+       lDatesAreOK = lTRUE
+
+       ! time and date parameters for BASE SERIES
        ntermtb=series_g(itbseries)%nterm
        ndaysbtb=series_g(itbseries)%days(1)
        nsecsbtb=series_g(itbseries)%secs(1)
        ndaysftb=series_g(itbseries)%days(ntermtb)
        nsecsftb=series_g(itbseries)%secs(ntermtb)
+
+       ! time and date parameters for the OTHER SERIES
        ntermos=series_g(iseries)%nterm
        ndaysbos=series_g(iseries)%days(1)
        nsecsbos=series_g(iseries)%secs(1)
        ndaysfos=series_g(iseries)%days(ntermos)
        nsecsfos=series_g(iseries)%secs(ntermos)
+
+       ! check to see that the base series timespan matches that of the
+       ! series to be interpolated
        if((ndaysbtb.lt.ndaysbos).or.         &
-         ((ndaysbtb.eq.ndaysbos).and.(nsecsbtb.lt.nsecsbos)))go to 9200
+         ((ndaysbtb.eq.ndaysbos).and.(nsecsbtb.lt.nsecsbos))) lDatesAreOK = lFALSE
        if((ndaysftb.gt.ndaysfos).or.         &
-         ((ndaysftb.eq.ndaysfos).and.(nsecsftb.gt.nsecsfos)))go to 9200
+         ((ndaysftb.eq.ndaysfos).and.(nsecsftb.gt.nsecsfos))) lDatesAreOK = lFALSE
+
+       if (.not. lDatesAreOK) then
+
+         write(*, fmt="(/,/,'*** incomparable time series ***')")
+         write (*, fmt= "(/,t25,'TB SERIES',t45,'SERIES')")
+         write (*, fmt="(a,t25,i8,t45,i8)") "Number of terms:", ntermtb, ntermos
+         write (*, fmt="(a,t25,i8,t45,i8)") "First day:", ndaysbtb, ndaysbos
+         write (*, fmt="(a,t25,i8,t45,i8)") "First time:", nsecsbtb, nsecsbos
+         write (*, fmt="(a,t25,i8,t45,i8)") "Last day:", ndaysftb, ndaysfos
+         write (*, fmt="(a,t25,i8,t45,i8)") "Last time:", nsecsftb, nsecsfos
+
+         write(amessage,fmt= &
+         "('the time span of the time base series is greater than that of the ', &
+         'series to be interpolated. Reduce the time span of the time base series to ', &
+         'that of the series to be interpolated using a REDUCE_SPAN block.')")
+
+         goto 9800
+       endif
 
 ! -- Memory is now allocated for the new series prior to its being filled.
 

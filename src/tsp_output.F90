@@ -72,6 +72,12 @@ subroutine pest_files(ifail,lastblock)
 
        integer system
 
+! -- Variables for use in calculating series stats as componenta of a weight equation
+
+       double precision :: dpMin, dpMax, dpSum, dpCount, dpMean, dpVariance
+       double precision :: delta, m2, tempmean
+       integer :: lc  ! counter, disposable
+
        ifail=0
        CurrentBlock_g='WRITE_PEST_FILES'
        ieqnerr=0
@@ -1903,6 +1909,24 @@ subroutine pest_files(ifail,lastblock)
 1860     io=obsseries(j)
          nsterm=series_g(io)%nterm
          aname=series_g(im)%name
+
+         tempmean = 0.
+         m2 = 0.
+
+         do lc = 1,nsterm
+           delta = series_g(io)%val(lc) - tempmean
+           tempmean = tempmean + delta / real(lc, kind=8)
+           m2= m2 + delta * ( series_g(io)%val(lc) - tempmean )
+         enddo
+
+         ! SMW additions August 2013
+         dpCount = real(nsterm, kind=8)
+         dpSum = sum( series_g(io)%val )
+         dpMin = minval( series_g(io)%val )
+         dpMax = maxval( series_g(io)%val )
+         dpMean = tempmean
+         dpVariance = m2 / (nsterm -1)
+
          call make_basename(ierr,iout,nsterm,aname,basename)
          atemp=basename(iout)
          weightmin=max(sweightmin(j),0.0)
@@ -1950,6 +1974,32 @@ subroutine pest_files(ifail,lastblock)
              if(aterm(iterm)(1:3).eq.'@_2') then
                rterm(iterm)=abs(series_g(io)%val(j))
                aterm(iterm)='~!~'
+
+             elseif(aterm(iterm)(1:3).eq.'@_4') then       ! min
+               rterm(iterm)=dpMin
+               aterm(iterm)='~!~'
+
+             elseif(aterm(iterm)(1:3).eq.'@_5') then       ! max
+               rterm(iterm)=dpMax
+               aterm(iterm)='~!~'
+
+             elseif(aterm(iterm)(1:3).eq.'@_6') then       ! sum
+               rterm(iterm)=dpSum
+               aterm(iterm)='~!~'
+
+             elseif(aterm(iterm)(1:3).eq.'@_7') then       ! count
+               rterm(iterm)=dpCount
+               aterm(iterm)='~!~'
+
+             elseif(aterm(iterm)(1:3).eq.'@_8') then       ! mean
+               rterm(iterm)=dpMean
+               aterm(iterm)='~!~'
+
+             elseif(aterm(iterm)(1:3).eq.'@_9') then       ! variance
+               rterm(iterm)=dpVariance
+               aterm(iterm)='~!~'
+
+
              else if(aterm(iterm)(1:3).eq.'@_1') then
                call newdate(series_g(io)%days(j),1,1,1970,dd,mm,yy)
                nn=numdays(1,1,yy,dd,mm,yy)

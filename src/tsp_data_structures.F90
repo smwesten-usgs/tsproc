@@ -262,6 +262,8 @@ module tsp_data_structures
   integer                 :: imessage=0
   character (len=500)     :: amessage= ' '
   character (len=200)     :: initial_message=' '
+  ! from Jupiter API....
+  CHARACTER(LEN=80)       :: ERRSUB  = ' ' ! Character string for error header
 
 !escape variables ------->
 

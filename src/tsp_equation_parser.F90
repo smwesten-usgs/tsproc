@@ -353,7 +353,10 @@ subroutine equation(ifail)
              rtime=float(nn)+float(series_g(isnum)%secs(j))/86400.0
              rterm(iterm)=rtime
              aterm(iterm)='~!~'
-           else if(aterm(iterm)(1:3).eq.'@_3')then
+
+
+
+           else if(aterm(iterm)(1:3).eq.'@_3')then   !
              call char2num(ierr,aterm(iterm)(5:),dtempx)
              rterm(iterm)=dble(series_g(isnum)%days(j))+     &
                           dble(series_g(isnum)%secs(j))/86400.0d0-dtempx
@@ -1113,6 +1116,20 @@ subroutine prepare_eqn(ifail,nterm,eqntext,iseries)
          if(aterm(iterm)(1:2).eq.'@_')then
            if(aterm(iterm)(3:).eq.'abs_value')then
              aterm(iterm)(3:)='2'
+           elseif(aterm(iterm)(3:).eq.'min')then     ! ** SMW Addition
+             aterm(iterm)(3:)='4'                    ! ** SMW Addition
+           elseif(aterm(iterm)(3:).eq.'max')then     ! ** SMW Addition
+             aterm(iterm)(3:)='5'                    ! ** SMW Addition
+           elseif(aterm(iterm)(3:).eq.'sum')then     ! ** SMW Addition
+             aterm(iterm)(3:)='6'                    ! ** SMW Addition
+           elseif(aterm(iterm)(3:).eq.'count')then   ! ** SMW Addition
+             aterm(iterm)(3:)='7'                    ! ** SMW Addition
+           elseif(aterm(iterm)(3:).eq.'mean')then    ! ** SMW Addition
+             aterm(iterm)(3:)='8'                    ! ** SMW Addition
+           elseif(aterm(iterm)(3:).eq.'stddev')then  ! ** SMW Addition
+             aterm(iterm)(3:)='9'                    ! ** SMW Addition
+
+
            else if(aterm(iterm)(3:).eq.'days_start_year')then
              if(iseries.ne.0)then
                aterm(iterm)(3:)='1'
