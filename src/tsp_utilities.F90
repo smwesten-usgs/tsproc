@@ -29,6 +29,7 @@ module tsp_utilities
   interface asChar
     module procedure int2char
     module procedure real2char
+    module procedure double2char
   end interface
 
   interface pos_test
@@ -642,50 +643,69 @@ subroutine newdate(ndays,day1,mon1,year1,day2,mon2,year2)
    integer, intent(in)     :: ndays,day1,mon1,year1
    integer, intent(out)    :: day2,mon2,year2
 
-   integer  :: yearref,newdays,idays,iyear,jdays,i
-   integer, dimension(12) :: monthdays
+   ! [ LOCALS ]
+   integer :: iJulianDate1, iJulianDate2
 
-   data monthdays /31,28,31,30,31,30,31,31,30,31,30,31/
+   ! determine Julian Date for provided date
+   iJulianDate1 = julian_day( iYear=year1, &
+                              iMonth=mon1, &
+                              iDay=day1 )
 
-! -- First a reference date is chosen. This is the beginning of the first
-! -- year. Alternatively the reference date is the beginning of a year prior
-! -- to the likely calculated date if NDAYS is negative.
+   ! add ndays to JD
+   iJulianDate1 = iJulianDate1 + ndays
 
-   if(ndays.ge.0) then
-     yearref=year1
-   else
-     yearref=year1-abs(ndays)/365-1
-   end if
-   newdays=numdays(31,12,yearref-1,day1,mon1,year1)
-   newdays=ndays+newdays
-   if(newdays.lt.0) call sub_error('NEWDATE')
+   ! back calculate gregorian date
+   call gregorian_date( iJD=iJulianDate1, &
+                                  iYear=year2, &
+                                  iMonth=mon2, &
+                                  iDay=day2 )
 
-! -- Next days are counted, starting at the new reference date.
 
-   idays=0
-   iyear=yearref
-   do
-     jdays=idays+365
-     if(leap(iyear)) jdays=jdays+1
-     if(jdays.ge.newdays) go to 20
-     iyear=iyear+1
-     idays=jdays
-   end do
-   call sub_error('NEWDATE')
-20      year2=iyear
 
-   do i=1,12
-     jdays=idays+monthdays(i)
-     if((i.eq.2).and.(leap(year2))) jdays=jdays+1
-     if(jdays.ge.newdays) go to 40
-     idays=jdays
-   end do
-   call sub_error('NEWDATE')
-40      mon2=i
-   day2=newdays-idays
-!   if((day2.le.0).or.(mon2.le.0).or.(year2.le.0)) call sub_error('NEWDATE')
-   if((day2.le.0).or.(mon2.le.0)) call sub_error('NEWDATE')
-   return
+!    integer  :: yearref,newdays,idays,iyear,jdays,i
+!    integer, dimension(12) :: monthdays
+!
+!    data monthdays /31,28,31,30,31,30,31,31,30,31,30,31/
+!
+! ! -- First a reference date is chosen. This is the beginning of the first
+! ! -- year. Alternatively the reference date is the beginning of a year prior
+! ! -- to the likely calculated date if NDAYS is negative.
+!
+!    if(ndays.ge.0) then
+!      yearref=year1
+!    else
+!      yearref=year1-abs(ndays)/365-1
+!    end if
+!    newdays=numdays(31,12,yearref-1,day1,mon1,year1)
+!    newdays=ndays+newdays
+!    if(newdays.lt.0) call sub_error('NEWDATE')
+!
+! ! -- Next days are counted, starting at the new reference date.
+!
+!    idays=0
+!    iyear=yearref
+!    do
+!      jdays=idays+365
+!      if(leap(iyear)) jdays=jdays+1
+!      if(jdays.ge.newdays) go to 20
+!      iyear=iyear+1
+!      idays=jdays
+!    end do
+!    call sub_error('NEWDATE')
+! 20      year2=iyear
+!
+!    do i=1,12
+!      jdays=idays+monthdays(i)
+!      if((i.eq.2).and.(leap(year2))) jdays=jdays+1
+!      if(jdays.ge.newdays) go to 40
+!      idays=jdays
+!    end do
+!    call sub_error('NEWDATE')
+! 40      mon2=i
+!    day2=newdays-idays
+! !   if((day2.le.0).or.(mon2.le.0).or.(year2.le.0)) call sub_error('NEWDATE')
+!    if((day2.le.0).or.(mon2.le.0)) call sub_error('NEWDATE')
+!    return
 
 end subroutine newdate
 
@@ -848,9 +868,42 @@ sFmt = "(G"//TRIM(int2char(iW))//"."//TRIM(int2char(iD))//")"
     sBuf = ADJUSTL(sBuf)
   endif
 
-return
-
 end function real2char
+
+!--------------------------------------------------------------------------
+
+!> Convert a double value into a formatted character string
+function double2char(rValue, iDec, iWidth) result(sBuf)
+
+  real (kind=T_DBL) :: rValue
+  integer (kind=T_INT), optional :: iDec
+  integer (kind=T_INT), optional :: iWidth
+
+  ![ LOCALS ]
+  character(len=256) :: sBuf, sFmt
+  integer (kind=T_INT) :: iD, iW
+
+
+
+  if(present(iDec)) then
+    iD = iDec
+  else
+    iD = 12
+  endif
+
+  if(present(iWidth)) then
+    iW = iWidth
+  else
+    iW = 16
+  endif
+
+  sFmt = "(G"//TRIM(int2char(iW))//"."//TRIM(int2char(iD))//")"
+  write(UNIT=sBuf,FMT=TRIM(sFmt)) rValue
+  sBuf = ADJUSTL(sBuf)
+
+end function double2char
+
+!--------------------------------------------------------------------------
 
    SUBROUTINE WRTSIG(IFAIL,VAL,WORD,NW,PRECIS,TVAL,NOPNT)
 ! --
@@ -1196,65 +1249,78 @@ end function real2char
 
    integer, intent(in)     :: dr,mr,yr,d,m,y
 
-   INTEGER FLAG,I,J,DA(12),YE,ME,DE,YL,ML,DL
+   ! [ LOCALS ]
+   integer :: iJulianDate1, iJulianDate2
 
-   DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
+   iJulianDate1 = julian_day( iYear=yr, &
+                              iMonth=mr, &
+                              iDay=dr )
 
-! --    THE SMALLER OF THE TWO DATES IS NOW CHOSEN TO DO THE COUNTING FROM.
+   iJulianDate2 = julian_day( iYear=y, &
+                              iMonth=m, &
+                              iDay=d )
 
-   IF(Y.LT.YR)GO TO 10
-   IF((Y.EQ.YR).AND.(M.LT.MR)) GO TO 10
-   IF((Y.EQ.YR).AND.(M.EQ.MR).AND.(D.LT.DR)) GO TO 10
-   FLAG=0
-   YE=YR
-   ME=MR
-   DE=DR
-   YL=Y
-   ML=M
-   DL=D
-   GO TO 20
-10      FLAG=1
-   YE=Y
-   ME=M
-   DE=D
-   YL=YR
-   ML=MR
-   DL=DR
+   numdays = iJulianDate2 - iJulianDate1
 
-! --    IN THE ABOVE THE POSTSCRIPT "E" STANDS FOR EARLIER DATE, WHILE
-!       "L" STANDS FOR THE LATER DATE.
-
-20      numdays=0
-   IF((ME.EQ.ML).AND.(YL.EQ.YE))THEN
-   numdays=DL-DE
-   IF(FLAG.EQ.1) numdays=-numdays
-   RETURN
-   END IF
-
-   DO 30 J=ME,12
-   IF((ML.EQ.J).AND.(YE.EQ.YL))GOTO 40
-   numdays=numdays+DA(J)
-   IF((J.EQ.2).AND.(leap(ye)))numdays=numdays+1
-30      CONTINUE
-   GO TO 50
-40      numdays=numdays+DL-DE
-   IF(FLAG.EQ.1)numdays=-numdays
-   RETURN
-
-50      DO 60 I=YE+1,YL
-   DO 70 J=1,12
-   IF((YL.EQ.I).AND.(ML.EQ.J))GO TO 80
-   numdays=numdays+DA(J)
-   IF((J.EQ.2).AND.(leap(i))) numdays=numdays+1
-70      CONTINUE
-60      CONTINUE
-   call sub_error('NUMDAYS')
-   RETURN
-
-80      numdays=numdays+DL-DE
-   IF(FLAG.EQ.1) numdays=-numdays
-
-   RETURN
+!   INTEGER FLAG,I,J,DA(12),YE,ME,DE,YL,ML,DL
+!
+!    DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
+!
+! ! --    THE SMALLER OF THE TWO DATES IS NOW CHOSEN TO DO THE COUNTING FROM.
+!
+!    IF(Y.LT.YR)GO TO 10
+!    IF((Y.EQ.YR).AND.(M.LT.MR)) GO TO 10
+!    IF((Y.EQ.YR).AND.(M.EQ.MR).AND.(D.LT.DR)) GO TO 10
+!    FLAG=0
+!    YE=YR
+!    ME=MR
+!    DE=DR
+!    YL=Y
+!    ML=M
+!    DL=D
+!    GO TO 20
+! 10      FLAG=1
+!    YE=Y
+!    ME=M
+!    DE=D
+!    YL=YR
+!    ML=MR
+!    DL=DR
+!
+! ! --    IN THE ABOVE THE POSTSCRIPT "E" STANDS FOR EARLIER DATE, WHILE
+! !       "L" STANDS FOR THE LATER DATE.
+!
+! 20      numdays=0
+!    IF((ME.EQ.ML).AND.(YL.EQ.YE))THEN
+!    numdays=DL-DE
+!    IF(FLAG.EQ.1) numdays=-numdays
+!    RETURN
+!    END IF
+!
+!    DO 30 J=ME,12
+!    IF((ML.EQ.J).AND.(YE.EQ.YL))GOTO 40
+!    numdays=numdays+DA(J)
+!    IF((J.EQ.2).AND.(leap(ye)))numdays=numdays+1
+! 30      CONTINUE
+!    GO TO 50
+! 40      numdays=numdays+DL-DE
+!    IF(FLAG.EQ.1)numdays=-numdays
+!    RETURN
+!
+! 50      DO 60 I=YE+1,YL
+!    DO 70 J=1,12
+!    IF((YL.EQ.I).AND.(ML.EQ.J))GO TO 80
+!    numdays=numdays+DA(J)
+!    IF((J.EQ.2).AND.(leap(i))) numdays=numdays+1
+! 70      CONTINUE
+! 60      CONTINUE
+!    call sub_error('NUMDAYS')
+!    RETURN
+!
+! 80      numdays=numdays+DL-DE
+!    IF(FLAG.EQ.1) numdays=-numdays
+!
+!    RETURN
 end function numdays
 
 integer function numsecs(h1,m1,s1,h2,m2,s2)
@@ -1316,7 +1382,8 @@ subroutine read_rest_of_sample_line(ifail,cols,ndays,nsecs,value,ILine_g,sampfil
      call write_message(error='yes',leadspace='yes')
      go to 9800
    end if
-   ndays=numdays(1,1,1970,dd,mm,yy)
+!   ndays=numdays(1,1,1970,dd,mm,yy)
+    ndays=julian_day(iMonth=mm, iDay=dd, iYear=yy)
 
    call char2time(ifail,cline(left_word(3):right_word(3)),hhh,mmm,sss)
    if(ifail.ne.0) then
@@ -1863,8 +1930,6 @@ function day_of_year(iJulianDay) result(iDOY)
   ! return the current day of the year
   iDOY = iJulianDay - iFirstDay + 1
 
-  return
-
 end function day_of_year
 
 !--------------------------------------------------------------------------
@@ -2001,9 +2066,189 @@ function num_days_in_year(iYear) result(iNumDaysInYear)
   iLastDay = julian_day ( iYear, 12, 31 )
   iNumDaysInYear = iLastDay - iFirstDay + 1
 
-  return
-
 end function num_days_in_year
+
+!--------------------------------------------------------------------------
+
+function num_days_in_month(iMonth, iYear)  result(iNumDaysInMonth)
+
+  integer (kind=T_INT), intent(in) :: iMonth
+  integer (kind=T_INT), intent(in) :: iYear
+  integer (kind=T_INT) :: iNumDaysInMonth
+
+  call assert(iMonth <= ubound(MONTH,1), "Illegal month number supplied" &
+    //trim(asChar(iMonth)),trim(__FILE__), __LINE__)
+
+  if (iMonth /= 2) then
+    iNumDaysInMonth = MONTH(iMonth)%iNumDays
+  elseif (iMonth == 2 .and. leap(iYear)) then
+    iNumDaysInMonth = 29
+  elseif (iMonth == 2) then
+    iNumDaysInMonth = 28
+  endif
+
+end function num_days_in_month
+!--------------------------------------------------------------------------
+
+subroutine make_date_list(iStartDay, iEndDay, iFromDates, iToDates, sListType)
+
+  integer :: iStartDay
+  integer :: iEndDay
+  integer, dimension(:), allocatable, intent(out) :: iFromDates
+  integer, dimension(:), allocatable, intent(out) :: iToDates
+  character (len=*) :: sListType
+
+  ! [ LOCALS ]
+  integer :: iIndex
+  integer :: iMyMonth, iMyYear
+  integer :: iLength
+  integer :: iStartMM, iStartDD, iStartYYYY
+  integer :: iEndMM, iEndDD, iEndYYYY
+  integer :: iTempStartMM, iTempStartDD, iTempStartYYYY
+  integer :: iTempEndMM, iTempEndDD, iTempEndYYYY
+  integer :: iLastDay
+  integer :: iStartJD, iEndJD
+  integer :: iStat
+
+  call gregorian_date(iJD=iStartDay, &
+                          iMonth=iStartMM, &
+                          iDay=iStartDD, &
+                          iYear=iStartYYYY)
+
+  call gregorian_date(iJD=iEndDay, &
+                          iMonth=iEndMM, &
+                          iDay=iEndDD, &
+                          iYear=iEndYYYY)
+
+  if (trim(sListType) ==  "ANNUAL") then
+
+    ! ASSUMING that the automatically generated dates should
+    ! really focus on the more complete calendar years
+    if (iEndMM < 6) then
+      iEndYYYY = iEndYYYY - 1
+      iEndMM = 12
+      iEndDD = 31
+    endif
+
+    if (iStartMM > 6) then
+      iStartYYYY = iStartYYYY + 1
+      iStartMM = 1
+      iStartDD = 1
+    endif
+
+    iLength = iEndYYYY - iStartYYYY + 1
+
+    if (allocated(iFromDates)) deallocate(iFromDates)
+    if (allocated(iToDates)) deallocate(iToDates)
+    allocate (iFromDates(iLength))
+    allocate (iToDates(iLength))
+
+    iFromDates(1) = julian_day(iMonth=iStartMM, iDay=iStartDD, iYear=iStartYYYY)
+    iToDates(1) = julian_day(iMonth=12, iDay=31, iYear=iStartYYYY)
+
+    iFromDates(iLength) = julian_day(iMonth=1, iDay=1, iYear=iEndYYYY)
+    iToDates(iLength) = julian_day(iMonth=iEndMM, iDay=iEndDD, iYear=iEndYYYY)
+
+    do iIndex=2, iLength-1
+      iFromDates(iIndex) = julian_day(iMonth=1, iDay=1, iYear=iIndex-1+iStartYYYY)
+      iToDates(iIndex) = julian_day(iMonth=12, iDay=31, iYear=iIndex-1+iStartYYYY)
+    enddo
+
+  elseif (trim(sListType) == "MONTHLY" ) then
+
+    ! ASSUMING that the automatically generated dates should
+    ! focus on complete months
+    if (iEndDD < 29 .and. iEndMM > 1) then
+      iEndJD = julian_day(iMonth=iEndMM, iDay=1, iYear=iEndYYYY) - 1
+    elseif (iEndDD < 29 .and. iEndMM == 1) then
+      iEndJD = julian_day(iMonth=12, iDay=31, iYear=iEndYYYY - 1)
+    else
+      iEndJD = iEndDay
+    endif
+
+    call gregorian_date(iJD=iEndJD, &
+                          iMonth=iTempEndMM, &
+                          iDay=iTempEndDD, &
+                          iYear=iTempEndYYYY)
+
+    iLength = iTempEndMM
+
+
+    if (iStartDD > 1 .and. iStartMM < 12) then
+      iStartJD = julian_day(iMonth=iStartMM+1, iDay=1, iYear=iStartYYYY)
+    elseif (iStartDD > 1 .and. iStartMM ==12) then
+      iStartJD = julian_day(iMonth=1, iDay=1, iYear=iStartYYYY + 1)
+    else
+      iStartJD = iStartDay
+    endif
+
+    call gregorian_date(iJD=iStartJD, &
+                          iMonth=iTempStartMM, &
+                          iDay=iTempStartDD, &
+                          iYear=iTempStartYYYY)
+
+    iLength = iLength + 12 - iTempStartMM + 1
+
+    iLength = iLength + 12 * ( iTempEndYYYY - iTempStartYYYY - 1)
+
+    allocate (iFromDates(iLength))
+    allocate (iToDates(iLength))
+
+    iIndex = 0
+
+    do iMyMonth = iTempStartMM, 11
+
+      iIndex = iIndex + 1
+
+      call assert(iIndex <= ubound(iFromDates,1), "INDEX OUT OF BOUNDS", &
+        trim(__FILE__), __LINE__)
+
+      iFromDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=1, iYear=iTempStartYYYY)
+      iToDates(iIndex) = julian_day(iMonth=iMyMonth+1, iDay=1, iYear=iTempStartYYYY) - 1
+
+    enddo
+
+    iIndex = iIndex + 1
+    iFromDates(iIndex) = julian_day(iMonth=12, iDay=1, iYear=iTempStartYYYY)
+    iToDates(iIndex) = julian_day(iMonth=12, iDay=31, iYear=iTempStartYYYY)
+
+    do iMyYear = iTempStartYYYY + 1, iTempEndYYYY - 1
+      do iMyMonth = 1, 12
+
+        iLastDay = num_days_in_month(iYear=iMyYear, iMonth=iMyMonth)
+        iIndex = iIndex + 1
+
+        call assert(iIndex <= ubound(iFromDates,1), "INDEX OUT OF BOUNDS", &
+          trim(__FILE__), __LINE__)
+
+        iFromDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=1, iYear=iMyYear)
+        iToDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=iLastDay, iYear=iMyYear)
+
+      enddo
+    enddo
+
+    do iMyMonth = 1, iTempEndMM
+
+      iLastDay = num_days_in_month(iYear=iTempEndYYYY, iMonth=iMyMonth)
+      iIndex = iIndex + 1
+
+      call assert(iIndex <= ubound(iFromDates,1), "INDEX OUT OF BOUNDS", &
+        trim(__FILE__), __LINE__)
+
+      iFromDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=1, iYear=iTempEndYYYY)
+      iToDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=iLastDay, iYear=iTempEndYYYY)
+
+    enddo
+
+  else
+
+    call assert(lFALSE, "INTERNAL PROGRAMMING ERROR: unhandled sListType", &
+      trim(__FILE__), __LINE__)
+
+  endif
+
+end subroutine make_date_list
+
 
 !!***
 
@@ -2470,10 +2715,10 @@ function median(rData)   result(rMedian)
 !  * the vector rData(:)
 !  *********************************************
 
-    Real (kind=T_SGL), Intent (in) :: rData(:)
-    real (kind=T_SGL) :: rMedian
+    Real, Intent (in) :: rData(:)
+    real :: rMedian
 
-    Real (kind=T_SGL) :: rDatacp(Size(rData))
+    Real :: rDatacp(Size(rData))
     Integer :: Ns, Nsd2
     integer (kind=T_INT),dimension(size(rData)) :: iOriginalOrder
 
@@ -2502,16 +2747,16 @@ End Function median
 
 function quantile_scalar( rQuantile, rData) result(rValue)
 
-  real (kind=T_SGL), intent(in) :: rQuantile
-  real (kind=T_SGL), dimension(:), intent(in) :: rData
-  real (kind=T_SGL) :: rValue
+  real, intent(in) :: rQuantile
+  real, dimension(:), intent(in) :: rData
+  real :: rValue
 
   ! [ LOCALS ]
   integer (kind=T_INT) :: iNumRecords
   integer (kind=T_INT) :: iInitialIndex
-  real (kind=T_SGL) :: rRealIndex
-  real (kind=T_SGL) :: rFractionalIndex
-  real (kind=T_SGL), dimension(size(rData)) :: rDatacp
+  real :: rRealIndex
+  real :: rFractionalIndex
+  real, dimension(size(rData)) :: rDatacp
   integer (kind=T_INT), dimension(size(rData)) :: iOriginalOrder
 
   rDatacp = rData
@@ -2523,9 +2768,9 @@ function quantile_scalar( rQuantile, rData) result(rValue)
   iNumRecords = size(rDatacp)
 
   if (iNumRecords > 0) then
-    rRealIndex = rQuantile * REAL(iNumRecords,kind=T_SGL)
+    rRealIndex = rQuantile * REAL(iNumRecords,kind=T_DBL)
     iInitialIndex = max(INT(rRealIndex,kind=T_INT),1)
-    rFractionalIndex = rRealIndex - REAL(iInitialIndex,kind=T_SGL)
+    rFractionalIndex = rRealIndex - REAL(iInitialIndex,kind=T_DBL)
     if(iInitialIndex < iNumRecords) then
       rValue = rDatacp(iInitialIndex) &
         + (rDatacp(iInitialIndex+1) - rDatacp(iInitialIndex)) &
@@ -2541,16 +2786,16 @@ end function quantile_scalar
 
 function quantile_vector( rQuantile, rData)  result(rValue)
 
-  real (kind=T_SGL), dimension(:), intent(in) :: rQuantile
-  real (kind=T_SGL), dimension(:), intent(in) :: rData
-  real (kind=T_SGL), dimension(size(rQuantile,1)) :: rValue
+  real, dimension(:), intent(in) :: rQuantile
+  real, dimension(:), intent(in) :: rData
+  real, dimension(size(rQuantile,1)) :: rValue
 
   ! [ LOCALS ]
   integer (kind=T_INT) :: iNumRecords
   integer (kind=T_INT) :: iInitialIndex
-  real (kind=T_SGL) :: rRealIndex
-  real (kind=T_SGL) :: rFractionalIndex
-  real (kind=T_SGL), dimension(size(rData)) :: rDatacp
+  real :: rRealIndex
+  real :: rFractionalIndex
+  real, dimension(size(rData)) :: rDatacp
   integer (kind=T_INT), dimension(size(rData)) :: iOriginalOrder
   integer (kind=T_INT) :: iIndex
 
@@ -2564,9 +2809,9 @@ function quantile_vector( rQuantile, rData)  result(rValue)
 
   if(iNumRecords > 0) then
     do iIndex=1,size(rQuantile,1)
-      rRealIndex = rQuantile(iIndex) * REAL(iNumRecords + 1,kind=T_SGL)
+      rRealIndex = rQuantile(iIndex) * REAL(iNumRecords + 1,kind=T_DBL)
       iInitialIndex = max(INT(rRealIndex,kind=T_INT),1)
-      rFractionalIndex = rRealIndex - REAL(iInitialIndex,kind=T_SGL)
+      rFractionalIndex = rRealIndex - REAL(iInitialIndex,kind=T_DBL)
       if(iInitialIndex < iNumRecords) then
         rValue(iIndex) = rDatacp(iInitialIndex) &
           + (rDatacp(iInitialIndex+1) - rDatacp(iInitialIndex)) &
@@ -2583,8 +2828,8 @@ end function quantile_vector
 
 function mean(rData)   result(rMean)
 
-  real (kind=T_SGL), dimension(:), intent(in) :: rData
-  real (kind=T_SGL) :: rMean
+  real, dimension(:), intent(in) :: rData
+  real :: rMean
 
   rMean = SUM(rData) / real(size(rData),kind=T_SGL)
 
@@ -2592,26 +2837,26 @@ end function mean
 
 function variance(rData)   result(rVariance)
 
-  real (kind=T_SGL), dimension(:), intent(in) :: rData
-  real (kind=T_SGL) :: rVariance
+  real, dimension(:), intent(in) :: rData
+  real :: rVariance
 
   ! [ LOCALS ]
-  real (kind=T_SGL) :: rSum
-  real (kind=T_SGL) :: rMean
+  real (kind=T_DBL) :: rSum
+  real (kind=T_DBL) :: rMean
 
-  rMean = SUM(rData) / real(size(rData),kind=T_SGL)
+  rMean = SUM(rData) / real(size(rData),kind=T_DBL)
 
   rSum = SUM((rData - rMean)**2)
 
-  rVariance = rSum / real(size(rData)-1,kind=T_SGL)
+  rVariance = rSum / real(size(rData)-1,kind=T_DBL)
 
 end function variance
 
 function stddev(rData)   result(rStdDev)
 
-  real (kind=T_SGL), dimension(:), intent(in) :: rData
-  real (kind=T_SGL) :: rStdDev
-  real ( kind=T_SGL) :: rVariance
+  real, dimension(:), intent(in) :: rData
+  real (kind=T_DBL) :: rStdDev
+  real ( kind=T_DBL) :: rVariance
 
   ! [ LOCALS ]
 

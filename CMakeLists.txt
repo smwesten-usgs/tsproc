@@ -70,6 +70,7 @@ get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 find_program( R_SCRIPT
               NAMES Rscript.exe Rscript
 			  HINTS ENV R_HOME
+			  HINTS ${R_HOME}
               PATHS ENV PATH
 			  "c:/Program Files/R"
 			  "c:/Program Files (x86)/R"
@@ -109,9 +110,11 @@ if(CMAKE_HOST_WIN32)
 
 endif()
 
+message("")
 message(" *****")
 message("")
 
 add_subdirectory(src)
 enable_testing()
-add_subdirectory(tests)
+add_subdirectory(tests/io)
+add_subdirectory(tests/calcs)

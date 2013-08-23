@@ -4653,7 +4653,7 @@ extern "C" void compute_hi(bool usemedian, double carea, double nearhuge,
 			if(q[i][j]  < nearhuge)
 			{
 
-			printf("yearno: %i  dayno: %i  Q: %12.3f\n", i, j, q[i][j]);
+//			printf("yearno: %i  dayno: %i  Q: %12.3f\n", i, j, q[i][j]);
 				data[ndv] = q[i][j];
 				ndv++;
 			}

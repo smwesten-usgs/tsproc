@@ -255,7 +255,8 @@ contains
 403      format('no MODEL_REFERENCE_TIME keyword provided in ',a,' block in file ',a)
          go to 9800
        end if
-       refdays=numdays(1,1,1970,ddr,mmr,yyr)
+!       refdays=numdays(1,1,1970,ddr,mmr,yyr)
+       refdays = julian_day(iMonth=mmr, iDay=ddr, iYear=yyr)
        refsecs=numsecs(0,0,0,hhr,nnr,ssr)
 404    continue
        if(refsecs.ge.86400)then
@@ -856,7 +857,8 @@ subroutine get_mul_series_statvar(ifail)
        do
          read(iunit,*,err=9270,end=450) modday,yys,mms,dds,hhs,nns,sss,(rval(i),i=1,nstatseries)
          jcount=jcount+1
-         ddays=numdays(1,1,1970,dds,mms,yys)
+!         ddays=numdays(1,1,1970,dds,mms,yys)
+         ddays = julian_day(iMonth=mms, iDay=dds, iYear=yys)
          dsecs=numsecs(0,0,0,hhs,nns,sss)
 440      continue
          if(dsecs.ge.86400)then
@@ -919,7 +921,8 @@ subroutine get_mul_series_statvar(ifail)
        do
          read(iunit,*,err=9270,end=700) modday,yys,mms,dds,hhs,nns,sss,(rval(i),i=1,nstatseries)
          jcount=jcount+1
-         ddays=numdays(1,1,1970,dds,mms,yys)
+!         ddays=numdays(1,1,1970,dds,mms,yys)
+         ddays = julian_day(iMonth=mms, iDay=dds, iYear=yys)
          dsecs=numsecs(0,0,0,hhs,nns,sss)
 442      continue
          if(dsecs.ge.86400)then
@@ -1187,7 +1190,8 @@ subroutine get_mul_series_tetrad(ifail)
          else if(aoption.eq.'MODEL_REFERENCE_DATE')then
            call get_date(ierr,ddr,mmr,yyr,'MODEL_REFERENCE_DATE')
            if(ierr.ne.0) go to 9800
-           rdays=numdays(1,1,1970,ddr,mmr,yyr)
+!           rdays=numdays(1,1,1970,ddr,mmr,yyr)
+            rdays = julian_day(iMonth=mmr, iDay=ddr, iYear=yyr)
          else if(aoption.eq.'MODEL_REFERENCE_TIME')then
            call get_time(ierr,hhr,nnr,ssr,'MODEL_REFERENCE_TIME')
            if(ierr.ne.0) go to 9800
@@ -2310,7 +2314,8 @@ subroutine get_plt_series(ifail)
          if(ierr.ne.0) go to 9500
          call char2num(ierr,cline(21:22),ipmin)
          if(ierr.ne.0) go to 9500
-         ndays=numdays(1,1,1970,ipday,ipmonth,ipyear)
+!         ndays=numdays(1,1,1970,ipday,ipmonth,ipyear)
+         ndays = julian_day(iMonth=ipmonth, iDay=ipday, iYear=ipyear)
 260      if(iphour.ge.24)then
            iphour=iphour-24
            ndays=ndays+1
@@ -2384,7 +2389,8 @@ subroutine get_plt_series(ifail)
          call char2num(ierr,cline(15:16),ipday)
          call char2num(ierr,cline(18:19),iphour)
          call char2num(ierr,cline(21:22),ipmin)
-         ndays=numdays(1,1,1970,ipday,ipmonth,ipyear)
+!         ndays=numdays(1,1,1970,ipday,ipmonth,ipyear)
+         ndays = julian_day(iMonth=ipmonth, iDay=ipday, iYear=ipyear)
 570      if(iphour.ge.24)then
            iphour=iphour-24
            ndays=ndays+1
@@ -2982,7 +2988,8 @@ subroutine get_ufore_series(ifail)
        call date_check(ierr,yy1,mm1,dd1,hh1,nn1,ss1,yy2,mm2,dd2,hh2,nn2,ss2,  &
        begdays,begsecs,enddays,endsecs)
        if(ierr.ne.0) go to 9800
-       refdays=numdays(1,1,1970,dds,mms,yys)
+!       refdays=numdays(1,1,1970,dds,mms,yys)
+       refdays = julian_day(iMonth=mms, iDay=dds, iYear=yys)
        refsecs=numsecs(0,0,0,hhs,nns,sss)
        if(refsecs.ge.86400)then
          refsecs=refsecs-86400
@@ -3252,6 +3259,7 @@ subroutine get_wdm_series (ifail)
         acontext (maxcontext)
     INTEGER, EXTERNAL::                                                     &
         timchk
+    integer :: iMM, iDD, iYYYY
 
     integer (kind=T_INT), parameter :: YEAR    = 1
     integer (kind=T_INT), parameter :: MONTH   = 2
@@ -3639,7 +3647,8 @@ subroutine get_wdm_series (ifail)
        CALL timcvt (adddate)
 
        tempseries_g%days (icnt) = &
-         numdays (1, 1, 1970, adddate(DAY), adddate(MONTH), adddate(YEAR) ) + ddays
+!         numdays (1, 1, 1970, adddate(DAY), adddate(MONTH), adddate(YEAR) ) + ddays
+          julian_day(iMonth=adddate(MONTH), iDay=adddate(DAY), iYear=adddate(YEAR)) + ddays
 
        tempseries_g%secs (icnt) = &
          numsecs (0, 0, 0, adddate(HOUR) + hhd, adddate(MINUTE) + nnd, adddate(SECOND) + ssd)
@@ -3691,6 +3700,12 @@ subroutine get_wdm_series (ifail)
           series_g (i) %val (j) = tempseries_g%val (j)
           series_g (i) %days (j) = tempseries_g%days (j)
           series_g (i) %secs (j) = tempseries_g%secs (j)
+
+          call gregorian_date(iJD=series_g(i)%days(j), iMonth=iMM, &
+              iDay=iDD, iYear=iYYYY)
+
+          print *, j, series_g(i)%val(j), series_g(i)%days(j)," | ", iMM, iDD, iYYYY
+
        ENDDO
     ELSE
        !> SPACING: intrinsic that determines the distance between the

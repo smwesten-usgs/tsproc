@@ -638,7 +638,10 @@ subroutine date_check(ifail,yy1,mm1,dd1,hh1,nn1,ss1,yy2,mm2,dd2,hh2,nn2,ss2,  &
          end if
        end if
        if(yy1.ne.-9999)then
-         begdays=numdays(1,1,1970,dd1,mm1,yy1)
+         begdays=julian_day ( iYear=yy1, &
+                              iMonth=mm1, &
+                              iDay=dd1 )
+!         begdays=numdays(1,1,1970,dd1,mm1,yy1)
        else
          begdays=-99999999
        end if
@@ -649,7 +652,12 @@ subroutine date_check(ifail,yy1,mm1,dd1,hh1,nn1,ss1,yy2,mm2,dd2,hh2,nn2,ss2,  &
          go to 571
        end if
        if(yy2.ne.-9999)then
-         enddays=numdays(1,1,1970,dd2,mm2,yy2)
+!         enddays=numdays(1,1,1970,dd2,mm2,yy2)
+
+         enddays=julian_day ( iYear=yy2, &
+                              iMonth=mm2, &
+                              iDay=dd2 )
+
        else
          enddays=99999999
        end if
@@ -936,9 +944,11 @@ rnear,rconst,valinterp,extrap,direction,startindex)
 !       startindex: index of bore index at which to start the search through the
 !                   table
 
+  use tsp_data_structures
+  use tsp_utilities
 
+  implicit none
 
-   use tsp_utilities
 
   integer, intent(out)                    :: ifail
   integer, intent(in)                     :: nbore
@@ -1417,7 +1427,6 @@ end subroutine get_time_units
 
 
 subroutine volume_interp_s(ifail,num,days,secs,flows,bdays,bsecs,fdays,fsecs,vol,fac)
-
 ! -- Subroutine volume_interp calculates the extracted volume between two dates
 !    on the basis of flow rates recorded at certain times. It is a modified version
 !    of volume_interp such that the input time series does not need to be double precision.
@@ -1433,14 +1442,19 @@ subroutine volume_interp_s(ifail,num,days,secs,flows,bdays,bsecs,fdays,fsecs,vol
 !      vol:    accumulated volume
 !      fac:    factor by which to multiply volumes
 
+  use tsp_data_structures
+  use tsp_utilities
+
+  implicit none
+
 
        integer, intent(out)            :: ifail
        integer, intent(in)             :: num
        integer, intent(in)             :: days(num),secs(num)
        real, intent(in)                :: flows(num)
        integer, intent(in)             :: bdays,bsecs,fdays,fsecs
-       real, intent(out)               :: vol
-       real, intent(in)                :: fac
+       real (kind=T_DBL), intent(out)  :: vol
+       real (kind=T_DBL), intent(in)   :: fac
 
        integer i,ndd,j,ndt
        double precision tdd,tdt,m,volb,volm,volf
@@ -1482,6 +1496,8 @@ subroutine volume_interp_s(ifail,num,days,secs,flows,bdays,bsecs,fdays,fsecs,vol
        volm=0.0d0
        j=i
        do i=j,num
+
+         ! Have we reached the end of the interval of interest? If so, GOTO 100
          if((days(i).gt.fdays).or.   &
            ((days(i).eq.fdays).and.(secs(i).ge.fsecs)))go to 100
          if(i.ne.j)then

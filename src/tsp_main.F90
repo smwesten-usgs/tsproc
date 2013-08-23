@@ -2,6 +2,7 @@ program tsp_main
 
   use tsp_data_structures
   use tsp_main_loop
+  use iso_fortran_env
   implicit none
 
   character(len=256) :: sFilename
@@ -9,6 +10,8 @@ program tsp_main
 
   character (len=256) :: sInputFile
   character (len=256) :: sRecFile
+  character (len=1024) :: sCompilerFlags
+  character (len=256) :: sCompilerVersion
 
   ! default behavior is to query the user for the control file and record files
   logical :: lInteractive = lTRUE
@@ -53,21 +56,26 @@ program tsp_main
      ' dataset.'
 
    write(unit=LU_STD_OUT,fmt="(/,a)")  " TSPROC -- "//trim(sVersionString)
-   write(unit=LU_STD_OUT, fmt="(11x,a)") "compiled on: "  // &
+   write(unit=LU_STD_OUT, fmt="(/,a)") "Compiled on: "  // &
       TRIM(__DATE__) //" "// TRIM(__TIME__)
 
 #ifdef __GFORTRAN__
-    write(UNIT=*,FMT="(11x,a,/)") "compiled with GNU gfortran version " &
-      //TRIM(__VERSION__)
+    sCompilerFlags = COMPILER_OPTIONS()
+    sCompilerVersion = COMPILER_VERSION()
+    write(UNIT=*,FMT="(a,/)") "Compiled with: gfortran ("//TRIM(sCompilerVersion)//")"
+    write(UNIT=*,FMT="(a)") "Compiler flags:"
+    write(UNIT=*,FMT="(a)") "-------------------------------"
+    write(UNIT=*,FMT="(a,/)") TRIM(sCompilerFlags)
 #endif
 
+
 #ifdef __INTEL_COMPILER
-    write(UNIT=*,FMT="(11x,a,/)") "compiled with Intel Fortran version " &
+    write(UNIT=*,FMT="(/,a,/)") "Compiled with Intel Fortran version " &
       //TRIM(int2char(__INTEL_COMPILER))
 #endif
 
 #ifdef __G95__
-    write(UNIT=*,FMT="(11x,a,/)") "compiled with G95 minor version " &
+    write(UNIT=*,FMT="(/,a,/)") "Compiled with G95 minor version " &
       //TRIM(int2char(__G95_MINOR__))
 #endif
 

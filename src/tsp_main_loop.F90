@@ -442,11 +442,10 @@ end subroutine openControlfile
   end if
 
   if(ifail.ne.0) then
-
-  call close_files
-  call Assert(lFALSE,"Problem processing TSPROC block", &
-  TRIM(__FILE__),__LINE__)
+    call close_files
+    call Assert(lFALSE,"Problem processing TSPROC block")
   end if
+
   lastblock=iBlockNumber
 
   end subroutine processBlock

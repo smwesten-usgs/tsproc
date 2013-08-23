@@ -1,11 +1,3 @@
-
-find_program(TSPROC_EXECUTABLE tsproc.exe tsproc
-             PATH
-			 ${CMAKE_BINARY_DIR}
- 			 ${CMAKE_BINARY_DIR}/src
-			 ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 message("TSPROC LOCATION: " ${TSPROC_EXECUTABLE} )
 
 # Need input files over in build environment

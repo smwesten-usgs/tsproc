@@ -1166,7 +1166,8 @@ subroutine new_series_uniform(ifail)
              yy=yy+1
              go to 180
            end if
-           tempseries_g%days(i)=numdays(1,1,1970,dd,mm,yy)
+!           tempseries_g%days(i)=numdays(1,1,1970,dd,mm,yy)
+           tempseries_g%days(i) = julian_day(iMonth=mm, iDay=dd, iYear=yy)
            tempseries_g%secs(i)=tempseries_g%secs(i-1)
            if((tempseries_g%days(i).gt.enddays).or.                     &
              ((tempseries_g%days(i).eq.enddays).and.(tempseries_g%secs(i).gt.endsecs)))then
@@ -1184,7 +1185,8 @@ subroutine new_series_uniform(ifail)
          do
            i=i+1
            yy=yy+time_interval
-           tempseries_g%days(i)=numdays(1,1,1970,dd,mm,yy)
+!           tempseries_g%days(i)=numdays(1,1,1970,dd,mm,yy)
+           tempseries_g%days(i) = julian_day(iMonth=mm, iDay=dd, iYear=yy)
            tempseries_g%secs(i)=tempseries_g%secs(i-1)
            if((tempseries_g%days(i).gt.enddays).or.                     &
              ((tempseries_g%days(i).eq.enddays).and.(tempseries_g%secs(i).gt.endsecs)))then
@@ -1521,7 +1523,8 @@ subroutine series_base_level(ifail)
          else if(aoption.eq.'BASE_LEVEL_DATE')then
            call get_date(ierr,ddb,mmb,yyb,'BASE_LEVEL_DATE')
            if(ierr.ne.0) go to 9800
-           daysb=numdays(1,1,1970,ddb,mmb,yyb)
+!           daysb=numdays(1,1,1970,ddb,mmb,yyb)
+            daysb=julian_day(iMonth=mmb, iDay=ddb, iYear=yyb)
          else if(aoption.eq.'BASE_LEVEL_TIME')then
            call get_time(ierr,hhb,nnb,ssb,'BASE_LEVEL_TIME')
            if(ierr.ne.0) go to 9800
@@ -1876,7 +1879,10 @@ subroutine vol_to_series(ifail)
 370    continue
        nsterm=vtable_g(ivtable)%nterm
        allocate(series_g(iser)%days(nsterm),series_g(iser)%secs(nsterm),  &
-       series_g(iser)%val(nsterm),stat=ierr)
+       series_g(iser)%dpval(nsterm),stat=ierr)
+
+       series_g(iser)%lIsSinglePrecision = lFALSE
+
        if(ierr.ne.0)then
          write(amessage,380)
 380      format('cannot allocate memory for another time series.')
@@ -1924,11 +1930,11 @@ subroutine vol_to_series(ifail)
        if(lCumulativeValues) then
          do j=1,nsterm
            dpCumulativeVolume = dpCumulativeVolume + vtable_g(ivtable)%vol(j) * factor
-           series_g(iser)%val(j) = dpCumulativeVolume
+           series_g(iser)%dpval(j) = dpCumulativeVolume
          end do
        else
          do j=1,nsterm
-           series_g(iser)%val(j)=vtable_g(ivtable)%vol(j) * factor
+           series_g(iser)%dpval(j)=vtable_g(ivtable)%vol(j) * factor
          end do
        endif
 
@@ -1973,7 +1979,7 @@ subroutine series_clean(ifail)
 
        integer icontext,iseries,ixcon,ierr,idelete,ilthresh,iuthresh,itemp,iterm,i,k,j, &
        isub
-       real lthresh,uthresh,svalue,rtemp
+       real (kind=T_DBL) :: lthresh,uthresh,svalue,rtemp
        character (len=iTSNAMELENGTH) :: aname,atemp
        character*15 aline
        character*25 aoption
@@ -2602,7 +2608,11 @@ subroutine bfilter(ifail)
            end if
            if((nsecs.ne.series_g(iseries)%secs(j+1)).or.   &
               (ndays.ne.series_g(iseries)%days(j+1)))then
-               call newdate(series_g(iseries)%days(j),1,1,1970,dd,mm,yy)
+!               call newdate(series_g(iseries)%days(j),1,1,1970,dd,mm,yy)
+               call gregorian_date(iJD=series_g(iseries)%days(j), &
+                               iMonth=mm, &
+                               iDay=dd, &
+                               iYear=yy)
                nsecs=series_g(iseries)%secs(j)
                hh=nsecs/3600
                nn=(nsecs-hh*3600)/60
@@ -4474,7 +4484,7 @@ subroutine compute_hydrologic_indices(ifail)
        real(C_DOUBLE), dimension(0:9) :: rLRA
        real(C_DOUBLE), dimension(0:9) :: rURA
 
-       integer :: iOrigin
+!       integer :: iOrigin
        integer :: iStartJD, iStartMM, iStartDD, iStartYYYY
        integer :: iEndJD, iEndMM, iEndDD, iEndYYYY
        integer :: iBaseWY, iDayOfWY, iWY, iCurrWY
@@ -5066,7 +5076,7 @@ subroutine compute_hydrologic_indices(ifail)
        end if
 
        ! get the Julian date associated with John's "origin" term
-       iOrigin = julian_day(1970, 1, 1)
+!       iOrigin = julian_day(1970, 1, 1)
 
        gtable_g(ig)%active = lTRUE
        gtable_g(ig)%name = aname
@@ -5074,14 +5084,14 @@ subroutine compute_hydrologic_indices(ifail)
        gtable_g(ig)%g_table_header = &
            'Hydrologic Index and description (Olden and Poff, 2003)'
 
-       if(begdays.eq.-99999999)then
+       if (begdays <= -9999999) then
          gtable_g(ig)%rec_begdays = series_g(iseries)%days(1)
          gtable_g(ig)%rec_begsecs = series_g(iseries)%secs(1)
        else
          gtable_g(ig)%rec_begdays = begdays
          gtable_g(ig)%rec_begsecs = begsecs
        end if
-       if(enddays.eq.99999999)then
+       if (enddays >= 9999999) then
          gtable_g(ig)%rec_enddays = series_g(iseries)%days(iiterm)
          gtable_g(ig)%rec_endsecs = series_g(iseries)%secs(iiterm)
        else
@@ -5089,8 +5099,8 @@ subroutine compute_hydrologic_indices(ifail)
          gtable_g(ig)%rec_endsecs = endsecs
        end if
 
-       iStartJD = gtable_g(ig)%rec_begdays + iOrigin
-       iEndJD = gtable_g(ig)%rec_enddays + iOrigin
+       iStartJD = gtable_g(ig)%rec_begdays ! + iOrigin
+       iEndJD = gtable_g(ig)%rec_enddays ! + iOrigin
 
        call gregorian_date(iStartJD, iStartYYYY, iStartMM, iStartDD)
        call gregorian_date(iEndJD, iEndYYYY, iEndMM, iEndDD)
@@ -5120,7 +5130,8 @@ subroutine compute_hydrologic_indices(ifail)
        ! the time series to meet this assumption.
        iCount = 0
        do j=1,iiterm
-         call water_year_and_day(series_g(iseries)%days(j) + iOrigin, iWY, iDayOfWY)
+!         call water_year_and_day(series_g(iseries)%days(j) + iOrigin, iWY, iDayOfWY)
+         call water_year_and_day(series_g(iseries)%days(j), iWY, iDayOfWY)
          if(iCurrWY /= iWY) then
            iCurrWY = iWY
            iYr(iCount) = iWY
@@ -5324,7 +5335,7 @@ subroutine time_base(ifail)
        integer ierr,icontext,i,iseries,j,itbseries,ntermtb,ndaysbtb, &
        nsecsbtb,ndaysftb,nsecsftb,ntermos,ndaysbos,nsecsbos,ndaysfos,nsecsfos,istart, &
        intday,intsec,ixcon
-       real valinterp
+       real :: valinterp
        character (len=iTSNAMELENGTH) :: aname
        character*15 aline
        character*25 aoption
@@ -5569,12 +5580,22 @@ subroutine volume(ifail)
 
        integer ierr,icontext,iseries,itunit,iunit,jline,ndate,iv,nsterm,nsdays1, &
        nssecs1,nsdays2,nssecs2,dd,mm,yy,hh,nn,ss,ndays1,nsecs1,ndays2,nsecs2,itemp,ixcon
-       real factor,fac,volcalc
+       real (kind=T_DBL) :: factor,fac,volcalc
+       integer :: iStat, iLength
+       integer :: iStartMM, iStartDD, iStartYYYY
+       integer :: iEndMM, iEndDD, iEndYYYY
        character (len=iTSNAMELENGTH) :: aname
        character*15 aline
        character*25 aoption
+       character*25 sKeyword
        character*120 datefile
        character*25 acontext(MAXCONTEXT)
+       character (len=iTSNAMELENGTH) :: sCurrentSeriesName
+       logical :: lAutoDateAnnual
+       logical :: lAutoDateMonthly
+       logical :: lDatesFromFile
+
+       integer, dimension(:), allocatable :: iFromDates, iToDates
 
        ifail=0
        CurrentBlock_g='VOLUME_CALCULATION'
@@ -5591,6 +5612,10 @@ subroutine volume(ifail)
        datefile=' '
        ixcon=0
        iunit=0
+
+       lDatesFromFile = lTRUE
+       lAutoDateMonthly = lFALSE
+       lAutoDateAnnual = lFALSE
 
 ! -- The VOLUME_CALCULATION block is first parsed.
 
@@ -5609,6 +5634,10 @@ subroutine volume(ifail)
          end if
          aoption=cline(left_word(1):right_word(1))
          call casetrans(aoption,'hi')
+
+         sKeyword=cline(left_word(2):right_word(2))
+         call casetrans(sKeyword,'hi')
+
          if(aoption.ne.'CONTEXT')then
            call test_context(ierr,icontext,acontext)
            if(ierr.eq.-1)then
@@ -5620,9 +5649,11 @@ subroutine volume(ifail)
            end if
            ixcon=1
          end if
+
          if(aoption.eq.'SERIES_NAME')then
            call get_series_name(ierr,iseries,'SERIES_NAME')
            if(ierr.ne.0) go to 9800
+           sCurrentSeriesName = series_g(iseries)%name
          else if(aoption.eq.'CONTEXT')then
            if(ixcon.ne.0)then
              call num2char(ILine_g,aline)
@@ -5655,6 +5686,32 @@ subroutine volume(ifail)
            write(*,145) trim(sString_g)
            write(LU_REC,145) trim(sString_g)
 145        format(t5,'DATE_FILE ',a)
+
+         else if (aoption .eq. 'AUTOMATIC_DATES') then
+
+           if (trim(sKeyword) == 'ANNUAL') then
+             datefile = "{auto generated: ANNUAL}"
+             sString_g = trim(datefile)
+             write(*,147) trim(sString_g)
+             write(LU_REC,147) trim(sString_g)
+147          format(t5,'DATE_FILE ',a)
+             lAutoDateAnnual = lTRUE
+             lDatesFromFile = lFALSE
+           elseif (trim(sKeyword) == 'MONTHLY') then
+             datefile = "{auto generated: MONTHLY}"
+             sString_g = trim(datefile)
+             write(*,149) trim(sString_g)
+             write(LU_REC,149) trim(sString_g)
+149          format(t5,'DATE_FILE ',a)
+             lAutoDateMonthly = lTRUE
+             lDatesFromFile = lFALSE
+           else
+              call num2char(ILine_g,aline)
+              amessage = 'Unhandled keyword "'//trim(sKeyword)//'" in ' &
+                //trim(CurrentBlock_g)//' at line '//trim(aline)
+              goto 9800
+           endif
+
          else if(aoption.eq.'END')then
            go to 200
          else
@@ -5691,46 +5748,90 @@ subroutine volume(ifail)
 220      format('no CONTEXT keyword(s) provided in ',a,' block.')
          go to 9800
        end if
-       if(datefile.eq.' ')then
+       if(datefile.eq.' ' .and. lDatesFromFile )then
          write(amessage,240) trim(CurrentBlock_g)
-240      format('no DATE_FILE keyword provided in ',a,' block.')
+240      format('no DATE_FILE or AUTOMATIC_DATES keywords provided in ',a,' block.')
          go to 9800
        end if
+
+       ! define the time bounds of the V_TABLE on the basis of the
+       ! time bounds found in the underlying series
+       nsterm=series_g(iseries)%nterm
+       nsdays1=series_g(iseries)%days(1)
+       nssecs1=series_g(iseries)%secs(1)
+       nsdays2=series_g(iseries)%days(nsterm)
+       nssecs2=series_g(iseries)%secs(nsterm)
 
 ! -- The date file is now opened and the number of lines within it read.
+       if (lDatesFromFile) then
 
-       iunit=nextunit()
-       call addquote(datefile,sString_g)
-       open(unit=iunit,file=datefile,status='old',iostat=ierr)
-       if(ierr.ne.0)then
-         write(amessage,300) trim(sString_g)
-300      format('cannot open dates file ',a)
-         go to 9800
-       end if
-       write(6,305) trim(sString_g)
-       write(LU_REC,305) trim(sString_g)
-305    format(t5,'Reading dates file ',a,'....')
-       jline=0
-       ndate=0
-       do
-         jline=jline+1
-         read(iunit,'(a)',end=350) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
-         ndate=ndate+1
-       end do
-350    continue
-       if(ndate.eq.0)then
-         write(amessage,360) trim(sString_g)
-360      format('no dates found in dates file ',a)
-         go to 9800
-       end if
-       rewind(unit=iunit,iostat=ierr)
-       if(ierr.ne.0)then
-         write(amessage,370) trim(sString_g)
-370      format('cannot rewind dates file ',a)
-         go to 9800
-       end if
+         iunit=nextunit()
+         call addquote(datefile,sString_g)
+         open(unit=iunit,file=datefile,status='old',iostat=ierr)
+         if(ierr.ne.0)then
+           write(amessage,300) trim(sString_g)
+300        format('cannot open dates file ',a)
+           go to 9800
+         end if
+         write(6,305) trim(sString_g)
+         write(LU_REC,305) trim(sString_g)
+305      format(t5,'Reading dates file ',a,'....')
+         jline=0
+         ndate=0
+         do
+           jline=jline+1
+           read(iunit,'(a)',end=350) cline
+           if(cline.eq.' ') cycle
+           if(cline(1:1).eq.'#') cycle
+           ndate=ndate+1
+         end do
+350      continue
+         if(ndate.eq.0)then
+           write(amessage,360) trim(sString_g)
+360        format('no dates found in dates file ',a)
+           go to 9800
+         end if
+         rewind(unit=iunit,iostat=ierr)
+         if(ierr.ne.0)then
+           write(amessage,370) trim(sString_g)
+370        format('cannot rewind dates file ',a)
+           go to 9800
+         end if
+
+       else  ! dates are automatically calculated
+
+         call gregorian_date(iJD=nsdays1, &
+                             iMonth=iStartMM, &
+                             iDay=iStartDD, &
+                             iYear=iStartYYYY)
+
+         call gregorian_date(iJD=nsdays2, &
+                             iMonth=iEndMM, &
+                             iDay=iEndDD, &
+                             iYear=iEndYYYY)
+
+
+         if (lAutoDateAnnual) then
+
+           call make_date_list(iStartDay=nsdays1, &
+                             iEndDay=nsdays2, &
+                             iFromDates=iFromDates, &
+                             iToDates=iToDates, &
+                             sListType="ANNUAL")
+
+         else
+
+           call make_date_list(iStartDay=nsdays1, &
+                             iEndDay=nsdays2, &
+                             iFromDates=iFromDates, &
+                             iToDates=iToDates, &
+                             sListType="MONTHLY")
+
+         endif
+
+         ndate = size(iFromDates,1)
+
+       endif
 
 ! -- Memory is now allocated for the v_table.
 
@@ -5771,82 +5872,121 @@ subroutine volume(ifail)
 
        jline=0
        ndate=0
-       nsterm=series_g(iseries)%nterm
-       nsdays1=series_g(iseries)%days(1)
-       nssecs1=series_g(iseries)%secs(1)
-       nsdays2=series_g(iseries)%days(nsterm)
-       nssecs2=series_g(iseries)%secs(nsterm)
-       do
-         jline=jline+1
-         read(iunit,'(a)',end=500) cline
-         if(cline.eq.' ') cycle
-         if(cline(1:1).eq.'#') cycle
-         ndate=ndate+1
-         call linesplit(ierr,4)
-         if(ierr.ne.0)then
-           call num2char(jline,aline)
-           write(amessage,410) trim(aline),trim(sString_g)
-410        format('four entries expected on line ',a,' of dates file ',a)
-           go to 9800
-         end if
-         call char2date(ierr,cline(left_word(1):right_word(1)),dd,mm,yy)
-         if(ierr.ne.0) go to 9200
-         ndays1=numdays(1,1,1970,dd,mm,yy)
-         call char2time(ierr,cline(left_word(2):right_word(2)),hh,nn,ss,ignore_24=1)
-         if(ierr.ne.0) go to 9200
-         nsecs1=numsecs(0,0,0,hh,nn,ss)
-         if(nsecs1.ge.86400)then
-           nsecs1=nsecs1-86400
-           ndays1=ndays1+1
-         end if
-         call char2date(ierr,cline(left_word(3):right_word(3)),dd,mm,yy)
-         if(ierr.ne.0) go to 9200
-         ndays2=numdays(1,1,1970,dd,mm,yy)
-         call char2time(ierr,cline(left_word(4):right_word(4)),hh,nn,ss,ignore_24=1)
-         if(ierr.ne.0) go to 9200
-         nsecs2=numsecs(0,0,0,hh,nn,ss)
-         if(nsecs2.ge.86400)then
-           nsecs2=nsecs2-86400
-           ndays2=ndays2+1
-         end if
-         if((ndays1.gt.ndays2).or.         &
-           ((ndays1.eq.ndays2).and.(nsecs1.ge.nsecs2)))then
-           call num2char(jline,aline)
-           write(amessage,420) trim(aline),trim(sString_g)
-420        format('first date/time must precede second date/time at line ',a,  &
-           ' of file ',a)
-           go to 9800
-         end if
-         if((ndays1.lt.nsdays1).or.        &
-           ((ndays1.eq.nsdays1).and.(nsecs1.lt.nssecs1)))then
-           call num2char(jline,aline)
-           write(amessage,425) trim(aline),trim(sString_g),trim(series_g(iseries)%name)
-425        format('the first date/time on line ',a,' of file ',a,' predates the ', &
-           'commencement of time series "',a,'".')
-           go to 9800
-         end if
-         if((ndays2.gt.nsdays2).or.         &
-           ((ndays2.eq.nsdays2).and.(nsecs2.gt.nssecs2)))then
-           call num2char(jline,aline)
-           write(amessage,426) trim(aline),trim(sString_g),trim(series_g(iseries)%name)
-426        format('the second date/time on line ',a,' of file ',a,' postdates the ', &
-           'end of time series "',a,'".')
-           go to 9800
-         end if
+  volclc:  do
+
+         if (lDatesFromFile) then
+           jline=jline+1
+
+           ! read in a line from date file
+           read(iunit,'(a)',end=500) cline
+           if(cline.eq.' ') cycle
+           if(cline(1:1).eq.'#') cycle
+           ndate=ndate+1
+           call linesplit(ierr,4)
+           if(ierr.ne.0)then
+             call num2char(jline,aline)
+             write(amessage,410) trim(aline),trim(sString_g)
+410          format('four entries expected on line ',a,' of dates file ',a)
+             go to 9800
+           end if
+           call char2date(ierr,cline(left_word(1):right_word(1)),dd,mm,yy)
+           if(ierr.ne.0) go to 9200
+
+           ! calculate start date and time for current line of datefile
+!           ndays1=numdays(1,1,1970,dd,mm,yy)
+           ndays1 = julian_day(iMonth=mm, iDay=dd, iYear=yy)
+           call char2time(ierr,cline(left_word(2):right_word(2)),hh,nn,ss,ignore_24=1)
+           if(ierr.ne.0) go to 9200
+           nsecs1=numsecs(0,0,0,hh,nn,ss)
+           if(nsecs1.ge.86400)then
+             nsecs1=nsecs1-86400
+             ndays1=ndays1+1
+           end if
+           call char2date(ierr,cline(left_word(3):right_word(3)),dd,mm,yy)
+           if(ierr.ne.0) go to 9200
+
+           ! calculate end date and time for current line of datefile
+!           ndays2=numdays(1,1,1970,dd,mm,yy)
+           ndays2 = julian_day(iMonth=mm, iDay=dd, iYear=yy)
+           call char2time(ierr,cline(left_word(4):right_word(4)),hh,nn,ss,ignore_24=1)
+           if(ierr.ne.0) go to 9200
+           nsecs2=numsecs(0,0,0,hh,nn,ss)
+           if(nsecs2.ge.86400)then
+             nsecs2=nsecs2-86400
+             ndays2=ndays2+1
+           end if
+
+           ! perform sanity checks on start and end date from datefile
+           if((ndays1.gt.ndays2).or.         &
+             ((ndays1.eq.ndays2).and.(nsecs1.ge.nsecs2)))then
+             call num2char(jline,aline)
+             write(amessage,420) trim(aline),trim(sString_g)
+420          format('first date/time must precede second date/time at line ',a,  &
+             ' of file ',a)
+             go to 9800
+           end if
+           if((ndays1.lt.nsdays1).or.        &
+             ((ndays1.eq.nsdays1).and.(nsecs1.lt.nssecs1)))then
+             call num2char(jline,aline)
+             write(amessage,425) trim(aline),trim(sString_g),trim(series_g(iseries)%name)
+425          format('the first date/time on line ',a,' of file ',a,' predates the ', &
+             'commencement of time series "',a,'".')
+             go to 9800
+           end if
+           if((ndays2.gt.nsdays2).or.         &
+             ((ndays2.eq.nsdays2).and.(nsecs2.gt.nssecs2)))then
+             call num2char(jline,aline)
+             write(amessage,426) trim(aline),trim(sString_g),trim(series_g(iseries)%name)
+426          format('the second date/time on line ',a,' of file ',a,' postdates the ', &
+             'end of time series "',a,'".')
+             go to 9800
+           end if
+
+         else  ! dates "automatically" calculated
+
+           ndate = ndate + 1
+
+           if (ndate > ubound(iFromDates,1) &
+              .or. ndate > ubound(iToDates,1) ) then
+             ndate = ndate -1
+             exit volclc
+           endif
+
+           ndays1 = iFromDates(ndate)
+           ndays2 = iToDates(ndate)
+
+!           nsecs1=numsecs(0,0,0,hh,nn,ss)
+           nsecs1=numsecs(0,0,0,0,0,0)
+           nsecs2=numsecs(0,0,0,23,59,59)
+
+         endif
+
+         ! assign starting/ending date and time to V_TABLE entry
          vtable_g(iv)%days1(ndate)=ndays1
          vtable_g(iv)%secs1(ndate)=nsecs1
          vtable_g(iv)%days2(ndate)=ndays2
          vtable_g(iv)%secs2(ndate)=nsecs2
+
+         ! make the call to calculate volume within givin date/time range
          call volume_interp_s(ierr,nsterm,series_g(iseries)%days,series_g(iseries)%secs,  &
          series_g(iseries)%val,ndays1,nsecs1,ndays2,nsecs2,volcalc,fac)
+
+         ! assign volume to the associated date/time range
          vtable_g(iv)%vol(ndate)=volcalc*factor
-       end do
+
+       end do volclc
+
 500    continue
+
        vtable_g(iv)%nterm=ndate
-       close(unit=iunit)
-       write(*,430) trim(sString_g)
-       write(LU_REC,430) trim(sString_g)
-430    format(t5,'File ',a,' read ok.')
+
+       if (lDatesFromFile) then
+         close(unit=iunit)
+         write(*,430) trim(sString_g)
+         write(LU_REC,430) trim(sString_g)
+430      format(t5,'File ',a,' read ok.')
+       endif
+
        write(*,440) trim(aname)
        write(LU_REC,440) trim(aname)
 440    format(t5,'Volumes calculated and stored in v_table "',a,'".')
@@ -5872,8 +6012,6 @@ subroutine volume(ifail)
        call write_message(iunit=LU_REC,leadspace='yes')
        ifail=1
        if(iunit.ne.0)close(unit=iunit,iostat=ierr)
-
-       return
 
 end subroutine volume
 
@@ -6291,12 +6429,12 @@ subroutine flow_duration(ifail)
        real rtemp,fac,duration,fflow,vval,oldvval,timediff,accumulation,timedelay
        character (len=iTSNAMELENGTH) :: aname,atemp
        integer iNumProbabilities
-       real (kind=T_SGL), dimension(:), allocatable :: rResultVector
-       real (kind=T_SGL), dimension(13), parameter :: &
+       real, dimension(:), allocatable :: rResultVector
+       real, dimension(13), parameter :: &
           rDefaultExceedanceProbabilities = [ &
             99.5, 99., 98., 95., 90., 75., 50., 25., 10., 5., 2. , 1., 0.5  &
           ]
-       real (kind=T_SGL), dimension(:), allocatable :: rCustomExceedanceProbabilities
+       real, dimension(:), allocatable :: rCustomExceedanceProbabilities
        integer (kind=T_INT), dimension(:), allocatable :: iSortOrder
 
        character*15 aline
@@ -6743,7 +6881,12 @@ subroutine displace(ifail)
            end if
            if((nsecs.ne.series_g(iseries)%secs(j+1)).or.   &
               (ndays.ne.series_g(iseries)%days(j+1)))then
-               call newdate(series_g(iseries)%days(j),1,1,1970,dd,mm,yy)
+!               call newdate(series_g(iseries)%days(j),1,1,1970,dd,mm,yy)
+               call gregorian_date(iJD=series_g(iseries)%days(j), &
+                               iMonth=mm, &
+                               iDay=dd, &
+                               iYear=yy)
+
                nsecs=series_g(iseries)%secs(j)
                hh=nsecs/3600
                nn=(nsecs-hh*3600)/60

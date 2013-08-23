@@ -59,6 +59,7 @@ module tsp_data_structures
   type T_MONTH
     character (len=3) :: sAbbreviation
     character (len=12) :: sName
+    integer :: iNumDays
   end type T_MONTH
 
   type T_USGS_NWIS_DAILY
@@ -88,7 +89,9 @@ module tsp_data_structures
 !    real,    dimension(:), pointer :: val
     integer, dimension(:), allocatable :: days
     integer, dimension(:), allocatable :: secs
-    real,    dimension(:), allocatable :: val
+    logical :: lIsSinglePrecision = lTRUE
+    real (kind=T_SGL), dimension(:), allocatable :: val
+    real (kind=T_DBL), dimension(:), allocatable :: dpval
   end type time_series
 
   ! general-purpose table for arbitrary stats output
@@ -103,7 +106,7 @@ module tsp_data_structures
     integer  rec_endsecs
 
     character (len=80), dimension(:), allocatable  :: sDescription
-    real, dimension(:), allocatable                :: rValue
+    real (kind=T_DBL), dimension(:), allocatable   :: rValue
   end type g_table
 
   ! STATISTICS TABLE
@@ -161,7 +164,7 @@ module tsp_data_structures
     integer, dimension(:), pointer :: secs1
     integer, dimension(:), pointer :: days2
     integer, dimension(:), pointer :: secs2
-    real, dimension(:), pointer    :: vol
+    real (kind=T_DBL), dimension(:), pointer    :: vol
   end type v_table
 
   !FLOW-DURATION table (exceedance table)
@@ -332,18 +335,18 @@ module tsp_data_structures
    integer, public :: LU_STD_OUT = 6
 
    type (T_MONTH),dimension(12) :: MONTH = (/ &
-     T_MONTH('JAN', 'January'), &
-     T_MONTH('FEB', 'February'), &
-     T_MONTH('MAR', 'March'), &
-     T_MONTH('APR', 'April'), &
-     T_MONTH('MAY', 'May'), &
-     T_MONTH('JUN', 'June'), &
-     T_MONTH('JUL', 'July'), &
-     T_MONTH('AUG', 'August'), &
-     T_MONTH('SEP', 'September'), &
-     T_MONTH('OCT', 'October'), &
-     T_MONTH('NOV', 'November'), &
-     T_MONTH('DEC', 'December') &
+     T_MONTH('JAN', 'January', 31), &
+     T_MONTH('FEB', 'February', 28), &
+     T_MONTH('MAR', 'March', 31), &
+     T_MONTH('APR', 'April', 30), &
+     T_MONTH('MAY', 'May', 31), &
+     T_MONTH('JUN', 'June', 30), &
+     T_MONTH('JUL', 'July', 31), &
+     T_MONTH('AUG', 'August', 31), &
+     T_MONTH('SEP', 'September', 30), &
+     T_MONTH('OCT', 'October', 31), &
+     T_MONTH('NOV', 'November', 30), &
+     T_MONTH('DEC', 'December', 31) &
      /)
 
 end module tsp_data_structures

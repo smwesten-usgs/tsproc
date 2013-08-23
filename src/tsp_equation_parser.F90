@@ -304,7 +304,8 @@ subroutine equation(ifail)
              if(ierr.ne.0) go to 9400
              call char2time(ierr,adate_atime(idx+1:),hhx,nnx,ssx,ignore_24=1)
              if(ierr.ne.0) go to 9400
-             nex=numdays(1,1,1970,ddx,mmx,yyx)
+!             nex=numdays(1,1,1970,ddx,mmx,yyx)
+             nex = julian_day(iMonth=mmx, iDay=ddx, iYear=yyx)
              sex=numsecs(0,0,0,hhx,nnx,ssx)
              dtempx=dble(nex)+dble(sex)/86400.0d0
              aterm(iterm)(3:4)='3_'
@@ -348,12 +349,15 @@ subroutine equation(ifail)
 
          do iterm =1,nterm
            if(aterm(iterm)(1:3).eq.'@_1') then
-             call newdate(series_g(isnum)%days(j),1,1,1970,dd,mm,yy)
-             nn=numdays(1,1,yy,dd,mm,yy)
+!             call newdate(series_g(isnum)%days(j),1,1,1970,dd,mm,yy)
+!             call gregorian_date(iJD=series_g(isnum)%days(j), &
+!                                 iMonth=mm, &
+!                                 iDay=dd, &
+!                                 iYear=yy)
+             nn=day_of_year(series_g(isnum)%days(j))
              rtime=float(nn)+float(series_g(isnum)%secs(j))/86400.0
              rterm(iterm)=rtime
              aterm(iterm)='~!~'
-
 
 
            else if(aterm(iterm)(1:3).eq.'@_3')then   !
@@ -1158,7 +1162,8 @@ subroutine prepare_eqn(ifail,nterm,eqntext,iseries)
                if(ierr.ne.0) go to 9400
                call char2time(ierr,adate_atime(idx+1:),hhx,nnx,ssx,ignore_24=1)
                if(ierr.ne.0) go to 9400
-               nex=numdays(1,1,1970,ddx,mmx,yyx)
+!               nex=numdays(1,1,1970,ddx,mmx,yyx)
+               nex = julian_day(iMonth=mmx, iDay=ddx, iYear=yyx)
                sex=numsecs(0,0,0,hhx,nnx,ssx)
                dtempx=dble(nex)+dble(sex)/86400.0d0
                aterm(iterm)(3:4)='3_'

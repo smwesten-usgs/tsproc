@@ -660,7 +660,11 @@ subroutine period_stats(ifail)
        end if
 
        ndays=series_g(iseries)%days(ibterm)
-       call newdate(ndays,1,1,1970,cdd,cmm,cyy)
+!       call newdate(ndays,1,1,1970,cdd,cmm,cyy)
+       call gregorian_date(iJD=ndays, &
+                       iMonth=cmm, &
+                       iDay=cdd, &
+                       iYear=cyy)
        if(period.eq.'year') then
            cwy=cyy
            selectcase(year_type)
@@ -689,7 +693,12 @@ subroutine period_stats(ifail)
 
        do j=ibterm,ieterm
          ndays=series_g(iseries)%days(j)
-         call newdate(ndays,1,1,1970,dd,mm,yy)
+!         call newdate(ndays,1,1,1970,dd,mm,yy)
+         call gregorian_date(iJD=ndays, &
+                         iMonth=mm, &
+                         iDay=dd, &
+                         iYear=yy)
+
          rtemp=series_g(iseries)%val(j)
          rvalue=rtemp
          if(jtrans.eq.1)then
@@ -758,29 +767,38 @@ subroutine period_stats(ifail)
                    case('start')
                      selectcase(year_type)
                        case('water_high')
-                         ndays=numdays(1,1,1970,1,10,cwy-1)
+!                         ndays=numdays(1,1,1970,1,10,cwy-1)
+                         ndays=julian_day(iMonth=10, iDay=1, iYear=cwy-1)
                       case('water_low')
-                       ndays=numdays(1,1,1970,1,4,cwy-1)
+!                       ndays=numdays(1,1,1970,1,4,cwy-1)
+                       ndays=julian_day(iMonth=4, iDay=1, iYear=cwy-1)
                       case('calendar')
-                       ndays=numdays(1,1,1970,1,1,cwy)
+!                       ndays=numdays(1,1,1970,1,1,cwy)
+                       ndays=julian_day(iMonth=1, iDay=1, iYear=cwy)
                      end select
                    case('centre')
                      selectcase(year_type)
                        case('water_high')
-                         ndays=numdays(1,1,1970,1,4,cwy)
+!                         ndays=numdays(1,1,1970,1,4,cwy)
+                         ndays=julian_day(iMonth=4, iDay=1, iYear=cwy)
                        case('water_low')
-                         ndays=numdays(1,1,1970,1,10,cwy)
+!                         ndays=numdays(1,1,1970,1,10,cwy)
+                         ndays=julian_day(iMonth=10, iDay=1, iYear=cwy)
                        case('calendar')
-                         ndays=numdays(1,1,1970,1,7,cwy)
+!                         ndays=numdays(1,1,1970,1,7,cwy)
+                         ndays=julian_day(iMonth=7, iDay=1, iYear=cwy)
                      end select
                    case('end')
                      selectcase(year_type)
                        case('water_high')
-                         ndays=numdays(1,1,1970,30,9,cwy)
+!                         ndays=numdays(1,1,1970,30,9,cwy)
+                         ndays=julian_day(iMonth=9, iDay=30, iYear=cwy)
                        case('water_low')
-                         ndays=numdays(1,1,1970,31,3,cwy)
+!                         ndays=numdays(1,1,1970,31,3,cwy)
+                         ndays=julian_day(iMonth=3, iDay=31, iYear=cwy)
                        case('calendar')
-                         ndays=numdays(1,1,1970,31,12,cwy)
+!                         ndays=numdays(1,1,1970,31,12,cwy)
+                         ndays=julian_day(iMonth=12, iDay=31, iYear=cwy)
                      end select
                  end select
                  iterm=iterm+1
@@ -825,13 +843,16 @@ subroutine period_stats(ifail)
                  end select
                  selectcase(abscissa)
                    case('start')
-                     ndays=numdays(1,1,1970,1,cmm,cyy)
+!                     ndays=numdays(1,1,1970,1,cmm,cyy)
+                     ndays=julian_day(iMonth=cmm, iDay=1, iYear=cyy)
                    case('centre')
-                     ndays=numdays(1,1,1970,15,cmm,cyy)
+!                     ndays=numdays(1,1,1970,15,cmm,cyy)
+                     ndays=julian_day(iMonth=cmm, iDay=15, iYear=cyy)
                    case('end')
                    days=DA(cmm)
                    if((cmm.EQ.2).AND.(leap(cyy)))days=days+1
-                     ndays=numdays(1,1,1970,days,cmm,cyy)
+!                     ndays=numdays(1,1,1970,days,cmm,cyy)
+                     ndays=julian_day(iMonth=cmm, iDay=days, iYear=cyy)
                  end select
                  iterm=iterm+1
                  tempseries_g%days(iterm)=ndays
@@ -890,29 +911,38 @@ subroutine period_stats(ifail)
                case('start')
                  selectcase(year_type)
                    case('water_high')
-                     ndays=numdays(1,1,1970,1,10,cwy-1)
+!                     ndays=numdays(1,1,1970,1,10,cwy-1)
+                     ndays=julian_day(iMonth=10, iDay=1, iYear=cwy-1)
                    case('water_low')
-                     ndays=numdays(1,1,1970,1,4,cwy-1)
+!                     ndays=numdays(1,1,1970,1,4,cwy-1)
+                     ndays=julian_day(iMonth=4, iDay=1, iYear=cwy-1)
                    case('calendar')
-                     ndays=numdays(1,1,1970,1,1,cwy)
+!                     ndays=numdays(1,1,1970,1,1,cwy)
+                     ndays=julian_day(iMonth=1, iDay=1, iYear=cwy)
                  end select
                case('centre')
                  selectcase(year_type)
                    case('water_high')
-                     ndays=numdays(1,1,1970,1,4,cwy)
+!                     ndays=numdays(1,1,1970,1,4,cwy)
+                     ndays=julian_day(iMonth=4, iDay=1, iYear=cwy)
                    case('water_low')
-                     ndays=numdays(1,1,1970,1,10,cwy)
+!                     ndays=numdays(1,1,1970,1,10,cwy)
+                     ndays=julian_day(iMonth=10, iDay=1, iYear=cwy)
                    case('calendar')
-                     ndays=numdays(1,1,1970,1,7,cwy)
+!                     ndays=numdays(1,1,1970,1,7,cwy)
+                     ndays=julian_day(iMonth=7, iDay=1, iYear=cwy)
                  end select
                case('end')
                  selectcase(year_type)
                    case('water_high')
-                     ndays=numdays(1,1,1970,30,9,cwy)
+!                     ndays=numdays(1,1,1970,30,9,cwy)
+                     ndays=julian_day(iMonth=9, iDay=30, iYear=cwy)
                    case('water_low')
-                     ndays=numdays(1,1,1970,31,3,cwy)
+!                     ndays=numdays(1,1,1970,31,3,cwy)
+                     ndays=julian_day(iMonth=3, iDay=31, iYear=cwy)
                    case('calendar')
-                     ndays=numdays(1,1,1970,31,12,cwy)
+!                     ndays=numdays(1,1,1970,31,12,cwy)
+                     ndays=julian_day(iMonth=12, iDay=31, iYear=cwy)
                  end select
              end select
              iterm=iterm+1
@@ -943,13 +973,16 @@ subroutine period_stats(ifail)
              end select
              selectcase(abscissa)
                case('start')
-                 ndays=numdays(1,1,1970,1,cmm,cyy)
+!                 ndays=numdays(1,1,1970,1,cmm,cyy)
+                 ndays=julian_day(iMonth=cmm, iDay=1, iYear=cyy)
                case('centre')
-                 ndays=numdays(1,1,1970,15,cmm,cyy)
+!                 ndays=numdays(1,1,1970,15,cmm,cyy)
+                 ndays=julian_day(iMonth=cmm, iDay=15, iYear=cyy)
                case('end')
                  days=DA(cmm)
                  if((cmm.EQ.2).AND.(leap(cyy)))days=days+1
-                 ndays=numdays(1,1,1970,days,cmm,cyy)
+!                 ndays=numdays(1,1,1970,days,cmm,cyy)
+                 ndays=julian_day(iMonth=cmm, iDay=days, iYear=cyy)
              end select
              iterm=iterm+1
              tempseries_g%days(iterm)=ndays
@@ -985,12 +1018,15 @@ subroutine period_stats(ifail)
                end select
                selectcase(abscissa)
                  case('start')
-                   ndays=numdays(1,1,1970,1,i,1800)
+!                   ndays=numdays(1,1,1970,1,i,1800)
+                   ndays=julian_day(iMonth=i, iDay=1, iYear=1800)
                  case('centre')
-                   ndays=numdays(1,1,1970,15,i,1800)
+!                   ndays=numdays(1,1,1970,15,i,1800)
+                   ndays=julian_day(iMonth=i, iDay=15, iYear=1800)
                  case('end')
                    days=DA(i)
-                   ndays=numdays(1,1,1970,days,i,1800)
+!                   ndays=numdays(1,1,1970,days,i,1800)
+                   ndays=julian_day(iMonth=i, iDay=days, iYear=1800)
                end select
                iterm=iterm+1
                tempseries_g%days(iterm)=ndays

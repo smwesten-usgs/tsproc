@@ -33,6 +33,7 @@ subroutine pest_files(ifail,lastblock)
        stweightmax(MAXSTABLE),vtweightmin(MAXVTABLE),vtweightmax(MAXVTABLE), &
        dtweightmin(MAXDTABLE),dtweightmax(MAXDTABLE),gtweightmin(MAXGTABLE),gtweightmax(MAXGTABLE)
        double precision dval,dtempx
+       real (kind=T_DBL), dimension(:), allocatable :: tempvals
        character*1 aa
        character*3 auiaa
        character (len=iTSNAMELENGTH) :: aoname,amname,anum,atrans
@@ -1451,17 +1452,16 @@ subroutine pest_files(ifail,lastblock)
          atemp=basename(iout)
          do iterm=1,nsterm
            call num2char(iterm,anum)
-           if(sSeriesFormat_g.eq.'long')then
-             aname='['//trim(atemp)//trim(anum)//']42:60'
+           if(trim(sSeriesFormat_g) == "ssf" &
+             .or. trim(sSeriesFormat_g) == "long" )then
+             aname='['//trim(atemp)//trim(anum)//']42:65'
            else
-             aname='['//trim(atemp)//trim(anum)//']2:20'
+             aname='['//trim(atemp)//trim(anum)//']2:25'
            end if
-           if(iterm.eq.1)then
-             write(iunit,880) trim(aname)
-880          format('l3',t6,a)
+           if(iterm.eq.1 .and. trim(sSeriesFormat_g) /= "ssf" )then
+             write(iunit,"('l3',t6,a)") trim(aname)
            else
-             write(iunit,890) trim(aname)
-890          format('l1',t6,a)
+             write(iunit,"('l1',t6,a)") trim(aname)
            end if
            nobs=nobs+1
          end do
@@ -1910,20 +1910,29 @@ subroutine pest_files(ifail,lastblock)
          nsterm=series_g(io)%nterm
          aname=series_g(im)%name
 
+         allocate(tempvals(nsterm))
+
+         if (series_g(io)%lIsSinglePrecision) then
+           tempvals = real(series_g(io)%val, kind=T_DBL)
+         else
+           tempvals = series_g(io)%dpval
+         endif
+
+
          tempmean = 0.
          m2 = 0.
 
          do lc = 1,nsterm
-           delta = series_g(io)%val(lc) - tempmean
+           delta = tempvals(lc) - tempmean
            tempmean = tempmean + delta / real(lc, kind=8)
-           m2= m2 + delta * ( series_g(io)%val(lc) - tempmean )
+           m2 = m2 + delta * ( tempvals(lc) - tempmean )
          enddo
 
          ! SMW additions August 2013
          dpCount = real(nsterm, kind=8)
-         dpSum = sum( series_g(io)%val )
-         dpMin = minval( series_g(io)%val )
-         dpMax = maxval( series_g(io)%val )
+         dpSum = sum( tempvals )
+         dpMin = minval( tempvals )
+         dpMax = maxval( tempvals )
          dpMean = tempmean
          dpVariance = m2 / (nsterm -1)
 
@@ -1963,7 +1972,7 @@ subroutine pest_files(ifail,lastblock)
            do iterm =1,nterm
              if(aterm(iterm)(1:3).eq.'$~$') then
                call char2num(ierr,aterm(iterm)(4:),isnum)
-               rterm(iterm)=series_g(isnum)%val(j)
+               rterm(iterm)=tempvals(j)
                aterm(iterm)='~!~'
              end if
            end do
@@ -1972,7 +1981,7 @@ subroutine pest_files(ifail,lastblock)
 
            do iterm =1,nterm
              if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(series_g(io)%val(j))
+               rterm(iterm)=abs(tempvals(j))
                aterm(iterm)='~!~'
 
              elseif(aterm(iterm)(1:3).eq.'@_4') then       ! min
@@ -2001,7 +2010,11 @@ subroutine pest_files(ifail,lastblock)
 
 
              else if(aterm(iterm)(1:3).eq.'@_1') then
-               call newdate(series_g(io)%days(j),1,1,1970,dd,mm,yy)
+!               call newdate(series_g(io)%days(j),1,1,1970,dd,mm,yy)
+               call gregorian_date(iJD=series_g(io)%days(j), &
+                               iMonth=mm, &
+                               iDay=dd, &
+                               iYear=yy)
                nn=numdays(1,1,yy,dd,mm,yy)
                rtime=float(nn)+float(series_g(io)%secs(j))/86400.0
                rterm(iterm)=rtime
@@ -2019,9 +2032,12 @@ subroutine pest_files(ifail,lastblock)
            if(ierr.ne.0) go to 9800
            if(dval.lt.weightmin)dval=weightmin
            if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),series_g(io)%val(j),dval,trim(series_g(im)%name)
+           write(iunit,1900) trim(aname),tempvals(j),dval,trim(series_g(im)%name)
 1900       format(a,t22,1pg14.7,t40,1pg12.6,2x,a)
          end do
+
+         if (allocated(tempvals)) deallocate(tempvals)
+
        end do
 
 ! -- Now we handle S_TABLE observations.
@@ -2552,6 +2568,7 @@ subroutine write_list_output(ifail)
        character*15 aline
        character*25 aoption
        character*25 acontext(MAXCONTEXT)
+       character (len=10) :: sDateStr
 
        ifail=0
        CurrentBlock_g='LIST_OUTPUT'
@@ -2783,21 +2800,41 @@ subroutine write_list_output(ifail)
              if(sformat.eq.'long' .or. sformat == 'ssf' )then
                nn=series_g(j)%days(iterm)
                ss=series_g(j)%secs(iterm)
-               call newdate(nn,1,1,1970,dd,mm,yy)
+!               call newdate(nn,1,1,1970,dd,mm,yy)
+               call gregorian_date(iJD=nn, &
+                               iMonth=mm, &
+                               iDay=dd, &
+                               iYear=yy)
                hhh=ss/3600
                mmm=(ss-hhh*3600)/60
                sss=ss-hhh*3600-mmm*60
-               if(datespec.eq.1) then
-                 write(LU_OUT,300) trim(aname),dd,mm,yy,hhh,mmm,sss,series_g(j)%val(iterm)
-300              format(1x,a,t20,i2.2,'/',i2.2,'/',i4.4,3x,i2.2,':',i2.2,':',   &
-                 i2.2,3x,1pg14.7)
+
+               if(datespec == 1) then
+                 write(sDateStr, fmt="(i2.2,'/',i2.2,'/',i4.4)") dd, mm, yy
                else
-                 write(LU_OUT,300) trim(aname),mm,dd,yy,hhh,mmm,sss,series_g(j)%val(iterm)
+                 write(sDateStr, fmt="(i2.2,'/',i2.2,'/',i4.4)") mm, dd, yy
                endif
+
+               if (series_g(j)%lIsSinglePrecision) then
+                 write(LU_OUT,fmt="(1x,a,t20,a10,3x,i2.2,':',i2.2,':',   &
+                    i2.2,3x,g16.9)")  &
+                    trim(aname),sDateStr,hhh,mmm, sss,series_g(j)%val(iterm)
+               else
+                 write(LU_OUT,fmt="(1x,a,t20,a10,3x,i2.2,':',i2.2,':',   &
+                    i2.2,3x,g18.13)")  &
+                    trim(aname),sDateStr,hhh,mmm, sss,series_g(j)%dpval(iterm)
+               endif
+
              else
-               write(LU_OUT,301) series_g(j)%val(iterm)
-301            format(4x,1pg14.7)
+
+               if (series_g(j)%lIsSinglePrecision) then
+                 write(LU_OUT,fmt="(4x,g16.9)") series_g(j)%val(iterm)
+               else
+                 write(LU_OUT,fmt="(4x,g18.13)") series_g(j)%dpval(iterm)
+               endif
+
              end if
+
            end do
          end if
        end do
@@ -2813,13 +2850,23 @@ subroutine write_list_output(ifail)
 515       format(t5,'Series for which data calculated:',t55,'"',a,'"')
           nnn=stable_g(jstable)%rec_begdays
           sss=stable_g(jstable)%rec_begsecs
-          call newdate(nnn,1,1,1970,dds1,mms1,yys1)
+!          call newdate(nnn,1,1,1970,dds1,mms1,yys1)
+          call gregorian_date(iJD=nnn, &
+                          iMonth=mms1, &
+                          iDay=dds1, &
+                          iYear=yys1)
+
           hhs1=sss/3600
           nns1=(sss-hhs1*3600)/60
           sss1=sss-hhs1*3600-nns1*60
           nnn=stable_g(jstable)%rec_enddays
           sss=stable_g(jstable)%rec_endsecs
-          call newdate(nnn,1,1,1970,dds2,mms2,yys2)
+!          call newdate(nnn,1,1,1970,dds2,mms2,yys2)
+          call gregorian_date(iJD=nnn, &
+                          iMonth=mms2, &
+                          iDay=dds2, &
+                          iYear=yys2)
+
           hhs2=sss/3600
           nns2=(sss-hhs2*3600)/60
           sss2=sss-hhs2*3600-nns2*60
@@ -2916,13 +2963,24 @@ subroutine write_list_output(ifail)
 1216      format(t5,'Simulation time series name:',t55,'"',a,'"')
           nnn=ctable_g(jctable)%rec_begdays
           sss=ctable_g(jctable)%rec_begsecs
-          call newdate(nnn,1,1,1970,dds1,mms1,yys1)
+!          call newdate(nnn,1,1,1970,dds1,mms1,yys1)
+
+          call gregorian_date(iJD=nnn, &
+                          iMonth=mms1, &
+                          iDay=dds1, &
+                          iYear=yys1)
+
           hhs1=sss/3600
           nns1=(sss-hhs1*3600)/60
           sss1=sss-hhs1*3600-nns1*60
           nnn=ctable_g(jctable)%rec_enddays
           sss=ctable_g(jctable)%rec_endsecs
-          call newdate(nnn,1,1,1970,dds2,mms2,yys2)
+!          call newdate(nnn,1,1,1970,dds2,mms2,yys2)
+          call gregorian_date(iJD=nnn, &
+                          iMonth=mms2, &
+                          iDay=dds2, &
+                          iYear=yys2)
+
           hhs2=sss/3600
           nns2=(sss-hhs2*3600)/60
           sss2=sss-hhs2*3600-nns2*60
@@ -2993,12 +3051,24 @@ subroutine write_list_output(ifail)
           write(LU_OUT,715) trim(vtable_g(jvtable)%series_name)
 715       format(t5,'Volumes calculated from series "',a,'" are as follows:-')
           do j=1,vtable_g(jvtable)%nterm
-            call newdate(vtable_g(jvtable)%days1(j),1,1,1970,dds1,mms1,yys1)
+!            call newdate(vtable_g(jvtable)%days1(j),1,1,1970,dds1,mms1,yys1)
+
+            call gregorian_date(iJD=vtable_g(jvtable)%days1(j), &
+                            iMonth=mms1, &
+                            iDay=dds1, &
+                            iYear=yys1)
+
             sss=vtable_g(jvtable)%secs1(j)
             hhs1=sss/3600
             nns1=(sss-hhs1*3600)/60
             sss1=sss-hhs1*3600-nns1*60
-            call newdate(vtable_g(jvtable)%days2(j),1,1,1970,dds2,mms2,yys2)
+!            call newdate(vtable_g(jvtable)%days2(j),1,1,1970,dds2,mms2,yys2)
+
+            call gregorian_date(iJD=vtable_g(jvtable)%days2(j), &
+                            iMonth=mms2, &
+                            iDay=dds2, &
+                            iYear=yys2)
+
             sss=vtable_g(jvtable)%secs2(j)
             hhs2=sss/3600
             nns2=(sss-hhs2*3600)/60
@@ -3012,7 +3082,7 @@ subroutine write_list_output(ifail)
             end if
 720         format(t5,'From ',i2.2,'/',i2.2,'/',i4,' ',i2.2,':',i2.2,':',i2.2,  &
                       ' to ',i2.2,'/',i2.2,'/',i4,' ',i2.2,':',i2.2,':',i2.2,  &
-                      '  volume = ',1pg14.7)
+                      '  volume = ',g16.12)
           end do
        end do
 
@@ -3040,7 +3110,7 @@ subroutine write_list_output(ifail)
             write(LU_OUT,920) dtable_g(jdtable)%flow(j),  &
             dtable_g(jdtable)%tdelay(j), dtable_g(jdtable)%time(j), &
             dtable_g(jdtable)%time(j)/totim
-920         format(t2,1pg14.7,t20,1pg14.7,t40,1pg14.7,t63,1pg14.7)
+920         format(t2,g14.10,t20,g14.10,t40,g14.10,t63,g14.10)
           end do
        end do
 1100   continue
