@@ -5800,32 +5800,19 @@ subroutine volume(ifail)
 
        else  ! dates are automatically calculated
 
-         call gregorian_date(iJD=nsdays1, &
-                             iMonth=iStartMM, &
-                             iDay=iStartDD, &
-                             iYear=iStartYYYY)
-
-         call gregorian_date(iJD=nsdays2, &
-                             iMonth=iEndMM, &
-                             iDay=iEndDD, &
-                             iYear=iEndYYYY)
-
-
          if (lAutoDateAnnual) then
 
-           call make_date_list(iStartDay=nsdays1, &
-                             iEndDay=nsdays2, &
-                             iFromDates=iFromDates, &
-                             iToDates=iToDates, &
-                             sListType="ANNUAL")
+            call make_date_list(iSampleDates=series_g(iseries)%days, &
+                                iFromDates=iFromDates, &
+                                iToDates=iToDates, &
+                                sListType="ANNUAL")
 
          else
 
-           call make_date_list(iStartDay=nsdays1, &
-                             iEndDay=nsdays2, &
-                             iFromDates=iFromDates, &
-                             iToDates=iToDates, &
-                             sListType="MONTHLY")
+           call make_date_list(iSampleDates=series_g(iseries)%days, &
+                               iFromDates=iFromDates, &
+                               iToDates=iToDates, &
+                               sListType="MONTHLY")
 
          endif
 
@@ -5967,7 +5954,7 @@ subroutine volume(ifail)
          vtable_g(iv)%days2(ndate)=ndays2
          vtable_g(iv)%secs2(ndate)=nsecs2
 
-         ! make the call to calculate volume within givin date/time range
+         ! make the call to calculate volume within given date/time range
          call volume_interp_s(ierr,nsterm,series_g(iseries)%days,series_g(iseries)%secs,  &
          series_g(iseries)%val,ndays1,nsecs1,ndays2,nsecs2,volcalc,fac)
 

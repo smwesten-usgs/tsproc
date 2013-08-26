@@ -3082,7 +3082,7 @@ subroutine write_list_output(ifail)
             end if
 720         format(t5,'From ',i2.2,'/',i2.2,'/',i4,' ',i2.2,':',i2.2,':',i2.2,  &
                       ' to ',i2.2,'/',i2.2,'/',i4,' ',i2.2,':',i2.2,':',i2.2,  &
-                      '  volume = ',g16.12)
+                      '  volume = ',g18.12)
           end do
        end do
 

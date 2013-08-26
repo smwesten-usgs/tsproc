@@ -1433,11 +1433,11 @@ subroutine volume_interp_s(ifail,num,days,secs,flows,bdays,bsecs,fdays,fsecs,vol
 
 ! -- Arguments are as follows:-
 !      num:    number of flow rate samples
-!      days:   days since 1/1/1970 pertaining to each flow sample
+!      days:   julian date pertaining to each flow sample
 !      secs:   seconds since midnight pertaining to each flow sample
-!      bdays:  days since 1/1/1970 at which volume begins accumulating
+!      bdays:  julian date at which volume begins accumulating
 !      bsecs:  seconds since midnight at which volume begins accumulating
-!      fdays:  days since 1/1/1970 at which volume ceases accumulating
+!      fdays:  julian date at which volume ceases accumulating
 !      fsecs:  seconds since midnight at which volume ceases accumulating
 !      vol:    accumulated volume
 !      fac:    factor by which to multiply volumes

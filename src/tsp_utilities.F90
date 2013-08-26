@@ -2090,8 +2090,9 @@ function num_days_in_month(iMonth, iYear)  result(iNumDaysInMonth)
 end function num_days_in_month
 !--------------------------------------------------------------------------
 
-subroutine make_date_list(iStartDay, iEndDay, iFromDates, iToDates, sListType)
+subroutine make_date_list(iSampleDates, iFromDates, iToDates, sListType)
 
+  integer, dimension(:) :: iSampleDates
   integer :: iStartDay
   integer :: iEndDay
   integer, dimension(:), allocatable, intent(out) :: iFromDates
@@ -2102,6 +2103,8 @@ subroutine make_date_list(iStartDay, iEndDay, iFromDates, iToDates, sListType)
   integer :: iIndex
   integer :: iMyMonth, iMyYear
   integer :: iLength
+  integer :: iUBound
+  integer :: iCount
   integer :: iStartMM, iStartDD, iStartYYYY
   integer :: iEndMM, iEndDD, iEndYYYY
   integer :: iTempStartMM, iTempStartDD, iTempStartYYYY
@@ -2109,135 +2112,86 @@ subroutine make_date_list(iStartDay, iEndDay, iFromDates, iToDates, sListType)
   integer :: iLastDay
   integer :: iStartJD, iEndJD
   integer :: iStat
+  integer, dimension(size(iSampleDates,1)) :: iSampleYYYY, iSampleMM, iSampleDD
 
-  call gregorian_date(iJD=iStartDay, &
+  integer, dimension(:), allocatable :: iTempFromDates
+  integer, dimension(:), allocatable :: iTempToDates
+
+  iUBound = ubound(iSampleDates,1)
+
+  call gregorian_date(iJD=iSampleDates(1), &
                           iMonth=iStartMM, &
                           iDay=iStartDD, &
                           iYear=iStartYYYY)
 
-  call gregorian_date(iJD=iEndDay, &
+  call gregorian_date(iJD=iSampleDates(iUBound), &
                           iMonth=iEndMM, &
                           iDay=iEndDD, &
                           iYear=iEndYYYY)
 
+  do iIndex=1, iUBound
+    call gregorian_date(iJD=iSampleDates(iIndex), &
+                        iMonth=iSampleMM(iIndex), &
+                        iDay=iSampleDD(iIndex), &
+                        iYear=iSampleYYYY(iIndex) )
+  enddo
+
+  if (allocated(iTempFromDates)) deallocate(iTempFromDates)
+  if (allocated(iTempToDates)) deallocate(iTempToDates)
+
+  if (allocated(iFromDates)) deallocate(iFromDates)
+  if (allocated(iToDates)) deallocate(iToDates)
+
   if (trim(sListType) ==  "ANNUAL") then
 
-    ! ASSUMING that the automatically generated dates should
-    ! really focus on the more complete calendar years
-    if (iEndMM < 6) then
-      iEndYYYY = iEndYYYY - 1
-      iEndMM = 12
-      iEndDD = 31
-    endif
-
-    if (iStartMM > 6) then
-      iStartYYYY = iStartYYYY + 1
-      iStartMM = 1
-      iStartDD = 1
-    endif
-
-    iLength = iEndYYYY - iStartYYYY + 1
-
-    if (allocated(iFromDates)) deallocate(iFromDates)
-    if (allocated(iToDates)) deallocate(iToDates)
-    allocate (iFromDates(iLength))
-    allocate (iToDates(iLength))
-
-    iFromDates(1) = julian_day(iMonth=iStartMM, iDay=iStartDD, iYear=iStartYYYY)
-    iToDates(1) = julian_day(iMonth=12, iDay=31, iYear=iStartYYYY)
-
-    iFromDates(iLength) = julian_day(iMonth=1, iDay=1, iYear=iEndYYYY)
-    iToDates(iLength) = julian_day(iMonth=iEndMM, iDay=iEndDD, iYear=iEndYYYY)
-
-    do iIndex=2, iLength-1
-      iFromDates(iIndex) = julian_day(iMonth=1, iDay=1, iYear=iIndex-1+iStartYYYY)
-      iToDates(iIndex) = julian_day(iMonth=12, iDay=31, iYear=iIndex-1+iStartYYYY)
-    enddo
-
-  elseif (trim(sListType) == "MONTHLY" ) then
-
-    ! ASSUMING that the automatically generated dates should
-    ! focus on complete months
-    if (iEndDD < 29 .and. iEndMM > 1) then
-      iEndJD = julian_day(iMonth=iEndMM, iDay=1, iYear=iEndYYYY) - 1
-    elseif (iEndDD < 29 .and. iEndMM == 1) then
-      iEndJD = julian_day(iMonth=12, iDay=31, iYear=iEndYYYY - 1)
-    else
-      iEndJD = iEndDay
-    endif
-
-    call gregorian_date(iJD=iEndJD, &
-                          iMonth=iTempEndMM, &
-                          iDay=iTempEndDD, &
-                          iYear=iTempEndYYYY)
-
-    iLength = iTempEndMM
-
-
-    if (iStartDD > 1 .and. iStartMM < 12) then
-      iStartJD = julian_day(iMonth=iStartMM+1, iDay=1, iYear=iStartYYYY)
-    elseif (iStartDD > 1 .and. iStartMM ==12) then
-      iStartJD = julian_day(iMonth=1, iDay=1, iYear=iStartYYYY + 1)
-    else
-      iStartJD = iStartDay
-    endif
-
-    call gregorian_date(iJD=iStartJD, &
-                          iMonth=iTempStartMM, &
-                          iDay=iTempStartDD, &
-                          iYear=iTempStartYYYY)
-
-    iLength = iLength + 12 - iTempStartMM + 1
-
-    iLength = iLength + 12 * ( iTempEndYYYY - iTempStartYYYY - 1)
-
-    allocate (iFromDates(iLength))
-    allocate (iToDates(iLength))
+    allocate (iTempFromDates(iUBound))
+    allocate (iTempToDates(iUBound))
 
     iIndex = 0
 
-    do iMyMonth = iTempStartMM, 11
+    do iMyYear=iStartYYYY, iEndYYYY
+
+      iCount = count(iSampleYYYY == iMyYear)
+
+      !> set arbitrary minimum number of days that must be present
+      !> in order to include this year as a date range in our list
+      if (iCount < 350) cycle
 
       iIndex = iIndex + 1
 
-      call assert(iIndex <= ubound(iFromDates,1), "INDEX OUT OF BOUNDS", &
-        trim(__FILE__), __LINE__)
+      iTempFromDates(iIndex) = minval(iSampleDates, dim=1, &
+         mask=(iSampleYYYY == iMyYear .and. iSampleMM == 1))
 
-      iFromDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=1, iYear=iTempStartYYYY)
-      iToDates(iIndex) = julian_day(iMonth=iMyMonth+1, iDay=1, iYear=iTempStartYYYY) - 1
+      iTempToDates(iIndex) = maxval(iSampleDates, 1, &
+         iSampleYYYY == iMyYear .and. iSampleMM == 12)
 
     enddo
 
-    iIndex = iIndex + 1
-    iFromDates(iIndex) = julian_day(iMonth=12, iDay=1, iYear=iTempStartYYYY)
-    iToDates(iIndex) = julian_day(iMonth=12, iDay=31, iYear=iTempStartYYYY)
+  elseif (trim(sListType) ==  "MONTHLY") then
 
-    do iMyYear = iTempStartYYYY + 1, iTempEndYYYY - 1
-      do iMyMonth = 1, 12
+    allocate (iTempFromDates(iUBound * 12))
+    allocate (iTempToDates(iUBound * 12))
 
-        iLastDay = num_days_in_month(iYear=iMyYear, iMonth=iMyMonth)
+    iIndex = 0
+
+    do iMyYear=iStartYYYY, iEndYYYY
+      do iMyMonth=1, 12
+
+        iCount = count(iSampleYYYY == iMyYear .and. iSampleMM == iMyMonth)
+
+        !> set arbitrary minimum number of days that must be present
+        !> in order to include this month and year as a date range in our list
+        if (iCount < 25) cycle
+
         iIndex = iIndex + 1
 
-        call assert(iIndex <= ubound(iFromDates,1), "INDEX OUT OF BOUNDS", &
-          trim(__FILE__), __LINE__)
+        iTempFromDates(iIndex) = minval(iSampleDates, dim=1, &
+           mask=(iSampleYYYY == iMyYear .and. iSampleMM == iMyMonth))
 
-        iFromDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=1, iYear=iMyYear)
-        iToDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=iLastDay, iYear=iMyYear)
+        iTempToDates(iIndex) = maxval(iSampleDates, dim=1, &
+           mask=(iSampleYYYY == iMyYear .and. iSampleMM == iMyMonth))
 
       enddo
-    enddo
-
-    do iMyMonth = 1, iTempEndMM
-
-      iLastDay = num_days_in_month(iYear=iTempEndYYYY, iMonth=iMyMonth)
-      iIndex = iIndex + 1
-
-      call assert(iIndex <= ubound(iFromDates,1), "INDEX OUT OF BOUNDS", &
-        trim(__FILE__), __LINE__)
-
-      iFromDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=1, iYear=iTempEndYYYY)
-      iToDates(iIndex) = julian_day(iMonth=iMyMonth, iDay=iLastDay, iYear=iTempEndYYYY)
-
     enddo
 
   else
@@ -2246,6 +2200,12 @@ subroutine make_date_list(iStartDay, iEndDay, iFromDates, iToDates, sListType)
       trim(__FILE__), __LINE__)
 
   endif
+
+  allocate(iFromDates(iIndex))
+  allocate(iToDates(iIndex))
+
+  iFromDates = iTempFromDates(1:iIndex)
+  iToDates = iTempToDates(1:iIndex)
 
 end subroutine make_date_list
 
