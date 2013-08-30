@@ -1124,7 +1124,7 @@ subroutine prepare_eqn(ifail,nterm,eqntext,iseries)
              aterm(iterm)(3:)='4'                    ! ** SMW Addition
            elseif(aterm(iterm)(3:).eq.'max')then     ! ** SMW Addition
              aterm(iterm)(3:)='5'                    ! ** SMW Addition
-           elseif(aterm(iterm)(3:).eq.'sum')then     ! ** SMW Addition
+           elseif(aterm(iterm)(3:).eq.'obj_fun_value')then     ! ** SMW Addition
              aterm(iterm)(3:)='6'                    ! ** SMW Addition
            elseif(aterm(iterm)(3:).eq.'count')then   ! ** SMW Addition
              aterm(iterm)(3:)='7'                    ! ** SMW Addition

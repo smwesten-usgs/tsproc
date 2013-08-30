@@ -32,8 +32,8 @@ subroutine pest_files(ifail,lastblock)
        real sweightmin(MAXSERIES),sweightmax(MAXSERIES),stweightmin(MAXSTABLE), &
        stweightmax(MAXSTABLE),vtweightmin(MAXVTABLE),vtweightmax(MAXVTABLE), &
        dtweightmin(MAXDTABLE),dtweightmax(MAXDTABLE),gtweightmin(MAXGTABLE),gtweightmax(MAXGTABLE)
-       double precision dval,dtempx
-       real (kind=T_DBL), dimension(:), allocatable :: tempvals
+       double precision dval,dtempx, sse, obj_fun_value, delta2
+       real (kind=T_DBL), dimension(:), allocatable :: tempobsvals, tempsimvals
        character*1 aa
        character*3 auiaa
        character (len=iTSNAMELENGTH) :: aoname,amname,anum,atrans
@@ -1910,29 +1910,36 @@ subroutine pest_files(ifail,lastblock)
          nsterm=series_g(io)%nterm
          aname=series_g(im)%name
 
-         allocate(tempvals(nsterm))
+         allocate(tempobsvals(nsterm))
+         allocate(tempsimvals(nsterm))
 
          if (series_g(io)%lIsSinglePrecision) then
-           tempvals = real(series_g(io)%val, kind=T_DBL)
+           tempobsvals = real(series_g(io)%val, kind=T_DBL)
+           tempsimvals = real(series_g(im)%val, kind=T_DBL)
          else
-           tempvals = series_g(io)%dpval
+           tempobsvals = series_g(io)%dpval
+           tempsimvals = series_g(im)%dpval
          endif
-
 
          tempmean = 0.
          m2 = 0.
+         sse = 0.
 
          do lc = 1,nsterm
-           delta = tempvals(lc) - tempmean
+           delta = tempobsvals(lc) - tempmean
+           delta2 = tempobsvals(lc) - tempsimvals(lc)
            tempmean = tempmean + delta / real(lc, kind=8)
-           m2 = m2 + delta * ( tempvals(lc) - tempmean )
+           sse = sse + delta2**2
+           m2 = m2 + delta * ( tempobsvals(lc) - tempmean )
          enddo
+
+         obj_fun_value = sqrt(sse)
 
          ! SMW additions August 2013
          dpCount = real(nsterm, kind=8)
-         dpSum = sum( tempvals )
-         dpMin = minval( tempvals )
-         dpMax = maxval( tempvals )
+         dpSum = sum( tempobsvals )
+         dpMin = minval( tempobsvals )
+         dpMax = maxval( tempobsvals )
          dpMean = tempmean
          dpVariance = m2 / (nsterm -1)
 
@@ -1972,7 +1979,7 @@ subroutine pest_files(ifail,lastblock)
            do iterm =1,nterm
              if(aterm(iterm)(1:3).eq.'$~$') then
                call char2num(ierr,aterm(iterm)(4:),isnum)
-               rterm(iterm)=tempvals(j)
+               rterm(iterm)=tempobsvals(j)
                aterm(iterm)='~!~'
              end if
            end do
@@ -1981,7 +1988,7 @@ subroutine pest_files(ifail,lastblock)
 
            do iterm =1,nterm
              if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(tempvals(j))
+               rterm(iterm)=abs(tempobsvals(j))
                aterm(iterm)='~!~'
 
              elseif(aterm(iterm)(1:3).eq.'@_4') then       ! min
@@ -1992,8 +1999,8 @@ subroutine pest_files(ifail,lastblock)
                rterm(iterm)=dpMax
                aterm(iterm)='~!~'
 
-             elseif(aterm(iterm)(1:3).eq.'@_6') then       ! sum
-               rterm(iterm)=dpSum
+             elseif(aterm(iterm)(1:3).eq.'@_6') then       ! obj fun value
+               rterm(iterm)=obj_fun_value
                aterm(iterm)='~!~'
 
              elseif(aterm(iterm)(1:3).eq.'@_7') then       ! count
@@ -2032,11 +2039,12 @@ subroutine pest_files(ifail,lastblock)
            if(ierr.ne.0) go to 9800
            if(dval.lt.weightmin)dval=weightmin
            if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),tempvals(j),dval,trim(series_g(im)%name)
+           write(iunit,1900) trim(aname),tempobsvals(j),dval,trim(series_g(im)%name)
 1900       format(a,t22,1pg14.7,t40,1pg12.6,2x,a)
          end do
 
-         if (allocated(tempvals)) deallocate(tempvals)
+         if (allocated(tempobsvals)) deallocate(tempobsvals)
+         if (allocated(tempsimvals)) deallocate(tempsimvals)
 
        end do
 
