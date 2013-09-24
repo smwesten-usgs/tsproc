@@ -34,18 +34,18 @@ subroutine pest_files(ifail,lastblock)
        dtweightmin(MAXDTABLE),dtweightmax(MAXDTABLE),gtweightmin(MAXGTABLE),gtweightmax(MAXGTABLE)
        double precision dval,dtempx, sse, obj_fun_value, delta2
        real (kind=T_DBL), dimension(:), allocatable :: tempobsvals, tempsimvals
-       character*1 aa
-       character*3 auiaa
-       character (len=iTSNAMELENGTH) :: aoname,amname,anum,atrans
-       character*15 aline,avariable
-       character*30 aoption,correct_keyword,last_keyword,atemp,otherblock,aname
-       character*120 pardatfile,pestctlfile,instructfile,modcomline,bstring,cstring, &
+       character(1)aa
+       character(3)auiaa
+       character(len=iTSNAMELENGTH) :: aoname,amname,anum,atrans
+       character(15)aline,avariable
+       character(30)aoption,correct_keyword,last_keyword,atemp,otherblock,aname
+       character(120)pardatfile,pestctlfile,instructfile,modcomline,bstring,cstring, &
        micactlfile,pest2micacom
-       character*25 acontext(MAXCONTEXT)
-       character*12 basename(MAXSERIES+MAXVTABLE+MAXDTABLE+MAXGTABLE),sbasename(MAXSTABLE), &
+       character(25)acontext(MAXCONTEXT)
+       character(12)basename(MAXSERIES+MAXVTABLE+MAXDTABLE+MAXGTABLE),sbasename(MAXSTABLE), &
                     obgnme(MAXSERIES+MAXSTABLE+MAXVTABLE+MAXDTABLE+MAXGTABLE)
-       character*120 tempfile(MAXTEMPFILE),modfile(MAXTEMPFILE)
-       character*150 sequation(MAXSERIES),stequation(MAXSTABLE),vtequation(MAXVTABLE), &
+       character(120)tempfile(MAXTEMPFILE),modfile(MAXTEMPFILE)
+       character(150)sequation(MAXSERIES),stequation(MAXSTABLE),vtequation(MAXVTABLE), &
                      dtequation(MAXDTABLE),gtequation(MAXGTABLE),eqntext
 
 ! -- Variable used for dealing with parameter groups.
@@ -53,9 +53,9 @@ subroutine pest_files(ifail,lastblock)
        integer                   :: igp,f_numpargp,npargp
        real,         allocatable :: f_derinc(:),f_derinclb(:),f_derincmul(:), derinc(:), &
                                     derinclb(:),derincmul(:)
-       character*14              :: apargp
-       character*120             :: pargroupfile
-       character*14, allocatable :: f_pargpnme(:),f_inctyp(:),f_forcen(:),f_dermthd(:), &
+       character(14)             :: apargp
+       character(120)            :: pargroupfile
+       character(14), allocatable :: f_pargpnme(:),f_inctyp(:),f_forcen(:),f_dermthd(:), &
                                     forcen(:),dermthd(:),pargpnme(:),inctyp(:)
 
 ! -- Variable used for dealing with parameter data.
@@ -64,14 +64,12 @@ subroutine pest_files(ifail,lastblock)
        real, allocatable         :: f_parval1(:),f_parlbnd(:),f_parubnd(:),f_scale(:), &
                                     f_offset(:),parval1(:),parlbnd(:),parubnd(:),      &
                                     scale(:),offset(:)
-       character*1               :: pardelim
-       character*12              :: aapar
-       character*12              :: apar(MAXPAR)
-       character*14, allocatable :: f_parnme(:),f_parchglim(:),f_pargp(:), &
+       character(1)              :: pardelim
+       character(12)             :: aapar
+       character(12)             :: apar(MAXPAR)
+       character(14), allocatable :: f_parnme(:),f_parchglim(:),f_pargp(:), &
                                     parchglim(:),pargp(:)
-       character*19, allocatable :: f_partrans(:),partrans(:)
-
-       integer system
+       character(19), allocatable :: f_partrans(:),partrans(:)
 
 ! -- Variables for use in calculating series stats as componenta of a weight equation
 
@@ -909,7 +907,7 @@ subroutine pest_files(ifail,lastblock)
                go to 9800
              end if
            end do
-1079       continue
+! 1079       continue
            do j=1,iodtable
              if(im.eq.iOutDtable_g(j)) go to 1078
            end do
@@ -948,7 +946,7 @@ subroutine pest_files(ifail,lastblock)
                go to 9800
              end if
            end do
-3079       continue
+! 3079       continue
            do j=1,iogtable
              if(im.eq.iOutGtable_g(j)) go to 3078
            end do
@@ -2475,7 +2473,7 @@ subroutine pest_files(ifail,lastblock)
          write(itempunit,'(a)') '1'
          write(itempunit,'(a)') trim(sString_g)
          close(unit=itempunit)
-         ierr = system(trim(pest2micacom)//' < t###.### > nul')
+         call execute_command_line (trim(pest2micacom)//' < t###.### > nul')
          inquire(file=micactlfile,exist=lexist)
          if(.not.lexist)then
            write(amessage,2480)
@@ -2571,11 +2569,11 @@ subroutine write_list_output(ifail)
        hhs2,nns2,sss2,jstable,jvtable,jdtable,iseries,idtable,istable,ivtable, &
        ictable,jctable,igtable,jgtable
        real totim
-       character*3 aaa
+       character(3)aaa
        character (len=iTSNAMELENGTH) :: aname,sformat,atemp
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
        character (len=10) :: sDateStr
 
        ifail=0
@@ -2825,11 +2823,11 @@ subroutine write_list_output(ifail)
 
                if (series_g(j)%lIsSinglePrecision) then
                  write(LU_OUT,fmt="(1x,a,t20,a10,3x,i2.2,':',i2.2,':',   &
-                    i2.2,3x,g16.9)")  &
+                    & i2.2,3x,g16.9)")  &
                     trim(aname),sDateStr,hhh,mmm, sss,series_g(j)%val(iterm)
                else
                  write(LU_OUT,fmt="(1x,a,t20,a10,3x,i2.2,':',i2.2,':',   &
-                    i2.2,3x,g18.13)")  &
+                    & i2.2,3x,g18.13)")  &
                     trim(aname),sDateStr,hhh,mmm, sss,series_g(j)%dpval(iterm)
                endif
 

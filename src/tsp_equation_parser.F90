@@ -17,16 +17,16 @@ subroutine equation(ifail)
        integer, intent(out)   :: ifail
 
        integer icontext,ierr,ieqn,ncl,nterm,i,nser,isnum,j,iser,k,nsterm,iterm,nnterm, &
-               dd,mm,yy,nn,ixcon,ddx,mmx,yyx,hhx,nnx,ssx,idx,nex,sex,lnx,lnxx,ixcount
+               nn,ixcon,ddx,mmx,yyx,hhx,nnx,ssx,idx,nex,sex,lnx,lnxx,ixcount
        integer serno(maxeqnser)
        real rtime
        double precision dval,dtempx
-       character*1   aa
+       character(1)  aa
        character (len=iTSNAMELENGTH) ::  aname
-       character*15  aline
-       character*25  aoption,adate_atime
-       character*300 eqntext
-       character*25  acontext(MAXCONTEXT)
+       character(15) aline
+       character(25) aoption,adate_atime
+       character(300)eqntext
+       character(25) acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='SERIES_EQUATION'
@@ -427,10 +427,10 @@ end subroutine equation
       INTEGER IFAIL,MAXTERM,NTERM,NFUNCT,NOPER,ierr,itype
       INTEGER ICOUNT,NB,I,JFAIL,ITERM,J,IIFUN,NEG
       double precision rterm(maxterm)
-      CHARACTER*30 ATEMP
-      CHARACTER*1 AA
-      CHARACTER*6 AATERM
-      CHARACTER*10 BB
+      CHARACTER(30)ATEMP
+      CHARACTER(1)AA
+      CHARACTER(6)AATERM
+      CHARACTER(10)BB
       CHARACTER*(*) ATERM(MAXTERM),BTERM(MAXTERM)
       CHARACTER*(*) eqntext
       CHARACTER*(*) FUNCT(NFUNCT)
@@ -751,7 +751,7 @@ end subroutine equation
       INTEGER IFAIL,NTERM,ITERM,J,JERR,NB,is,itype
       DOUBLE PRECISION DTEMP
       character (len=iTSNAMELENGTH) :: as
-      CHARACTER*25 AAPAR
+      CHARACTER(25)AAPAR
 
       IFAIL=0
       DO 200 ITERM=1,NTERM
@@ -812,8 +812,8 @@ end subroutine equation
       INTEGER IORDER(MAXTERM)
       double precision rterm(maxterm)
       DOUBLE PRECISION DVAL,DTEMP1,DTEMP2
-      CHARACTER*1 AA
-      CHARACTER*6 AFUNCT
+      CHARACTER(1)AA
+      CHARACTER(6)AFUNCT
       CHARACTER*(*) ATERM(MAXTERM),BTERM(MAXTERM)
       CHARACTER*(*) OPERAT(NOPER),FUNCT(NFUNCT)
 
@@ -1049,8 +1049,8 @@ subroutine prepare_eqn(ifail,nterm,eqntext,iseries)
 
        integer ierr,iterm,k,isnum,i,ddx,mmx,yyx,hhx,nnx,ssx,idx,nex,sex,lnx
        double precision dtempx
-       character*1 aa
-       character*25 adate_atime
+       character(1)aa
+       character(25)adate_atime
 
        ifail=0
        call parse(ierr,MAXTERM,nterm,noper,eqntext,aterm,bterm,nfunct,funct,  &

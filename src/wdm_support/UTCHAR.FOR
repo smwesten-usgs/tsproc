@@ -12,7 +12,7 @@ C     to a character variable of length LEN.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER       LENA, LENV
-      CHARACTER*1   CARY(LENA)
+      CHARACTER(1)  CARY(LENA)
       CHARACTER*(*) CVAR
 C
 C     + + + ARGUMENT DEFINITIONS + + +
@@ -23,7 +23,7 @@ C     CVAR   - output character variable of length LENV
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     L, L1
-      CHARACTER*1 BLNK
+      CHARACTER(1)BLNK
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA  BLNK / ' ' /
@@ -64,7 +64,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN,ERRFLG
       REAL        RVAL
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array
@@ -117,7 +117,7 @@ C     Valid characters are '0' - '9', '+', and '-'.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN,ERRFLG,IVAL
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array
@@ -129,7 +129,7 @@ C              1 - unsuccessful
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     DIG,I,SIGN
-      CHARACTER*1 CDIG
+      CHARACTER(1)CDIG
 C
 C     + + + FUNCTIONS + + +
       INTEGER     CHRDIG
@@ -182,7 +182,7 @@ C     is no match.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN,NSTR
-      CHARACTER*1 STR1(LEN),STR2(LEN,NSTR)
+      CHARACTER(1)STR1(LEN),STR2(LEN,NSTR)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array
@@ -224,7 +224,7 @@ C     Copy LEN characters from array STR1 to array STR2.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STR1(LEN),STR2(LEN)
+      CHARACTER(1)STR1(LEN),STR2(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character arrays
@@ -256,7 +256,7 @@ C     Trailing blanks are treated as a zero.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of array
@@ -269,7 +269,7 @@ C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     CHKORD(6,6),ERFLG,EXPFLG,KIND,OKIND,POS,FRCFLG
       REAL        DECSGN,EXPSGN,EXPON,FRC,SUM,TEN,TVAL,ERRREA
-      CHARACTER*1 DIG
+      CHARACTER(1)DIG
 C
 C     + + + FUNCTIONS + + +
       REAL      RNOP
@@ -434,7 +434,7 @@ C     are ignored.  Trailing blanks are treated as a zero.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of array
@@ -445,9 +445,9 @@ C     numeric constants
       INCLUDE 'CONST.INC'
 C
 C     + + + LOCAL VARIABLES + + +
-      REAL*8      DECSGN,EXPSGN,EXPON,FRC,SUM,TEN,TVAL
+      REAL(8)     DECSGN,EXPSGN,EXPON,FRC,SUM,TEN,TVAL
       INTEGER     CHKORD(6,6),ERFLG,EXPFLG,KIND,OKIND,POS,FRCFLG
-      CHARACTER*1 DIG
+      CHARACTER(1)DIG
       DOUBLE PRECISION  ERRREA
 C
 C     + + + FUNCTIONS + + +
@@ -605,7 +605,7 @@ C     character in the array is set to blank.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN,POS
-      CHARACTER*1 STRING(LEN)
+      CHARACTER(1)STRING(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array
@@ -640,14 +640,14 @@ C     Convert a single character to an integer. Valid characters
 C     are '0' - '9'.  Return -1 for an invalid character.
 C
 C     + + + DUMMY ARGUMENTS + + +
-      CHARACTER*1 CHR
+      CHARACTER(1)CHR
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     CHR    - a single character
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I
-      CHARACTER*1 TDIG(10)
+      CHARACTER(1)TDIG(10)
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA TDIG  /'0','1','2','3','4','5','6','7','8','9'/
@@ -677,7 +677,7 @@ C     positions COL thru LEN-1 one position to the right.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN,COL
-      CHARACTER*1 CHAR,STRING(LEN)
+      CHARACTER(1)CHAR,STRING(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - output length of character string
@@ -722,7 +722,7 @@ C     Trailing blanks are treated as a zero.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array
@@ -756,7 +756,7 @@ C     a zero if all blanks, otherwise return a one.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 CBUF(LEN)
+      CHARACTER(1)CBUF(LEN)
 C
 C     + + + ARGUMENT DEFINITION + + +
 C     LEN    - size of character array
@@ -790,8 +790,8 @@ C     are '0' - '9', '+', '-', '.', 'D', and 'E'.  Leading
 C     blanks are ignored.  Trailing blanks are treated as 0.
 C
 C     + + + DUMMY ARGUMENTS + + +
-      INTEGER*4     ERRINT,LEN
-      CHARACTER*1 STR(LEN)
+      INTEGER(4)    ERRINT,LEN
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     ERRINT - value to be returned fo an invalid array
@@ -800,7 +800,7 @@ C     STR    - character array containing an integer value
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     DIG,I,SIGN,ITMP
-      CHARACTER*1 CDIG
+      CHARACTER(1)CDIG
       LOGICAL     NEARMAX
 C
 C     + + + FUNCTIONS + + +
@@ -876,7 +876,7 @@ C     Trailing blanks are treated as 0.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array
@@ -910,7 +910,7 @@ C     Center the characters within the array TITLE.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 TITLE(LEN)
+      CHARACTER(1)TITLE(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array, 1 <= LEN <= 132
@@ -918,7 +918,7 @@ C     TITLE  - character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     L,IE,IS,I,J,K,B,TLEN
-      CHARACTER*1 BUFF(132),BLNK
+      CHARACTER(1)BUFF(132),BLNK
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA BLNK/' '/
@@ -972,7 +972,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER       LENV, LENA
       CHARACTER*(*) CVAR
-      CHARACTER*1   CARY(LENA)
+      CHARACTER(1)  CARY(LENA)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LENV   - length of input character variable
@@ -982,7 +982,7 @@ C     CARY   - output character array of size LENA
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   L, L1
-      CHARACTER*1 BLNK
+      CHARACTER(1)BLNK
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA  BLNK  / ' ' /
@@ -1019,7 +1019,7 @@ C     Put a date into a character array.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     YR, MO, DY, OLEN
-      CHARACTER*1 DBUFF(10)
+      CHARACTER(1)DBUFF(10)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     YR     - year
@@ -1030,7 +1030,7 @@ C     DBUFF  - output character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     LEN, LOC, JUST
-      CHARACTER*1 SLSH,BLNK
+      CHARACTER(1)SLSH,BLNK
 C
 C     + + + EXTERNALS + + +
       EXTERNAL    ZIPC, INTCHR
@@ -1079,7 +1079,7 @@ C     and seconds are all zero, the format is 1986 FEB. 14.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     DATE(6),LEN,ERRCOD
-      CHARACTER*1 DSTRNG(21)
+      CHARACTER(1)DSTRNG(21)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     DATE   - date
@@ -1099,7 +1099,7 @@ C              returned
 C
 C     + + +   LOCAL VARIABLES   + + +
       INTEGER     JUST,OLEN,LOC,MO,J
-      CHARACTER*1 MOCHAR(39),BLNK
+      CHARACTER(1)MOCHAR(39),BLNK
 C
 C     + + + FUNCTIONS + + +
       INTEGER     DAYMON
@@ -1221,7 +1221,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER      LENGTH, JUST, JLEN
       REAL         REAIN
-      CHARACTER*1  STR(LENGTH)
+      CHARACTER(1) STR(LENGTH)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     REAIN  - real value to be converted to a character string
@@ -1241,9 +1241,9 @@ C     + + + LOCAL VARIABLES + + +
       INTEGER      I0, I1, I2, I, J, K, L, M, PREC, EXPO, WHDIGS, 
      $             EXDIGS, FDIGS, NOCNT, KLEN
       REAL         R1, R2, R3, ARTMP, RSUB, MINFIX, MAXFIX, X
-      CHARACTER*1  FMTBUF(12), BUF(79),  ZERO,  BLNK,  POINT,  STAR
-      CHARACTER*12 FMT
-      CHARACTER*79 BUFSTR
+      CHARACTER(1) FMTBUF(12), BUF(79),  ZERO,  BLNK,  POINT,  STAR
+      CHARACTER(12)FMT
+      CHARACTER(79)BUFSTR
       LOGICAL      FLOAT, FRAC, NEG, KILL, NOFIT
 C
 C     + + + LOCAL DEFINITIONS + + +
@@ -1693,7 +1693,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER      LENGTH, JUST, JLEN
       DOUBLE PRECISION  DPRIN
-      CHARACTER*1  STR(LENGTH)
+      CHARACTER(1) STR(LENGTH)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     DPRIN  - double precision value to be converted to a character string
@@ -1713,9 +1713,9 @@ C     + + + LOCAL VARIABLES + + +
       INTEGER      I0, I1, I2, I, J, K, L, M, PREC, EXPO, WHDIGS, 
      $             EXDIGS, FDIGS, NOCNT, KLEN
       DOUBLE PRECISION  R1, R2, R3, ARTMP, RSUB, MINFIX, MAXFIX, X
-      CHARACTER*1  FMTBUF(12), BUF(79),  ZERO,  BLNK,  POINT,  STAR
-      CHARACTER*12 FMT
-      CHARACTER*79 BUFSTR
+      CHARACTER(1) FMTBUF(12), BUF(79),  ZERO,  BLNK,  POINT,  STAR
+      CHARACTER(12)FMT
+      CHARACTER(79)BUFSTR
       LOGICAL      FLOAT, FRAC, NEG, KILL, NOFIT
 C
 C     + + + LOCAL DEFINITIONS + + +
@@ -2229,7 +2229,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN,SIGDIG,DECPLA
       REAL        REAIN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     REAIN  - real value to be converted to a character array
@@ -2246,16 +2246,16 @@ C     + + + LOCAL VARIABLES + + +
       INTEGER      I,J,K,L,JUST,TSDIG,DPTFG,LDZRO,ITMP,MCRY,FORCE,
      1             LDECPL,EXPFLG,FRSTD,L20,L1
       REAL         RWRIT
-      CHARACTER*20 UBBUF
-      CHARACTER*9  UFMTL
-      CHARACTER*1  UFMT(9),USBUF(20),C1
+      CHARACTER(20)UBBUF
+      CHARACTER(9) UFMTL
+      CHARACTER(1) UFMT(9),USBUF(20),C1
 C
 C     + + + EQUIVALENCES + + +
       EQUIVALENCE (UBBUF,USBUF),(UFMTL,UFMT)
 C
 C     + + + FUNCTIONS + + +
       INTEGER      CHRDIG
-      CHARACTER*1  DIGCHR
+      CHARACTER(1) DIGCHR
 C
 C     + + + INTRINSICS + + +
       INTRINSIC   ABS
@@ -2399,7 +2399,7 @@ C
 C
 C
 C
-      CHARACTER*1 FUNCTION   DIGCHR
+      CHARACTER(1)FUNCTION   DIGCHR
      I                             (DIG)
 C
 C     Convert a single digit to a character.
@@ -2412,7 +2412,7 @@ C     DIG    - digit to be converted to a character
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I
-      CHARACTER*1 TDIG(9),TZERO
+      CHARACTER(1)TDIG(9),TZERO
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA TDIG  /'1','2','3','4','5','6','7','8','9'/
@@ -2443,7 +2443,7 @@ C     flag JUST is zero, otherwise is will be left justified.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LENA,INTIN,JLEN,JUST
-      CHARACTER*1 STRNG(LENA)
+      CHARACTER(1)STRNG(LENA)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     INTIN  - integer value to be converted to a character array
@@ -2456,11 +2456,11 @@ C     STRNG  - output character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,IM,IST,NUMCHR, LEN
-      INTEGER*4   JTMP1,JTMP2,PTEN,CHKSIZ,REMTMP,INTTMP
-      CHARACTER*1 BLNK,ZERO,MINUS,FILCHR,STR(9)
+      INTEGER(4)  JTMP1,JTMP2,PTEN,CHKSIZ,REMTMP,INTTMP
+      CHARACTER(1)BLNK,ZERO,MINUS,FILCHR,STR(9)
 C
 C     + + + FUNCTIONS + + +
-      CHARACTER*1 DIGCHR
+      CHARACTER(1)DIGCHR
 C
 C     + + + INTRINSICS + + +
       INTRINSIC   ALOG10, INT, MOD, REAL
@@ -2565,7 +2565,7 @@ C     excluding trailing blanks.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array
@@ -2602,7 +2602,7 @@ C     Left justify characters in the array TITLE.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 TITLE(LEN)
+      CHARACTER(1)TITLE(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array, 1 <= LEN <= 132
@@ -2610,7 +2610,7 @@ C     TITLE  - character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     L,IS,I,K,TLEN
-      CHARACTER*1 BUFF(132),BLNK
+      CHARACTER(1)BUFF(132),BLNK
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA BLNK/' '/
@@ -2656,7 +2656,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     NUMDSN,DATE(6),WDTH,OLEN,SGFD,DPLA
       REAL        DATA(NUMDSN), THRSH(2)
-      CHARACTER*1 TBUFF(250)
+      CHARACTER(1)TBUFF(250)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     DATE   - date
@@ -2673,7 +2673,7 @@ C     TBUFF  - output character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   I,IPOS,ERRFLG,JUST,J,LEN,ID
-      CHARACTER*1 BLNK, STAR
+      CHARACTER(1)BLNK, STAR
 C
 C     + + + EXTERNALS + + +
       EXTERNAL   DATLST, DECCHR, DECCHX
@@ -2736,7 +2736,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     NUMDSN,DATE(6),WDTH,OLEN,SGFD,DPLA,DTFG(NUMDSN)
       REAL        DATA(NUMDSN)
-      CHARACTER*1 TBUFF(250)
+      CHARACTER(1)TBUFF(250)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     DATE   - date
@@ -2753,7 +2753,7 @@ C     TBUFF  - output character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   I,IPOS,ERRFLG,JUST,J,LEN,ID
-      CHARACTER*1 BLNK
+      CHARACTER(1)BLNK
 C
 C     + + + EXTERNALS + + +
       EXTERNAL   DATLST, DECCHR, DECCHX, ZIPC
@@ -2811,7 +2811,7 @@ C     found, a zero is returned.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN,FLEN
-      CHARACTER*1 STR(LEN),FSTR(FLEN)
+      CHARACTER(1)STR(LEN),FSTR(FLEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array being searched
@@ -2855,7 +2855,7 @@ C     A value of 1 is returned for all blanks.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     NPTS
-      CHARACTER*1 BUFF(NPTS)
+      CHARACTER(1)BUFF(NPTS)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     NPTS   - size of the character array
@@ -2863,7 +2863,7 @@ C     BUFF   - character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     K,KE,KB
-      CHARACTER*1 BLNK
+      CHARACTER(1)BLNK
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA BLNK/' '/
@@ -2946,7 +2946,7 @@ C     Write a character array to the given file unit.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     FUNIT,LEN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     FUNIT  - Fortran unit number for output
@@ -2996,7 +2996,7 @@ C     STRING - character variable
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,DONFG
-      CHARACTER*1 NULL,CTMP
+      CHARACTER(1)NULL,CTMP
 C
 C     + + + INTRINSICS + + +
       INTRINSIC   LEN, CHAR
@@ -3041,7 +3041,7 @@ C     STRING - character variable having blanks removed
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   I,J
-      CHARACTER TEMP*255
+      CHARACTER(255) TEMP
 C
 C     + + + INTRINSICS + + +
       INTRINSIC   LEN
@@ -3077,7 +3077,7 @@ C     To convert a character string from lower case to upper case
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STRING(LEN)
+      CHARACTER(1)STRING(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - length of character string
@@ -3115,7 +3115,7 @@ C     character array of first non-blank character.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 CBUF(LEN)
+      CHARACTER(1)CBUF(LEN)
 C
 C     + + + ARGUMENT DEFINITION + + +
 C     LEN    - size of character array
@@ -3149,7 +3149,7 @@ C     Right justify characters in the array TITLE.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 TITLE(LEN)
+      CHARACTER(1)TITLE(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array, 1 <= LEN <= 132
@@ -3157,7 +3157,7 @@ C     TITLE  - character array
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     IS,I,TLEN,I1,I2
-      CHARACTER*1 BLNK
+      CHARACTER(1)BLNK
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA BLNK/' '/
@@ -3203,7 +3203,7 @@ C     string is returned as it was entered.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 STR(LEN)
+      CHARACTER(1)STR(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - length of the string
@@ -3215,7 +3215,7 @@ C     + + + PARAMETERS + + +
 C 
 C     + + + LOCAL VARIABLES + + + 
       INTEGER   LOC,I1,NEG,SHFT,OLEN,I,IDIG,IOLD,INEW,JUST
-      CHARACTER*1 TEMP(MAXTMP),DOT,MINUS,BLNK
+      CHARACTER(1)TEMP(MAXTMP),DOT,MINUS,BLNK
 C
 C     + + + FUNCTIONS + + + 
       INTEGER  LENSTR, STRFND

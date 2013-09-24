@@ -2,7 +2,7 @@ C     utwdt1.f 2.1 9/4/91
 C
 C
 C
-      INTEGER*4 FUNCTION   WDPTCL
+      INTEGER(4)FUNCTION   WDPTCL
      I                           (PREC,POFF)
 C
 C     + + + PURPOSE + + +
@@ -17,7 +17,7 @@ C     PREC   - record number
 C     POFF   - offset within the record
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4 I
+      INTEGER(4)I
 C
 C     + + + END SPECIFICATIONS + + +
 C
@@ -37,7 +37,7 @@ C     + + + PURPOSE + + +
 C     split up a pointer into record number and offset within record.
 C
 C     + + + DUMMY ARGUMENTS + + +
-      INTEGER*4 PTR
+      INTEGER(4)PTR
       INTEGER   PREC,POFF
 C
 C     + + + ARGUMENT DEFINITIONS + + +
@@ -72,7 +72,7 @@ C     Split up a block control word for a time-series type data set
 C     to determine the information stored in it.
 C
 C     + + + DUMMY ARGUMENTS + + +
-      INTEGER*4 BCW,NOV
+      INTEGER(4)BCW,NOV
       INTEGER   TSTEP,TCODE,COMPCD,QUALCD
 C
 C     + + + ARGUMENT DEFINITIONS + + +
@@ -90,7 +90,7 @@ C              2 - uncompressed block of data
 C     QUALCD - quality code, 0 <= QUALCD <= 31
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4 TMP
+      INTEGER(4)TMP
 C
 C     + + + INTRINSICS + + +
       INTRINSIC   MOD
@@ -119,7 +119,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WBCWCL
+      INTEGER(4)FUNCTION   WBCWCL
      I                           (NOV,TSTEP,TCODE,COMPCD,QUALCD)
 C
 C     + + + PURPOSE + + +
@@ -128,7 +128,7 @@ C     Returns a 0 if any one of the components is invalid.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   TSTEP,TCODE,COMPCD,QUALCD
-      INTEGER*4 NOV
+      INTEGER(4)NOV
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     NOV    - number of data values in the block
@@ -144,7 +144,7 @@ C              2 - uncompressed block of data
 C     QUALCD - quality code, 0 <= QUALCD <= 31
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4 BCW
+      INTEGER(4)BCW
 C
 C     + + + END SPECIFICATIONS + + +
 C
@@ -172,7 +172,7 @@ C     + + + PURPOSE + + +
 C     Split up a WDMS date word.
 C
 C     + + + DUMMY ARGUMENTS + + +
-      INTEGER*4 DATWRD
+      INTEGER(4)DATWRD
       INTEGER   DAT(4)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
@@ -198,7 +198,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WDATCL
+      INTEGER(4)FUNCTION   WDATCL
      I                           (DAT)
 C
 C     + + + PURPOSE + + +
@@ -214,7 +214,7 @@ C     DAT    - date (year, month, day, hour)
 C              0 <= hour <= 24
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4   DATWRD,YEAR,MONTH,DAY,HOUR
+      INTEGER(4)  DATWRD,YEAR,MONTH,DAY,HOUR
 C
 C     + + + END SPECIFICATIONS + + +
 C
@@ -237,7 +237,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WTBICL
+      INTEGER(4)FUNCTION   WTBICL
      I                           (MSFLID,MCLU,MGRP)
 C
 C     + + + PURPOSE + + +
@@ -245,7 +245,7 @@ C     Calculate the identifier for a table type data set.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MCLU,MGRP
-      CHARACTER*1 MSFLID(2)
+      CHARACTER(1)MSFLID(2)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MSFLID - message file name id
@@ -253,7 +253,7 @@ C     MCLU   - message file cluster for table
 C     MGRP   - message file group number for table
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4 I
+      INTEGER(4)I
 C
 C     + + + INTRINSICS + + +
       INTRINSIC   ICHAR
@@ -280,7 +280,7 @@ C     data set into its components.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     TABID,MCLU,MGRP
-      CHARACTER*1 MSFLID(2)
+      CHARACTER(1)MSFLID(2)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     TABID  - table identifier
@@ -303,7 +303,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WTBDCL
+      INTEGER(4)FUNCTION   WTBDCL
      I                           (TABIND,NROW,NCOL,NEXT)
 C
 C     + + + PURPOSE + + +
@@ -320,7 +320,7 @@ C     NCOL   - space for each column(words), 0 < NCOL <= 128
 C     NEXT   - amount of table extension space (words), 0 < NEXT <= 255
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4 I
+      INTEGER(4)I
 C
 C     + + + END SPECIFICATIONS + + +
 C
@@ -381,7 +381,7 @@ C     Split up a block control word for time-series type data set.
 C     Adjusts TSTEP and NOV for faster operation, if possible.
 C
 C     + + + DUMMY ARGUMENTS + + +
-      INTEGER*4 BCW,NOV
+      INTEGER(4)BCW,NOV
       INTEGER   TSTEP,TCODE,COMPCD,QUALCD
 C
 C     + + + ARGUMENT DEFINITIONS + + +
@@ -440,7 +440,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WMSBCV
+      INTEGER(4)FUNCTION   WMSBCV
      I                           (CLASS,ID,ORDER,TLEN)
 C
 C     + + + PURPOSE + + +
@@ -464,7 +464,7 @@ C     ORDER  - order of information
 C     TLEN   - total number of characters in the block
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4 I
+      INTEGER(4)I
 C
 C     + + + END SPECIFICATIONS + + +
 C
@@ -523,7 +523,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WMSMNV
+      INTEGER(4)FUNCTION   WMSMNV
      I                           (IVAL)
 C
 C     + + + PURPOSE + + +
@@ -604,7 +604,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WMSPIV
+      INTEGER(4)FUNCTION   WMSPIV
      I                           (IVL1,IVL2)
 C
 C     + + + PURPOSE + + +
@@ -666,7 +666,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WMSP2V
+      INTEGER(4)FUNCTION   WMSP2V
      I                           (FTYP,FLEN,FORDER,FPROT,FCOL)
 C
 C     + + + PURPOSE + + +
@@ -750,7 +750,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WDLICV
+      INTEGER(4)FUNCTION   WDLICV
      I                           (ITYPE,ATT1,ATT2,BLCNT)
 C
 C     + + + PURPOSE + + +
@@ -826,7 +826,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WDLBCV
+      INTEGER(4)FUNCTION   WDLBCV
      I                           (ID,DTYPE,INUM,ILEN)
 C
 C     + + + PURPOSE + + +
@@ -906,7 +906,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WATTCL
+      INTEGER(4)FUNCTION   WATTCL
      I                           (ATTYP,ATLEN,ATUSE,ATUPD)
 C
 C     + + + PURPOSE + + +
@@ -1102,7 +1102,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WSTGCL
+      INTEGER(4)FUNCTION   WSTGCL
      I                           (STMIN,STSEC,TUNITS,TSTEP,NOV)
 C
 C     + + + PURPOSE + + +
@@ -1179,7 +1179,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WMSPOV
+      INTEGER(4)FUNCTION   WMSPOV
      I                           (OPSET,OPSTNO,OPDEF,
      I                            OPWID,OPHIDE,OPBOX)
 C
@@ -1267,7 +1267,7 @@ C
 C
 C
 C
-      INTEGER*4 FUNCTION   WOPWDC
+      INTEGER(4)FUNCTION   WOPWDC
      I                           (IVAL1,IVAL2,IVAL3,IVAL4)
 C
 C     + + + PURPOSE + + +

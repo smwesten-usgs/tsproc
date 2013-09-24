@@ -203,13 +203,13 @@ C     + + + SAVES + + +
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER       PRECFG
-      INTEGER*4     R2PREC,D2PREC,TI
-      REAL*4        R1,R2,R3,R4,  TR
-      REAL*8        D1,D2,D3,D4
+      INTEGER(4)    R2PREC,D2PREC,TI
+      REAL(4)       R1,R2,R3,R4,  TR
+      REAL(8)       D1,D2,D3,D4
 C
 C     + + + FUNCTIONS + + +
-      REAL*4   RNOP
-      REAL*8   DNOP
+      REAL(4)  RNOP
+      REAL(8)  DNOP
 
 C     + + + INTRINSICS + + +
       INTRINSIC  INT,LOG10
@@ -392,7 +392,7 @@ C     RVAL   - real value
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,ILEN
-      CHARACTER*1 STR(20)
+      CHARACTER(1)STR(20)
 C
 C     + + + FUNCTIONS + + +
       INTEGER     LENSTR
@@ -620,7 +620,7 @@ C     Dummy routine to include unix what version information for the
 C     util library.
 C
 C     + + + LOCAL VARIABLES + + +
-      CHARACTER*64  VERSN
+      CHARACTER(64) VERSN
 C
 C     + + + END SPECIFICATIONS + + +
 C

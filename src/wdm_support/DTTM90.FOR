@@ -20,7 +20,7 @@ C              (4) - 2-digit second and 2 blanks
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   VALUES(8)
-      CHARACTER*10 DATE,TIME,ZONE
+      CHARACTER(10)DATE,TIME,ZONE
 C
 C     + + + INTRINSICS + + +
       INTRINSIC DATE_AND_TIME
@@ -62,7 +62,7 @@ C     SC     - second
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   VALUES(8)
-      CHARACTER*10 DATE,TIME,ZONE
+      CHARACTER(10)DATE,TIME,ZONE
 C
 C     + + + INTRINSICS + + +
       INTRINSIC DATE_AND_TIME
@@ -102,7 +102,7 @@ C     DA     - day
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   VALUES(8)
-      CHARACTER*10 DATE,TIME,ZONE
+      CHARACTER(10)DATE,TIME,ZONE
 C
 C     + + + INTRINSICS + + +
       INTRINSIC DATE_AND_TIME
@@ -137,7 +137,7 @@ C     SC     - Number of seconds since minute
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   VALUES(8)
-      CHARACTER*10 DATE,TIME,ZONE
+      CHARACTER(10)DATE,TIME,ZONE
 C
 C     + + + INTRINSICS + + +
       INTRINSIC DATE_AND_TIME

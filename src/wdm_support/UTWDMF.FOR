@@ -166,7 +166,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL,DSN,GNUM,CLASS,ID,ORDER,ILEN,INUM,IFLG
       INTEGER     IVAL(INUM)
-      CHARACTER*1 IBUFF(ILEN)
+      CHARACTER(1)IBUFF(ILEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - Fortran unit number for WDM file
@@ -470,7 +470,7 @@ C     than once if text is multiple lines (e.g. help information).
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL,CTLEN,DREC,DPOS,GLEN
-      CHARACTER*1 IBUFF(CTLEN)
+      CHARACTER(1)IBUFF(CTLEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - Fortran unit number for WDM file
@@ -485,12 +485,12 @@ C     + + + COMMON BLOCKS + + +
 C
 C     + + + SAVES + + +
       INTEGER     DIND
-      CHARACTER*4 CTXT4
+      CHARACTER(4)CTXT4
       SAVE        DIND,CTXT4
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     J,ILEN,RDWRFG,CFLG
-      CHARACTER*1 CNULL
+      CHARACTER(1)CNULL
 C
 C     + + + INTRINSICS + + +
       INTRINSIC  MOD, CHAR
@@ -567,7 +567,7 @@ C     Get one record of text off WDM file.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL,TLEN,LLEN,DREC,DPOS,GLEN,MLEN,OLEN,CONT
-      CHARACTER*1 OBUFF(LLEN)
+      CHARACTER(1)OBUFF(LLEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - Fortran unit number for WDM file
@@ -590,8 +590,8 @@ C     + + + COMMON BLOCKS + + +
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     DONFG,RDWRFG,DIND,INULL,ITMP
-      CHARACTER*1 BLNK,CTMP
-      CHARACTER*4 CTXT4
+      CHARACTER(1)BLNK,CTMP
+      CHARACTER(4)CTXT4
 C
 C     + + + FUNCTIONS + + +
       INTEGER     WDRCGO
@@ -683,12 +683,12 @@ C     + + + COMMON BLOCKS + + +
       INCLUDE 'CFBUFF.INC'
 C
 C     + + + SAVES + + +
-      CHARACTER*4 CTXT4
+      CHARACTER(4)CTXT4
       SAVE        CTXT4
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     DONFG,DIND,INULL,ITMP,CREC
-      CHARACTER*1 CTMP
+      CHARACTER(1)CTMP
 C
 C     + + + FUNCTIONS + + +
       INTEGER     WDRCGO
@@ -770,7 +770,7 @@ C     DPOS   - position of data on data record
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,J,GLEN,MLEN,I256,OLEN,CONT
-      CHARACTER*1 OBUFF(256)
+      CHARACTER(1)OBUFF(256)
 C
 C     + + + FUNCTIONS + + +
       INTEGER     LENSTR

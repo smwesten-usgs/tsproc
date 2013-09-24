@@ -165,7 +165,7 @@ module tsp_main_loop
         WRITE(*, *) 'Something is wrong with the START or END keywords'
         WRITE(*, *) 'at line: ', trim(cline)
         WRITE(*, *) 'at line number: ', kline
-        CALL EXIT(1)
+        STOP 1
       ENDIF
 
       ! -- This is the END of a block to unroll.  Unroll from tmpunit and write to LU_TSPROC_CONTROL.
@@ -250,7 +250,6 @@ module tsp_main_loop
   character (len=*) :: sFilename
   character (len=*) :: sRecfile
 
-  integer (kind=T_INT) :: i
   integer (kind=T_INT) :: ierr
   character (len=256) :: sDateStr, sDateStrPretty
 

@@ -22,10 +22,10 @@ subroutine hydro_events(ifail)
        DA(12),index(10000),npeak
        real twindow,rtemp,tmin,slope1,slope2,rise_lag,fall_lag
        real, dimension(:), allocatable :: tdate,tval !rank 1
-       character*10 aname
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(10)aname
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
        DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0
@@ -365,11 +365,11 @@ subroutine period_stats(ifail)
        DA(12),nvals_mon(12)
        real tpower,rtemp,rvalue,tstat,tmax,tmin,tsum,tsum2,rmean
        real tmax_mon(12),tmin_mon(12),tsum_mon(12),tsum2_mon(12)
-       character*3 aaa
+       character(3)aaa
        character (len=iTSNAMELENGTH) :: aname,abscissa,statistic,period,year_type
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
      DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0
@@ -1107,9 +1107,9 @@ subroutine usgs_hysep(ifail)
        real twindow,rtemp,tarea,rintr
        real, dimension(:), allocatable :: tdate,tval,tbflow !rank 1
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption,hysep_type
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption,hysep_type
+       character(25)acontext(MAXCONTEXT)
      DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0
@@ -1771,9 +1771,9 @@ subroutine hydro_peaks(ifail)
        real twindow,rtemp,tmin,slope1,slope2
        real, dimension(:), allocatable :: tdate,tval !rank 1
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
      DATA DA /31,28,31,30,31,30,31,31,30,31,30,31/
 
        ifail=0

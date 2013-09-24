@@ -27,18 +27,18 @@ module tsp_data_structures
   integer, parameter :: iG_TABLE = 5
 
   ! Define the sizes of base types used in the model
-  integer*2, public, parameter :: T_LOGICAL = 4
-  integer*2, public, parameter :: T_INT = 4
-  integer*2, public, parameter :: T_BYTE = 1
-  integer*2, public, parameter :: T_SHORT = 2
-  integer*2, public, parameter :: T_REAL = SELECTED_REAL_KIND(p=6,r=37)
+  integer(2), public, parameter :: T_LOGICAL = 4
+  integer(2), public, parameter :: T_INT = 4
+  integer(2), public, parameter :: T_BYTE = 1
+  integer(2), public, parameter :: T_SHORT = 2
+  integer(2), public, parameter :: T_REAL = SELECTED_REAL_KIND(p=6,r=37)
 
 ! Define machine-independent sizes for base types
-  integer*2, public, parameter :: T_SGL = SELECTED_REAL_KIND(p=6,r=37)
-!  integer*2, public, parameter :: T_SGL = SELECTED_REAL_KIND(p=13,r=307)
-  integer*2, public, parameter :: T_DBL = SELECTED_REAL_KIND(p=13,r=200)
-  integer*2, public, parameter :: T_CPLX_SGL = KIND((T_SGL, T_SGL))
-  integer*2, public, parameter :: T_CPLX_DBL = KIND((T_DBL, T_DBL))
+  integer(2), public, parameter :: T_SGL = SELECTED_REAL_KIND(p=6,r=37)
+!  integer(2), public, parameter :: T_SGL = SELECTED_REAL_KIND(p=13,r=307)
+  integer(2), public, parameter :: T_DBL = SELECTED_REAL_KIND(p=13,r=200)
+  integer(2), public, parameter :: T_CPLX_SGL = KIND((T_SGL, T_SGL))
+  integer(2), public, parameter :: T_CPLX_DBL = KIND((T_DBL, T_DBL))
 
   ! Some useful typed constants (to ensure accurate computations)
   real (kind=T_SGL), public, parameter :: rZERO = 0.0_T_SGL
@@ -82,7 +82,7 @@ module tsp_data_structures
   type time_series
     logical active
     integer nterm
-    character*2 type
+    character(2)type
     character (len=iTSNAMELENGTH) :: name
 !    integer, dimension(:), pointer :: days
 !    integer, dimension(:), pointer :: secs
@@ -172,7 +172,7 @@ module tsp_data_structures
     logical :: active
     character (len=iTSNAMELENGTH) :: name
     character (len=iTSNAMELENGTH) :: series_name
-    character*7 time_units
+    character(7)time_units
     integer under_over
     integer nterm
     real total_time
@@ -181,6 +181,7 @@ module tsp_data_structures
     real, dimension(:), pointer     :: time
   end type d_table
 
+  save series_g, tempseries_g
   type (time_series) tempseries_g
   type (time_series) series_g(MAXSERIES)
   type (s_table) stable_g(MAXSTABLE)
@@ -192,10 +193,10 @@ module tsp_data_structures
 
   integer LU_TSPROC_CONTROL,LU_OUT
   integer NumProcBloc_g,ILine_g,IProcSetting_g
-  character*25 Context_g
-  character*25 sContextOverride_g
-  character*40 CurrentBlock_g
-  character*120 sInfile_g,sRecfile_g,sOutfile_g,sString_g
+  character(25)Context_g
+  character(25)sContextOverride_g
+  character(40)CurrentBlock_g
+  character(120)sInfile_g,sRecfile_g,sOutfile_g,sString_g
   integer :: tmpunit
 
 ! -- The following variables are global because they are used to exchange information
@@ -210,7 +211,7 @@ module tsp_data_structures
   integer iOutseries_g(MAXSERIES),iOutStable_g(MAXSTABLE),iOutVtable_g(MAXVTABLE), &
           iOutDtable_g(MAXDTABLE),iOutCtable_g(MAXCTABLE), iOutGtable_g(MAXGTABLE)
   character (len=iTSNAMELENGTH) :: sSeriesFormat_g
-  character*120 sListOutputFile_g
+  character(120)sListOutputFile_g
 
 ! -- Following are some parameter definitions related to equations.
 
@@ -228,9 +229,9 @@ module tsp_data_structures
   parameter (MAXEQNSER=25)
 
   integer iorder(MAXTERM)
-  character*1   operat(7)
-  character*6   funct(NFUNCT)
-  character*28  aterm(MAXTERM),bterm(MAXTERM),cterm(MAXTERM)
+  character(1)  operat(7)
+  character(6)  funct(NFUNCT)
+  character(28) aterm(MAXTERM),bterm(MAXTERM),cterm(MAXTERM)
   double precision rterm(MAXTERM), qterm(MAXTERM)
   data funct /'abs   ','acos  ','asin  ','atan  ','cos   ','cosh  ',  &
     'exp   ','log   ','log10 ','sin   ','sinh  ','sqrt  ','tan   ',   &
@@ -327,7 +328,7 @@ module tsp_data_structures
 
    integer, parameter :: iGET_SETTINGS                 = 1
 
-   character*30 sCurrentBlockName
+   character(30)sCurrentBlockName
    integer (kind=T_INT) :: iBlockNumber
 
 ! global parameter for rec file output unit

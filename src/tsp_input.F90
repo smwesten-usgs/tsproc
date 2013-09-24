@@ -21,12 +21,12 @@ contains
        integer jjseries(MAXSERIESREAD)
        integer datcol(MAXSERIESREAD)
        double precision dtime, time_per_day
-       character*15 aline
-       character*25 aoption
-       character*200 afile
-       character*30 atemp
-       character*30 site(MAXSERIESREAD)
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(200)afile
+       character(30)atemp
+       character(30)site(MAXSERIESREAD)
+       character(25)acontext(MAXCONTEXT)
        character (len=iTSNAMELENGTH) :: aname(MAXSERIESREAD)
 
 !       make sure that i have done the right thing changing MAXSERIES to MAXSERIESREAD
@@ -530,13 +530,13 @@ subroutine get_mul_series_statvar(ifail)
        integer datcol(MAXSERIESREAD),locid(MAXSERIESREAD)
        real, allocatable :: rval(:)
        real rtemp
-       character*15 aline,aadate,aatime
-       character*25 aoption
-       character*100 varname
-       character*200 afile
-       character*30 atemp
-       character*50 site(MAXSERIESREAD)
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline,aadate,aatime
+       character(25)aoption
+       character(100)varname
+       character(200)afile
+       character(30)atemp
+       character(50)site(MAXSERIESREAD)
+       character(25)acontext(MAXCONTEXT)
        character (len=iTSNAMELENGTH) :: aname(MAXSERIESREAD)
 
 !       make sure that i have done the right thing changing MAXSERIES to MAXSERIESREAD
@@ -830,9 +830,9 @@ subroutine get_mul_series_statvar(ifail)
 !             end if
            end if
          end do
-390      continue
+! 390      continue
        end do
-400    continue
+! 400    continue
        if(icount.lt.jseries)then
          do i=1,jseries
            if(datcol(i).eq.0)then
@@ -1021,12 +1021,12 @@ subroutine get_mul_series_tetrad(ifail)
        rsecs,nplot,ixcon,mdays,msecs,k,iterm,isplit,iseriesname,jj,kk
        integer jjseries(MAXSERIES),iname(MAXSERIES),iiterm(MAXSERIES)
        real rtemp,rtime
-       character*12 atemp
-       character*15 aline
-       character*25 aoption
-       character*120 afile
-       character*12 wellname(MAXSERIES),varname(MAXSERIES)
-       character*25 acontext(MAXCONTEXT)
+       character(12)atemp
+       character(15)aline
+       character(25)aoption
+       character(120)afile
+       character(12)wellname(MAXSERIES),varname(MAXSERIES)
+       character(25)acontext(MAXCONTEXT)
        character (len=iTSNAMELENGTH) :: aname(MAXSERIES)
 
        ifail=0
@@ -1583,11 +1583,11 @@ subroutine get_mul_series_ssf(ifail)
        integer jjseries(MAXSERIES),iiterm(MAXSERIES)
        double precision dvalue
        character (len=iTSNAMELENGTH) :: bsite,lastsite
-       character*15 aline
-       character*25 aoption
-       character*120 afile
+       character(15)aline
+       character(25)aoption
+       character(120)afile
        character (len=iTSNAMELENGTH) :: site(MAXSERIES)
-       character*25 acontext(MAXCONTEXT)
+       character(25)acontext(MAXCONTEXT)
        character (len=iTSNAMELENGTH) :: aname(MAXSERIES)
 
        ifail=0
@@ -2000,12 +2000,12 @@ subroutine get_plt_series(ifail)
        integer icurve(MAXSERIES),lw(MAXSERIES),rw(MAXSERIES),iiterm(MAXSERIES), &
        jjseries(MAXSERIES)
        real threshold,rtemp
-       character*15 aline
-       character*25 aoption
-       character*120 afile
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(120)afile
+       character(25)acontext(MAXCONTEXT)
        character (len=iTSNAMELENGTH) :: aname(MAXSERIES)
-       character*20 aalabel,alabel(MAXSERIES)
+       character(20)aalabel,alabel(MAXSERIES)
 
        ifail=0
        CurrentBlock_g='GET_SERIES_PLOTGEN'
@@ -2492,11 +2492,11 @@ subroutine get_ssf_series(ifail)
        icontext,nn,ss,i,iunit,begdays,begsecs,enddays,endsecs,iterm,jline,j
        double precision dvalue
        character (len=iTSNAMELENGTH) :: asite,aname,bsite
-       character*15 aline
-       character*20 atemp
-       character*25 aoption
-       character*120 afile
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(20)atemp
+       character(25)aoption
+       character(120)afile
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='GET_SERIES_SSF'
@@ -2836,10 +2836,10 @@ subroutine get_ufore_series(ifail)
        totsecs,secs,days,jj
        real rtemp
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*120 afile,bstring
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(120)afile,bstring
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='GET_SERIES_UFORE_HYDRO'
@@ -3247,15 +3247,15 @@ subroutine get_wdm_series (ifail)
         filter                                                              &
       , fspace                                                              &
       , fval
-    CHARACTER*10                                                            &
+    CHARACTER(10)                                                           &
         aname
-    CHARACTER*15                                                            &
+    CHARACTER(15)                                                           &
         aline
-    CHARACTER*25                                                            &
+    CHARACTER(25)                                                           &
         aoption
-    CHARACTER*64                                                            &
+    CHARACTER(64)                                                           &
         afile
-    CHARACTER*25                                                            &
+    CHARACTER(25)                                                           &
         acontext (maxcontext)
     INTEGER, EXTERNAL::                                                     &
         timchk
