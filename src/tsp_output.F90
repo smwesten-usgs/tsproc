@@ -3116,7 +3116,7 @@ subroutine write_list_output(ifail)
             write(LU_OUT,920) dtable_g(jdtable)%flow(j),  &
             dtable_g(jdtable)%tdelay(j), dtable_g(jdtable)%time(j), &
             dtable_g(jdtable)%time(j)/totim
-920         format(t2,g14.10,t20,g14.10,t40,g14.10,t63,g14.10)
+920         format(t2,g14.7,t20,g14.7,t40,g14.7,t63,g14.7)
           end do
        end do
 1100   continue
