@@ -1844,7 +1844,7 @@ subroutine pest_files(ifail,lastblock)
          write(iunit,1633) npar,eigthresh
 1633     format(i6,2x,1pg13.7)
          write(iunit,1634)
-1634     format('0')
+1634     format('1')
        end if
 
 ! -- The "* parameter groups" section of the PEST control file is now written.
@@ -1854,7 +1854,7 @@ subroutine pest_files(ifail,lastblock)
        do igp=1,npargp
          write(iunit,1640)trim(pargpnme(igp)),trim(inctyp(igp)),derinc(igp), &
          derinclb(igp),trim(forcen(igp)),derincmul(igp), trim(dermthd(igp))
-1640     format(a,t14,a,t27,1pg10.4,t39,1pg10.4,t51,a,t62,1pg10.4,2x,a)
+1640     format(a,t14,a,t27,1pg12.5,t39,1pg12.5,t51,a,t62,1pg12.5,2x,a)
        end do
 
 ! -- The "* parameter data" section of the PEST control file is now written.
@@ -1870,8 +1870,8 @@ subroutine pest_files(ifail,lastblock)
          write(iunit,1660) trim(apar(ipar)),trim(atrans),   &
          trim(parchglim(ipar)),parval1(ipar), &
          parlbnd(ipar),parubnd(ipar),trim(pargp(ipar)),scale(ipar),offset(ipar)
-1660     format(a,t14,a,t21,a,t33,1pg12.5,t47,1pg12.5,t61,1pg12.5,t75,a,t89,1pg10.4,  &
-         t101,1pg10.4,t113,'  1')
+1660     format(a,t14,a,t21,a,t33,1pg12.5,t47,1pg12.5,t61,1pg12.5,t75,a,t89,1pg12.5,  &
+         t101,1pg12.5,t113,'  1')
        end do
        do ipar=1,npar
          if(partrans(ipar)(1:4).eq.'tied')then

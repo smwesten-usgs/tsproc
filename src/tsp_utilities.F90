@@ -496,13 +496,17 @@ subroutine linesplit(ifail,num)
      return
    end if
 
-5       if(nw.eq.num) return
+5  if(nw.eq.num) return
+
+   ! scan through string; jump to line 20 if space, comma or tab found
    do i=j+1,nblc
      if(index(aspace,cline(i:i)).eq.0) go to 20
    end do
    ifail=1
    return
-20      nw=nw+1
+
+   ! scan for beginning (LEFT) character of current word
+20 nw=nw+1
    left_word(nw)=i
    do i=left_word(nw)+1,nblc
      if(index(aspace,cline(i:i)).ne.0) go to 40
@@ -510,8 +514,11 @@ subroutine linesplit(ifail,num)
    right_word(nw)=nblc
    if(nw.lt.num) ifail=1
    return
-40      right_word(nw)=i-1
+
+   ! record ending character (RIGHT) of current word
+40 right_word(nw)=i-1
    j=right_word(nw)
+
    go to 5
 
 end subroutine linesplit

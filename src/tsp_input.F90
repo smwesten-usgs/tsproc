@@ -2676,10 +2676,13 @@ subroutine get_ssf_series(ifail)
        do
          jline=jline+1
          read(iunit,'(a)',err=9200,end=300) cline
+!         print *, "'"//trim(cline)//"'"
          call linesplit(ierr,1)
          if(ierr.lt.0) cycle
          bsite=cline(left_word(1):right_word(1))
+!         print *, jline,": |"//trim(bsite)//"|"
          call casetrans(bsite,'lo')
+!         print *, "|"//trim(bsite)//"|"//trim(asite)//"|"
          if(bsite.eq.asite)then
            iterm=iterm+1
          else
