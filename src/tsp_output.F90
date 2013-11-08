@@ -1869,7 +1869,7 @@ subroutine pest_files(ifail,lastblock)
          trim(parchglim(ipar)),parval1(ipar), &
          parlbnd(ipar),parubnd(ipar),trim(pargp(ipar)),scale(ipar),offset(ipar)
 1660     format(a,t14,a,t21,a,t33,1pg12.5,t47,1pg12.5,t61,1pg12.5,t75,a,t89,1pg12.5,  &
-         t101,1pg12.5,t113,'  1')
+         t103,1pg12.5,t117,'  1')
        end do
        do ipar=1,npar
          if(partrans(ipar)(1:4).eq.'tied')then
