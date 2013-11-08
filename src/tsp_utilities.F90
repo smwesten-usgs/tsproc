@@ -113,7 +113,7 @@ end function str_compare
 subroutine spacesub(sString_g)
 
       integer i,j,k,n
-      character*1 bb
+      character(1)bb
       character*(*) sString_g
 
       bb=char(211)
@@ -651,7 +651,7 @@ subroutine newdate(ndays,day1,mon1,year1,day2,mon2,year2)
    integer, intent(out)    :: day2,mon2,year2
 
    ! [ LOCALS ]
-   integer :: iJulianDate1, iJulianDate2
+   integer :: iJulianDate1
 
    ! determine Julian Date for provided date
    iJulianDate1 = julian_day( iYear=year1, &
@@ -936,7 +936,7 @@ end function double2char
    EPOS,PP,NOPNT,KEXP,IFLAG,LEXP
    INTEGER IFAIL
    DOUBLE PRECISION VAL,TVAL
-   CHARACTER*29 TWORD,TTWORD,FMT*14
+   CHARACTER(29)TWORD,TTWORD,FMT(14)
    CHARACTER*(*) WORD
 
    LEXP=0
@@ -1502,7 +1502,7 @@ subroutine write_message(increment,iunit,error,leadspace,endspace)
    end if
 
    do i=1,20
-     if(amessage(i:i).ne.' ')exit
+     if(amessage(i:i).ne.' ') exit
    end do
    leadblank=i-1
    nblc=len_trim(amessage)
@@ -1539,7 +1539,7 @@ subroutine write_message(increment,iunit,error,leadspace,endspace)
    end if
    return
 
-200     call exit(100)
+200     stop 100
 
 end subroutine write_message
 
@@ -2100,8 +2100,6 @@ end function num_days_in_month
 subroutine make_date_list(iSampleDates, iFromDates, iToDates, sListType)
 
   integer, dimension(:) :: iSampleDates
-  integer :: iStartDay
-  integer :: iEndDay
   integer, dimension(:), allocatable, intent(out) :: iFromDates
   integer, dimension(:), allocatable, intent(out) :: iToDates
   character (len=*) :: sListType
@@ -2109,16 +2107,10 @@ subroutine make_date_list(iSampleDates, iFromDates, iToDates, sListType)
   ! [ LOCALS ]
   integer :: iIndex
   integer :: iMyMonth, iMyYear
-  integer :: iLength
   integer :: iUBound
   integer :: iCount
   integer :: iStartMM, iStartDD, iStartYYYY
   integer :: iEndMM, iEndDD, iEndYYYY
-  integer :: iTempStartMM, iTempStartDD, iTempStartYYYY
-  integer :: iTempEndMM, iTempEndDD, iTempEndYYYY
-  integer :: iLastDay
-  integer :: iStartJD, iEndJD
-  integer :: iStat
   integer, dimension(size(iSampleDates,1)) :: iSampleYYYY, iSampleMM, iSampleDD
 
   integer, dimension(:), allocatable :: iTempFromDates
@@ -2436,8 +2428,6 @@ subroutine Chomp_default_sub(sRecord, sItem)
 
   ! LOCALS
   integer (kind=T_INT) :: iR ! Index in sRecord
-  integer (kind=T_INT) :: iB !
-  integer (kind=T_INT) :: iLen
 
 #ifdef DEBUG_PRINT
   write(*,fmt="(/,a)") trim(__FILE__)//":"//trim(int2char(__LINE__))
@@ -2721,8 +2711,8 @@ function quantile_scalar( rQuantile, rData) result(rValue)
   ! [ LOCALS ]
   integer (kind=T_INT) :: iNumRecords
   integer (kind=T_INT) :: iInitialIndex
-  real :: rRealIndex
-  real :: rFractionalIndex
+  real (kind=T_DBL) :: rRealIndex
+  real (kind=T_DBL) :: rFractionalIndex
   real, dimension(size(rData)) :: rDatacp
   integer (kind=T_INT), dimension(size(rData)) :: iOriginalOrder
 
@@ -2760,8 +2750,8 @@ function quantile_vector( rQuantile, rData)  result(rValue)
   ! [ LOCALS ]
   integer (kind=T_INT) :: iNumRecords
   integer (kind=T_INT) :: iInitialIndex
-  real :: rRealIndex
-  real :: rFractionalIndex
+  real (kind=T_DBL) :: rRealIndex
+  real (kind=T_DBL) :: rFractionalIndex
   real, dimension(size(rData)) :: rDatacp
   integer (kind=T_INT), dimension(size(rData)) :: iOriginalOrder
   integer (kind=T_INT) :: iIndex
@@ -2805,7 +2795,7 @@ end function mean
 function variance(rData)   result(rVariance)
 
   real, dimension(:), intent(in) :: rData
-  real :: rVariance
+  real(kind=T_DBL) :: rVariance
 
   ! [ LOCALS ]
   real (kind=T_DBL) :: rSum
@@ -2823,7 +2813,7 @@ function stddev(rData)   result(rStdDev)
 
   real, dimension(:), intent(in) :: rData
   real (kind=T_DBL) :: rStdDev
-  real ( kind=T_DBL) :: rVariance
+  real (kind=T_DBL) :: rVariance
 
   ! [ LOCALS ]
 

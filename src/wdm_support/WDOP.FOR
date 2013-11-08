@@ -33,7 +33,7 @@ C     + + + SAVES + + +
       SAVE RECRDL
 C
 C     + + + LOCAL VARIABLES + + +
-      INTEGER*4 IOS
+      INTEGER(4)IOS
 C
 C     + + + EXTERNALS + + +
       EXTERNAL   WDBFIN, WDFLCK, WDCREA

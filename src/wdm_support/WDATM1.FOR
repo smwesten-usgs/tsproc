@@ -154,7 +154,7 @@ C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,DSN,ATIND,ID,ILEN,INUM
       INTEGER     IVAL(INUM)
-      CHARACTER*1 IBUFF(ILEN)
+      CHARACTER(1)IBUFF(ILEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL - Fortran unit number for WDM message file
@@ -337,7 +337,7 @@ C     and update flag as well as starting pos of other data
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,DSN,ATIND,DPTR,ATTYP,ATLEN,ATUSWD,ATUPD
-      CHARACTER*1 ATNAM(6)
+      CHARACTER(1)ATNAM(6)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL - Fortran unit number for WDM message file

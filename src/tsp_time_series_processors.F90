@@ -318,9 +318,9 @@ subroutine erase_entity(ifail)
        ictable,ic
        integer eseries(MAXSERIES),evtable(MAXVTABLE),estable(MAXSTABLE), &
        edtable(MAXDTABLE),ectable(MAXCTABLE)
-       character*20 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(20)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        icontext=0
@@ -571,9 +571,9 @@ subroutine moving_window(ifail)
        icount,is,ie,iiterm,k
        real rtemp,first_value,last_value
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline,amode
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline,amode
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='MOVING_MINIMUM'
@@ -877,10 +877,10 @@ subroutine new_series_uniform(ifail)
        real rtemp,rval
        double precision timediff,timeinc
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*30 atemp
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(30)atemp
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='NEW_SERIES_UNIFORM'
@@ -1267,9 +1267,9 @@ subroutine series_difference(ifail)
 
        integer icontext,iseries,ixcon,ierr,iterm,i,j
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='SERIES_DIFFERENCE'
@@ -1433,9 +1433,9 @@ subroutine series_base_level(ifail)
        hhb,nnb,ssb,daysb,secsb,iterm,i,j,ineg
        real rbase
        character (len=iTSNAMELENGTH) :: aname,atemp
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='SERIES_BASE_LEVEL'
@@ -1728,9 +1728,9 @@ subroutine vol_to_series(ifail)
        integer ivtable,nsterm,idiff,ihalf,isecs,icontext,ixcon,ierr,iser, &
        j,idays, itemp
        character (len=iTSNAMELENGTH) :: aname,abscissa
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
        logical (kind=T_LOGICAL) :: lCumulativeValues
        real (kind=T_DBL) :: dpCumulativeVolume
        real :: factor
@@ -1981,9 +1981,9 @@ subroutine series_clean(ifail)
        isub
        real (kind=T_DBL) :: lthresh,uthresh,svalue,rtemp
        character (len=iTSNAMELENGTH) :: aname,atemp
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='SERIES_CLEAN'
@@ -2267,11 +2267,11 @@ subroutine bfilter(ifail)
        real rtemp,freq,freq1,freq2,af,bf,cf,df,ef,tdelt,alpha,alpha1,fk_1, &
        yk1,yk,yk_1
        real a(3),b(3),c(3),d(3),e(3),rval(-3:5),gval(-3:5)
-       character*3 aaa
+       character(3)aaa
        character (len=iTSNAMELENGTH) :: aname,filpass
-       character*20 aline,filtype
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(20)aline,filtype
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='DIGITAL_FILTER'
@@ -3015,11 +3015,11 @@ subroutine compare_series(ifail)
        icontext,i,begdays,begsecs,enddays,endsecs, &
        j,isbterm,iobterm,iseterm,ioeterm,iiterm,ixcon,isterm,ioterm,k
        real (kind=T_DBL) :: rtemp,rtemp1,tsum1,tsum2,tsum3,tsum4,tsum5, mean3
-       character*3 aaa
+       character(3)aaa
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='SERIES_COMPARE'
@@ -3643,9 +3643,9 @@ subroutine reduce_span(ifail)
        icontext,i,begdays,begsecs,enddays,endsecs,iterm,j,           &
        iseries,k,ibterm,ieterm,ixcon
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='REDUCE_TIME_SPAN'
@@ -3849,11 +3849,11 @@ subroutine statistics(ifail)
        jstddev,jmaximum,jminimum,jsum,j,ibterm,ieterm,iterm,iiterm,itemp,ixcon, &
        iitemp,jj,minaverage,maxaverage,ii,nnterm,jrange,jmed
        real tpower,tsum,tmin,tmax,rtemp,raverage,localsum,tminmean,tmaxmean
-       character*3 aaa
+       character(3)aaa
        character (len=iTSNAMELENGTH) :: aname,atemp
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='SERIES_STATISTICS'
@@ -4436,13 +4436,13 @@ subroutine compute_hydrologic_indices(ifail)
        j, ig
        integer :: iCount, iStat, iIndex, iIndex2, iIndex3
        integer :: iNumberOfKeywords
-       character*3 aaa
+       character(3)aaa
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
+       character(15)aline
+       character(25)aoption
        character (len=25) :: sStreamClass
        character (len=25) :: sFlowComponent
-       character*25 acontext(MAXCONTEXT)
+       character(25)acontext(MAXCONTEXT)
 
        integer(C_INT), dimension(0:149) :: iYr
        real(C_DOUBLE), dimension(0:365,0:149) :: rQ
@@ -5337,9 +5337,9 @@ subroutine time_base(ifail)
        intday,intsec,ixcon
        real :: valinterp
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
        logical (kind=T_LOGICAL) :: lDatesAreOK
 
 !interface
@@ -5489,9 +5489,9 @@ subroutine time_base(ifail)
          write (*, fmt="(a,t25,i8,t45,i8)") "Last time:", nsecsftb, nsecsfos
 
          write(amessage,fmt= &
-         "('the time span of the time base series is greater than that of the ', &
-         'series to be interpolated. Reduce the time span of the time base series to ', &
-         'that of the series to be interpolated using a REDUCE_SPAN block.')")
+         &"('the time span of the time base series is greater than that of the ', &
+         &'series to be interpolated. Reduce the time span of the time base series to ', &
+         &'that of the series to be interpolated using a REDUCE_SPAN block.')")
 
          goto 9800
        endif
@@ -5548,12 +5548,7 @@ subroutine time_base(ifail)
        call addquote(sInfile_g,sString_g)
        write(amessage,9110) trim(sString_g)
 9110   format('unexpected end encountered to TSPROC input file ',a,' while ', &
-       ' reading REDUCE_TIME_SPAN block.')
-       go to 9800
-9200   write(amessage,9210)
-9210   format('the time span of the time base series is greater than that of the ', &
-       'series to be interpolated. Reduce the time span of the time base series to ', &
-       'that of the series to be interpolated using a REDUCE_SPAN block.')
+       ' reading TIME_BASE block.')
        go to 9800
 
 9800   call write_message(leadspace='yes',error='yes')
@@ -5581,15 +5576,12 @@ subroutine volume(ifail)
        integer ierr,icontext,iseries,itunit,iunit,jline,ndate,iv,nsterm,nsdays1, &
        nssecs1,nsdays2,nssecs2,dd,mm,yy,hh,nn,ss,ndays1,nsecs1,ndays2,nsecs2,itemp,ixcon
        real (kind=T_DBL) :: factor,fac,volcalc
-       integer :: iStat, iLength
-       integer :: iStartMM, iStartDD, iStartYYYY
-       integer :: iEndMM, iEndDD, iEndYYYY
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*25 sKeyword
-       character*120 datefile
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)sKeyword
+       character(120)datefile
+       character(25)acontext(MAXCONTEXT)
        character (len=iTSNAMELENGTH) :: sCurrentSeriesName
        logical :: lAutoDateAnnual
        logical :: lAutoDateMonthly
@@ -6019,9 +6011,9 @@ subroutine time_duration(ifail)
                nnterm,ixcon,iuo
        real rtemp,fac,duration,fflow,vval,oldvval,timediff,accumulation,timedelay
        character (len=iTSNAMELENGTH) :: aname,atemp
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='EXCEEDANCE_TIME'
@@ -6409,13 +6401,11 @@ subroutine flow_duration(ifail)
        integer, intent(out)   :: ifail
 
        logical (kind=T_LOGICAL) :: lUseDefaultProbabilities
-       integer ierr,icontext,iseries,itunit,iPercentExceeded,id,i,ndays,nsecs,j,oldndays,oldnsecs, &
-               nnterm,ixcon,iuo,iCount, iOrigin, iStat, iIndex
+       integer ierr,icontext,iseries,itunit,iPercentExceeded, &
+               ixcon,iuo,iCount, iOrigin, iStat, iIndex
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2, &
-               begdays,begsecs,enddays,endsecs,iterm,ibterm,ieterm,iiterm,itemp, ig
-       real rtemp,fac,duration,fflow,vval,oldvval,timediff,accumulation,timedelay
-       character (len=iTSNAMELENGTH) :: aname,atemp
-       integer iNumProbabilities
+               begdays,begsecs,enddays,endsecs,iiterm,ig
+       character (len=iTSNAMELENGTH) :: aname
        real, dimension(:), allocatable :: rResultVector
        real, dimension(13), parameter :: &
           rDefaultExceedanceProbabilities = [ &
@@ -6424,10 +6414,9 @@ subroutine flow_duration(ifail)
        real, dimension(:), allocatable :: rCustomExceedanceProbabilities
        integer (kind=T_INT), dimension(:), allocatable :: iSortOrder
 
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
-       character*3 aaa
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
        character (len=256) :: sRecord, sItem
 
        integer :: iStartJD, iStartMM, iStartDD, iStartYYYY
@@ -6735,9 +6724,9 @@ subroutine displace(ifail)
        dd,mm,yy,hh,nn,ss,i,ixcon
        real fill,rtemp
        character (len=iTSNAMELENGTH) :: aname
-       character*15 aline
-       character*25 aoption
-       character*25 acontext(MAXCONTEXT)
+       character(15)aline
+       character(25)aoption
+       character(25)acontext(MAXCONTEXT)
 
        ifail=0
        CurrentBlock_g='SERIES_DISPLACE'

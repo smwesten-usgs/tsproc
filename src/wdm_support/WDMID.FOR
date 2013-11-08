@@ -27,7 +27,7 @@ C     save information about a wdm file
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL,MXDSN
-      CHARACTER*4 WDID
+      CHARACTER(4)WDID
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - unit number of new wdm file
@@ -90,7 +90,7 @@ C     + + + COMMON BLOCKS + + +
       INCLUDE   'CWDMID.INC'
 C
 C     + + + LOCAL VARIABLES + + +
-      CHARACTER*4  WDID
+      CHARACTER(4) WDID
 C
 C     + + + EXTERNALS + + +
       EXTERNAL     WUA2ID
@@ -115,7 +115,7 @@ C     convert a wdm unit number or 4 char id and dsn to an id
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL,DSN,ID
-      CHARACTER*4 WDID
+      CHARACTER(4)WDID
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - unit number of wdm file
@@ -175,7 +175,7 @@ C     WDMSFL - unit number of wdm file
 C     DSN    - dataset number
 C
 C     + + + LOCAL VARIABLES + + +
-      CHARACTER*4 WDID
+      CHARACTER(4)WDID
 C
 C     + + + EXTERNALS + + +
       EXTERNAL    WID2UA
@@ -199,7 +199,7 @@ C     convert an id to a wdm unit number and dsn and return text id
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDFLG,ID,WDMSFL,DSN
-      CHARACTER*4 WDID
+      CHARACTER(4)WDID
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDFLG  - wdm unit number flag, > 0 means id is actual dsn
@@ -256,7 +256,7 @@ C     given a 4 character wdm file id, find the wdm file unit number
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL
-      CHARACTER*4 WDID
+      CHARACTER(4)WDID
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - unit number of wdm file

@@ -46,7 +46,7 @@ option (TARGET__TSPROC_LIBRARY
 option (OPTION__UNROLL_CONTROL_FILE
       "Compile the code with support for control file unrolling?" OFF)
 if(OPTION__UNROLL_CONTROL_FILE)
-  set ( PREPROCESSOR_DEFINES ${PREPROCESSOR_DEFINES} "UNROLL_CONTROL_FILE")
+  add_definitions (-DUNROLL_CONTROL_FILE)
 endif()
 
 #------------------------------------------------------------------------

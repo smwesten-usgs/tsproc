@@ -21,7 +21,7 @@ subroutine get_new_series_name(ifail,aname)
        integer, intent(out)         :: ifail
        character(*), intent(out)    :: aname
        integer ierr,nn,i
-       character*20 atemp,aline
+       character(20)atemp,aline
 
        ifail=0
        call getfile(ierr,cline,atemp,left_word(2),right_word(2))
@@ -141,7 +141,7 @@ subroutine get_file_name(ifail,afile)
        integer, intent(out)         :: ifail
        character(*), intent(out)    :: afile
        integer ierr
-       character*20 aline
+       character(20)aline
 
        ifail=0
        call getfile(ierr,cline,afile,left_word(2),right_word(2))
@@ -178,7 +178,7 @@ subroutine get_date(ifail,dd1,mm1,yy1,alabel)
        character(*), intent(in)     :: alabel
 
        integer ierr
-       character*20 aline,adate
+       character(20)aline,adate
 
        ifail=0
        adate=cline(left_word(2):right_word(2))
@@ -216,7 +216,7 @@ subroutine get_time(ifail,hh1,nn1,ss1,alabel)
        character*(*), intent(in)     :: alabel
 
        integer ierr
-       character*20 aline,atime
+       character(20)aline,atime
 
        ifail=0
        atime=cline(left_word(2):right_word(2))
@@ -255,7 +255,7 @@ subroutine get_context(ifail,icontext,acontext)
        character*(*), intent(inout)    :: acontext(MAXCONTEXT)
 
        integer ierr
-       character*20 aline,aaline
+       character(20)aline,aaline
 
        ifail=0
 
@@ -311,7 +311,7 @@ subroutine get_series_name(ifail,iseries,aword)
 
        integer ierr,nn,i
        character (len=iTSNAMELENGTH) :: aname
-       character*20 aline,atemp
+       character(20)aline,atemp
        character*(*) aword
 
        ifail=0
@@ -387,7 +387,7 @@ subroutine get_table_name(ifail,itable,jtype)
 
        integer ierr,nn,i,itype
        character (len=iTSNAMELENGTH) :: aname
-       character*20 aline,atemp
+       character(20)aline,atemp
 
        ifail=0
        itype=jtype
@@ -797,7 +797,7 @@ subroutine get_yes_no(ifail,iyesno)
 
        integer ierr
        character (len=iTSNAMELENGTH) :: atemp,aline
-       character*3 ayesno
+       character(3)ayesno
 
        ifail=0
        call getfile(ierr,cline,atemp,left_word(2),right_word(2))
@@ -1206,7 +1206,7 @@ subroutine get_new_table_name(ifail,itype,aname)
        character*(*), intent(out)      :: aname
 
        integer ierr,nn,i
-       character*20 aline,atemp
+       character(20)aline,atemp
 
        ifail=0
 
@@ -1373,7 +1373,7 @@ subroutine get_time_units(ifail,itunit,itype)
 
        integer ierr
        character (len=iTSNAMELENGTH) :: aunit
-       character*20 aline,atemp
+       character(20)aline,atemp
 
        ifail=0
 
@@ -1554,7 +1554,7 @@ subroutine get_keyword_value_single(ifail,itype,ival,rval,aword)
        character*(*), intent(in)   :: aword
 
        integer ierr
-       character*20 aline
+       character(20)aline
 
        ifail=0
        if(itype.eq.1)then
@@ -1604,7 +1604,7 @@ subroutine get_keyword_value_double(ifail,itype,ival,rval,aword)
        character*(*), intent(in)           :: aword
 
        integer ierr
-       character*20 aline
+       character(20)aline
 
        ifail=0
        if(itype.eq.1)then
@@ -1649,8 +1649,8 @@ subroutine get_equation(ifail,eqntext,atext)
        character*(*), intent(in)   :: atext
 
        integer ncl,lnxx,idx,lnx,ixcount
-       character*1 aa
-       character*20 aline
+       character(1)aa
+       character(20)aline
 
        ifail=0
        aa=cline(left_word(2):left_word(2))
@@ -1739,7 +1739,7 @@ subroutine get_two_numbers(ifail,rnum1,rnum2,atext)
        character*(*), intent(in)   :: atext
 
        integer ierr
-       character*13 anum1,anum2
+       character(13)anum1,anum2
 
        ifail=0
        cline=cline(left_word(2):)
@@ -1777,7 +1777,7 @@ subroutine check_weight_order(ifail,rmin,rmax)
 
        integer, intent(out)        :: ifail
        real, intent(in)            :: rmin,rmax
-       character*15 aline
+       character(15)aline
 
        ifail=0
 
@@ -1879,8 +1879,8 @@ subroutine find_end(ifail)
 
        integer, intent(out)       :: ifail
        integer ierr
-       character*15 aline
-       character*30 aoption
+       character(15)aline
+       character(30)aoption
 
        ifail=0
        do
@@ -1932,7 +1932,7 @@ subroutine get_next_block(ifail)
        integer, intent(out) :: ifail
 
        integer ierr
-       character*15 aline
+       character(15)aline
 
        ifail=0
        call addquote(sInfile_g,sString_g)
@@ -2147,8 +2147,8 @@ subroutine Process_Settings(ifail)
        integer, intent(out) :: ifail
 
        integer ierr
-       character*15 aline
-       character*25 aoption,datestr
+       character(15)aline
+       character(25)aoption,datestr
 
        ifail=0
 

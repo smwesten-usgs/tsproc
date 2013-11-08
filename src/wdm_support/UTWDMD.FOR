@@ -30,8 +30,8 @@ C     + + + SAVES + + +
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   IND,RIND,PIND,NIND,XIND,I,CWDM,DONFG
-      CHARACTER*255 STR
-      CHARACTER*255 WDNAME
+      CHARACTER(255)STR
+      CHARACTER(255)WDNAME
       LOGICAL       OPEN           
 C
 C     + + + INTRINSICS + + +
@@ -382,7 +382,7 @@ C     + + + COMMON BLOCKS + + +
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   RREC,I
-      INTEGER*4 IOS
+      INTEGER(4)IOS
 C
 C     + + + END SPECIFICATIONS + + +
 C
@@ -1097,7 +1097,7 @@ C     not present
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   SAIND
-      INTEGER*4 TIBUFF(512)
+      INTEGER(4)TIBUFF(512)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     SAIND  - index of particular search attribute
@@ -1220,7 +1220,7 @@ C
 C
 C
 C
-      CHARACTER*4   FUNCTION   WDGCVL
+      CHARACTER(4)  FUNCTION   WDGCVL
      I                               (WDMSFL,REC,POS)
 C
 C     + + + PURPOSE + + +
@@ -1240,7 +1240,7 @@ C     + + + COMMON BLOCKS + + +
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     IND,IVAL
-      CHARACTER*4 CVAL
+      CHARACTER(4)CVAL
 C
 C     + + + FUNCTIONS + + +
       INTEGER     WDRCGO
@@ -1339,7 +1339,7 @@ C     Dummy routine to include unix what version information for the
 C     adwdm library.
 C
 C     + + + LOCAL VARIABLES + + +
-      CHARACTER*64  VERSN
+      CHARACTER(64) VERSN
 C
 C     + + + END SPECIFICATIONS + + +
 C

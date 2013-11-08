@@ -3,14 +3,14 @@ C
 C     These COMMON block allows for the storage of machine dependent
 C     numeric constants.
 C
+      INTEGER(4)      RPREC,DPREC
       COMMON /ICONST/ RPREC,DPREC
-      INTEGER*4       RPREC,DPREC
 C
+      REAL(4)         R0MIN,RP1MIN,R0MAX
       COMMON /RCONST/ R0MIN,RP1MIN,R0MAX
-      REAL*4          R0MIN,RP1MIN,R0MAX
 C
+      REAL(8)         D0MIN,DP1MIN,D0MAX
       COMMON /DCONST/ D0MIN,DP1MIN,D0MAX
-      REAL*8          D0MIN,DP1MIN,D0MAX
 C
       SAVE   /ICONST/, /RCONST/, /DCONST/
 C

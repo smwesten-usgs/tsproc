@@ -11,7 +11,7 @@ C     the character array X of size LEN.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 ZIP(LEN),X(LEN)
+      CHARACTER(1)ZIP(LEN),X(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character arrays
@@ -114,7 +114,7 @@ C     the given value ZIP.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     LEN
-      CHARACTER*1 ZIP,X(LEN)
+      CHARACTER(1)ZIP,X(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     LEN    - size of character array

@@ -10,7 +10,7 @@ C     given attribute index, return attribute name
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,ATIND
-      CHARACTER*1 ATNAM(6)
+      CHARACTER(1)ATNAM(6)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL  - Fortran unit number for WDM message file
@@ -119,7 +119,7 @@ C     get the valid values for an attribute off the message file
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,DPTR,MXLEN,CLEN
-      CHARACTER*1 SATVAL(MXLEN)
+      CHARACTER(1)SATVAL(MXLEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL - Fortran unit number for message file
@@ -262,7 +262,7 @@ C     get the description for an attribute off the message file
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,DPTR
-      CHARACTER*1 SADESC(47)
+      CHARACTER(1)SADESC(47)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL - Fortran unit number for message file

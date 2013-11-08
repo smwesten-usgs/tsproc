@@ -71,7 +71,7 @@ C                    for the attribute value.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   SAIND,SALEN,SATYP,PSAVAL,RETCOD
-      INTEGER*4 TIBUFF(512)
+      INTEGER(4)TIBUFF(512)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     SAIND  - index number of search attribute to look for
@@ -158,7 +158,7 @@ C       returns 1 for yes, 0 for no
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   DREC
-      INTEGER*4 TIBUFF(512)
+      INTEGER(4)TIBUFF(512)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     DREC   - label record number
@@ -166,7 +166,7 @@ C     TIBUFF - array containing data-set label information
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   PREC,POFF,DATFLG,PDATV
-      INTEGER*4 TDFREE,PDAT
+      INTEGER(4)TDFREE,PDAT
 C
 C     + + + EXTERNALS + + +
       EXTERNAL   WDPTSP

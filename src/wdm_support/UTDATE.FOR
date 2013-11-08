@@ -358,7 +358,7 @@ C     as 00:00 of next day.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   DATE(6),UPBACK
-      INTEGER*4 INTRVL
+      INTEGER(4)INTRVL
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     INTRVL - time step, in minutes
@@ -369,7 +369,7 @@ C     DATE   - date to be modified
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER   YEAR,MONTH,DAY,HR,MIN,SEC
-      INTEGER*4 DHR,DMIN,TT,I4T24,I4T60,I4T0
+      INTEGER(4)DHR,DMIN,TT,I4T24,I4T60,I4T0
 C
 C     + + + FUNCTIONS + + +
       INTEGER   DAYMON
@@ -1349,7 +1349,7 @@ C     time difference is determined.  Dates are assumed to be valid.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   DATE1(6),DATE2(6),TCODE,TSTEP
-      INTEGER*4 NVALS
+      INTEGER(4)NVALS
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     DATE1  - first (starting) date
@@ -1590,7 +1590,7 @@ C                   are returned.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     INDX, LEN, LORU, LENO
-      CHARACTER*1 MONTH(LEN)
+      CHARACTER(1)MONTH(LEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     INDX   - index number of the month (1-jan,2-feb,...,12-dec)
@@ -1604,8 +1604,8 @@ C     MONTH  - character string of lenght LEN containing name of month
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER      NOC(12), CASE, I, LENL
-      CHARACTER*3  MOS(12,2)
-      CHARACTER*9  MOL(12,2)
+      CHARACTER(3) MOS(12,2)
+      CHARACTER(9) MOL(12,2)
 C
 C     + + + DATA INITIALIZATIONS + + +
       DATA  MOS / 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

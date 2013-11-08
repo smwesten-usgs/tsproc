@@ -57,7 +57,7 @@ C     gets values of character search attribute for a dsn
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL,SAIND,SALEN,DSN,RETCOD
-      CHARACTER*1 SAVAL(SALEN)
+      CHARACTER(1)SAVAL(SALEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - watershed data management file unit number
@@ -75,7 +75,7 @@ C     + + + COMMON BLOCKS + + +
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     SAPOS,RREC,RIND,I,J,K,LWDMFL,LDSN
-      CHARACTER*4 C4DUM
+      CHARACTER(4)C4DUM
 C
 C     + + + FUNCTIONS + + +
       INTEGER     WDRCGO

@@ -10,7 +10,7 @@ C     gets general detail information about specified attribute
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,SAIND,DPTR,SATYP,SALEN,SARQWD,SAUPFG
-      CHARACTER*1 SANAM(6)
+      CHARACTER(1)SANAM(6)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL - message file unit number
@@ -32,7 +32,7 @@ C     + + + SAVES + + +
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,IGOT
-      CHARACTER*1 BLNK
+      CHARACTER(1)BLNK
 C
 C     + + + EXTERNALS + + +
       EXTERNAL    WADDSI, WADGTL, ZIPC
@@ -87,7 +87,7 @@ C     adds (or modifies) character search attribute on given dsn
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     WDMSFL,DSN,MESSFL,SAIND,SALEN,RETCOD
-      CHARACTER*1 SAVAL(SALEN)
+      CHARACTER(1)SAVAL(SALEN)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     WDMSFL - watershed data management file unit number
@@ -115,8 +115,8 @@ C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,J,K,RREC,RIND,PSAVAL,DPTR,DELFG,
      1            CNUM,CLEN,SATYP,SAUPFG,SARQWD,LWDMFL,LDSN
-      CHARACTER*1 LCBUF(MLEN)
-      CHARACTER*4 C4DUM
+      CHARACTER(1)LCBUF(MLEN)
+      CHARACTER(4)C4DUM
 C
 C     + + + FUNCTIONS + + +
       INTEGER     WDRCGO, CHKSTR
@@ -226,7 +226,7 @@ C     + + + LOCAL VARIABLES + + +
       INTEGER     I,I0,RREC,RIND,IMIN,IMAX,PSAVAL,DPTR,DELFG,
      1            ICHK,SATYP,SAUPFG,SARQWD,LWDMFL,LDSN
       REAL        RMIN,RMAX
-      CHARACTER*1 TBUFF(6)
+      CHARACTER(1)TBUFF(6)
 C
 C     + + + FUNCTIONS + + +
       INTEGER     WDRCGO
@@ -327,7 +327,7 @@ C     + + + LOCAL VARIABLES + + +
       INTEGER     I,RREC,RIND,PSAVAL,ICHK,SATYP,DPTR,SAUPFG,SARQWD,
      1            DELFG,LWDMFL,LDSN
       REAL        RMIN,RMAX,R0
-      CHARACTER*1 TBUFF(6)
+      CHARACTER(1)TBUFF(6)
 C
 C     + + + FUNCTIONS + + +
       INTEGER     WDRCGO
@@ -503,7 +503,7 @@ C     not present
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   SAIND,SAPOS,RETCOD
-      INTEGER*4 TIBUFF(512)
+      INTEGER(4)TIBUFF(512)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     SAIND  - index of particular search attribute
@@ -544,7 +544,7 @@ C     or attribute is not allowed for this dataset type
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER   RREC,SARQWD,SAUPFG,DELFG,RETCOD
-      INTEGER*4 TIBUFF(512)
+      INTEGER(4)TIBUFF(512)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     RREC   - record containing data-set label
@@ -609,7 +609,7 @@ C     also matches SAFNAM, if one exists.
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,SAIND,RETCOD
-      CHARACTER*1 SAFNAM(6),SANAM(6)
+      CHARACTER(1)SAFNAM(6),SANAM(6)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL - Fortran unit number for message file
@@ -628,13 +628,13 @@ C     + + + PARAMETERS + + +
 C
 C     + + + SAVES + + +
       INTEGER     SACNT,SAVIND(MXSAT)
-      CHARACTER*1 SAVNAM(6,MXSAT)
+      CHARACTER(1)SAVNAM(6,MXSAT)
       SAVE        SACNT,SAVNAM,SAVIND
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,I0,I6,K,K1,CURIND,DONE,CHK,
      1            DSNBUF(MAXDSN),DSNCNT,ATTIND(2,MAXDSN),LSAIND
-      CHARACTER*1 BLNK,TMPNAM(6)
+      CHARACTER(1)BLNK,TMPNAM(6)
 C
 C     + + + FUNCTIONS + + +
       INTEGER     LENSTR
@@ -782,7 +782,7 @@ C     message file, returns 0 if name is not an attribute
 C
 C     + + + DUMMY ARGUMENTS + + +
       INTEGER     MESSFL,SAIND,SATYP,SALEN
-      CHARACTER*1 SANAM(6)
+      CHARACTER(1)SANAM(6)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
 C     MESSFL - message file unit number
@@ -793,7 +793,7 @@ C     SALEN  - length of attribute
 C
 C     + + + LOCAL VARIABLES + + +
       INTEGER     I,RETCOD
-      CHARACTER*1 SAFNAM(6)
+      CHARACTER(1)SAFNAM(6)
 C
 C     + + + EXTERNALS + + +
       EXTERNAL    CHRCHR, WDSAFI, WDSAGY
@@ -843,7 +843,7 @@ C     + + + DUMMY ARGUMENTS + + +
       INTEGER   SAIND(*),SATYP(*),SABEG(*),SACOND(*),
      1          SALEN(*),SAIMIN(*),SAIMAX(*),SAOR(*),
      2          DSN(MAXDSN)
-      INTEGER*4 SAVAL(30)
+      INTEGER(4)SAVAL(30)
       REAL      SARMIN(*),SARMAX(*)
 C
 C     + + + ARGUMENT DEFINITIONS + + +
@@ -997,7 +997,7 @@ C     + + + DUMMY ARGUMENTS + + +
       INTEGER   SAIND(*),SATYP(*),SABEG(*),SACOND(*),
      1          SALEN(*),SAIMIN(*),SAIMAX(*),SAOR(*),
      2          DSN(MAXDSN)
-      INTEGER*4 SAVAL(30),TIBUFF(512)
+      INTEGER(4)SAVAL(30),TIBUFF(512)
       REAL      TRBUFF(512)
       REAL      SARMIN(*),SARMAX(*)
 C
@@ -1154,7 +1154,7 @@ C     Dummy routine to include unix what version information for the
 C     wdm library.
 C
 C     + + + LOCAL VARIABLES + + +
-      CHARACTER*64  VERSN
+      CHARACTER(64) VERSN
 C
 C     + + + END SPECIFICATIONS + + +
 C
