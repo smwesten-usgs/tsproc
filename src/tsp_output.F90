@@ -1852,7 +1852,7 @@ subroutine pest_files(ifail,lastblock)
        do igp=1,npargp
          write(iunit,1640)trim(pargpnme(igp)),trim(inctyp(igp)),derinc(igp), &
          derinclb(igp),trim(forcen(igp)),derincmul(igp), trim(dermthd(igp))
-1640     format(a,t14,a,t27,1pg12.5,t39,1pg12.5,t51,a,t62,1pg12.5,2x,a)
+1640     format(a,t14,a,t27,1pg12.5,t41,1pg12.5,t55,a,t66,1pg12.5,2x,a)
        end do
 
 ! -- The "* parameter data" section of the PEST control file is now written.
