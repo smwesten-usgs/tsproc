@@ -1,13 +1,25 @@
 # CMake project for tsproc
 
-# based in part on an example found at:
-# http://lagrange.mechse.illinois.edu/mwest/partmc/partmc-1.2.0/CMakeLists.txt
+# This CMakeLists.txtx file is written with the expectation that
+# the following configuration variables are set and passed
+# during CMake invocation:
+
+# CMAKE_BUILD_TYPE       | possible values: "debug", "release", "profile"
+# CMAKE_INSTALL_PREFIX   | ex: "D:/DOS"
+# CMAKE_MAKE_PROGRAM     | ex: "c:/MinGW64/bin/mingw32-make.exe"
+# Fortran_FLAGS_DEBUG
+# Fortran_FLAGS_RELEASE
+# Fortran_FLAGS_PROFILE
+# PATH_TO_R              | ex: "C:/Program Files/R/R-3.0.1/bin"
+# OS                     | possible values: "win_x86", "win_x64", "max_osx", "linux"
+# Fortran_COMPILER_NAME  | ex: "gfortran", "ifort"
+# COMPILER_DIR           | ex: "c:/MinGW"
+# COMPILER_TRIPLET       | ex: "x86_64-w64-mingw32", "x86_64-apple-darwin12.4.0"
+# COMPILER_VERSION       | ex: "4.8.2"
 
 message("Processing top-level CMakelists.txt for project tsproc")
 
-#------------------------------------------------------------------------------------#
-#                           Build directory check                                    #
-#------------------------------------------------------------------------------------#
+# halt if we are attempting to build inside source directory
 if(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "Cannot be built in the source directory. Use
   out-of-source build instead.")
@@ -34,85 +46,22 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 cmake_minimum_required(VERSION 2.6)
 
-option (MAKEFILE_VERBOSE
-      "Produce verbose makefiles?" OFF)
+include( cmake/options_and_targets.cmake )
 
-option (TARGET__TSPROC_EXECUTABLE
-      "Compile the main TSPROC executable?" ON)
+# define library and include paths
+set(TSP_LIBPATH ${PROJECT_SOURCE_DIR}/lib/${OS}/${Fortran_COMPILER_NAME} )
+set(TSP_INCPATH ${PROJECT_SOURCE_DIR}/include/${OS}/${Fortran_COMPILER_NAME} )
+set(LIB_PATH "${COMPILER_DIR}/lib/gcc/${COMPILER_TRIPLET}/${COMPILER_VERSION}" )
+set(LIB_PATH ${LIB_PATH} "${COMPILER_DIR}/${COMPILER_TRIPLET}/lib" )
+set(LIB_PATH ${LIB_PATH} "${COMPILER_DIR}/lib" )
+set(CMAKE_LIBRARY_PATH ${LIB_PATH} ${TSP_LIBPATH})
 
-option (TARGET__TSPROC_LIBRARY
-      "Compile TSPROC as a library?" ON)
+include( cmake/find_programs_and_libraries.cmake )
 
-option (OPTION__UNROLL_CONTROL_FILE
-      "Compile the code with support for control file unrolling?" OFF)
-if(OPTION__UNROLL_CONTROL_FILE)
-  add_definitions (-DUNROLL_CONTROL_FILE)
-endif()
+add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
 
-#------------------------------------------------------------------------
-# Restrict CMAKE_BUILD_TYPE to "Release" or "Debug" (GUI); set build type
-#------------------------------------------------------------------------
-#set_property(GLOBAL CMAKE_BUILD_TYPE
-#          PROPERTY STRINGS "Release" "Debug")
-
-set( CMAKE_BUILD_TYPE "Release" CACHE STRING
-       "Compile in DEBUG or RELEASE mode" )
-
-#------------------------------------------------------------------------
-# What Fortran compiler are we using?
-#------------------------------------------------------------------------
-get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
-
-#------------------------------------------------------------------------
-# Locate utility programs
-#------------------------------------------------------------------------
-
-find_program( R_SCRIPT
-              NAMES Rscript.exe Rscript
-			  HINTS ENV R_HOME
-			  HINTS ${R_HOME}
-              PATHS ENV PATH
-			  "c:/Program Files/R"
-			  "c:/Program Files (x86)/R"
-)
-
-message("Rscript.exe is defined as: " ${R_SCRIPT})
-
-#------------------------------------------------------------------------
-# Set platform-specific options
-#------------------------------------------------------------------------
-if(CMAKE_HOST_WIN32)
-
-    if (Fortran_COMPILER_NAME MATCHES "gfortran[.a-z]*")
-
-      FIND_LIBRARY(GCC_LIB libgcc.a
-	    ENV
-		${LIBRARY_PATH}
-	    HINTS
-		${MINGWBASE}
-      )
-
-      FIND_LIBRARY(GFORTRAN_LIB libgfortran.a
-	    ENV
-		${LIBRARY_PATH}
-	    HINTS
-		${MINGWBASE}
-      )
-
-      set(EXTRA_LIBS ${EXTRA_LIBS} ${GCC_LIB} ${GFORTRAN_LIB})
-
-      set_property(CACHE CMAKE_BUILD_TYPE
-              PROPERTY STRINGS "Release" "Debug")
-
-   endif ()
-
-  add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
-
-endif()
-
-message("")
-message(" *****")
-message("")
+# print a summary of important details to screen
+include( cmake/print_summary.cmake )
 
 add_subdirectory(src)
 enable_testing()

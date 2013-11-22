@@ -1558,7 +1558,8 @@ subroutine close_files
    close(LU_TSPROC_CONTROL, STATUS='KEEP')
 #endif
 
-   do i=10,100
+
+   do i=7,1000
      close(unit=i,iostat=ierr)
    end do
    return

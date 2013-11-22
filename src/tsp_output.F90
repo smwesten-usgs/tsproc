@@ -1819,7 +1819,7 @@ subroutine pest_files(ifail,lastblock)
 1580     format('5.0   2.0    0.3    0.03    10  999')
        else
          write(iunit,1581)
-1581     format(' 1e-1   -4.0   0.3  0.03    10       999')
+1581     format(' 0.   -4.0   0.3  0.03    1       999')
        end if
        write(iunit,1590)
 1590   format('5.0   5.0   1.0e-3')
@@ -3141,6 +3141,7 @@ subroutine write_list_output(ifail)
        write(*,320) trim(sString_g)
        write(LU_REC,320) trim(sString_g)
 320    format(t5,'File ',a,' written ok.')
+       flush(unit=LU_OUT)
        close(unit=LU_OUT)
 
        return
