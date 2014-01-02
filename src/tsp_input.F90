@@ -3291,6 +3291,7 @@ subroutine get_wdm_series (ifail)
     afile = ' '
     aname = ' '
     icontext = 0
+    ddays = 0
     hhd = 0
     nnd = 0
     ssd = 0
@@ -3634,8 +3635,6 @@ subroutine get_wdm_series (ifail)
         IF (hhd == 24) THEN
             hhd = 0
             ddays = 1
-        ELSE
-            ddays = 0
         ENDIF
     ENDIF
 
