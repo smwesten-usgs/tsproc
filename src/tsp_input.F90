@@ -3710,7 +3710,7 @@ subroutine get_wdm_series (ifail)
        !>          argument and the nearest adjacent number of the same
        !>          type; the construct below is designed to avoid
        !>          equivalence testing of real values.
-       fspace = ABS (3.0*SPACING (filter) )
+       fspace = SPACING (filter) 
        sgcnt = COUNT(ABS(tempseries_g%val - filter) > fspace)
        ALLOCATE (series_g (i) %days (sgcnt), series_g (i) %secs (sgcnt),           &
          series_g (i) %val (sgcnt), STAT = ierr)

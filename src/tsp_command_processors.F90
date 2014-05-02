@@ -757,7 +757,7 @@ subroutine alloc_tempseries(ifail,iterm)
          tempseries_g%nterm=iterm
          tempseries_g%active=.true.
        else
-         if(iterm .gt. tempseries_g%nterm) then
+         if(iterm .ne. tempseries_g%nterm) then
            deallocate(tempseries_g%days,tempseries_g%secs,tempseries_g%val,stat=ierr)
            if(ierr.ne.0)then
              write(amessage,355)
