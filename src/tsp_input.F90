@@ -3219,6 +3219,7 @@ subroutine get_wdm_series (ifail)
       , ierr                                                                &
       , icontext                                                            &
       , i                                                                   &
+      , sgcnt                                                               &
       , wdmunit                                                             &
       , iterm                                                               &
       , dsn                                                                 &
@@ -3291,6 +3292,7 @@ subroutine get_wdm_series (ifail)
     afile = ' '
     aname = ' '
     icontext = 0
+    ddays = 0
     hhd = 0
     nnd = 0
     ssd = 0
@@ -3634,8 +3636,6 @@ subroutine get_wdm_series (ifail)
         IF (hhd == 24) THEN
             hhd = 0
             ddays = 1
-        ELSE
-            ddays = 0
         ENDIF
     ENDIF
 
@@ -3684,21 +3684,16 @@ subroutine get_wdm_series (ifail)
     GOTO 9800
 !
 1680 CONTINUE
-    ALLOCATE (series_g (i) %days (iterm), series_g (i) %secs (iterm),           &
-      series_g (i) %val (iterm), STAT = ierr)
-    IF (ierr /= 0) THEN
-       WRITE (amessage, 1685)
-1685   FORMAT ('cannot allocate memory for another time series.')
-       GOTO 9800
-    ENDIF
 
-    series_g (i) %active = .TRUE.
-    series_g (i) %name = aname
-    series_g (i) %nterm = iterm
-    series_g (i) %type = 'ts'
-    jterm = 0
 
     IF (filter < - 1.0E35) THEN
+       ALLOCATE (series_g (i) %days (iterm), series_g (i) %secs (iterm),           &
+         series_g (i) %val (iterm), STAT = ierr)
+       IF (ierr /= 0) THEN
+          WRITE (amessage, 1685)
+          GOTO 9800
+       ENDIF
+       series_g (i) %nterm = iterm
        DO j = 1, iterm
           series_g (i) %val (j) = tempseries_g%val (j)
           series_g (i) %days (j) = tempseries_g%days (j)
@@ -3714,8 +3709,17 @@ subroutine get_wdm_series (ifail)
        !> SPACING: intrinsic that determines the distance between the
        !>          argument and the nearest adjacent number of the same
        !>          type; the construct below is designed to avoid
-       !>          equivalence testing of real values, a definite "no-no"!
-       fspace = ABS (3.0*SPACING (filter) )
+       !>          equivalence testing of real values.
+       fspace = SPACING (filter) 
+       sgcnt = COUNT(ABS(tempseries_g%val - filter) > fspace)
+       ALLOCATE (series_g (i) %days (sgcnt), series_g (i) %secs (sgcnt),           &
+         series_g (i) %val (sgcnt), STAT = ierr)
+       IF (ierr /= 0) THEN
+          WRITE (amessage, 1685)
+          GOTO 9800
+       ENDIF
+
+       jterm = 0
        DO j = 1, iterm
 
           fval = tempseries_g%val (j)
@@ -3735,7 +3739,12 @@ subroutine get_wdm_series (ifail)
        ENDDO
        series_g (i) %nterm = jterm
     ENDIF
+1685 FORMAT ('cannot allocate memory for another time series.')
 
+    series_g (i) %active = .TRUE.
+    series_g (i) %name = aname
+    series_g (i) %type = 'ts'
+    
     CALL addquote (afile, sString_g)
     WRITE (*, 1720) TRIM (aname), TRIM (sString_g)
     WRITE (LU_REC, 1720) TRIM (aname), TRIM (sString_g)

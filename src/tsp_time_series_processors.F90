@@ -4498,9 +4498,10 @@ subroutine compute_hydrologic_indices(ifail)
 
        rCarea = 100.
        lUseMedian = .FALSE._C_BOOL
-       ! the default behavior is to calculate indices for *ALL* flow components
-       lFlowComponent = lTRUE
+
+       lFlowComponent = lFALSE
        lFlowComponentFirstCall = lTRUE
+
        iStreamClass = 0
 
        rQ = rTINY
@@ -4603,14 +4604,6 @@ subroutine compute_hydrologic_indices(ifail)
          elseif(aoption .eq. 'FLOW_COMPONENT') then
            iNumberOfKeywords = iNumberOfKeywords + 1
            call getfile(ierr,cline,sFlowComponent,left_word(2),right_word(2))
-
-           if(lFlowComponentFirstCall) then
-             ! if this is the first instance of FLOW_COMPONENT, then
-             ! turn off all flow components... the code that follows
-             ! will then activate just the flow components that the user requests
-             lFlowComponentFirstCall = lFALSE
-             lFlowComponent = lFALSE
-           endif
 
            ! user is specifying components of flow; need to clear out this
            ! set of flags so that the user can pick his/her own flow components

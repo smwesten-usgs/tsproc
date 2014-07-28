@@ -362,7 +362,7 @@ subroutine period_stats(ifail)
        icontext,i,begdays,begsecs,enddays,endsecs,iseries,jtrans, &
        j,ibterm,ieterm,iterm,iiterm,itemp,ixcon,ndays,nvals,days, &
        dd,mm,yy,cdd,cmm,cyy,cwy,wy, &
-       DA(12),nvals_mon(12)
+       DA(12),nvals_mon(12),nsecs
        real tpower,rtemp,rvalue,tstat,tmax,tmin,tsum,tsum2,rmean
        real tmax_mon(12),tmin_mon(12),tsum_mon(12),tsum2_mon(12)
        character(3)aaa
@@ -510,6 +510,7 @@ subroutine period_stats(ifail)
            call casetrans(period,'lo')
            if((period.ne.'month_one').and.   &
               (period.ne.'month_many').and.   &
+              (period.ne.'daily').and.   &
               (period.ne.'year'))then
              call num2char(ILine_g,aline)
              call addquote(sInfile_g,sString_g)
@@ -873,6 +874,62 @@ subroutine period_stats(ifail)
              tsum2_mon(mm)=tsum2_mon(mm)+rtemp*rtemp
              if(rtemp.gt.tmax_mon(mm))tmax_mon(mm)=rtemp
              if(rtemp.lt.tmin_mon(mm))tmin_mon(mm)=rtemp
+           case('daily')
+             if(dd.eq.cdd) then
+               nvals=nvals+1
+               tsum=tsum+rtemp
+               tsum2=tsum2+rtemp*rtemp
+               if(rtemp.gt.tmax)tmax=rtemp
+               if(rtemp.lt.tmin)tmin=rtemp
+             else
+               if(nvals.gt.0) then
+                 selectcase(statistic)
+                   case('sum')
+                     tstat=tsum
+                   case('mean')
+                     tstat=tsum/float(nvals)
+                   case('std_dev')
+                     if(nvals.eq.1) then
+                       tstat=0
+                     else
+                       rmean=tsum/nvals
+                       tstat=sqrt((tsum2-nvals*rmean*rmean)/(nvals-1))
+                     end if
+                   case('maximum')
+                     tstat=tmax
+                   case('minimum')
+                     tstat=tmin
+                   case('range')
+                     tstat=tmax-tmin
+                 end select
+                 selectcase(abscissa)
+                   case('start')
+!                     ndays=numdays(1,1,1970,1,cmm,cyy)
+                     ndays=julian_day(iMonth=cmm, iDay=cdd, iYear=cyy)
+                     nsecs=0
+                   case('centre')
+!                     ndays=numdays(1,1,1970,15,cmm,cyy)
+                     ndays=julian_day(iMonth=cmm, iDay=cdd, iYear=cyy)
+                     nsecs=43200
+                   case('end')
+!                     ndays=numdays(1,1,1970,days,cmm,cyy)
+                     ndays=julian_day(iMonth=cmm, iDay=cdd, iYear=cyy)
+                     nsecs=86399
+                 end select
+                 iterm=iterm+1
+                 tempseries_g%days(iterm)=ndays
+                 tempseries_g%secs(iterm)=nsecs
+                 tempseries_g%val(iterm)=tstat
+               end if
+               cdd=dd
+               cmm=mm
+               cyy=yy
+               nvals=1
+               tsum=rtemp
+               tsum2=rtemp*rtemp
+               tmax=rvalue
+               tmin=rvalue
+             end if
          end select
        end do
 
@@ -1034,6 +1091,46 @@ subroutine period_stats(ifail)
                tempseries_g%val(iterm)=tstat
              end if
            end do
+         case('daily')
+           if(nvals.gt.0) then
+             selectcase(statistic)
+               case('sum')
+                 tstat=tsum
+               case('mean')
+                 tstat=tsum/float(nvals)
+               case('std_dev')
+                 if(nvals.eq.1) then
+                   tstat=0
+                 else
+                   rmean=tsum/nvals
+                   tstat=sqrt((tsum2-nvals*rmean*rmean)/(nvals-1))
+                 end if
+               case('maximum')
+                 tstat=tmax
+               case('minimum')
+                 tstat=tmin
+               case('range')
+                 tstat=tmax-tmin
+             end select
+             selectcase(abscissa)
+               case('start')
+!                 ndays=numdays(1,1,1970,1,cmm,cyy)
+                 ndays=julian_day(iMonth=cmm, iDay=cdd, iYear=cyy)
+                 nsecs=0
+               case('centre')
+!                 ndays=numdays(1,1,1970,15,cmm,cyy)
+                 ndays=julian_day(iMonth=cmm, iDay=cdd, iYear=cyy)
+                 nsecs=43200
+               case('end')
+!                 ndays=numdays(1,1,1970,days,cmm,cyy)
+                 ndays=julian_day(iMonth=cmm, iDay=cdd, iYear=cyy)
+                 nsecs=86399
+             end select
+             iterm=iterm+1
+             tempseries_g%days(iterm)=ndays
+             tempseries_g%secs(iterm)=nsecs
+             tempseries_g%val(iterm)=tstat
+           end if
          end select
 ! --  space is allocated for the new time series.
 

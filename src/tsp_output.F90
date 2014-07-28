@@ -1816,10 +1816,10 @@ subroutine pest_files(ifail,lastblock)
 1570   format(2i6,'   single   point   1   0   0')
        if(isvd.eq.0)then
          write(iunit,1580)
-1580     format('5.0   2.0    0.3    0.03    10  999')
+1580     format('10.0   2.0    0.3    0.03    10  999')
        else
          write(iunit,1581)
-1581     format(' 0.   -4.0   0.3  0.03    1       999')
+1581     format('10.0  -3.0    0.3    0.03     1  999')
        end if
        write(iunit,1590)
 1590   format('5.0   5.0   1.0e-3')
