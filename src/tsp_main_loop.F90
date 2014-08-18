@@ -114,13 +114,12 @@ module tsp_main_loop
       !! unrolling is ALLOWED rather than the reverse
 
       word = next_token(token, cline, tokenlen)
-      IF ((trim(word) == 'ERASE_ENTITY') .OR.  &
-        (trim(word) == 'SERIES_COMPARE') .OR.                  &
-        (trim(word) == 'SERIES_EQUATION') .OR.                 &
-        (trim(word) == 'SETTINGS') .OR.  &
-        (trim(word) == 'HYDROLOGIC_INDICES') .OR.              &
-        (trim(word) == 'FLOW_DURATION') .OR.                   &
-        (trim(word) == 'WRITE_PEST_FILES')) THEN
+      IF ((trim(word) == 'SERIES_COMPARE') .OR.                  &
+          (trim(word) == 'SERIES_EQUATION') .OR.                 &
+          (trim(word) == 'SETTINGS') .OR.                        &
+          (trim(word) == 'HYDROLOGIC_INDICES') .OR.              &
+          (trim(word) == 'FLOW_DURATION') .OR.                   &
+          (trim(word) == 'WRITE_PEST_FILES')) THEN
 
         blocktype = 1
 
