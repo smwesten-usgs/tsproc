@@ -49,7 +49,7 @@ program tsp_main
 
   end if
 
-   write(unit=LU_STD_OUT,fmt="(a,/,a,/,a,/,a)") &
+   write(unit=LU_STD_OUT,fmt="(/,a,/,a,/,a,/,a)") &
      ' Program TSPROC is a general time-series processor. It can ', &
      ' also be used for PEST input file preparation where time series data, ', &
      ' or processed time series data, comprises at least part of the observation ',&

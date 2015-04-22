@@ -40,6 +40,10 @@ if(TARGET__TSPROC_EXECUTABLE)
            RUNTIME
            DESTINATION bin
            )
+
+    set_target_properties(tsproc
+           PROPERTIES LINKER_LANGUAGE CXX)
+
 endif()
 
 if(TARGET__TSPROC_LIBRARY)
@@ -78,11 +82,12 @@ if(TARGET__TSPROC_LIBRARY)
             wdm_support/WDTMS1.FOR
             wdm_support/WDTMS2.FOR )
 
-   install(TARGETS tsproclib
-           ARCHIVE
-           DESTINATION lib )
+   install( TARGETS tsproclib
+            ARCHIVE
+            DESTINATION lib )
+
+   set_target_properties( tsproclib
+            PROPERTIES LINKER_LANGUAGE CXX)
 
 endif()
 
-set_target_properties(tsproc tsproclib
-    PROPERTIES LINKER_LANGUAGE CXX)

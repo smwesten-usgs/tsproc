@@ -1,4 +1,4 @@
-message("TSPROC LOCATION: " ${TSPROC_EXECUTABLE} )
+message("TSPROC LOCATION: " ${CMAKE_INSTALL_PREFIX}/${TSPROC_EXECUTABLE} )
 
 # Need input files over in build environment
 file(GLOB infiles
@@ -24,14 +24,14 @@ if(DEFINED R_SCRIPT)
 
    message("Test string: " ${basename})
    message("   COMMAND " ${R_SCRIPT} " --vanilla "
-              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " " ${TSPROC_EXECUTABLE} )
+              ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename} " " ${CMAKE_INSTALL_PREFIX}/${TSPROC_EXECUTABLE} )
    message(" ")
 
      add_test(${basename}
               ${R_SCRIPT}
               --vanilla
               ${CMAKE_CURRENT_SOURCE_DIR}/${test_filename}
-              ${TSPROC_EXECUTABLE})
+              ${CMAKE_INSTALL_PREFIX}/${TSPROC_EXECUTABLE} )
 
      # set criteria for success of each test
      set_tests_properties(${basename}

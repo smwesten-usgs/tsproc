@@ -6,14 +6,14 @@ module tsp_data_structures
 
   character (len=256) :: sVersionString = "version 1.0.4"
 
-  integer, parameter    :: MAXSERIES=10000
-  integer, parameter    :: MAXSERIESREAD=10000
-  integer, parameter    :: MAXSTABLE=1000
-  integer, parameter    :: MAXGTABLE=1000
+  integer, parameter    :: MAXSERIES=50000
+  integer, parameter    :: MAXSERIESREAD=50000
+  integer, parameter    :: MAXSTABLE=5000
+  integer, parameter    :: MAXGTABLE=5000
   integer, parameter    :: MAXCTABLE=500
   integer, parameter    :: MAXCONTEXT=5
-  integer, parameter    :: MAXVTABLE=500
-  integer, parameter    :: MAXDTABLE=500
+  integer, parameter    :: MAXVTABLE=5000
+  integer, parameter    :: MAXDTABLE=5000
   integer, parameter    :: MAXTEMPDURFLOW=100         ! this used to be 50
   integer, parameter    :: MAXTEMPFILE=200
   integer, parameter    :: MAXPAR=8500

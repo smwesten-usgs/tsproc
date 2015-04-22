@@ -6576,10 +6576,10 @@ subroutine flow_duration(ifail)
 
        ! does the specified time series have enough data points
        ! to bother with?
-       if (series_g(iseries)%nterm < 30 ) then
+       if (series_g(iseries)%nterm < 10 ) then
          write(amessage,250) trim(series_g(iseries)%name)
 250      format('cannot calculate exceedance times because time series "',a,   &
-         '" has less than 30 values.')
+         '" has less than 10 values.')
          go to 9800
        end if
 

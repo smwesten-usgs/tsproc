@@ -1,6 +1,6 @@
 # CMake project for tsproc
 
-# This CMakeLists.txtx file is written with the expectation that
+# This CMakeLists.txt file is written with the expectation that
 # the following configuration variables are set and passed
 # during CMake invocation:
 
@@ -30,7 +30,7 @@ endif(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
 #------------------------------------------------------------------------
 # Set basic project settings
 #------------------------------------------------------------------------
-project (tsproc Fortran CXX)
+project (tsproc)
 enable_language (Fortran CXX)
 
 SET(CPACK_GENERATOR "TGZ")
@@ -47,18 +47,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 cmake_minimum_required(VERSION 2.6)
 
 include( cmake/options_and_targets.cmake )
-
-# define library and include paths
-set(TSP_LIBPATH ${PROJECT_SOURCE_DIR}/lib/${OS}/${Fortran_COMPILER_NAME} )
-set(TSP_INCPATH ${PROJECT_SOURCE_DIR}/include/${OS}/${Fortran_COMPILER_NAME} )
-set(LIB_PATH "${COMPILER_DIR}/lib/gcc/${COMPILER_TRIPLET}/${COMPILER_VERSION}" )
-set(LIB_PATH ${LIB_PATH} "${COMPILER_DIR}/${COMPILER_TRIPLET}/lib" )
-set(LIB_PATH ${LIB_PATH} "${COMPILER_DIR}/lib" )
-set(CMAKE_LIBRARY_PATH ${LIB_PATH} ${TSP_LIBPATH})
-
 include( cmake/find_programs_and_libraries.cmake )
 
-add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/tsproc.exe ${CMAKE_INSTALL_PREFIX}/tsproc.exe )
+add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/${TSPROC_EXECUTABLE} ${CMAKE_INSTALL_PREFIX}/${TSPROC_EXECUTABLE} )
 
 # print a summary of important details to screen
 include( cmake/print_summary.cmake )
