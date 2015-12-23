@@ -1879,7 +1879,7 @@ subroutine vol_to_series(ifail)
 370    continue
        nsterm=vtable_g(ivtable)%nterm
        allocate(series_g(iser)%days(nsterm),series_g(iser)%secs(nsterm),  &
-       series_g(iser)%dpval(nsterm),stat=ierr)
+       series_g(iser)%dpval(nsterm), series_g(iser)%val(nsterm),stat=ierr)
 
        series_g(iser)%lIsSinglePrecision = lFALSE
 
@@ -1931,10 +1931,12 @@ subroutine vol_to_series(ifail)
          do j=1,nsterm
            dpCumulativeVolume = dpCumulativeVolume + vtable_g(ivtable)%vol(j) * factor
            series_g(iser)%dpval(j) = dpCumulativeVolume
+           series_g(iser)%val(j) = dpCumulativeVolume           
          end do
        else
          do j=1,nsterm
            series_g(iser)%dpval(j)=vtable_g(ivtable)%vol(j) * factor
+          series_g(iser)%val(j) = vtable_g(ivtable)%vol(j) * factor
          end do
        endif
 
@@ -3407,6 +3409,7 @@ subroutine compare_series(ifail)
        k=iobterm-1
        do j=isbterm,iseterm
          k=k+1
+
          rtemp=series_g(ioseries)%val(k)
 !         if((jrbias.ne.0).or.(jrse.ne.0).or.(jns.ne.0))then
 !           if(rtemp.le.0.0)then
