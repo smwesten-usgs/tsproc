@@ -31,18 +31,20 @@ endif(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
 # Set basic project settings
 #------------------------------------------------------------------------
 project (tsproc)
-enable_language (Fortran CXX)
+enable_language (Fortran)
 
 SET(CPACK_GENERATOR "TGZ")
 include(CPack)
 
 set(PACKAGE_BUGREPORT "smwesten@usgs.gov")
 set(PACKAGE_NAME "tsproc")
-set(PACKAGE_STRING "tsproc 1.0.3")
+set(PACKAGE_STRING "tsproc 1.0.4")
 set(PACKAGE_TARNAME "tsproc")
-set(PACKAGE_VERSION "1.0.3")
+set(PACKAGE_VERSION "1.0.4")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET( CMAKE_CXX_FLAGS  "${CMAKE_Fortran_FLAGS_RELEASE}")
+set( CMAKE_EXE_LINKER_FLAGS="-static" )
 
 cmake_minimum_required(VERSION 2.6)
 

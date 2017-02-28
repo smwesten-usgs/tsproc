@@ -3702,7 +3702,7 @@ subroutine get_wdm_series (ifail)
           call gregorian_date(iJD=series_g(i)%days(j), iMonth=iMM, &
               iDay=iDD, iYear=iYYYY)
 
-          print *, j, series_g(i)%val(j), series_g(i)%days(j)," | ", iMM, iDD, iYYYY
+!          print *, j, series_g(i)%val(j), series_g(i)%days(j)," | ", iMM, iDD, iYYYY
 
        ENDDO
     ELSE
