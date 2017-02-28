@@ -17,6 +17,8 @@ if(TARGET__TSPROC_EXECUTABLE)
             tsp_utilities.F90
             wsc_additions.F90
 
+            generated/version_control.F90
+
             wdm_support/DTTM90.FOR
             wdm_support/TSBUFR.FOR
             wdm_support/UTCHAR.FOR
@@ -62,6 +64,8 @@ if(TARGET__TSPROC_LIBRARY)
             tsp_time_series_processors.F90
             tsp_utilities.F90
             wsc_additions.F90
+
+            generated/version_control.F90
 
             wdm_support/DTTM90.FOR
             wdm_support/TSBUFR.FOR

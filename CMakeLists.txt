@@ -51,7 +51,14 @@ cmake_minimum_required(VERSION 2.6)
 include( cmake/options_and_targets.cmake )
 include( cmake/find_programs_and_libraries.cmake )
 
+set( EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LIB_GCC})
+set( EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LIB_GFORTRAN})
+link_libraries(${EXTERNAL_LIBS})
+
 add_custom_target(copy ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/${TSPROC_EXECUTABLE} ${CMAKE_INSTALL_PREFIX}/${TSPROC_EXECUTABLE} )
+
+# include Git commit hash 
+include( cmake/version_control.cmake )
 
 # print a summary of important details to screen
 include( cmake/print_summary.cmake )

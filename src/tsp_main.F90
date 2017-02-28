@@ -2,6 +2,7 @@ program tsp_main
 
   use tsp_data_structures
   use tsp_main_loop
+  use version_control, only  : GIT_COMMIT_HASH_STRING, GIT_BRANCH_STRING, COMPILE_DATE, COMPILE_TIME
   use iso_fortran_env
   implicit none
 
@@ -56,8 +57,10 @@ program tsp_main
      ' dataset.'
 
    write(unit=LU_STD_OUT,fmt="(/,a)")  " TSPROC -- "//trim(sVersionString)
-   write(unit=LU_STD_OUT, fmt="(/,a)") "Compiled on: "  // &
-      TRIM(__DATE__) //" "// TRIM(__TIME__)
+   write(unit=LU_STD_OUT, fmt="(/,a)") "  Compiled on: "  // &
+      TRIM(COMPILE_DATE) //" "// TRIM(COMPILE_TIME)
+   write(unit=LU_STD_OUT, fmt="(a,/)") "  Git commit hash: "//trim(GIT_COMMIT_HASH_STRING)  &
+      //" ("//trim(GIT_BRANCH_STRING)//" )"
 
 #ifdef __GFORTRAN__
     sCompilerFlags = COMPILER_OPTIONS()
