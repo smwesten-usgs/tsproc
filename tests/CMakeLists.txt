@@ -30,7 +30,7 @@ set(tests_that_should_pass
 
 set(R_script_tests
        tsp_compare_flow_duration_output.R
-	   test_series_compare_output.R
+	     test_series_compare_output.R
    )
 
 # process all tests_that_should_pass
@@ -92,4 +92,3 @@ endif()
 
 add_subdirectory(io)
 add_subdirectory(calcs)
-
