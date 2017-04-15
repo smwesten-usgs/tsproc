@@ -31,7 +31,7 @@ endif(${CMAKE_SOURCE_DIR}/src STREQUAL ${CMAKE_BINARY_DIR})
 # Set basic project settings
 #------------------------------------------------------------------------
 project (tsproc)
-enable_language (Fortran)
+enable_language (Fortran CXX )
 
 SET(CPACK_GENERATOR "TGZ")
 include(CPack)
@@ -46,7 +46,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 SET( CMAKE_CXX_FLAGS  "${CMAKE_Fortran_FLAGS_RELEASE}")
 set( CMAKE_EXE_LINKER_FLAGS="-static" )
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.6)
 
 include( cmake/options_and_targets.cmake )
 
