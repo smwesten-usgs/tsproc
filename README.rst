@@ -6,10 +6,10 @@ Computing.  It was part of the Surface Water Utilities package that was
 created to support optimization of model parameters using the Parameter
 ESTimation (PEST) suite or programs.  PEST was also developed by John Doherty.
 
-Requirements
-============
+## Requirements
 
-* The build system is 'cmake' from http://cmake.org.
+
+* The build system is 'CMake' from http://cmake.org.
 
 * A "C" compiler, the tested compilers are:
 
@@ -22,50 +22,12 @@ Requirements
  + pgfortran from Portland Group on Linux
  + gfortran >= 4.4 (to suport ISO_C_BINDING) from GNU on Linux
 
-Build
-=====
+## Summary of Build Process
+
 Create a build directory outside of the source directory structure and change
-directory.
+directory. If you have cloned this repository, then you should find several subdirectories within the 'build' subdirectory that contain scripts designed to set environment variables and compilation options before invoking CMake. CMake takes these environment variables, parses the source code, determines dependencies (i.e. which modules are to be built first), and creates a makefile. The makefile can then be invoked by the user to trigger the actual compilation and linking of the various modules.
 
-Examples are from Linux, adapt as necessary for Windows...
+### Building under Windows with MinGW64
 
-::
-
-  mkdir /path/to/build/directory
-  cd /path/to/build/directory
-
-
-Then run 'cmake'.  The 'cmake' command draws a lot of the configuration from
-the current environment.  For example, running on Linux it will create
-'Makefile' files suitable for the Linux 'make' with the Fortran and C
-compilers that are set in the respective environment variables (specifically
-FC for Fortran and CC for the C Compiler)
-
-::
-
-  cmake -i /path/to/top/of/source/directory
-
-
-Then answer the questions that 'cmake' asks.  When in doubt, accept the
-default.
-
-The run the command suitable for your build environment...
-
-::
-
-  make
-
-There are a couple tests to make sure everything is alright...
-
-::
-
-  make test
-
-
-Then install...
-
-::
-
-  make install
-
+In the `build/win_x64/gfortran` subdirectory is a simple batchfile that sets a number of environment variables before invoking CMake. You may need to alter some of the variable values to work on your system. For example, the batch file assumes that you have the MinGW64 compilers installed at 'c:\MinGW64'; this needs to be changed if your MinGW64 is located elsewhere. The version number environment variable must also match your installed version of gcc.
 
