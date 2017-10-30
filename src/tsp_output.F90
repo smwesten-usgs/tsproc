@@ -16,6 +16,26 @@ module TSP_OUTPUT
  
      contains
 
+
+     subroutine write_vstrlist(eq_sorted, wordcnt, lu_rec)
+     type (t_vstringlist), intent(in) :: eq_sorted
+     integer, intent(in) :: wordcnt, lu_rec
+
+     integer :: ipar
+     character(12) :: aapar
+
+     do ipar = 1, vstrlist_length(eq_sorted)
+         call vstring_cast(vstrlist_index(eq_sorted, ipar), aapar)
+         write(*, "(A13)", advance="no")aapar
+         write(lu_rec, "(A13)", advance="no")aapar
+         if(mod(ipar, wordcnt)==0)then
+             write(*, *)
+             write(lu_rec, *)
+         endif
+     enddo
+     end subroutine write_vstrlist
+
+
      subroutine PEST_FILES(Ifail, Lastblock)
 !    -- Subroutine PEST_FILES generates a PEST input dataset.
 
@@ -1906,31 +1926,30 @@ module TSP_OUTPUT
          goto 2400
      endif
 
-! -- Give WARNING about parameters not in any template.
-     if(vstrlist_length(dat_sorted) > 0)then
+     ! -- If equations then give WARNING about parameters not in any template,
+     ! -- however give an error if f_nequation==0
+     if(f_nequation>0 .AND. vstrlist_length(dat_sorted) > 0)then
          write(*, 9981)
          write(*, 9982)
 9981     format(/, /, "The following parameters are not in any template.")
 9982     format(/, "This could be fine since they might be used in an",        &
               & /, "equation, however listed here in case there might",        &
-              & /, "be a mistake and they should in fact be listed in",        &
-              & /, "a template.", /)
+              & /, "be a mistake and they should in fact be in a template",    &
+              & /, "file.", /)
               
          write(lu_rec, 9981)
          write(lu_rec, 9982)
-         do ipar = 1, vstrlist_length(dat_sorted)
-             call vstring_cast(vstrlist_index(dat_sorted, ipar), aapar)
-             write(*, "(A13)", advance="no")aapar
-             write(lu_rec, "(A13)", advance="no")aapar
-             if(mod(ipar, 5)==0)then
-                 write(*, *)
-                 write(lu_rec, *)
-             endif
-         enddo
+         call write_vstrlist(dat_sorted, 5, lu_rec)
          write(*, *)
          write(*, *)
          write(lu_rec, *)
          write(lu_rec, *)
+     elseif(f_nequation==0 .AND. vstrlist_length(dat_sorted) > 0)then
+         write(*, 9992)
+9992     format(/, /, 'The following parameters are not in any template file.',&
+              & /)
+         call write_vstrlist(dat_sorted, 5, lu_rec)
+         goto 2400
      endif
 
 ! -- Give WARNING about secondary parameters not in any template.
@@ -1941,15 +1960,7 @@ module TSP_OUTPUT
               & "template.")
          write(lu_rec, 9983)
          write(lu_rec, 9982)
-         do ipar = 1, vstrlist_length(eq_sorted)
-             call vstring_cast(vstrlist_index(eq_sorted, ipar), aapar)
-             write(*, "(A13)", advance="no")aapar
-             write(lu_rec, "(A13)", advance="no")aapar
-             if(mod(ipar, 5)==0)then
-                 write(*, *)
-                 write(lu_rec, *)
-             endif
-         enddo
+         call write_vstrlist(eq_sorted, 5, lu_rec)
          write(*, *)
          write(*, *)
          write(lu_rec, *)
