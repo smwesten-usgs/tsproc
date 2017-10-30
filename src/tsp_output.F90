@@ -1,3172 +1,3416 @@
-module tsp_output
+module TSP_OUTPUT
+ 
+     use TSP_DATA_STRUCTURES
+     use TSP_COMMAND_PROCESSORS
+     use TSP_UTILITIES
+     use TSP_EQUATION_PARSER
 
-  use tsp_data_structures
-  use tsp_command_processors
-  use tsp_utilities
+     use m_vstringlist, only : vstrlist_new, vstrlist_append, vstrlist_sort,   &
+                             & vstrlist_index, vstrlist_free, t_vstringlist,   &
+                             & vstrlist_length, vstrlist_remove,               &
+                             & vstrlist_search, vstrlist_concat
+     use m_vstring, only : vstring_equals, vstring_cast
+     use tokenlists
 
-  use tsp_equation_parser
-  implicit none
+     implicit none
+ 
+     contains
 
+     subroutine PEST_FILES(Ifail, Lastblock)
+!    -- Subroutine PEST_FILES generates a PEST input dataset.
 
-contains
+     implicit none
+!
+! Dummy arguments
+!
+     integer :: Ifail, Lastblock
+     intent (in) Lastblock
+     intent (out) Ifail
+!
+! Local variables
+!
+     character(1) :: aa
+     character(25), dimension(maxcontext) :: acontext
+     character(15) :: aline, avariable
+     real :: eigthresh, rmtemp, rotemp, rprecis, rtime, totim, weightmax,      &
+           & weightmin
+     character(itsnamelength) :: amname, anum, aoname, atrans
+     character(30) :: aname, aoption, atemp, correct_keyword, last_keyword,    &
+                    & otherblock
+     character(3) :: auiaa
+     integer :: auiyesno, dd, i, iaui, icontext, ieqnerr, ierr, ii1, il,       &
+              & iterm, im, io, iodtable, iogtable, iomdtable, iomgtable,       &
+              & iomseries, iomstable, iomvtable, ioseries, iostable, iout,     &
+              & iovtable, isnum, isvd, itemp, itempfile, itempunit, iunit,     &
+              & ixcon, j, jj, jj1, jline, k, kk, ll, mm, nmterm, nn, nnterm,   &
+              & nobs, nobsgp, noterm, nsterm, nterm, numtempfile, siout, yy
+     character(12), dimension(maxseries + maxvtable + maxdtable + maxgtable)   &
+                & :: basename
+     character(120) :: bstring, cstring, instructfile, micactlfile, modcomline,&
+                     & pardatfile, pest2micacom, pestctlfile
+     real(8) :: delta2, dtempx, dval, obj_fun_value, sse
+     character(150), dimension(maxdtable) :: dtequation
+     real, dimension(maxdtable) :: dtweightmax, dtweightmin
+     character(150) :: eqntext
+     character(150), dimension(maxgtable) :: gtequation
+     real, dimension(maxgtable) :: gtweightmax, gtweightmin
+     logical :: lexist
+     integer, dimension(maxdtable) :: moddtable, obsdtable
+     character(120), dimension(maxtempfile) :: modfile, tempfile
+     integer, dimension(maxgtable) :: modgtable, obsgtable
+     integer, dimension(maxseries) :: modseries, obsseries
+     integer, dimension(maxstable) :: modstable, obsstable
+     integer, dimension(maxvtable) :: modvtable, obsvtable
+     character(12), dimension(maxseries + maxstable + maxvtable + maxdtable +  &
+                & maxgtable) :: obgnme
+     character(12), dimension(maxstable) :: sbasename
+     character(150), dimension(maxseries) :: sequation
+     character(150), dimension(maxstable) :: stequation
+     real, dimension(maxstable) :: stweightmax, stweightmin
+     real, dimension(maxseries) :: sweightmax, sweightmin
+     real(t_dbl), allocatable, dimension(:) :: tempobsvals, tempsimvals
+     character(150), dimension(maxvtable) :: vtequation
+     real, dimension(maxvtable) :: vtweightmax, vtweightmin
 
-!     Last change:  J     9 Sep 2004   10:39 pm
-subroutine pest_files(ifail,lastblock)
+! -- Variables used for dealing with parameter groups.
+     integer :: f_numpargp, igp, npargp
+     real, allocatable, dimension(:) :: derinc, derinclb, derincmul, f_derinc, &
+                                      & f_derinclb, f_derincmul
+     character(12) :: apargp
+     character(12), allocatable, dimension(:) :: dermthd, forcen, f_dermthd,   &
+                                               & f_forcen, f_inctyp,           &
+                                               & f_pargpnme, inctyp, pargpnme
+     character(120) :: pargroupfile
 
-! -- Subroutine PEST_FILES generates a PEST input dataset.
+! -- Variables used for dealing with parameter data.
+     integer :: f_numpar, ipar, nnpar, npar, tempunit
+     real, allocatable, dimension(:) :: f_offset, f_parlbnd, f_parubnd,        &
+                                      & f_parval1, f_scale
+     character(1) :: pardelim
+     character(12) :: aapar
+     character(12), dimension(maxpar) :: apar
+     character(12), allocatable, dimension(:) :: f_parchglim, f_pargp
+     character(12), allocatable, dimension(:) :: f_parnme
+     character(19), allocatable, dimension(:) :: f_partrans
 
-       integer, intent(out)   :: ifail
-       integer, intent(in)    :: lastblock
+! -- Variables to work with secondary parameters.
+     integer :: f_nequation, f_nparsec, iequation
+     character(12), allocatable, dimension(:) :: f_parsecnme
+     character(240), allocatable, dimension(:) :: f_equation
 
-! -- General parameters
-       logical lexist
-       integer ierr,icontext,itempfile,ioseries,iostable,iovtable,iodtable,i,iunit,j, &
-       iogtable, iomgtable, &
-       jline,numtempfile,ii1,ll,jj1,jj,kk,io,im,noterm,nmterm,iomseries,iomstable,  &
-       iomvtable,iomdtable,iout,nsterm,iterm,il,siout,nobs,nobsgp,ieqnerr,nterm,nnterm, &
-       isnum,dd,nn,yy,mm,k,ixcon,auiyesno,itempunit,isvd,iaui,itemp
-       real rotemp,rmtemp,rprecis,weightmin,weightmax,totim,rtime,eigthresh
-       integer obsseries(MAXSERIES),obsstable(MAXSTABLE),obsvtable(MAXVTABLE), &
-       obsdtable(MAXDTABLE),obsgtable(MAXGTABLE),modseries(MAXSERIES),modstable(MAXSTABLE), &
-       modvtable(MAXVTABLE),moddtable(MAXDTABLE),modgtable(MAXGTABLE)
-       real sweightmin(MAXSERIES),sweightmax(MAXSERIES),stweightmin(MAXSTABLE), &
-       stweightmax(MAXSTABLE),vtweightmin(MAXVTABLE),vtweightmax(MAXVTABLE), &
-       dtweightmin(MAXDTABLE),dtweightmax(MAXDTABLE),gtweightmin(MAXGTABLE),gtweightmax(MAXGTABLE)
-       double precision dval,dtempx, sse, obj_fun_value, delta2
-       real (kind=T_DBL), dimension(:), allocatable :: tempobsvals, tempsimvals
-       character(1)aa
-       character(3)auiaa
-       character(len=iTSNAMELENGTH) :: aoname,amname,anum,atrans
-       character(15)aline,avariable
-       character(30)aoption,correct_keyword,last_keyword,atemp,otherblock,aname
-       character(120)pardatfile,pestctlfile,instructfile,modcomline,bstring,cstring, &
-       micactlfile,pest2micacom
-       character(25)acontext(MAXCONTEXT)
-       character(12)basename(MAXSERIES+MAXVTABLE+MAXDTABLE+MAXGTABLE),sbasename(MAXSTABLE), &
-                    obgnme(MAXSERIES+MAXSTABLE+MAXVTABLE+MAXDTABLE+MAXGTABLE)
-       character(120)tempfile(MAXTEMPFILE),modfile(MAXTEMPFILE)
-       character(150)sequation(MAXSERIES),stequation(MAXSTABLE),vtequation(MAXVTABLE), &
-                     dtequation(MAXDTABLE),gtequation(MAXGTABLE),eqntext
+! -- Variables for use in calculating series stats as components of a weight
+!    equation.
+     integer :: lc
+     real(8) :: delta, dpcount, dpmax, dpmean, dpmin, dpsum, dpvariance,       &
+                   & m2, tempmean
 
-! -- Variable used for dealing with parameter groups.
+     integer :: nnnpar
 
-       integer                   :: igp,f_numpargp,npargp
-       real,         allocatable :: f_derinc(:),f_derinclb(:),f_derincmul(:), derinc(:), &
-                                    derinclb(:),derincmul(:)
-       character(14)             :: apargp
-       character(120)            :: pargroupfile
-       character(14), allocatable :: f_pargpnme(:),f_inctyp(:),f_forcen(:),f_dermthd(:), &
-                                    forcen(:),dermthd(:),pargpnme(:),inctyp(:)
+     type(t_vstringlist) :: groups_dat, dat_sorted, params_par_dat,            &
+                          & params_eq_dat, template_params,                    &
+                          & tpl_sorted, eq_sorted, params_grp_dat
+     type(tokenlist) :: tlist
 
-! -- Variable used for dealing with parameter data.
-
-       integer                   :: ipar,f_numpar,npar,tempunit,nnpar
-       real, allocatable         :: f_parval1(:),f_parlbnd(:),f_parubnd(:),f_scale(:), &
-                                    f_offset(:),parval1(:),parlbnd(:),parubnd(:),      &
-                                    scale(:),offset(:)
-       character(1)              :: pardelim
-       character(12)             :: aapar
-       character(12)             :: apar(MAXPAR)
-       character(14), allocatable :: f_parnme(:),f_parchglim(:),f_pargp(:), &
-                                    parchglim(:),pargp(:)
-       character(19), allocatable :: f_partrans(:),partrans(:)
-
-! -- Variables for use in calculating series stats as componenta of a weight equation
-
-       double precision :: dpMin, dpMax, dpSum, dpCount, dpMean, dpVariance
-       double precision :: delta, m2, tempmean
-       integer :: lc  ! counter, disposable
-
-       ifail=0
-       CurrentBlock_g='WRITE_PEST_FILES'
-       ieqnerr=0
-
-       write(*,10) trim(CurrentBlock_g)
-       write(LU_REC,10) trim(CurrentBlock_g)
-10     format(/,' Processing ',a,' block....')
-       if(lastblock.ne.201)then
-         write(amessage,15)
-15       format('a WRITE_PEST_FILES block must immediately follow a LIST_OUTPUT block ', &
-         'in a TSPROC input file.')
-         go to 9800
-       end if
-
-! -- Initialisation
-
-       isvd=0
-       iaui=0
-       auiyesno=0
-       icontext=0
-       itempfile=0
-       tempfile=' '             ! tempfile is an array
-       modfile=' '              ! modfile is an array
-
-       sequation=' '            ! sequation is an array
-       stequation=' '           ! stequation is an array
-       vtequation=' '           ! vtequation is an array
-       dtequation=' '           ! dtequation is an array
-       gtequation=' '           ! gtequation is an array
-
-       ioseries=0
-       iostable=0
-       iovtable=0
-       iodtable=0
-       iogtable = 0
-       iomseries=0
-       iomstable=0
-       iomvtable=0
-       iomdtable=0
-       iomgtable = 0
-
-       pardatfile=' '
-       pargroupfile=' '
-       pestctlfile=' '
-       instructfile=' '
-       modcomline=' '
-       micactlfile=' '
-       pest2micacom=' '
-
-       sweightmin=-1.0e36              !sweightmin is an array
-       sweightmax= 1.0e36              !sweightman is an array
-       stweightmin=-1.0e36             !stweightmin is an array
-       stweightmax= 1.0e36             !stweightmax is an array
-       vtweightmin=-1.0e36              !vtweightmin is an array
-       vtweightmax= 1.0e36             !vtweightmax is an array
-       dtweightmin=-1.0e36             !dtweightmin is an array
-       dtweightmax= 1.0e36             !dtweightmax is an array
-       gtweightmin=-1.0e36             !dtweightmin is an array
-       gtweightmax= 1.0e36             !dtweightmax is an array
-
-
-       f_numpargp=0
-       f_numpar=0
-       ixcon=0
-       iunit=0
-
-! -- The PEST_FILES block is first parsed.
-
-       do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if( len_trim(cline) == 0 ) cycle
-         if(cline(1:1).eq.'#') cycle
-         call linesplit(ierr,2)
-         if(ierr.ne.0)then
-           call num2char(ILine_g,aline)
-           call addquote(sInfile_g,sString_g)
-           write(amessage,20) trim(aline),trim(sString_g)
-20         format('insufficient entries on line ',a,' of file ',a)
-           go to 9800
-         end if
-         aoption=cline(left_word(1):right_word(1))
-         call casetrans(aoption,'hi')
-         if(aoption.ne.'CONTEXT')then
-           call test_context(ierr,icontext,acontext)
-           if(ierr.eq.-1)then
-             call find_end(ifail)
-             if(ifail.eq.1) go to 9800
-             return
-           else if(ierr.eq.1) then
-             go to 9800
-           end if
-           ixcon=1
-         end if
-
-         if(aoption.eq.'TEMPLATE_FILE')then
-           itempfile=itempfile+1
-           if(itempfile.gt.MAXTEMPFILE)then
-             call num2char(MAXTEMPFILE,aline)
-             write (amessage,30) trim(aline),trim(CurrentBlock_g)
-30           format('only ',a,' template files can be cited in a ',a,' block.')
-             go to 9800
-           end if
-           call getfile(ierr,cline,tempfile(itempfile),left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,35) trim(aline),trim(sString_g)
-35           format('cannot read template file name from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(tempfile(itempfile))
-           write(LU_REC,37) trim(aoption),trim(tempfile(itempfile))
-37         format(t5,a,' ',a)
-
-         else if(aoption.eq.'MODEL_INPUT_FILE')then
-           correct_keyword='TEMPLATE_FILE'
-           if(last_keyword.ne.correct_keyword)go to 9300
-           call getfile(ierr,cline,modfile(itempfile),left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,40) trim(aline),trim(sString_g)
-40           format('cannot read model input file name from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(modfile(itempfile))
-           write(LU_REC,37) trim(aoption),trim(modfile(itempfile))
-
-         else if(aoption.eq.'PARAMETER_DATA_FILE')then
-           call getfile(ierr,cline,pardatfile,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,50) trim(aline),trim(sString_g)
-50           format('cannot read parameter data file name from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(pardatfile)
-           write(LU_REC,37) trim(aoption),trim(pardatfile)
-
-         else if(aoption.eq.'PARAMETER_GROUP_FILE')then
-           call getfile(ierr,cline,pargroupfile,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,52) trim(aline),trim(sString_g)
-52           format('cannot read parameter group file name from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(pargroupfile)
-           write(LU_REC,37) trim(aoption),trim(pargroupfile)
-
-         else if(aoption.eq.'AUTOMATIC_USER_INTERVENTION')then
-           call get_yes_no(ierr,auiyesno)
-           if(ierr.ne.0) go to 9800
-           if(auiyesno.eq.1)then
-             auiaa='yes'
-           else
-             auiaa='no'
-           end if
-           iaui=1
-           write(*,37) trim(aoption),trim(auiaa)
-           write(LU_REC,37) trim(aoption),trim(auiaa)
-
-         else if(aoption.eq.'TRUNCATED_SVD')then
-           call get_keyword_value(ierr,2,itemp,eigthresh,aoption)
-           if(ierr.ne.0) go to 9800
-           if(eigthresh.le.0.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,53) trim(aline),trim(sString_g)
-53           format('SVD truncation limit must be positive at line ',a,' of file ',a)
-             go to 9800
-           end if
-           isvd=1
-
-         else if(aoption.eq.'NEW_PEST_CONTROL_FILE')then
-           call getfile(ierr,cline,pestctlfile,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,55) trim(aline),trim(sString_g)
-55           format('cannot read pest control file name from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(pestctlfile)
-           write(LU_REC,37) trim(aoption),trim(pestctlfile)
-
-         else if(aoption.eq.'NEW_MICA_CONTROL_FILE')then
-           call getfile(ierr,cline,micactlfile,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,155) trim(aline),trim(sString_g)
-155          format('cannot read mica control file name from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(micactlfile)
-           write(LU_REC,37) trim(aoption),trim(micactlfile)
-
-         else if(aoption.eq.'PEST2MICA_COMMAND')then
-           call getfile(ierr,cline,pest2micacom,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,156) trim(aline),trim(sString_g)
-156          format('cannot read PEST2MICA command from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(pest2micacom)
-           write(LU_REC,37) trim(aoption),trim(pest2micacom)
-
-         else if(aoption.eq.'NEW_INSTRUCTION_FILE')then
-           call getfile(ierr,cline,instructfile,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,56) trim(aline),trim(sString_g)
-56           format('cannot read instruction file name from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(instructfile)
-           write(LU_REC,37) trim(aoption),trim(instructfile)
-
-         else if(aoption.eq.'MODEL_COMMAND_LINE')then
-           call getfile(ierr,cline,modcomline,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,57) trim(aline),trim(sString_g)
-57           format('cannot read model command line from line ',a,' of file ',a)
-             go to 9800
-           end if
-           write(*,37) trim(aoption),trim(modcomline)
-           write(LU_REC,37) trim(aoption),trim(modcomline)
-
-         else if(aoption.eq.'OBSERVATION_SERIES_NAME')then
-           ioseries=ioseries+1
-           if(ioseries.gt.MAXSERIES)then
-             call num2char(MAXSERIES,aline)
-             write(amessage,100) trim(aline),trim(CurrentBlock_g)
-100          format('a maximum of ',a,' series can be cited in a ',a,' block.')
-             go to 9800
-           end if
-           call get_series_name(ierr,obsseries(ioseries),'OBSERVATION_SERIES_NAME')
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'OBSERVATION_S_TABLE_NAME')then
-           iostable=iostable+1
-           if(iostable.gt.MAXSTABLE)then
-             call num2char(MAXSTABLE,aline)
-             write(amessage,102) trim(aline),trim(CurrentBlock_g)
-102          format('a maximum of ',a,' s_tables can be cited in a ',a,' block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,obsstable(iostable),11)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'OBSERVATION_C_TABLE_NAME')then
-           write(amessage,109)
-109        format('current version of TSPROC does not allow C_TABLES to be ', &
-           'used for parameter estimation.')
-           go to 9800
-
-         else if(aoption.eq.'OBSERVATION_V_TABLE_NAME')then
-           iovtable=iovtable+1
-           if(iovtable.gt.MAXVTABLE)then
-             call num2char(MAXVTABLE,aline)
-             write(amessage,103) trim(aline),trim(CurrentBlock_g)
-103          format('a maximum of ',a,' v_tables can be cited in a ',a,' block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,obsvtable(iovtable),12)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'OBSERVATION_E_TABLE_NAME')then
-           iodtable=iodtable+1
-           if(iodtable.gt.MAXDTABLE)then
-             call num2char(MAXDTABLE,aline)
-             write(amessage,104) trim(aline),trim(CurrentBlock_g)
-104          format('a maximum of ',a,' e_tables can be cited in a ',a,' block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,obsdtable(iodtable),13)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'OBSERVATION_G_TABLE_NAME')then
-           iogtable=iogtable+1
-           if(iogtable .gt. MAXGTABLE)then
-             call num2char(MAXGTABLE,aline)
-             write(amessage,804) trim(aline),trim(CurrentBlock_g)
-804          format('a maximum of ',a,' g_tables can be cited in a ',a,' block.')
-             go to 9800
-           end if
+     Ifail = 0        ! counter, disposable
+     currentblock_g = 'WRITE_PEST_FILES'
+     ieqnerr = 0
+ 
+     write(*, 9122)TRIM(currentblock_g)
+     write(lu_rec, 9122)TRIM(currentblock_g)
+     if(Lastblock/=201)then
+         write(amessage, 9001)
+9001     format(                                                               &
+       &'a WRITE_PEST_FILES block must immediately follow a LIST_OUTPUT ',     &
+       &'block in a TSPROC input file.')
+         goto 2400
+     endif
+ 
+!    -- Initialisation
+     isvd = 0
+     iaui = 0
+     auiyesno = 0
+     icontext = 0
+     itempfile = 0
+     tempfile = ' '             ! tempfile is an array
+     modfile = ' '              ! modfile is an array
+ 
+     sequation = ' '            ! sequation is an array
+     stequation = ' '           ! stequation is an array
+     vtequation = ' '           ! vtequation is an array
+     dtequation = ' '           ! dtequation is an array
+     gtequation = ' '           ! gtequation is an array
+ 
+     ioseries = 0
+     iostable = 0
+     iovtable = 0
+     iodtable = 0
+     iogtable = 0
+     iomseries = 0
+     iomstable = 0
+     iomvtable = 0
+     iomdtable = 0
+     iomgtable = 0
+ 
+     pardatfile = ' '
+     pargroupfile = ' '
+     pestctlfile = ' '
+     instructfile = ' '
+     modcomline = ' '
+     micactlfile = ' '
+     pest2micacom = ' '
+ 
+     sweightmin = -1.0E36              !sweightmin is an array
+     sweightmax = 1.0E36               !sweightman is an array
+     stweightmin = -1.0E36             !stweightmin is an array
+     stweightmax = 1.0E36              !stweightmax is an array
+     vtweightmin = -1.0E36             !vtweightmin is an array
+     vtweightmax = 1.0E36              !vtweightmax is an array
+     dtweightmin = -1.0E36             !dtweightmin is an array
+     dtweightmax = 1.0E36              !dtweightmax is an array
+     gtweightmin = -1.0E36             !dtweightmin is an array
+     gtweightmax = 1.0E36              !dtweightmax is an array
+ 
+     f_numpar = 0
+     ixcon = 0
+     iunit = 0
+ 
+!    -- The PEST_FILES block is first parsed.
+     do
+         iline_g = iline_g + 1
+         read(lu_tsproc_control, '(a)', err = 1500, end = 1600)cline
+         if(LEN_TRIM(cline)==0)cycle
+         if(cline(1:1)=='#')cycle
+         call LINESPLIT(ierr, 2)
+         if(ierr/=0)then
+             call NUM2CHAR(iline_g, aline)
+             call ADDQUOTE(sinfile_g, sstring_g)
+             write(amessage, 9002)TRIM(aline), TRIM(sstring_g)
+9002         format('insufficient entries on line ', a, ' of file ', a)
+             goto 2400
+         endif
+         aoption = cline(LEFT_WORD(1):RIGHT_WORD(1))
+         call CASETRANS(aoption, 'hi')
+         if(aoption/='CONTEXT')then
+             call TEST_CONTEXT(ierr, icontext, acontext)
+             if(ierr== - 1)then
+                 call FIND_END(Ifail)
+                 if(Ifail==1)goto 2400
+                 return
+             elseif(ierr==1)then
+                 goto 2400
+             endif
+             ixcon = 1
+         endif
+ 
+         if(aoption=='TEMPLATE_FILE')then
+             itempfile = itempfile + 1
+             if(itempfile>maxtempfile)then
+                 call NUM2CHAR(maxtempfile, aline)
+                 write(amessage, 9003)TRIM(aline), TRIM(currentblock_g)
+9003             format('only ', a, ' template files can be cited in a ', a,   &
+                       &' block.')
+                 goto 2400
+             endif
+             call GETFILE(ierr, cline, tempfile(itempfile), LEFT_WORD(2),      &
+                        & RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9004)TRIM(aline), TRIM(sstring_g)
+9004             format('cannot read template file name from line ', a,        &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(tempfile(itempfile))
+             write(lu_rec, 9123)TRIM(aoption), TRIM(tempfile(itempfile))
+ 
+         elseif(aoption=='MODEL_INPUT_FILE')then
+             correct_keyword = 'TEMPLATE_FILE'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GETFILE(ierr, cline, modfile(itempfile), LEFT_WORD(2),       &
+                        & RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9005)TRIM(aline), TRIM(sstring_g)
+9005             format('cannot read model input file name from line ', a,     &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(modfile(itempfile))
+             write(lu_rec, 9123)TRIM(aoption), TRIM(modfile(itempfile))
+ 
+         elseif(aoption=='PARAMETER_DATA_FILE')then
+             call GETFILE(ierr, cline, pardatfile, LEFT_WORD(2), RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9006)TRIM(aline), TRIM(sstring_g)
+9006             format('cannot read parameter data file name from line ', a,  &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(pardatfile)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(pardatfile)
+ 
+         elseif(aoption=='PARAMETER_GROUP_FILE')then
+             call GETFILE(ierr, cline, pargroupfile, LEFT_WORD(2),             &
+                        & RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9007)TRIM(aline), TRIM(sstring_g)
+9007             format('cannot read parameter group file name from line ', a, &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(pargroupfile)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(pargroupfile)
+ 
+         elseif(aoption=='AUTOMATIC_USER_INTERVENTION')then
+             call GET_YES_NO(ierr, auiyesno)
+             if(ierr/=0)goto 2400
+             if(auiyesno==1)then
+                 auiaa = 'yes'
+             else
+                 auiaa = 'no'
+             endif
+             iaui = 1
+             write(*, 9123)TRIM(aoption), TRIM(auiaa)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(auiaa)
+ 
+         elseif(aoption=='TRUNCATED_SVD')then
+             call GET_KEYWORD_VALUE(ierr, 2, itemp, eigthresh, aoption)
+             if(ierr/=0)goto 2400
+             if(eigthresh<=0.0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9008)TRIM(aline), TRIM(sstring_g)
+9008             format('SVD truncation limit must be positive at line ', a,   &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             isvd = 1
+ 
+         elseif(aoption=='NEW_PEST_CONTROL_FILE')then
+             call GETFILE(ierr, cline, pestctlfile, LEFT_WORD(2), RIGHT_WORD(2)&
+                        & )
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9009)TRIM(aline), TRIM(sstring_g)
+9009             format('cannot read pest control file name from line ', a,    &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(pestctlfile)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(pestctlfile)
+ 
+         elseif(aoption=='NEW_MICA_CONTROL_FILE')then
+             call GETFILE(ierr, cline, micactlfile, LEFT_WORD(2), RIGHT_WORD(2)&
+                        & )
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9010)TRIM(aline), TRIM(sstring_g)
+9010             format('cannot read mica control file name from line ', a,    &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(micactlfile)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(micactlfile)
+ 
+         elseif(aoption=='PEST2MICA_COMMAND')then
+             call GETFILE(ierr, cline, pest2micacom, LEFT_WORD(2),             &
+                        & RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9011)TRIM(aline), TRIM(sstring_g)
+9011             format('cannot read PEST2MICA command from line ', a,         &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(pest2micacom)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(pest2micacom)
+ 
+         elseif(aoption=='NEW_INSTRUCTION_FILE')then
+             call GETFILE(ierr, cline, instructfile, LEFT_WORD(2),             &
+                        & RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9012)TRIM(aline), TRIM(sstring_g)
+9012             format('cannot read instruction file name from line ', a,     &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(instructfile)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(instructfile)
+ 
+         elseif(aoption=='MODEL_COMMAND_LINE')then
+             call GETFILE(ierr, cline, modcomline, LEFT_WORD(2), RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9013)TRIM(aline), TRIM(sstring_g)
+9013             format('cannot read model command line from line ', a,        &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             write(*, 9123)TRIM(aoption), TRIM(modcomline)
+             write(lu_rec, 9123)TRIM(aoption), TRIM(modcomline)
+ 
+         elseif(aoption=='OBSERVATION_SERIES_NAME')then
+             ioseries = ioseries + 1
+             if(ioseries>maxseries)then
+                 call NUM2CHAR(maxseries, aline)
+                 write(amessage, 9014)TRIM(aline), TRIM(currentblock_g)
+9014             format('a maximum of ', a, ' series can be cited in a ', a,   &
+                       &' block.')
+                 goto 2400
+             endif
+             call GET_SERIES_NAME(ierr, obsseries(ioseries),                   &
+                                 &'OBSERVATION_SERIES_NAME')
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='OBSERVATION_S_TABLE_NAME')then
+             iostable = iostable + 1
+             if(iostable>maxstable)then
+                 call NUM2CHAR(maxstable, aline)
+                 write(amessage, 9015)TRIM(aline), TRIM(currentblock_g)
+9015             format('a maximum of ', a, ' s_tables can be cited in a ', a, &
+                       &' block.')
+                 goto 2400
+             endif
+             call GET_TABLE_NAME(ierr, obsstable(iostable), 11)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='OBSERVATION_C_TABLE_NAME')then
+             write(amessage, 9124)
+             goto 2400
+ 
+         elseif(aoption=='OBSERVATION_V_TABLE_NAME')then
+             iovtable = iovtable + 1
+             if(iovtable>maxvtable)then
+                 call NUM2CHAR(maxvtable, aline)
+                 write(amessage, 9016)TRIM(aline), TRIM(currentblock_g)
+9016             format('a maximum of ', a, ' v_tables can be cited in a ', a, &
+                       &' block.')
+                 goto 2400
+             endif
+             call GET_TABLE_NAME(ierr, obsvtable(iovtable), 12)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='OBSERVATION_E_TABLE_NAME')then
+             iodtable = iodtable + 1
+             if(iodtable>maxdtable)then
+                 call NUM2CHAR(maxdtable, aline)
+                 write(amessage, 9017)TRIM(aline), TRIM(currentblock_g)
+9017             format('a maximum of ', a, ' e_tables can be cited in a ', a, &
+                       &' block.')
+                 goto 2400
+             endif
+             call GET_TABLE_NAME(ierr, obsdtable(iodtable), 13)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='OBSERVATION_G_TABLE_NAME')then
+             iogtable = iogtable + 1
+             if(iogtable>maxgtable)then
+                 call NUM2CHAR(maxgtable, aline)
+                 write(amessage, 9018)TRIM(aline), TRIM(currentblock_g)
+9018             format('a maximum of ', a, ' g_tables can be cited in a ', a, &
+                       &' block.')
+                 goto 2400
+             endif
            ! after call below, obsgtable(iotable) should contain the
            ! index of the gtable with the user supplied name
-           call get_table_name(ierr,obsgtable(iogtable),15)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'MODEL_SERIES_NAME')then
-           correct_keyword='OBSERVATION_SERIES_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           iomseries=iomseries+1
-           call get_series_name(ierr,modseries(iomseries),'MODEL_SERIES_NAME')
-           if(ierr.ne.0) go to 9800
-           if(iomseries.gt.1)then
-             do k=1,iomseries-1
-               if(modseries(k).eq.modseries(iomseries))then
-                 write(amessage,105) trim(series_g(modseries(iomseries))%name)
-105              format('time series "',a,'" has been provided as more than one ', &
-                 'MODEL_SERIES_NAME.')
-                 go to 9800
-               end if
-             end do
-           end if
-
-         else if(aoption.eq.'MODEL_S_TABLE_NAME')then
-           correct_keyword='OBSERVATION_S_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           iomstable=iomstable+1
-           call get_table_name(ierr,modstable(iomstable),21)
-           if(ierr.ne.0) go to 9800
-           if(iomstable.gt.1)then
-             do k=1,iomstable-1
-               if(modstable(k).eq.modstable(iomstable))then
-                 write(amessage,106) trim(stable_g(modstable(iomstable))%name)
-106              format('s_table "',a,'" has been provided as more than one ', &
-                 'MODEL_S_TABLE_NAME.')
-                 go to 9800
-               end if
-             end do
-           end if
-
-         else if(aoption.eq.'MODEL_C_TABLE_NAME')then
-           write(amessage,109)
-           go to 9800
-
-         else if(aoption.eq.'MODEL_V_TABLE_NAME')then
-           correct_keyword='OBSERVATION_V_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           iomvtable=iomvtable+1
-           call get_table_name(ierr,modvtable(iomvtable),22)
-           if(ierr.ne.0) go to 9800
-           if(iomvtable.gt.1)then
-             do k=1,iomvtable-1
-               if(modvtable(k).eq.modvtable(iomvtable))then
-                 write(amessage,107) trim(vtable_g(modvtable(iomvtable))%name)
-107              format('v_table "',a,'" has been provided as more than one ', &
-                 'MODEL_V_TABLE_NAME.')
-                 go to 9800
-               end if
-             end do
-           end if
-
-         else if(aoption.eq.'MODEL_E_TABLE_NAME')then
-           correct_keyword='OBSERVATION_E_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           iomdtable=iomdtable+1
-           call get_table_name(ierr,moddtable(iomdtable),23)
-           if(ierr.ne.0) go to 9800
-           if(iomdtable.gt.1)then
-             do k=1,iomdtable-1
-               if(moddtable(k).eq.moddtable(iomdtable))then
-                 write(amessage,108) trim(dtable_g(moddtable(iomdtable))%name)
-108              format('e_table "',a,'" has been provided as more than one ', &
-                 'MODEL_E_TABLE_NAME.')
-                 go to 9800
-               end if
-             end do
-           end if
-
-         else if(aoption.eq.'MODEL_G_TABLE_NAME')then
-           correct_keyword='OBSERVATION_G_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           iomgtable=iomgtable+1
-           call get_table_name(ierr,modgtable(iomgtable),25)
-           if(ierr.ne.0) go to 9800
-           if(iomgtable.gt.1)then
-             do k=1,iomgtable-1
-               if(modgtable(k).eq.modgtable(iomgtable))then
-                 write(amessage,308) trim(gtable_g(modgtable(iomgtable))%name)
-308              format('g_table "',a,'" has been provided as more than one ', &
-                 'MODEL_G_TABLE_NAME.')
-                 go to 9800
-               end if
-             end do
-           end if
-
-         else if(aoption.eq.'SERIES_WEIGHTS_EQUATION')then
-           correct_keyword='MODEL_SERIES_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_equation(ierr,sequation(ioseries),aoption)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'S_TABLE_WEIGHTS_EQUATION')then
-           correct_keyword='MODEL_S_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_equation(ierr,stequation(iostable),aoption)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'V_TABLE_WEIGHTS_EQUATION')then
-           correct_keyword='MODEL_V_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_equation(ierr,vtequation(iovtable),aoption)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'E_TABLE_WEIGHTS_EQUATION')then
-           correct_keyword='MODEL_E_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_equation(ierr,dtequation(iodtable),aoption)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'G_TABLE_WEIGHTS_EQUATION')then
-           correct_keyword='MODEL_G_TABLE_NAME'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_equation(ierr,gtequation(iogtable),aoption)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'SERIES_WEIGHTS_MIN_MAX')then
-           correct_keyword='SERIES_WEIGHTS_EQUATION'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_two_numbers(ierr,sweightmin(ioseries),sweightmax(ioseries),aoption)
-           if(ierr.ne.0) go to 9800
-           call check_weight_order(ierr,sweightmin(ioseries),sweightmax(ioseries))
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'S_TABLE_WEIGHTS_MIN_MAX')then
-           correct_keyword='S_TABLE_WEIGHTS_EQUATION'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_two_numbers(ierr,stweightmin(iostable),stweightmax(iostable),aoption)
-           if(ierr.ne.0) go to 9800
-           call check_weight_order(ierr,stweightmin(iostable),stweightmax(iostable))
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'V_TABLE_WEIGHTS_MIN_MAX')then
-           correct_keyword='V_TABLE_WEIGHTS_EQUATION'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_two_numbers(ierr,vtweightmin(iovtable),vtweightmax(iovtable),aoption)
-           if(ierr.ne.0) go to 9800
-           call check_weight_order(ierr,vtweightmin(iovtable),vtweightmax(iovtable))
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'E_TABLE_WEIGHTS_MIN_MAX')then
-           correct_keyword='E_TABLE_WEIGHTS_EQUATION'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_two_numbers(ierr,dtweightmin(iodtable),dtweightmax(iodtable),aoption)
-           if(ierr.ne.0) go to 9800
-           call check_weight_order(ierr,dtweightmin(iodtable),dtweightmax(iodtable))
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'G_TABLE_WEIGHTS_MIN_MAX')then
-           correct_keyword='G_TABLE_WEIGHTS_EQUATION'
-           if(last_keyword.ne.correct_keyword) go to 9300
-           call get_two_numbers(ierr,gtweightmin(iogtable),gtweightmax(iogtable),aoption)
-           if(ierr.ne.0) go to 9800
-           call check_weight_order(ierr,gtweightmin(iogtable),gtweightmax(iogtable))
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'CONTEXT')then
-           if(ixcon.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,41) trim(aline),trim(sString_g)
-41           format('CONTEXT keyword in incorrect location at line ',a,' of file ',a)
-             go to 9800
-           end if
-           call get_context(ierr,icontext,acontext)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'END')then
-           go to 200
-
+             call GET_TABLE_NAME(ierr, obsgtable(iogtable), 15)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='MODEL_SERIES_NAME')then
+             correct_keyword = 'OBSERVATION_SERIES_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             iomseries = iomseries + 1
+             call GET_SERIES_NAME(ierr, modseries(iomseries),                  &
+                                 &'MODEL_SERIES_NAME')
+             if(ierr/=0)goto 2400
+             if(iomseries>1)then
+                 do k = 1, iomseries - 1
+                     if(modseries(k)==modseries(iomseries))then
+                         write(amessage, 9019)                                 &
+                             & TRIM(SERIES_G(modseries(iomseries))%NAME)
+9019                     format('time series "', a,                            &
+                               &'" has been provided as more than one ',       &
+                               &'MODEL_SERIES_NAME.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+ 
+         elseif(aoption=='MODEL_S_TABLE_NAME')then
+             correct_keyword = 'OBSERVATION_S_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             iomstable = iomstable + 1
+             call GET_TABLE_NAME(ierr, modstable(iomstable), 21)
+             if(ierr/=0)goto 2400
+             if(iomstable>1)then
+                 do k = 1, iomstable - 1
+                     if(modstable(k)==modstable(iomstable))then
+                         write(amessage, 9020)                                 &
+                             & TRIM(STABLE_G(modstable(iomstable))%NAME)
+9020                     format('s_table "', a,                                &
+                               &'" has been provided as more than one ',       &
+                               &'MODEL_S_TABLE_NAME.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+ 
+         elseif(aoption=='MODEL_C_TABLE_NAME')then
+             write(amessage, 9124)
+             goto 2400
+ 
+         elseif(aoption=='MODEL_V_TABLE_NAME')then
+             correct_keyword = 'OBSERVATION_V_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             iomvtable = iomvtable + 1
+             call GET_TABLE_NAME(ierr, modvtable(iomvtable), 22)
+             if(ierr/=0)goto 2400
+             if(iomvtable>1)then
+                 do k = 1, iomvtable - 1
+                     if(modvtable(k)==modvtable(iomvtable))then
+                         write(amessage, 9021)                                 &
+                             & TRIM(VTABLE_G(modvtable(iomvtable))%NAME)
+9021                     format('v_table "', a,                                &
+                               &'" has been provided as more than one ',       &
+                               &'MODEL_V_TABLE_NAME.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+ 
+         elseif(aoption=='MODEL_E_TABLE_NAME')then
+             correct_keyword = 'OBSERVATION_E_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             iomdtable = iomdtable + 1
+             call GET_TABLE_NAME(ierr, moddtable(iomdtable), 23)
+             if(ierr/=0)goto 2400
+             if(iomdtable>1)then
+                 do k = 1, iomdtable - 1
+                     if(moddtable(k)==moddtable(iomdtable))then
+                         write(amessage, 9022)                                 &
+                             & TRIM(DTABLE_G(moddtable(iomdtable))%NAME)
+9022                     format('e_table "', a,                                &
+                               &'" has been provided as more than one ',       &
+                               &'MODEL_E_TABLE_NAME.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+ 
+         elseif(aoption=='MODEL_G_TABLE_NAME')then
+             correct_keyword = 'OBSERVATION_G_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             iomgtable = iomgtable + 1
+             call GET_TABLE_NAME(ierr, modgtable(iomgtable), 25)
+             if(ierr/=0)goto 2400
+             if(iomgtable>1)then
+                 do k = 1, iomgtable - 1
+                     if(modgtable(k)==modgtable(iomgtable))then
+                         write(amessage, 9023)                                 &
+                             & TRIM(GTABLE_G(modgtable(iomgtable))%NAME)
+9023                     format('g_table "', a,                                &
+                               &'" has been provided as more than one ',       &
+                               &'MODEL_G_TABLE_NAME.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+ 
+         elseif(aoption=='SERIES_WEIGHTS_EQUATION')then
+             correct_keyword = 'MODEL_SERIES_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_EQUATION(ierr, sequation(ioseries), aoption)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='S_TABLE_WEIGHTS_EQUATION')then
+             correct_keyword = 'MODEL_S_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_EQUATION(ierr, stequation(iostable), aoption)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='V_TABLE_WEIGHTS_EQUATION')then
+             correct_keyword = 'MODEL_V_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_EQUATION(ierr, vtequation(iovtable), aoption)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='E_TABLE_WEIGHTS_EQUATION')then
+             correct_keyword = 'MODEL_E_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_EQUATION(ierr, dtequation(iodtable), aoption)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='G_TABLE_WEIGHTS_EQUATION')then
+             correct_keyword = 'MODEL_G_TABLE_NAME'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_EQUATION(ierr, gtequation(iogtable), aoption)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='SERIES_WEIGHTS_MIN_MAX')then
+             correct_keyword = 'SERIES_WEIGHTS_EQUATION'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_TWO_NUMBERS(ierr, sweightmin(ioseries),                  &
+                                & sweightmax(ioseries), aoption)
+             if(ierr/=0)goto 2400
+             call CHECK_WEIGHT_ORDER(ierr, sweightmin(ioseries),               &
+                                   & sweightmax(ioseries))
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='S_TABLE_WEIGHTS_MIN_MAX')then
+             correct_keyword = 'S_TABLE_WEIGHTS_EQUATION'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_TWO_NUMBERS(ierr, stweightmin(iostable),                 &
+                                & stweightmax(iostable), aoption)
+             if(ierr/=0)goto 2400
+             call CHECK_WEIGHT_ORDER(ierr, stweightmin(iostable),              &
+                                   & stweightmax(iostable))
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='V_TABLE_WEIGHTS_MIN_MAX')then
+             correct_keyword = 'V_TABLE_WEIGHTS_EQUATION'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_TWO_NUMBERS(ierr, vtweightmin(iovtable),                 &
+                                & vtweightmax(iovtable), aoption)
+             if(ierr/=0)goto 2400
+             call CHECK_WEIGHT_ORDER(ierr, vtweightmin(iovtable),              &
+                                   & vtweightmax(iovtable))
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='E_TABLE_WEIGHTS_MIN_MAX')then
+             correct_keyword = 'E_TABLE_WEIGHTS_EQUATION'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_TWO_NUMBERS(ierr, dtweightmin(iodtable),                 &
+                                & dtweightmax(iodtable), aoption)
+             if(ierr/=0)goto 2400
+             call CHECK_WEIGHT_ORDER(ierr, dtweightmin(iodtable),              &
+                                   & dtweightmax(iodtable))
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='G_TABLE_WEIGHTS_MIN_MAX')then
+             correct_keyword = 'G_TABLE_WEIGHTS_EQUATION'
+             if(last_keyword/=correct_keyword)goto 1800
+             call GET_TWO_NUMBERS(ierr, gtweightmin(iogtable),                 &
+                                & gtweightmax(iogtable), aoption)
+             if(ierr/=0)goto 2400
+             call CHECK_WEIGHT_ORDER(ierr, gtweightmin(iogtable),              &
+                                   & gtweightmax(iogtable))
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='CONTEXT')then
+             if(ixcon/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9024)TRIM(aline), TRIM(sstring_g)
+9024             format('CONTEXT keyword in incorrect location at line ', a,   &
+                       &' of file ', a)
+                 goto 2400
+             endif
+             call GET_CONTEXT(ierr, icontext, acontext)
+             if(ierr/=0)goto 2400
+ 
+         elseif(aoption=='END')then
+             exit
+ 
          else
-           call num2char(ILine_g,aline)
-           call addquote(sInfile_g,sString_g)
-           write(amessage,90) trim(aoption),trim(CurrentBlock_g),trim(aline),trim(sString_g)
-90         format('unexpected keyword - "',a,'" in ',a,' block at line ',a, &
-           ' of file ',a)
-           go to 9800
-         end if
-
-         last_keyword=aoption
-
-       end do
-
-200    continue
-
-! -- Any absenses in the block are now looked for.
-
-       if((ioseries.eq.0).and.(iostable.eq.0).and.(iovtable.eq.0).and.   &
-          (iodtable.eq.0) .and. (iogtable == 0) )then
-         write(amessage,210) trim(CurrentBlock_g)
-210      format('no observation series or table names have been cited in ',a,' block.')
-         go to 9800
-       end if
-       if(itempfile.eq.0)then
-         write(amessage,220) trim(CurrentBlock_g)
-220      format('at least one TEMPLATE_FILE keyword must be provided in ',&
-         'a ',a,' block.')
-         go to 9800
-       end if
-       if(pestctlfile.eq.' ')then
-         write(amessage,230) trim(CurrentBlock_g)
-230      format('a NEW_PEST_CONTROL_FILE keyword must be provided in a ',a,' block.')
-         go to 9800
-       end if
-       if(instructfile.eq.' ')then
-         write(amessage,240) trim(CurrentBlock_g)
-240      format('NEW_INSTRUCTION_FILE keyword is missing from the ',a,' block.')
-         go to 9800
-       end if
-       if(ioseries.ne.0)then
-         if(iomseries.ne.ioseries)then
-           write(amessage,241) trim(CurrentBlock_g)
-241        format('a MODEL_SERIES_NAME keyword has not been provided for each ', &
-             'OBSERVATION_SERIES_NAME cited in the ',a,' block.')
-           go to 9800
-         end if
-         do i=1,ioseries
-           if(sequation(i).eq.' ')then
-             write(amessage,250) trim(CurrentBlock_g)
-250          format('a SERIES_WEIGHTS_EQUATION keyword has not been provided for each ', &
-             'series cited in the ',a,' block.')
-             go to 9800
-           end if
-         end do
-       end if
-       if(iostable.ne.0)then
-         if(iomstable.ne.iostable)then
-           write(amessage,251) trim(CurrentBlock_g)
-251        format('a MODEL_S_TABLE_NAME keyword has not been provided for each ', &
-             'OBSERVATION_S_TABLE_NAME cited in the ',a,' block.')
-           go to 9800
-         end if
-         do i=1,iostable
-           if(stequation(i).eq.' ')then
-             write(amessage,260) trim(CurrentBlock_g)
-260          format('an S_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
-             's_table cited in the ',a,' block.')
-             go to 9800
-           end if
-         end do
-       end if
-       if(iovtable.ne.0)then
-         if(iomvtable.ne.iovtable)then
-           write(amessage,261) trim(CurrentBlock_g)
-261        format('a MODEL_V_TABLE_NAME keyword has not been provided for each ', &
-             'OBSERVATION_V_TABLE_NAME cited in the ',a,' block.')
-           go to 9800
-         end if
-         do i=1,iovtable
-           if(vtequation(i).eq.' ')then
-             write(amessage,270) trim(CurrentBlock_g)
-270          format('a V_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
-             'v_table cited in the ',a,' block.')
-             go to 9800
-           end if
-         end do
-       end if
-
-       if(iodtable.ne.0)then
-         if(iomdtable.ne.iodtable)then
-           write(amessage,271) trim(CurrentBlock_g)
-271        format('a MODEL_E_TABLE_NAME keyword has not been provided for each ', &
-             'OBSERVATION_E_TABLE_NAME cited in the ',a,' block.')
-           go to 9800
-         end if
-
-         do i=1,iodtable
-           if(dtequation(i).eq.' ')then
-             write(amessage,280) trim(CurrentBlock_g)
-280          format('a E_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
-             'e_table cited in the ',a,'block.')
-             go to 9800
-           end if
-         end do
-       end if
-
-       if(iogtable.ne.0)then
-         if(iomgtable.ne.iogtable)then
-           write(amessage,671) trim(CurrentBlock_g)
-671        format('a MODEL_G_TABLE_NAME keyword has not been provided for each ', &
-             'OBSERVATION_G_TABLE_NAME cited in the ',a,' block.')
-           go to 9800
-         end if
-
-         do i=1,iogtable
-           if(gtequation(i).eq.' ')then
-             write(amessage,680) trim(CurrentBlock_g)
-680          format('a G_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
-             'g_table cited in the ',a,'block.')
-             go to 9800
-           end if
-         end do
-       end if
-
-       if(icontext.eq.0)then
-         write(amessage,290) trim(CurrentBlock_g)
-290      format('no Context keyword(s) provided in ',a,' block.')
-         go to 9800
-       end if
-       if((micactlfile.ne.' ').and.(pest2micacom.eq.' '))then
-         write(amessage,291)
-291      format('if a NEW_MICA_CONTROL_FILE keyword is supplied, a PEST2MICA_COMMAND ', &
-         'keyword must also be supplied.')
-         go to 9800
-       end if
-       if((isvd.eq.1).and.(iaui.eq.1))then
-         write(amessage,292) trim(CurrentBlock_g)
-292      format('only one of the TRUNCATED_SVD or AUTOMATIC_USER_INTERVENTION keywords ', &
-         'must be supplied in ',a,' block.')
-         go to 9800
-       end if
-
-! -- Before any processing is done, a check is made that the observation series and
-!    tables correspond to the series and tables requested for output in the last
-!    LIST_OUTPUT block.
-
-       otherblock='LIST_OUTPUT'
-       if((ioseries.ne.iMseries_g).or.(iostable.ne.iMstable_g).or.(iovtable.ne.iMvtable_g).or. &
-          (iodtable.ne.iMdtable_g) .or. (iogtable /= iMgtable_g) )then
-          write(amessage,1010) trim(CurrentBlock_g),trim(otherblock)
-1010      format('the number of series, s_tables, e_tables, g_tables and v_tables cited in the ', &
-          a,' block does not correspond exactly to the number of these entities cited in ', &
-          'the immediately-preceding ',a,' block.')
-          go to 9800
-       end if
-       if ( iMctable_g .ne. 0 ) then
-         write(amessage,1011)
-1011     format('a c_table features in the LIST_OUTPUT block preceding ', &
-         'the WRITE_PEST_FILES block. The present version of TSPROC does not ', &
-         'support the use of c_tables in the calibration process.')
-         go to 9800
-       end if
-       if(ioseries.ne.0)then
-         do i=1,ioseries
-           io=obsseries(i)
-           im=modseries(i)
-           aoname=series_g(io)%name
-           amname=series_g(im)%name
-           if(io.eq.im) go to 1029
-           noterm=series_g(io)%nterm
-           nmterm=series_g(im)%nterm
-           if(noterm.ne.nmterm)then
-             write(amessage,1020) trim(aoname),trim(amname)
-1020         format('OBSERVATION_SERIES "',a,'" has been matched to ', &
-             'MODEL_SERIES "',a,'". However these series have different ', &
-             'numbers of terms.')
-             go to 9800
-           end if
-           do j=1,noterm
-             if((series_g(io)%days(j).ne.series_g(im)%days(j)).or.   &
-                (series_g(io)%secs(j).ne.series_g(im)%secs(j)))then
-               write(amessage,1030) trim(aoname),trim(amname)
-1030           format('OBSERVATION_SERIES "',a,'" has been matched to ', &
-               'MODEL_SERIES "',a,'". However the dates and times in ', &
-               'these SERIES do not correspond.')
-               go to 9800
-             end if
-           end do
-1029       continue
-           do j=1,ioseries
-             if(im.eq.iOutseries_g(j)) go to 1035
-           end do
-           write(amessage,1032) trim(amname),trim(CurrentBlock_g)
-1032       format('MODEL__SERIES "',a,'" is not listed in the ', &
-           'LIST_OUTPUT block immediately preceding the ',a,' block.')
-           go to 9800
-1035       continue
-         end do
-       end if
-
-       if(iostable.ne.0)then
-         do i=1,iostable
-           io=obsstable(i)
-           im=modstable(i)
-           aoname=stable_g(io)%name
-           amname=stable_g(im)%name
-           if(io.eq.im) go to 1039
-           if(((stable_g(io)%maximum.lt.-1.0e36).and.(stable_g(im)%maximum.gt.-1.0e36)).or.  &
-              ((stable_g(io)%maximum.gt.-1.0e36).and.(stable_g(im)%maximum.lt.-1.0e36)))then
-             avariable='MAXIMUM'
-             go to 9600
-           end if
-           if(((stable_g(io)%minimum.lt.-1.0e36).and.(stable_g(im)%minimum.gt.-1.0e36)).or.  &
-              ((stable_g(io)%minimum.gt.-1.0e36).and.(stable_g(im)%minimum.lt.-1.0e36)))then
-             avariable='MINIMUM'
-             go to 9600
-           end if
-           if(((stable_g(io)%range.lt.-1.0e36).and.(stable_g(im)%range.gt.-1.0e36)).or.  &
-              ((stable_g(io)%range.gt.-1.0e36).and.(stable_g(im)%range.lt.-1.0e36)))then
-             avariable='RANGE'
-             go to 9600
-           end if
-           if(((stable_g(io)%mean.lt.-1.0e36).and.(stable_g(im)%mean.gt.-1.0e36)).or.   &
-              ((stable_g(io)%mean.gt.-1.0e36).and.(stable_g(im)%mean.lt.-1.0e36)))then
-             avariable='MEAN'
-             go to 9600
-           end if
-           if(((stable_g(io)%median.lt.-1.0e36).and.(stable_g(im)%median.gt.-1.0e36)).or.   &
-              ((stable_g(io)%median.gt.-1.0e36).and.(stable_g(im)%median.lt.-1.0e36)))then
-             avariable='MEDIAN'
-             go to 9600
-           end if
-           if(((stable_g(io)%stddev.lt.-1.0e36).and.(stable_g(im)%stddev.gt.-1.0e36)).or.  &
-              ((stable_g(io)%stddev.gt.-1.0e36).and.(stable_g(im)%stddev.lt.-1.0e36)))then
-             avariable='STD_DEV'
-             go to 9600
-           end if
-           if(((stable_g(io)%total.lt.-1.0e36).and.(stable_g(im)%total.gt.-1.0e36)).or.   &
-              ((stable_g(io)%total.gt.-1.0e36).and.(stable_g(im)%total.lt.-1.0e36)))then
-             avariable='SUM'
-             go to 9600
-           end if
-           if(((stable_g(io)%minmean.lt.-1.0e36).and.(stable_g(im)%minmean.gt.-1.0e36)).or.   &
-              ((stable_g(io)%minmean.gt.-1.0e36).and.(stable_g(im)%minmean.lt.-1.0e36)))then
-             avariable='MINMEAN_*'
-             go to 9600
-           end if
-           if(((stable_g(io)%maxmean.lt.-1.0e36).and.(stable_g(im)%maxmean.gt.-1.0e36)).or.   &
-              ((stable_g(io)%maxmean.gt.-1.0e36).and.(stable_g(im)%maxmean.lt.-1.0e36)))then
-             avariable='MAXMEAN_*'
-             go to 9600
-           end if
-           if((stable_g(io)%maxmean.gt.-1.0e36).or.(stable_g(io)%minmean.gt.-1.0e36))then
-             write(amessage,1023)
-1023         format('The present version of TSPROC does not support the use of ', &
-             'S_TABLE minimum or maximum sample count averages in the calibration process.')
-             go to 9800
-           end if
-1039       continue
-           do j=1,iostable
-             if(im.eq.iOutStable_g(j)) go to 1038
-           end do
-           write(amessage,1037) 'S',trim(amname),trim(CurrentBlock_g)
-1037       format('MODEL_',a,'_TABLE "',a,'" is not listed in the ', &
-           'LIST_OUTPUT block immediately preceding the ',a,' block.')
-           go to 9800
-1038       continue
-         end do
-       end if
-
-       if(iovtable.ne.0)then
-         do i=1,iovtable
-           io=obsvtable(i)
-           im=modvtable(i)
-           aoname=vtable_g(io)%name
-           amname=vtable_g(im)%name
-           if(io.eq.im) go to 1047
-           noterm=vtable_g(io)%nterm
-           nmterm=vtable_g(im)%nterm
-           if(noterm.ne.nmterm)then
-             write(amessage,1040) trim(aoname),trim(amname)
-1040         format('OBSERVATION_V_TABLE "',a,'" has been matched to ', &
-             'MODEL_V_TABLE "',a,'". However these V_TABLES ', &
-             'have different numbers of integration times.')
-             go to 9800
-           end if
-           do j=1,noterm
-             if((vtable_g(io)%days1(j).ne.vtable_g(im)%days1(j)).or.   &
-                (vtable_g(io)%days2(j).ne.vtable_g(im)%days2(j)).or.   &
-                (vtable_g(io)%secs1(j).ne.vtable_g(im)%secs1(j)).or.   &
-                (vtable_g(io)%secs2(j).ne.vtable_g(im)%secs2(j)))then
-               write(amessage,1050) trim(aoname),trim(amname)
-1050           format('OBSERVATION_V_TABLE "',a,'" has been matched to ', &
-               'MODEL_V_TABLE "',a,'". However the integration dates and ', &
-               'times in these V_TABLES do not correspond.')
-               go to 9800
-             end if
-           end do
-1047       continue
-           do j=1,iovtable
-             if(im.eq.iOutVtable_g(j)) go to 1048
-           end do
-           write(amessage,1037) 'V',trim(amname),trim(CurrentBlock_g)
-           go to 9800
-1048       continue
-         end do
-       end if
-
-       if(iodtable.ne.0)then
-         do i=1,iodtable
-           io=obsdtable(i)
-           im=moddtable(i)
-           aoname=dtable_g(io)%name
-           amname=dtable_g(im)%name
-           if(io.eq.im) go to 1066  ! was 1079 previously SMW
-           noterm=dtable_g(io)%nterm
-           nmterm=dtable_g(im)%nterm
-           if(noterm.ne.nmterm)then
-             write(amessage,1060) trim(aoname),trim(amname)
-1060         format('OBSERVATION_E_TABLE "',a,'"  has been matched to ', &
-             'MODEL E_TABLE "',a,'". However these E_TABLES ', &
-             'have different numbers of flows.')
-             go to 9800
-           end if
-           if(dtable_g(io)%under_over.ne.dtable_g(im)%under_over)then
-             write(amessage,1061) trim(aoname),trim(amname)
-1061         format('OBSERVATION_E_TABLE "',a,'"  has been matched to ', &
-             'MODEL E_TABLE "',a,'". However these E_TABLES ', &
-             'have different UNDER_OVER specifications.')
-             go to 9800
-           end if
+             call NUM2CHAR(iline_g, aline)
+             call ADDQUOTE(sinfile_g, sstring_g)
+             write(amessage, 9025)TRIM(aoption), TRIM(currentblock_g),         &
+                                & TRIM(aline), TRIM(sstring_g)
+9025         format('unexpected keyword - "', a, '" in ', a, ' block at line ',&
+                  & a, ' of file ', a)
+             goto 2400
+         endif
+ 
+         last_keyword = aoption
+ 
+     enddo
+ 
+!    -- Any absences in the block are now looked for.
+     if((ioseries==0) .AND. (iostable==0) .AND. (iovtable==0) .AND.            &
+      & (iodtable==0) .AND. (iogtable==0))then
+         write(amessage, 9026)TRIM(currentblock_g)
+9026     format('no observation series or table names have been cited in ', a, &
+               &' block.')
+         goto 2400
+     endif
+     if(itempfile==0)then
+         write(amessage, 9027)TRIM(currentblock_g)
+9027     format('at least one TEMPLATE_FILE keyword must be provided in a ',   &
+              & a, ' block.')
+         goto 2400
+     endif
+     if(pestctlfile==' ')then
+         write(amessage, 9028)TRIM(currentblock_g)
+9028     format('a NEW_PEST_CONTROL_FILE keyword must be provided in a ', a,   &
+               &' block.')
+         goto 2400
+     endif
+     if(instructfile==' ')then
+         write(amessage, 9029)TRIM(currentblock_g)
+9029     format('NEW_INSTRUCTION_FILE keyword is missing from the ', a,        &
+               &' block.')
+         goto 2400
+     endif
+     if(ioseries/=0)then
+         if(iomseries/=ioseries)then
+             write(amessage, 9030)TRIM(currentblock_g)
+9030         format(                                                           &
+               &'a MODEL_SERIES_NAME keyword has not been provided for each ', &
+               &'OBSERVATION_SERIES_NAME cited in the ', a, ' block.')
+             goto 2400
+         endif
+         do i = 1, ioseries
+             if(sequation(i)==' ')then
+                 write(amessage, 9031)TRIM(currentblock_g)
+9031             format(                                                       &
+         &'a SERIES_WEIGHTS_EQUATION keyword has not been provided for each ', &
+         &'series cited in the ', a, ' block.')
+                 goto 2400
+             endif
+         enddo
+     endif
+     if(iostable/=0)then
+         if(iomstable/=iostable)then
+             write(amessage, 9032)TRIM(currentblock_g)
+9032         format(                                                           &
+              &'a MODEL_S_TABLE_NAME keyword has not been provided for each ', &
+              &'OBSERVATION_S_TABLE_NAME cited in the ', a, ' block.')
+             goto 2400
+         endif
+         do i = 1, iostable
+             if(stequation(i)==' ')then
+                 write(amessage, 9033)TRIM(currentblock_g)
+9033             format(                                                       &
+       &'an S_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
+       &'s_table cited in the ', a, ' block.')
+                 goto 2400
+             endif
+         enddo
+     endif
+     if(iovtable/=0)then
+         if(iomvtable/=iovtable)then
+             write(amessage, 9034)TRIM(currentblock_g)
+9034         format(                                                           &
+              &'a MODEL_V_TABLE_NAME keyword has not been provided for each ', &
+              &'OBSERVATION_V_TABLE_NAME cited in the ', a, ' block.')
+             goto 2400
+         endif
+         do i = 1, iovtable
+             if(vtequation(i)==' ')then
+                 write(amessage, 9035)TRIM(currentblock_g)
+9035             format(                                                       &
+        &'a V_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
+        &'v_table cited in the ', a, ' block.')
+                 goto 2400
+             endif
+         enddo
+     endif
+ 
+     if(iodtable/=0)then
+         if(iomdtable/=iodtable)then
+             write(amessage, 9036)TRIM(currentblock_g)
+9036         format(                                                           &
+              &'a MODEL_E_TABLE_NAME keyword has not been provided for each ', &
+              &'OBSERVATION_E_TABLE_NAME cited in the ', a, ' block.')
+             goto 2400
+         endif
+ 
+         do i = 1, iodtable
+             if(dtequation(i)==' ')then
+                 write(amessage, 9037)TRIM(currentblock_g)
+9037             format(                                                       &
+        &'a E_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
+        &'e_table cited in the ', a, 'block.')
+                 goto 2400
+             endif
+         enddo
+     endif
+ 
+     if(iogtable/=0)then
+         if(iomgtable/=iogtable)then
+             write(amessage, 9038)TRIM(currentblock_g)
+9038         format(                                                           &
+              &'a MODEL_G_TABLE_NAME keyword has not been provided for each ', &
+              &'OBSERVATION_G_TABLE_NAME cited in the ', a, ' block.')
+             goto 2400
+         endif
+ 
+         do i = 1, iogtable
+             if(gtequation(i)==' ')then
+                 write(amessage, 9039)TRIM(currentblock_g)
+9039             format(                                                       &
+        &'a G_TABLE_WEIGHTS_EQUATION keyword has not been provided for each ', &
+        &'g_table cited in the ', a, 'block.')
+                 goto 2400
+             endif
+         enddo
+     endif
+ 
+     if(icontext==0)then
+         write(amessage, 9040)TRIM(currentblock_g)
+9040     format('no Context keyword(s) provided in ', a, ' block.')
+         goto 2400
+     endif
+     if((micactlfile/=' ') .AND. (pest2micacom==' '))then
+         write(amessage, 9041)
+9041     format(                                                               &
+      &'if a NEW_MICA_CONTROL_FILE keyword is supplied, a PEST2MICA_COMMAND ', &
+      &'keyword must also be supplied.')
+         goto 2400
+     endif
+     if((isvd==1) .AND. (iaui==1))then
+         write(amessage, 9042)TRIM(currentblock_g)
+9042     format(                                                               &
+    &'only one of the TRUNCATED_SVD or AUTOMATIC_USER_INTERVENTION keywords ', &
+    &'must be supplied in ', a, ' block.')
+         goto 2400
+     endif
+ 
+!    -- Before any processing is done, a check is made that the observation
+!       series and tables correspond to the series and tables requested for
+!       output in the last LIST_OUTPUT block.
+ 
+     otherblock = 'LIST_OUTPUT'
+     if((ioseries/=imseries_g) .OR. (iostable/=imstable_g) .OR.                &
+      & (iovtable/=imvtable_g) .OR. (iodtable/=imdtable_g) .OR.                &
+      & (iogtable/=imgtable_g))then
+         write(amessage, 9043)TRIM(currentblock_g), TRIM(otherblock)
+9043     format('the number of series, s_tables, e_tables, g_tables and ',     &
+               &'v_tables cited in the ', a, ' block does not correspond ',    &
+               &'exactly to the number of these entities cited in the ',       &
+               &'immediately-preceding ', a, ' block.')
+         goto 2400
+     endif
+     if(imctable_g/=0)then
+         write(amessage, 9044)
+9044     format('a c_table features in the LIST_OUTPUT block preceding ',      &
+               &'the WRITE_PEST_FILES block. The present version of TSPROC ',  &
+               &'does not support the use of c_tables in the calibration ',    &
+               &'process.')
+         goto 2400
+     endif
+     if(ioseries/=0)then
+         do i = 1, ioseries
+             io = obsseries(i)
+             im = modseries(i)
+             aoname = SERIES_G(io)%NAME
+             amname = SERIES_G(im)%NAME
+             if(io/=im)then
+                 noterm = SERIES_G(io)%nterm
+                 nmterm = SERIES_G(im)%nterm
+                 if(noterm/=nmterm)then
+                     write(amessage, 9045)TRIM(aoname), TRIM(amname)
+9045                 format('OBSERVATION_SERIES "', a,                         &
+                           &'" has been matched to ', 'MODEL_SERIES "', a,     &
+                           &'". However these series have different ',         &
+                           &'numbers of terms.')
+                     goto 2400
+                 endif
+                 do j = 1, noterm
+                     if((SERIES_G(io)%DAYS(j)/=SERIES_G(im)%DAYS(j)) .OR.      &
+                      & (SERIES_G(io)%SECS(j)/=SERIES_G(im)%SECS(j)))then
+                         write(amessage, 9046)TRIM(aoname), TRIM(amname)
+9046                     format('OBSERVATION_SERIES "', a,                     &
+                               &'" has been matched to ', 'MODEL_SERIES "', a, &
+                               &'". However the dates and times in ',          &
+                               &'these SERIES do not correspond.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+             do j = 1, ioseries
+                 if(im==IOUTSERIES_G(j))goto 50
+             enddo
+             write(amessage, 9047)TRIM(amname), TRIM(currentblock_g)
+9047         format('MODEL__SERIES "', a, '" is not listed in the ',           &
+                   &'LIST_OUTPUT block immediately preceding the ', a,         &
+                   &' block.')
+             goto 2400
+50       enddo
+     endif
+ 
+     if(iostable/=0)then
+         do i = 1, iostable
+             io = obsstable(i)
+             im = modstable(i)
+             aoname = STABLE_G(io)%NAME
+             amname = STABLE_G(im)%NAME
+             if(io/=im)then
+                 if(((STABLE_G(io)%MAXIMUM< - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MAXIMUM> - 1.0E36)) .OR.                     &
+                  & ((STABLE_G(io)%MAXIMUM> - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MAXIMUM< - 1.0E36)))then
+                     avariable = 'MAXIMUM'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%MINIMUM< - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MINIMUM> - 1.0E36)) .OR.                     &
+                  & ((STABLE_G(io)%MINIMUM> - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MINIMUM< - 1.0E36)))then
+                     avariable = 'MINIMUM'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%RANGE< - 1.0E36) .AND. (STABLE_G(im)%RANGE> &
+                  & - 1.0E36)) .OR.                                            &
+                  & ((STABLE_G(io)%RANGE> - 1.0E36) .AND. (STABLE_G(im)        &
+                  & %RANGE< - 1.0E36)))then
+                     avariable = 'RANGE'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%MEAN< - 1.0E36) .AND. (STABLE_G(im)%MEAN> - &
+                  & 1.0E36)) .OR.                                              &
+                  & ((STABLE_G(io)%MEAN> - 1.0E36) .AND. (STABLE_G(im)         &
+                  & %MEAN< - 1.0E36)))then
+                     avariable = 'MEAN'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%MEDIAN< - 1.0E36) .AND. (STABLE_G(im)%MEDIAN&
+                  & > - 1.0E36)) .OR.                                          &
+                  & ((STABLE_G(io)%MEDIAN> - 1.0E36) .AND. (STABLE_G(im)       &
+                  & %MEDIAN< - 1.0E36)))then
+                     avariable = 'MEDIAN'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%STDDEV< - 1.0E36) .AND. (STABLE_G(im)%STDDEV&
+                  & > - 1.0E36)) .OR.                                          &
+                  & ((STABLE_G(io)%STDDEV> - 1.0E36) .AND. (STABLE_G(im)       &
+                  & %STDDEV< - 1.0E36)))then
+                     avariable = 'STD_DEV'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%TOTAL< - 1.0E36) .AND. (STABLE_G(im)%TOTAL> &
+                  & - 1.0E36)) .OR.                                            &
+                  & ((STABLE_G(io)%TOTAL> - 1.0E36) .AND. (STABLE_G(im)        &
+                  & %TOTAL< - 1.0E36)))then
+                     avariable = 'SUM'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%MINMEAN< - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MINMEAN> - 1.0E36)) .OR.                     &
+                  & ((STABLE_G(io)%MINMEAN> - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MINMEAN< - 1.0E36)))then
+                     avariable = 'MINMEAN_*'
+                     goto 2300
+                 endif
+                 if(((STABLE_G(io)%MAXMEAN< - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MAXMEAN> - 1.0E36)) .OR.                     &
+                  & ((STABLE_G(io)%MAXMEAN> - 1.0E36) .AND.                    &
+                  & (STABLE_G(im)%MAXMEAN< - 1.0E36)))then
+                     avariable = 'MAXMEAN_*'
+                     goto 2300
+                 endif
+                 if((STABLE_G(io)%MAXMEAN> - 1.0E36) .OR.                      &
+                  & (STABLE_G(io)%MINMEAN> - 1.0E36))then
+                     write(amessage, 9048)
+9048                 format('The present version of TSPROC does not support ', &
+                           &'the use of S_TABLE minimum or maximum sample ',   &
+                           &'count averages in the calibration process.')
+                     goto 2400
+                 endif
+             endif
+             do j = 1, iostable
+                 if(im==IOUTSTABLE_G(j))goto 100
+             enddo
+             write(amessage, 9125)'S', TRIM(amname), TRIM(currentblock_g)
+             goto 2400
+100      enddo
+     endif
+ 
+     if(iovtable/=0)then
+         do i = 1, iovtable
+             io = obsvtable(i)
+             im = modvtable(i)
+             aoname = VTABLE_G(io)%NAME
+             amname = VTABLE_G(im)%NAME
+             if(io/=im)then
+                 noterm = VTABLE_G(io)%nterm
+                 nmterm = VTABLE_G(im)%nterm
+                 if(noterm/=nmterm)then
+                     write(amessage, 9049)TRIM(aoname), TRIM(amname)
+9049                 format('OBSERVATION_V_TABLE "', a,                        &
+                           &'" has been matched to ', 'MODEL_V_TABLE "', a,    &
+                           &'". However these V_TABLES ',                      &
+                           &'have different numbers of integration times.')
+                     goto 2400
+                 endif
+                 do j = 1, noterm
+                     if((VTABLE_G(io)%DAYS1(j)/=VTABLE_G(im)%DAYS1(j)) .OR.    &
+                      & (VTABLE_G(io)%DAYS2(j)/=VTABLE_G(im)%DAYS2(j)) .OR.    &
+                      & (VTABLE_G(io)%SECS1(j)/=VTABLE_G(im)%SECS1(j)) .OR.    &
+                      & (VTABLE_G(io)%SECS2(j)/=VTABLE_G(im)%SECS2(j)))then
+                         write(amessage, 9050)TRIM(aoname), TRIM(amname)
+9050                     format('OBSERVATION_V_TABLE "', a,                    &
+                               &'" has been matched to ', 'MODEL_V_TABLE "', a,&
+                               &'". However the integration dates and ',       &
+                               &'times in these V_TABLES do not correspond.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+             do j = 1, iovtable
+                 if(im==IOUTVTABLE_G(j))goto 150
+             enddo
+             write(amessage, 9125)'V', TRIM(amname), TRIM(currentblock_g)
+             goto 2400
+150      enddo
+     endif
+ 
+     if(iodtable/=0)then
+         do i = 1, iodtable
+             io = obsdtable(i)
+             im = moddtable(i)
+             aoname = DTABLE_G(io)%NAME
+             amname = DTABLE_G(im)%NAME
+             if(io/=im)then         ! was 1079 previously SMW
+                 noterm = DTABLE_G(io)%nterm
+                 nmterm = DTABLE_G(im)%nterm
+                 if(noterm/=nmterm)then
+                     write(amessage, 9051)TRIM(aoname), TRIM(amname)
+9051                 format('OBSERVATION_E_TABLE "', a,                        &
+                           &'"  has been matched to ', 'MODEL E_TABLE "', a,   &
+                           &'". However these E_TABLES ',                      &
+                           &'have different numbers of flows.')
+                     goto 2400
+                 endif
+                 if(DTABLE_G(io)%UNDER_OVER/=DTABLE_G(im)%UNDER_OVER)then
+                     write(amessage, 9052)TRIM(aoname), TRIM(amname)
+9052                 format('OBSERVATION_E_TABLE "', a,                        &
+                           &'"  has been matched to ', 'MODEL E_TABLE "', a,   &
+                           &'". However these E_TABLES ',                      &
+                           &'have different UNDER_OVER specifications.')
+                     goto 2400
+                 endif
+             endif
            ! check that the sequence and content of each item in the table
            ! is identical between observation and model table
-1066       do j=1,noterm
-             rotemp=dtable_g(io)%flow(j)
-             rmtemp=dtable_g(im)%flow(j)
-             rprecis=5*spacing(rmtemp)
-             if((rotemp.lt.rmtemp-rprecis).or.(rotemp.gt.rmtemp+rprecis))then
-               write(amessage,1070) trim(aoname),trim(amname)
-1070           format('OBSERVATION_E_TABLE "',a,'"  has been matched to ', &
-               'MODEL E_TABLE "',a,'". However the flows in ', &
-               'these E_TABLES do not correspond.')
-               go to 9800
-             end if
-           end do
-           do j=1,noterm
-             rotemp=dtable_g(io)%tdelay(j)
-             rmtemp=dtable_g(im)%tdelay(j)
-             rprecis=5*spacing(rmtemp)
-             if((rotemp.lt.rmtemp-rprecis).or.(rotemp.gt.rmtemp+rprecis))then
-               write(amessage,1071) trim(aoname),trim(amname)
-1071           format('OBSERVATION_E_TABLE "',a,'"  has been matched to ', &
-               'MODEL E_TABLE "',a,'". However the time delays in ', &
-               'these E_TABLES do not correspond.')
-               go to 9800
-             end if
-           end do
-! 1079       continue
-           do j=1,iodtable
-             if(im.eq.iOutDtable_g(j)) go to 1078
-           end do
-           write(amessage,1037) 'D',trim(amname),trim(CurrentBlock_g)
-!1037       format('MODEL_',a,'_TABLE "',a,'" is not listed in the ', &
-!           'LIST_OUTPUT block immediately preceding the ',a,' block.')
-           go to 9800
-1078       continue
-         end do
-       end if
-
+             do j = 1, noterm
+                 rotemp = DTABLE_G(io)%FLOW(j)
+                 rmtemp = DTABLE_G(im)%FLOW(j)
+                 rprecis = 5*SPACING(rmtemp)
+                 if((rotemp<rmtemp - rprecis) .OR. (rotemp>rmtemp + rprecis))  &
+                  & then
+                     write(amessage, 9053)TRIM(aoname), TRIM(amname)
+9053                 format('OBSERVATION_E_TABLE "', a,                        &
+                           &'"  has been matched to ', 'MODEL E_TABLE "', a,   &
+                           &'". However the flows in ',                        &
+                           &'these E_TABLES do not correspond.')
+                     goto 2400
+                 endif
+             enddo
+             do j = 1, noterm
+                 rotemp = DTABLE_G(io)%TDELAY(j)
+                 rmtemp = DTABLE_G(im)%TDELAY(j)
+                 rprecis = 5*SPACING(rmtemp)
+                 if((rotemp<rmtemp - rprecis) .OR. (rotemp>rmtemp + rprecis))  &
+                  & then
+                     write(amessage, 9054)TRIM(aoname), TRIM(amname)
+9054                 format('OBSERVATION_E_TABLE "', a,                        &
+                           &'"  has been matched to ', 'MODEL E_TABLE "', a,   &
+                           &'". However the time delays in ',                  &
+                           &'these E_TABLES do not correspond.')
+                     goto 2400
+                 endif
+             enddo
+!            1079       continue
+             do j = 1, iodtable
+                 if(im==IOUTDTABLE_G(j))goto 200
+             enddo
+             write(amessage, 9125)'D', TRIM(amname), TRIM(currentblock_g)
+             goto 2400
+200      enddo
+     endif
+ 
        ! check for a one-to-one correspondence in the items contained
        ! within each G_TABLE
-       if(iogtable.ne.0)then
-         do i=1,iogtable
-           io=obsgtable(i)
-           im=modgtable(i)
-           aoname=gtable_g(io)%name
-           amname=gtable_g(im)%name
-           if(io.eq.im) go to 3066  ! was 3079
-           noterm = ubound(gtable_g(io)%sDescription, 1)
-           nmterm = ubound(gtable_g(im)%sDescription, 1)
-           if(noterm.ne.nmterm)then
-             write(amessage,3060) trim(aoname),trim(amname)
-3060         format('OBSERVATION_G_TABLE "',a,'"  has been matched to ', &
-             'MODEL G_TABLE "',a,'". However these G_TABLES ', &
-             'have different numbers of entries.')
-             go to 9800
-           end if
-3066       do j=1,noterm
-             if(.not. str_compare(gtable_g(io)%sDescription(j),gtable_g(im)%sDescription(j)) )then
-               write(amessage,3070) trim(aoname),trim(amname)
-3070           format('OBSERVATION_G_TABLE "',a,'"  has been matched to ', &
-               'MODEL G_TABLE "',a,'". However the items in ', &
-               'these G_TABLES do not correspond.')
-               go to 9800
-             end if
-           end do
-! 3079       continue
-           do j=1,iogtable
-             if(im.eq.iOutGtable_g(j)) go to 3078
-           end do
-           write(amessage,1037) 'G',trim(amname),trim(CurrentBlock_g)
-!1037       format('MODEL_',a,'_TABLE "',a,'" is not listed in the ', &
-!           'LIST_OUTPUT block immediately preceding the ',a,' block.')
-           go to 9800
-3078       continue
-         end do
-       end if
-
-! -- If present, the parameter group file is read.
-
-       if(pargroupfile.eq.' ') go to 500
-       call addquote(pargroupfile,sString_g)
-       write(*,300) trim(sString_g)
-       write(LU_REC,300) trim(sString_g)
-300    format(t5,'Reading parameter group file ',a,' ....')
-       iunit=nextunit()
-       open(unit=iunit,file=pargroupfile,status='old',iostat=ierr)
-       if(ierr.ne.0)then
-         write(amessage,310) trim(sString_g)
-310      format('cannot open parameter group file ',a)
-         go to 9800
-       end if
-
-! -- The file is read a first time to find out the number of groups
-
-       jline=0
-       f_numpargp=0
-       do
-         jline=jline+1
-         read(iunit,'(a)',err=9400,end=320) cline
-         if( len_trim(cline) == 0 ) cycle
-         if(cline(1:1).eq.'#') cycle
-         f_numpargp=f_numpargp+1
-       end do
-320    continue
-       if(f_numpargp.eq.0)then
-         write(amessage,322) trim(sString_g)
-322      format('file ',a,' appears to contain no data.')
-         go to 9800
-       end if
-       allocate(f_pargpnme(f_numpargp),f_inctyp(f_numpargp),f_derinc(f_numpargp), &
-                f_derinclb(f_numpargp),f_forcen(f_numpargp),f_derincmul(f_numpargp), &
-                f_dermthd(f_numpargp),stat=ierr)
-       if(ierr.ne.0) go to 9200
-       rewind(unit=iunit,iostat=ierr)
-       if(ierr.ne.0) go to 9350
-
-! -- Now it is read a second time to obtain the data.
-
-       jline=0
-       igp=0
-325    jline=jline+1
-       call num2char(jline,aline)
-       READ(iunit,'(A)',ERR=9400,END=480) cline
-       if( len_trim(cline) == 0 ) go to 325
-       if(cline(1:1).eq.'#') go to 325
-       call casetrans(cline,'lo')
-       call linesplit(ierr,7)
-       if(ierr.ne.0) go to 9450
-       atemp=cline(left_word(1):right_word(1))
-       call remchar(atemp,'"')
-       IF(len_trim(atemp).GT.12)THEN
-         write(amessage,330) trim(atemp),trim(aline),trim(sString_g)
-330      format('parameter group name "',a,'" greater than 12 characters ', &
-         'at line ',a,' of file ',a)
-         go to 9800
-       end if
-       igp=igp+1
-       f_pargpnme(igp)=atemp
-       IF(f_pargpnme(igp).EQ.'none') THEN
-         write(amessage,340) trim(sString_g)
-340      FORMAT('parameter group name "none" in file ',a,' is a reserved ', &
-         'name, used for some fixed and tied parameters.')
-         go to 9800
-       END IF
-       f_inctyp(igp)=cline(left_word(2):right_word(2))
-       call remchar(f_inctyp(igp),'"')
-       if((f_inctyp(igp).ne.'relative').and.(f_inctyp(igp).ne.'absolute').and.  &
-          (f_inctyp(igp).ne.'rel_to_max'))then
-          write(amessage,350) trim(aline),trim(sString_g)
-350       format('INCTYP on line ',a,' of file ',a,' must be ',  &
-          '"relative", "absolute" or "rel_to_max".')
-          go to 9800
-       end if
-       call char2num(ierr,cline(left_word(3):right_word(3)),f_derinc(igp))
-       if(ierr.ne.0)then
-         write(amessage,590) 'DERINC',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       if(f_derinc(igp).le.0.0)then
-         write(amessage,370) 'DERINC',trim(aline),trim(sString_g)
-370      format('value for ',a,' on line ',a,' of file ',a,' must be positive.')
-         go to 9800
-       end if
-       call char2num(ierr,cline(left_word(4):right_word(4)),f_derinclb(igp))
-       if(ierr.ne.0)then
-         write(amessage,590) 'DERINCLB',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       if(f_derinclb(igp).lt.0.0)then
-         write(amessage,390) 'DERINCLB',trim(aline),trim(sString_g)
-390      format('value for ',a,' on line ',a,' of file ',a,' must not be negative.')
-         go to 9800
-       end if
-       f_forcen(igp)=cline(left_word(5):right_word(5))
-       call remchar(f_forcen(igp),'"')
-       if((f_forcen(igp).ne.'switch').and.(f_forcen(igp).ne.'always_2').and.  &
-          (f_forcen(igp).ne.'always_3'))then
-          write(amessage,400) trim(aline),trim(sString_g)
-400       format('FORCEN must be "switch", "always_2" or "always_3" at line ',a,  &
-          ' of file ',a)
-          go to 9800
-       end if
-       call char2num(ierr,cline(left_word(6):right_word(6)),f_derincmul(igp))
-       if(ierr.ne.0)then
-         write(amessage,590) 'DERINCMUL',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       if(f_derincmul(igp).le.0.0)then
-         write(amessage,370) 'DERINCMUL',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       f_dermthd(igp)=cline(left_word(7):right_word(7))
-       call remchar(f_dermthd(igp),'"')
-       if((f_dermthd(igp).ne.'parabolic').and.(f_dermthd(igp).ne.'best_fit')  &
-          .and.(f_dermthd(igp).ne.'outside_pts'))then
-          write(amessage,420) trim(aline),trim(sString_g)
-420       format('DERMTHD must be "parabolic", "best_fit" or "outside_pts"',  &
-          ' on line ',a,' of file ',a)
-          go to 9800
-       end if
-       go to 325
-
-480    continue
-
-       if(f_numpargp.gt.1)then
-         do i=1,f_numpargp-1
-           do j=i+1,f_numpargp
-             if(f_pargpnme(i).eq.f_pargpnme(j))then
-               write(amessage,430) trim(sString_g)
-430            format('2 parameter groups have the same name in file ',a)
-               go to 9800
-             end if
-           end do
-         end do
-       end if
-
-       call num2char(f_numpargp,aline)
-       write(*,450) trim(aline),trim(sString_g)
-       write(LU_REC,450) trim(aline),trim(sString_g)
-450    format(t5,'- data for ',a,' parameter groups read from file ',a)
-       close(unit=iunit)
-
-500    continue
-
-! -- If present, the parameter data file is read.
-
-       if(pardatfile.eq.' ') go to 700
-       call addquote(pardatfile,sString_g)
-       write(*,510) trim(sString_g)
-       write(LU_REC,510) trim(sString_g)
-510    format(t5,'Reading parameter data file ',a,' ....')
-       iunit=nextunit()
-       open(unit=iunit,file=pardatfile,status='old',iostat=ierr)
-       if(ierr.ne.0)then
-         write(amessage,520) trim(sString_g)
-520      format('cannot open parameter data file ',a)
-         go to 9800
-       end if
-
-! -- The file is read a first time to obtain the number of parameters.
-
-       jline=0
-       f_numpar=0
-       do
-         jline=jline+1
-         read(iunit,'(a)',err=9400,end=550) cline
-         if( len_trim(cline) == 0 ) cycle
-         if(cline(1:1).eq.'#') cycle
-         f_numpar=f_numpar+1
-       end do
-550    continue
-       if(f_numpar.eq.0)then
-         write(amessage,322) trim(sString_g)
-         go to 9800
-       end if
-       allocate(f_parnme(f_numpar),f_partrans(f_numpar),f_parchglim(f_numpar), &
-                f_parval1(f_numpar),f_parlbnd(f_numpar),f_parubnd(f_numpar), &
-                f_pargp(f_numpar),f_scale(f_numpar),f_offset(f_numpar),stat=ierr)
-       if(ierr.ne.0) go to 9200
-       rewind(unit=iunit,iostat=ierr)
-       if(ierr.ne.0) go to 9350
-
-! -- Now it is read a second time to obtain the data.
-
-       jline=0
-       ipar=0
-560    jline=jline+1
-       call num2char(jline,aline)
-       read(iunit,'(A)',ERR=9400,END=620) cline
-       if(len_trim(cline) == 0) go to 560
-       if(cline(1:1).eq.'#') go to 560
-       call casetrans(cline,'lo')
-       call linesplit(ierr,9)
-       if(ierr.ne.0) go to 9450
-       atemp=cline(left_word(1):right_word(1))
-       call remchar(atemp,'"')
-       IF(len_trim(atemp).GT.12)THEN
-         write(amessage,565) trim(atemp),trim(aline),trim(sString_g)
-565      format('parameter name "',a,'" greater than 12 characters in length ', &
-         'at line ',a,' of file ',a)
-         go to 9800
-       end if
-       ipar=ipar+1
-       f_parnme(ipar)=atemp
-       f_partrans(ipar)=cline(left_word(2):right_word(2))
-       call remchar(f_partrans(ipar),'"')
-       if((f_partrans(ipar).ne.'log').and.(f_partrans(ipar).ne.'none').and.  &
-          (f_partrans(ipar)(1:4).ne.'tied').and.(f_partrans(ipar).ne.'fixed'))then
-          write(amessage,570) trim(aline),trim(sString_g)
-570       format('PARTRANS on line ',a,' of file ',a,' must be ',  &
-          '"none", "log", "fixed" or "tied_(parameter name)".')
-          go to 9800
-       end if
-       if((f_partrans(ipar).eq.'tied').or.(f_partrans(ipar).eq.'tied_'))then
-         write(amessage,572) trim(aline),trim(sString_g)
-572      format('the parent parameter name must follow the "tied_" string at line ',a,  &
-         ' of file ',a)
-         go to 9800
-       end if
-       f_parchglim(ipar)=cline(left_word(3):right_word(3))
-       call remchar(f_parchglim(ipar),'"')
-       if((f_parchglim(ipar).ne.'relative').and.(f_parchglim(ipar).ne.'factor'))then
-          write(amessage,580) trim(aline),trim(sString_g)
-580       format('PARCHGLIM on line ',a,' of file ',a,' must be ',  &
-          '"relative" or "factor".')
-          go to 9800
-       end if
-       call char2num(ierr,cline(left_word(4):right_word(4)),f_parval1(ipar))
-       if(ierr.ne.0)then
-         write(amessage,590) 'PARVAL1',trim(aline),trim(sString_g)
-590      format('cannot read value for ',a,' on line ',a,' of file ',a)
-         go to 9800
-       end if
-       call char2num(ierr,cline(left_word(5):right_word(5)),f_parlbnd(ipar))
-       if(ierr.ne.0)then
-         write(amessage,590) 'PARLBND',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       call char2num(ierr,cline(left_word(6):right_word(6)),f_parubnd(ipar))
-       if(ierr.ne.0)then
-         write(amessage,590) 'PARUBND',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       atemp=cline(left_word(7):right_word(7))
-       call remchar(atemp,'"')
-       if(len_trim(atemp).GT.12)then
-         write(amessage,330) trim(atemp),trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       f_pargp(ipar)=atemp
-       call char2num(ierr,cline(left_word(8):right_word(8)),f_scale(ipar))
-       if(ierr.ne.0)then
-         write(amessage,590) 'SCALE',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       call char2num(ierr,cline(left_word(9):right_word(9)),f_offset(ipar))
-       if(ierr.ne.0)then
-         write(amessage,590) 'OFFSET',trim(aline),trim(sString_g)
-         go to 9800
-       end if
-       go to 560
-
-620    continue
-
-! -- Some checks are made of the parameter data.
-
-       if(f_numpar.gt.1)then
-         do i=1,f_numpar-1
-           do j=i+1,f_numpar
-             if(f_parnme(i).eq.f_parnme(j))then
-               write(amessage,630) trim(sString_g)
-630            format('2 parameters have the same name in file ',a)
-               go to 9800
-             end if
-           end do
-         end do
-       end if
-
-! -- If any parameters are tied, parameter linkages are now read.
-
-       do ipar=1,f_numpar
-         if(f_partrans(ipar)(1:4).eq.'tied')then
-           atemp=f_partrans(ipar)(6:)
-           if(atemp.eq.f_parnme(ipar))then
-             write(amessage,635) trim(atemp),trim(sString_g)
-635          format('parameter "',a,'" is tied to itself in file ',a)
-             go to 9800
-           end if
-         end if
-       end do
-
-       call num2char(f_numpar,aline)
-       write(*,640) trim(aline),trim(sString_g)
-       write(LU_REC,640) trim(aline),trim(sString_g)
-640    format(t5,'- data for ',a,' parameters read from file ',a)
-       close(unit=iunit)
-
-700    continue
-
-! -- Next the names of all parameters are ascertained by reading template files.
-
-        numtempfile=itempfile
-   npar=0
-   read_template_file: do itempfile=1,numtempfile
-     nnpar=0
-          tempunit=nextunit()
-          call addquote(tempfile(itempfile),sString_g)
-          write(*,710) trim(sString_g)
-          write(LU_REC,710) trim(sString_g)
-710       format(t5,'Reading template file ',a,' ....')
-          open(unit=tempunit,file=tempfile(itempfile),status='old',iostat=ierr)
-          if(ierr.ne.0)then
-            write(amessage,720) trim(sString_g)
-720         format('cannot open template file ',a)
-            go to 9800
-          end if
-          jline=1
-     read(tempunit,'(a)',err=9400,end=800) cline
-          call casetrans(cline,'lo')
-     if(cline(1:3).ne.'ptf')then
-       write(amessage,730) trim(sString_g)
-730       format('"ptf" header missing from first line of file ',a)
-            go to 9800
-     end if
-     pardelim=cline(5:5)
-     if((pardelim.eq.' ').or.   &
-        (index('1234567890,;:',pardelim).ne.0).or.    &
-        (index('abcdefghijklmnopqrstuvwxyz',pardelim).ne.0))then
-        write(amessage,740) trim(sString_g)
-740        format('invalid parameter delimeter on line 1 of file ',a)
-             go to 9800
-     end if
-     read_a_line: do
-       ii1=1
-       jline=jline+1
-       read(tempunit,'(a)',err=9400,end=800) cline
-       ll=len(cline)
-745       j=index(cline(ii1:),pardelim)
-       if(j.eq.0) cycle read_a_line
-       if(j.gt.ll) cycle read_a_line
-       ii1=ii1+j-1
-       j=0
-       if(ii1.le.ll)j=index(cline(ii1+1:),pardelim)
-       if(j.eq.0)then
-         call num2char(jline,aline)
-         write(amessage,750) trim(aline),trim(sString_g)
-750         format('unbalanced parameter delimiters on line ',a,  &
-         ' of template file ',a)
-         go to 9800
-       end if
-       jj1=ii1+j
-       ii1=ii1+1
-       jj1=jj1-1
-       if(jj1-ii1+1.le.0)then
-         call num2char(jline,aline)
-         write(amessage,760) trim(aline),trim(sString_g)
-760         format('parameter space has zero width at line ',a,   &
-         ' of template file ',a)
-         go to 9800
-       end if
-       do jj=ii1,jj1
-         if(cline(jj:jj).ne.' ') then
-           do kk=jj,jj1
-             if(cline(kk:kk).eq.' ') go to 765
-           end do
-           kk=jj1+1
-765           kk=kk-1
-           go to 767
-         end if
-       end do
-       call num2char(jline,aline)
-       write(amessage,766) trim(aline), trim(sString_g)
-766       format('blank parameter space at line ',a,' of template ', &
-       'file ',a)
-       go to 9800
-767       continue
-       if(kk-jj+1.gt.12)then
-         call num2char(jline,aline)
-         write(amessage,768) trim(aline),trim(sString_g)
-768         format('parameter name greater than 12 characters in ',  &
-         'line ',a,' of template file ',a)
-         go to 9800
-       end if
-            if(cline(kk+1:jj1).ne.' ')then
-              call num2char(jline,aline)
-              write(amessage,769) trim(aline),trim(sString_g)
-769           format('parameter name includes a space character at line ',a,  &
-              ' of file ',a)
-              go to 9800
-            end if
-       aapar=cline(jj:kk)
-       aapar=adjustl(aapar)
-       call casetrans(aapar,'lo')
-       if(npar.ne.0)then
-         do ipar=1,npar
-           if(aapar.eq.apar(ipar)) go to 785
-         end do
-         npar=npar+1
-         nnpar=nnpar+1
-         if(npar.gt.MAXPAR)then
-                call num2char(MAXPAR,aline)
-           write(amessage,780) trim(aline)
-780           format('number of parameters cited in template files is limited ', &
-                'to ',a,'. Increase MAXPAR and re-compile program.')
-           go to 9800
-         end if
-         apar(npar)=aapar
-       else
-         npar=1
-         nnpar=1
-         apar(npar)=aapar
-       end if
-785       ii1=jj1+2
-       go to 745
-     end do read_a_line
-800     continue
-     call num2char(nnpar,aline)
-          if(itempfile.eq.1)then
-       write(*,795) trim(aline),trim(sString_g)
-            write(LU_REC,795) trim(aline),trim(sString_g)
-795       format(t5,'- ',a,' parameter names read from file ',a)
-          else
-       write(*,796) trim(aline),trim(sString_g)
-            write(LU_REC,796) trim(aline),trim(sString_g)
-796       format(t5,'- ',a,' more parameter names read from file ',a)
-          end if
-     close(unit=tempunit,err=9500)
-   end do read_template_file
-
-! -- Observations are named and the instruction file is now written.
-
-       nobs=0
-       nobsgp=0
-
-       iunit=nextunit()
-       call addquote(instructfile,sString_g)
-       write(*,810) trim(sString_g)
-       write(LU_REC,810) trim(sString_g)
-810    format(t5,'Writing instruction file ',a,' ....')
-       inquire(file=instructfile,exist=lexist)
-       if(lexist)then
-         write(6,*)
-813      write(*,815,advance='no') trim(sString_g)
-815      format(' File ',a,' already exists. Overwrite it? [y/n]: ')
-         read(5,'(a)') aa
-         call casetrans(aa,'lo')
-         if((aa.ne.'y').and.(aa.ne.'n')) go to 813
-         if(aa.eq.'n')then
-           write(*,820)
-           write(LU_REC,820)
-820        format(/,' Execution terminated so file not overwritten.')
-           ifail=1
-           return
-         end if
-       end if
-       open(unit=iunit,file=instructfile,iostat=ierr)
-       if(ierr.ne.0)then
-         write(amessage,830) trim(sString_g)
-830      format('cannot open file ',a,' for output.')
-         go to 9800
-       end if
-       write(iunit,840)
-840    format('pif $')
-
-! -- First the time series instructions are written.
-
-       iout=0
-       if(ioseries.eq.0) go to 1100
-       do i=1,ioseries
-         iout=iout+1
-         im=iOutseries_g(i)
-         do j=1,ioseries
-           if(im.eq.modseries(j)) go to 860
-         end do
-         write(amessage,850) trim(series_g(im)%name)
-850      format('time series "',a,'" cited in the LIST_OUTPUT block immediately ', &
-         'preceding the WRITE_PEST_FILES block is not cited as a ', &
-         'MODEL_SERIES_NAME in the latter block.')
-         go to 9800
-860      io=obsseries(j)
-         nsterm=series_g(io)%nterm
-         aname=series_g(im)%name
-         nobsgp=nobsgp+1
-         obgnme(nobsgp)=aname
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         if(ierr.ne.0) go to 9800
-         atemp=basename(iout)
-         do iterm=1,nsterm
-           call num2char(iterm,anum)
-           if(trim(sSeriesFormat_g) == "ssf" &
-             .or. trim(sSeriesFormat_g) == "long" )then
-             aname='['//trim(atemp)//trim(anum)//']42:65'
-           else
-             aname='['//trim(atemp)//trim(anum)//']2:25'
-           end if
-           if(iterm.eq.1 .and. trim(sSeriesFormat_g) /= "ssf" )then
-             write(iunit,"('l3',t6,a)") trim(aname)
-           else
-             write(iunit,"('l1',t6,a)") trim(aname)
-           end if
-           nobs=nobs+1
-         end do
-       end do
-
-! -- Next the S_TABLE instructions are written.
-
-1100   continue
-       if(iostable.eq.0) go to 1200
-       siout=0
-       do i=1,iostable
-         il=0
-         siout=siout+1
-         im=iOutStable_g(i)
-         do j=1,iostable
-           if(im.eq.modstable(j)) go to 1120
-         end do
-         write(amessage,1110) 's',trim(stable_g(im)%name),'S'
-1110     format(a,'_table "',a,'" cited in the LIST_OUTPUT block immediately ', &
-         'preceding the WRITE_PEST_FILES block is not cited as a ', &
-         'MODEL_',a,'_TABLE_NAME in the latter block.')
-         go to 9800
-1120     io=obsstable(j)
-         aname=stable_g(im)%name
-         nobsgp=nobsgp+1
-         obgnme(nobsgp)=aname
-         sbasename(siout)=aname(1:12)
-         if(siout.gt.1)then
-           do j=1,siout-1
-             if(sbasename(j).eq.sbasename(siout))then
-               write(amessage,1130)
-1130           format('TSPROC cannot generate unique observation names from the ',  &
-               'names of the MODEL_S_TABLES involved in the ', &
-               'calibration process. Alter the first twelve letters of at least one ', &
-               'of the model S_TABLE names.')
-               go to 9800
-             end if
-           end do
-         end if
-         if(stable_g(io)%maximum.gt.-1.0e36)then
-           il=il+1
-           aname='['//trim(sbasename(siout))//OBSCHAR//'max]51:69'
-           if(il.eq.1)then
-             write(iunit,1140) trim(aname)
-1140         format('l11',t6,a)
-           else
-             write(iunit,1150) trim(aname)
-1150         format('l1',t6,a)
-           end if
-           nobs=nobs+1
-         end if
-         if(stable_g(io)%minimum.gt.-1.0e36)then
-           il=il+1
-           aname='['//trim(sbasename(siout))//OBSCHAR//'min]51:69'
-           if(il.eq.1)then
-             write(iunit,1140) trim(aname)
-           else
-             write(iunit,1150) trim(aname)
-           end if
-           nobs=nobs+1
-         end if
-         if(stable_g(io)%range.gt.-1.0e36)then
-           il=il+1
-           aname='['//trim(sbasename(siout))//OBSCHAR//'range]51:69'
-           if(il.eq.1)then
-             write(iunit,1140) trim(aname)
-           else
-             write(iunit,1150) trim(aname)
-           end if
-           nobs=nobs+1
-         end if
-
-         if(stable_g(io)%total.gt.-1.0e36)then
-           il=il+1
-           aname='['//trim(sbasename(siout))//OBSCHAR//'sum]51:69'
-           if(il.eq.1)then
-             write(iunit,1140) trim(aname)
-           else
-             write(iunit,1150) trim(aname)
-           end if
-           nobs=nobs+1
-         end if
-         if(stable_g(io)%mean.gt.-1.0e36)then
-           il=il+1
-           aname='['//trim(sbasename(siout))//OBSCHAR//'mean]51:69'
-           if(il.eq.1)then
-             write(iunit,1140) trim(aname)
-           else
-             write(iunit,1150) trim(aname)
-           end if
-           nobs=nobs+1
-         end if
-         if(stable_g(io)%median.gt.-1.0e36)then
-           il=il+1
-           aname='['//trim(sbasename(siout))//OBSCHAR//'median]51:69'
-           if(il.eq.1)then
-             write(iunit,1140) trim(aname)
-           else
-             write(iunit,1150) trim(aname)
-           end if
-           nobs=nobs+1
-         end if
-         if(stable_g(io)%stddev.gt.-1.0e36)then
-           il=il+1
-           aname='['//trim(sbasename(siout))//OBSCHAR//'sd]51:69'
-           if(il.eq.1)then
-             write(iunit,1140) trim(aname)
-           else
-             write(iunit,1150) trim(aname)
-           end if
-           nobs=nobs+1
-         end if
-       end do
-
-! -- Next the V_TABLE instructions are written.
-
-1200   continue
-
-       if(iovtable.eq.0) go to 1300
-       do i=1,iovtable
-         iout=iout+1
-         im=iOutVtable_g(i)
-         do j=1,iovtable
-           if(im.eq.modvtable(j)) go to 1220
-         end do
-         write(amessage,1110) 'v',trim(vtable_g(im)%name),'V'
-         go to 9800
-1220     io=obsvtable(j)
-         nsterm=vtable_g(io)%nterm
-         aname=vtable_g(im)%name
-         nobsgp=nobsgp+1
-         obgnme(nobsgp)=aname
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         if(ierr.ne.0) go to 9800
-         atemp=basename(iout)
-         do iterm=1,nsterm
-           call num2char(iterm,anum)
-           aname='['//trim(atemp)//trim(anum)//']62:81'
-           if(iterm.eq.1)then
-             write(iunit,1230) trim(aname)
-1230         format('l4',t6,a)
-           else
-             write(iunit,1240) trim(aname)
-1240         format('l1',t6,a)
-           end if
-           nobs=nobs+1
-         end do
-       end do
-
-! -- Next the E_TABLE instructions are written.
-
-1300   continue
-
-       if(iodtable.eq.0) go to 4300
-       do i=1,iodtable
-         iout=iout+1
-         im=iOutDtable_g(i)
-         do j=1,iodtable
-           if(im.eq.moddtable(j)) go to 1320
-         end do
-         write(amessage,1110) 'e',trim(vtable_g(im)%name),'E'
-         go to 9800
-1320     io=obsdtable(j)
-         nsterm=dtable_g(io)%nterm
-         aname=dtable_g(im)%name
-         nobsgp=nobsgp+1
-         obgnme(nobsgp)=aname                                  !!!*** is this correct??
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         if(ierr.ne.0) go to 9800
-         atemp=basename(iout)
-         do iterm=1,nsterm
-           call num2char(iterm,anum)
-           aname='['//trim(atemp)//trim(anum)//']59:78'
-           if(iterm.eq.1)then
-             write(iunit,1230) trim(aname)
-           else
-             write(iunit,1240) trim(aname)
-           end if
-           nobs=nobs+1
-         end do
-       end do
-
-! -- Next the G_TABLE instructions are written.
-
-4300   continue
-
-       if(iogtable.eq.0) go to 1400
-       do i=1,iogtable
-         iout=iout+1
-         im=iOutGtable_g(i)
-         do j=1,iogtable
-           if(im.eq.modgtable(j)) go to 4320
-         end do
-         write(amessage,1110) 'g',trim(gtable_g(im)%name),'G'
-         go to 9800
-4320     io=obsgtable(j)
-         nsterm=ubound(gtable_g(io)%sDescription, 1)
-         aname=gtable_g(im)%name
-         nobsgp=nobsgp+1
-         obgnme(nobsgp)=aname                                  !!!*** is this correct??
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         if(ierr.ne.0) go to 9800
-         atemp=basename(iout)
-         do iterm=1,nsterm
-           call num2char(iterm,anum)
-           aname='['//trim(atemp)//trim(anum)//']82:96'
-           if(iterm.eq.1)then
-             write(iunit,1230) trim(aname)
-           else
-             write(iunit,1240) trim(aname)
-           end if
-           nobs=nobs+1
-         end do
-       end do
-
-1400   continue
-       close(unit=iunit)
-       write(*,1410) trim(sString_g)
-       write(LU_REC,1410) trim(sString_g)
-1410   format(t5,'- file ',a,' written ok.')
-
-
-! -- Parameter and parameter group data are now assimilated on the basis of information
-!    read from the parameter data file, the parameter group file and the template files.
-
-       allocate(partrans(npar),parchglim(npar),parval1(npar),parlbnd(npar),  &
-                parubnd(npar),pargp(npar),scale(npar),offset(npar), stat=ierr)
-       if(ierr.ne.0) go to 9200
-
-       allocate(pargpnme(npar),inctyp(npar),derinc(npar),derinclb(npar),forcen(npar), &
-       derincmul(npar),dermthd(npar), stat=ierr)
-       if(ierr.ne.0) go to 9200
-
-       do ipar=1,npar
-         aapar=apar(ipar)
-         if(f_numpar.ne.0)then
-           do j=1,f_numpar
-             if(aapar.eq.f_parnme(j))then
-               partrans(ipar)=f_partrans(j)
-               parchglim(ipar)=f_parchglim(j)
-               parval1(ipar)=f_parval1(j)
-               parlbnd(ipar)=f_parlbnd(j)
-               parubnd(ipar)=f_parubnd(j)
-               pargp(ipar)=f_pargp(j)
-               scale(ipar)=f_scale(j)
-               offset(ipar)=f_offset(j)
-               go to 1450
-             end if
-           end do
-         end if
-         write(amessage,1449)trim(aapar)
-1449     format('Parameter "', A, '" was found in the template file ',      &
-            'but was not in the parameter file.')
-         goto 9800
-1450     continue
-       end do
-
-! -- If any parameters are tied to a parameter which does not exist, this is now
-!    rectified.
-
-       do ipar=1,npar
-         if(partrans(ipar)(1:4).eq.'tied') then
-           aapar=partrans(ipar)(6:)
-           do i=1,npar
-             if(aapar.eq.apar(i)) go to 1470
-           end do
-           partrans(ipar)='none'
-1470       continue
-         end if
-       end do
-
-! -- Parameter groups are now organised.
-
-       npargp=0
-       do ipar=1,npar
-         apargp=pargp(ipar)
-         if(apargp.eq.'none') then
-           if((partrans(ipar).ne.'tied').and.(partrans(ipar).ne.'fixed'))then
-             call addquote(pardatfile,sString_g)
-              write(amessage,1471)trim(apar(ipar)),trim(sString_g)
-1471         format('parameter "',a,'" has been assigned to parameter group "none" ', &
-             'in file ',a,' but is not tied or fixed.')
-             go to 9800
-           else
-             go to 1500
-           end if
-         end if
-         if(ipar.ne.1)then
-           do i=1,ipar-1
-             if(pargp(i).eq.apargp) go to 1500
-           end do
-         end if
-         if(f_numpargp.ne.0)then
-           do i=1,f_numpargp
-             if(apargp.eq.f_pargpnme(i))then
-               npargp=npargp+1
-               pargpnme(npargp)=f_pargpnme(i)
-               inctyp(npargp)=f_inctyp(i)
-               derinc(npargp)=f_derinc(i)
-               derinclb(npargp)=f_derinclb(i)
-               forcen(npargp)=f_forcen(i)
-               derincmul(npargp)=f_derincmul(i)
-               dermthd(npargp)=f_dermthd(i)
-               go to 1500
-             end if
-           end do
-         end if
-         npargp=npargp+1
-         pargpnme(npargp)=apargp
-         inctyp(npargp)='relative'
-         derinc(npargp)=0.01
-         derinclb(npargp)=0.00
-         forcen(npargp)='switch'
-         derincmul(npargp)=2.0
-         dermthd(npargp)='parabolic'
-1500     continue
-       end do
-
-! -- The "* control data" section of the PEST control file is now written.
-
-       iunit=nextunit()
-       call addquote(pestctlfile,sString_g)
-       write(*,1510) trim(sString_g)
-       write(LU_REC,1510) trim(sString_g)
-1510   format(t5,'Writing PEST control file ',a,' ....')
-       inquire(file=pestctlfile,exist=lexist)
-       if(lexist)then
-         write(6,*)
-1520     write(*,815,advance='no') trim(sString_g)
-         read(5,'(a)') aa
-         call casetrans(aa,'lo')
-         if((aa.ne.'y').and.(aa.ne.'n')) go to 1520
-         if(aa.eq.'n')then
-           write(*,820)
-           write(LU_REC,820)
-           ifail=1
-           return
-         end if
-       end if
-       open(unit=iunit,file=pestctlfile,iostat=ierr)
-       if(ierr.ne.0)then
-         write(amessage,830) trim(sString_g)
-         go to 9800
-       end if
-       write(iunit,1530)
-1530   format('pcf')
-       write(iunit,1540)
-1540   format('* control data')
-       write(iunit,1550)
-1550   format('restart estimation')
-       write(iunit,1560) npar,nobs,npargp,0,nobsgp
-1560   format(5i7)
-       write(iunit,1570) numtempfile,1
-1570   format(2i6,'   single   point   1   0   0')
-       if(isvd.eq.0)then
-         write(iunit,1580)
-1580     format('10.0   2.0    0.3    0.03    10  999')
-       else
-         write(iunit,1581)
-1581     format('10.0  -3.0    0.3    0.03     1  999')
-       end if
-       write(iunit,1590)
-1590   format('5.0   5.0   1.0e-3')
-       if(auiyesno.eq.0)then
-         write(iunit,1600)
-1600     format('0.1  noaui')
-       else
-         write(iunit,1601)
-1601   format('0.1   aui')
-       end if
-       write(iunit,1610)
-1610   format('30   .005  4   4  .005   4')
-       write(iunit,1620)
-1620   format('1    1    1')
-       if(isvd.eq.1)then
-         write(iunit,1621)
-1621     format('* singular value decomposition')
-         write(iunit,1622)
-1622     format('1')
-         write(iunit,1633) npar,eigthresh
-1633     format(i6,2x,1pg13.7)
-         write(iunit,1634)
-1634     format('1')
-       end if
-
-! -- The "* parameter groups" section of the PEST control file is now written.
-
-       write(iunit,1630)
-1630   format('* parameter groups')
-       do igp=1,npargp
-         write(iunit,1640)trim(pargpnme(igp)),trim(inctyp(igp)),derinc(igp), &
-         derinclb(igp),trim(forcen(igp)),derincmul(igp), trim(dermthd(igp))
-1640     format(a,t14,a,t27,1pg12.5,t41,1pg12.5,t55,a,t66,1pg12.5,2x,a)
-       end do
-
-! -- The "* parameter data" section of the PEST control file is now written.
-
-       write(iunit,1650)
-1650   format('* parameter data')
-       do ipar=1,npar
-         if(partrans(ipar)(1:4).eq.'tied')then
-           atrans='tied'
-         else
-           atrans=partrans(ipar)
-         end if
-         write(iunit,1660) trim(apar(ipar)),trim(atrans),   &
-         trim(parchglim(ipar)),parval1(ipar), &
-         parlbnd(ipar),parubnd(ipar),trim(pargp(ipar)),scale(ipar),offset(ipar)
-1660     format(a,t14,a,t21,a,t33,1pg12.5,t47,1pg12.5,t61,1pg12.5,t75,a,t89,1pg12.5,  &
-         t103,1pg12.5,t117,'  1')
-       end do
-       do ipar=1,npar
-         if(partrans(ipar)(1:4).eq.'tied')then
-           write(iunit,1670) trim(apar(ipar)),trim(partrans(ipar)(6:))
-1670       format(a,t14,a)
-         end if
-       end do
-
-! -- The "* observation groups" section of the PEST control file is now written.
-
-       write(iunit,1690)
-1690   format('* observation groups')
-       do i=1,nobsgp
-         write(iunit,1700) trim(obgnme(i))
-1700     format(a)
-       end do
-
-! -- The "* observation data" section of the PEST control file is now written.
-! -- First the time series observations are dealt with.
-
-       write(iunit,1705)
-1705   format('* observation data')
-
-       iout=0
-       ieqnerr=0
-       if(ioseries.eq.0) go to 2100
-       do i=1,ioseries
-         iout=iout+1
-         im=iOutseries_g(i)
-         do j=1,ioseries
-           if(im.eq.modseries(j)) go to 1860
-         end do
-         write(amessage,850)
-         go to 9800
-1860     io=obsseries(j)
-         nsterm=series_g(io)%nterm
-         aname=series_g(im)%name
-
-         allocate(tempobsvals(nsterm))
-         allocate(tempsimvals(nsterm))
-
-         if (series_g(io)%lIsSinglePrecision) then
-           tempobsvals = real(series_g(io)%val, kind=T_DBL)
-           tempsimvals = real(series_g(im)%val, kind=T_DBL)
-         else
-           tempobsvals = series_g(io)%dpval
-           tempsimvals = series_g(im)%dpval
+     if(iogtable/=0)then
+         do i = 1, iogtable
+             io = obsgtable(i)
+             im = modgtable(i)
+             aoname = GTABLE_G(io)%NAME
+             amname = GTABLE_G(im)%NAME
+             if(io/=im)then         ! was 3079
+                 noterm = UBOUND(GTABLE_G(io)%SDESCRIPTION, 1)
+                 nmterm = UBOUND(GTABLE_G(im)%SDESCRIPTION, 1)
+                 if(noterm/=nmterm)then
+                     write(amessage, 9055)TRIM(aoname), TRIM(amname)
+9055                 format('OBSERVATION_G_TABLE "', a,                        &
+                           &'"  has been matched to ', 'MODEL G_TABLE "', a,   &
+                           &'". However these G_TABLES ',                      &
+                           &'have different numbers of entries.')
+                     goto 2400
+                 endif
+             endif
+             do j = 1, noterm
+                 if(.NOT.STR_COMPARE(GTABLE_G(io)%SDESCRIPTION(j), GTABLE_G(im)&
+                  & %SDESCRIPTION(j)))then
+                     write(amessage, 9056)TRIM(aoname), TRIM(amname)
+9056                 format('OBSERVATION_G_TABLE "', a,                        &
+                           &'"  has been matched to ', 'MODEL G_TABLE "', a,   &
+                           &'". However the items in ',                        &
+                           &'these G_TABLES do not correspond.')
+                     goto 2400
+                 endif
+             enddo
+!            3079       continue
+             do j = 1, iogtable
+                 if(im==IOUTGTABLE_G(j))goto 250
+             enddo
+             write(amessage, 9125)'G', TRIM(amname), TRIM(currentblock_g)
+             goto 2400
+250      enddo
+     endif
+ 
+!    -- If present, the parameter group file is read.
+     if(pargroupfile==' ')goto 500
+     call ADDQUOTE(pargroupfile, sstring_g)
+     write(*, 9126)TRIM(sstring_g)
+     write(lu_rec, 9126)TRIM(sstring_g)
+     iunit = NEXTUNIT()
+     open(unit = iunit, file = pargroupfile, status = 'old', iostat = ierr)
+     if(ierr/=0)then
+         write(amessage, 9057)TRIM(sstring_g)
+9057     format('cannot open parameter group file ', a)
+         goto 2400
+     endif
+
+!    -- The file is read a first time to find out the number of groups
+     jline = 0
+     f_numpargp = 0
+     do
+         jline = jline + 1
+         read(iunit, '(a)', err = 2000, end = 300)cline
+         if(LEN_TRIM(cline)==0)cycle
+         if(cline(1:1)=='#')cycle
+         f_numpargp = f_numpargp + 1
+     enddo
+
+300   if(f_numpargp==0)then
+         write(amessage, 9127)TRIM(sstring_g)
+         goto 2400
+     endif
+
+     allocate(f_pargpnme(f_numpargp), f_inctyp(f_numpargp),                    &
+            & f_derinc(f_numpargp), f_derinclb(f_numpargp),                    &
+            & f_forcen(f_numpargp), f_derincmul(f_numpargp),                   &
+            & f_dermthd(f_numpargp), STAT = ierr)
+     if(ierr/=0)goto 1700
+     rewind(unit = iunit, iostat = ierr)
+     if(ierr/=0)goto 1900
+
+     call vstrlist_new(groups_dat)
+     call tlist%set_tokenizer(token_whitespace, token_empty, token_empty)
+
+     jline = 0
+     igp = 0
+     do
+         igp = igp + 1
+         jline = jline + 1
+         call NUM2CHAR(jline, aline)
+         read(iunit, '(a)', err = 2000, end = 400)cline
+         if(LEN_TRIM(cline)==0)cycle
+         if(cline(1:1)=='#')cycle
+         call CASETRANS(cline, 'lo')
+
+         call tlist%tokenize(cline)
+ 
+         if(tlist%number()/=7)then
+             write(amessage, 9902)TRIM(aline), TRIM(sstring_g)
+9902         format('require 7 items on line ', a, ' in file "', a, '"')
+             goto 2400
          endif
 
-         tempmean = 0.
-         m2 = 0.
-         sse = 0.
+         f_pargpnme(igp) = tlist%token(1)
+         if(LEN_TRIM(f_pargpnme(igp))>12)then
+             write(amessage, 9128)TRIM(f_pargpnme(igp)), TRIM(aline),          &
+                 & TRIM(sstring_g)
+             goto 2400
+         endif
+         if(f_pargpnme(igp)=='none')then
+             write(amessage, 9058)TRIM(sstring_g)
+9058         format('parameter group name "none" in file ', a,                 &
+                   &' is a reserved ',                                         &
+                   &'name, used for some fixed and tied parameters.')
+             goto 2400
+         endif
 
-         do lc = 1,nsterm
-           delta = tempobsvals(lc) - tempmean
-           delta2 = tempobsvals(lc) - tempsimvals(lc)
-           tempmean = tempmean + delta / real(lc, kind=8)
-           sse = sse + delta2**2
-           m2 = m2 + delta * ( tempobsvals(lc) - tempmean )
+         call vstrlist_append(groups_dat, TRIM(f_pargpnme(igp)))
+
+         f_inctyp(igp) = tlist%token(2)
+         if((f_inctyp(igp)/='relative') .AND.                                  &
+           &(f_inctyp(igp)/='absolute') .AND.                                  &
+           &(f_inctyp(igp)/='rel_to_max'))then
+             write(amessage, 9059)TRIM(aline), TRIM(sstring_g)
+9059         format('INCTYP on line ', a, ' of file ', a, ' must be ',         &
+                   &'"relative", "absolute" or "rel_to_max".')
+             goto 2400
+         endif
+
+         call CHAR2NUM(ierr, tlist%token(3), f_derinc(igp))
+         if(ierr/=0)then
+             write(amessage, 9132)'DERINC', TRIM(aline), TRIM(sstring_g)
+             goto 2400
+         endif
+         if(f_derinc(igp)<=0.0)then
+             write(amessage, 9129)'DERINC', TRIM(aline), TRIM(sstring_g)
+             goto 2400
+         endif
+
+         call CHAR2NUM(ierr, tlist%token(4), f_derinclb(igp))
+         if(ierr/=0)then
+             write(amessage, 9132)'DERINCLB', TRIM(aline), TRIM(sstring_g)
+             goto 2400
+         endif
+         if(f_derinclb(igp)<0.0)then
+             write(amessage, 9060)'DERINCLB', TRIM(aline), TRIM(sstring_g)
+9060         format('value for ', a, ' on line ', a, ' of file ', a,           &
+                   &' must not be negative.')
+             goto 2400
+         endif
+
+         f_forcen(igp) = tlist%token(5)
+         if((f_forcen(igp)/='switch') .AND. (f_forcen(igp)/='always_2')        &
+          & .AND. (f_forcen(igp)/='always_3'))then
+             write(amessage, 9061)TRIM(aline), TRIM(sstring_g)
+9061         format('FORCEN must be "switch", "always_2" or ',                 &
+                   &'"always_3" at line ', a, ' of file ', a)
+             goto 2400
+         endif
+
+         call CHAR2NUM(ierr, tlist%token(6), f_derincmul(igp))
+         if(ierr/=0)then
+             write(amessage, 9132)'DERINCMUL', TRIM(aline), TRIM(sstring_g)
+             goto 2400
+         endif
+         if(f_derincmul(igp)<=0.0)then
+             write(amessage, 9129)'DERINCMUL', TRIM(aline), TRIM(sstring_g)
+             goto 2400
+         endif
+
+         f_dermthd(igp) = tlist%token(7)
+         if((f_dermthd(igp)/='parabolic') .AND.                                &
+           &(f_dermthd(igp)/='best_fit') .AND.                                 &
+           &(f_dermthd(igp)/='outside_pts'))then
+             write(amessage, 9062)TRIM(aline), TRIM(sstring_g)
+9062         format('DERMTHD must be "parabolic", "best_fit" or ',             &
+                   &'"outside_pts" on line ', a, ' of file ', a)
+             goto 2400
+         endif
+     enddo
+400  continue
+
+! -- Test for duplicate group names
+     dat_sorted = vstrlist_sort(groups_dat, unique=.TRUE.)
+
+     if(vstrlist_length(groups_dat)/=vstrlist_length(dat_sorted))then
+         write(amessage, 9063)TRIM(sstring_g)
+9063     format('2 parameter groups have the same name in file ',              &
+              & a)
+         goto 2400
+     endif
+
+     call NUM2CHAR(f_numpargp, aline)
+     write(*, 9130)TRIM(aline), TRIM(sstring_g)
+     write(lu_rec, 9130)TRIM(aline), TRIM(sstring_g)
+     close(unit = iunit)
+ 
+!    -- If present, the parameter data file is read.
+500   if(pardatfile==' ')goto 800
+     call ADDQUOTE(pardatfile, sstring_g)
+     write(*, 9131)TRIM(sstring_g)
+     write(lu_rec, 9131)TRIM(sstring_g)
+     iunit = NEXTUNIT()
+     open(unit = iunit, file = pardatfile, status = 'old', iostat = ierr)
+     if(ierr/=0)then
+         write(amessage, 9064)TRIM(sstring_g)
+9064     format('cannot open parameter data file ', a)
+         goto 2400
+     endif
+ 
+!    -- The file is read a first time to obtain the number of parameters.
+     jline = 0
+     f_numpar = 0         ! number of parameters
+     f_nequation = 0      ! number of equations
+     f_nparsec = 0        ! number of secondary parameters = 
+                          ! number of unique equation parameter names on LHS
+                          ! of all equations
+     iequation = 0
+     do
+         jline = jline + 1
+         read(iunit, '(a)', err = 2000, end = 600)cline
+         if(LEN_TRIM(cline)==0)cycle
+         if(cline(1:1)=='#')cycle
+         if(index(cline, '=')>0)then
+             f_nequation = f_nequation + 1
+         else
+             f_numpar = f_numpar + 1
+         endif
+     enddo
+600   if(f_numpar==0)then
+         write(amessage, 9127)TRIM(sstring_g)
+         goto 2400
+     endif
+     allocate(f_parnme(f_numpar), f_partrans(f_numpar), f_parchglim(f_numpar), &
+            & f_parval1(f_numpar), f_parlbnd(f_numpar), f_parubnd(f_numpar),   &
+            & f_pargp(f_numpar), f_scale(f_numpar), f_offset(f_numpar),        &
+            & STAT = ierr)
+     if(ierr/=0)goto 1700
+     allocate(f_equation(f_nequation), f_parsecnme(f_nequation), STAT = ierr)
+     if(ierr/=0)goto 1700
+
+     rewind(unit = iunit, iostat = ierr)
+     if(ierr/=0)goto 1900
+ 
+     call vstrlist_new(params_par_dat)
+     call vstrlist_new(params_eq_dat)
+     call vstrlist_new(params_grp_dat)
+!    -- Now it is read a second time to obtain the data.
+     jline = 0
+     ipar = 0
+     do
+         jline = jline + 1
+         call NUM2CHAR(jline, aline)
+         read(iunit, '(A)', err = 2000, end = 700)cline
+         if(LEN_TRIM(cline)/=0)then
+             if(cline(1:1)/='#')then
+                 call CASETRANS(cline, 'lo')
+                 call tlist%tokenize(cline)
+                 if(index(cline, '=')>0)then
+                     ! equations will only have 3 tokens on the line
+                     if(tlist%number()<3)goto 2100
+                 else
+                     if(tlist%number()<9)goto 2100
+                 endif
+
+                 if(LEN_TRIM(tlist%token(1))>12)then
+                     write(amessage, 9065)TRIM(tlist%token(1)), TRIM(aline),   &
+                         & TRIM(sstring_g)
+9065                 format('parameter name "', a,                             &
+                           &'" greater than 12 characters in length ',         &
+                           &'at line ', a, ' of file ', a)
+                     goto 2400
+                 endif
+
+                 if(index(cline, '=')>0)then
+                     iequation = iequation + 1
+
+                     f_parsecnme(iequation) = tlist%token(1)
+                     call vstrlist_append(params_eq_dat,                       &
+                                        & TRIM(f_parsecnme(iequation)))
+
+                     f_equation(iequation) = tlist%token(3)
+                 else
+                     ipar = ipar + 1
+
+                     f_parnme(ipar) = tlist%token(1)
+
+                     call vstrlist_append(params_par_dat,                      &
+                                        & TRIM(f_parnme(ipar)))
+
+                     f_partrans(ipar) = tlist%token(2)
+                     if((f_partrans(ipar)/='log') .AND.                        &
+                      & (f_partrans(ipar)/='none') .AND.                       &
+                      & (f_partrans(ipar)(1:4)/='tied') .AND.                  &
+                      & (f_partrans(ipar)/='fixed'))then
+                         write(amessage, 9066)TRIM(aline), TRIM(sstring_g)
+9066                     format('PARTRANS on line ', a, ' of file ', a,        &
+                               &' must be "none", "log", "fixed" or ',         &
+                               &'"tied_(parameter name)".')
+                         goto 2400
+                     endif
+                     if((f_partrans(ipar)=='tied') .OR.                        &
+                      & (f_partrans(ipar)=='tied_'))then
+                         write(amessage, 9067)TRIM(aline), TRIM(sstring_g)
+9067                     format('the parent parameter name must follow the ',  &
+                               &'"tied_" string at line ', a, ' of file ', a)
+                         goto 2400
+                     endif
+
+                     f_parchglim(ipar) = tlist%token(3)
+                     if((f_parchglim(ipar)/='relative') .AND.                  &
+                       &(f_parchglim(ipar)/='factor'))then
+                         write(amessage, 9068)TRIM(aline), TRIM(sstring_g)
+9068                     format('PARCHGLIM on line ', a, ' of file ', a,       &
+                               &' must be ', '"relative" or "factor".')
+                         goto 2400
+                     endif
+
+                     call CHAR2NUM(ierr, tlist%token(4), f_parval1(ipar))
+                     if(ierr/=0)then
+                         write(amessage, 9132)'PARVAL1', TRIM(aline),          &
+                             & TRIM(sstring_g)
+                         goto 2400
+                     endif
+
+                     call CHAR2NUM(ierr, tlist%token(5), f_parlbnd(ipar))
+                     if(ierr/=0)then
+                         write(amessage, 9132)'PARLBND', TRIM(aline),          &
+                             & TRIM(sstring_g)
+                         goto 2400
+                     endif
+
+                     call CHAR2NUM(ierr, tlist%token(6), f_parubnd(ipar))
+                     if(ierr/=0)then
+                         write(amessage, 9132)'PARUBND', TRIM(aline),          &
+                             & TRIM(sstring_g)
+                         goto 2400
+                     endif
+
+                     f_pargp(ipar) = tlist%token(7)
+                     if(LEN_TRIM(f_pargp(ipar))>12)then
+                         write(amessage, 9128)TRIM(f_pargp(ipar)),             &
+                             & TRIM(aline), TRIM(sstring_g)
+                         goto 2400
+                     endif
+  
+                     i = vstrlist_search(groups_dat, f_pargp(ipar))
+                     if(i > 0)then
+                         write(amessage, 9910)TRIM(f_pargp(ipar)),             &
+                             & TRIM(aline), TRIM(sstring_g)
+9910                     format('Group "', a, '" at line ', a, ' in file "',   &
+                              & a, '" is not in the group file')
+                         goto 2400
+                     endif
+                     call vstrlist_append(params_grp_dat, TRIM(f_pargp(ipar)))
+
+                     call CHAR2NUM(ierr, tlist%token(8), f_scale(ipar))
+                     if(ierr/=0)then
+                         write(amessage, 9132)'SCALE', TRIM(aline),            &
+                             & TRIM(sstring_g)
+                         goto 2400
+                     endif
+
+                     call CHAR2NUM(ierr, tlist%token(9), f_offset(ipar))
+                     if(ierr/=0)then
+                         write(amessage, 9132)'OFFSET', TRIM(aline),           &
+                             & TRIM(sstring_g)
+                         goto 2400
+                     endif
+                 endif
+             endif
+         endif
+     enddo
+700  continue
+ 
+!    -- Some checks are made of the parameter data.
+! -- Test for duplicate parameter names
+     dat_sorted = vstrlist_sort(params_par_dat, unique=.TRUE.)
+
+     if(vstrlist_length(params_par_dat)/=vstrlist_length(dat_sorted))then
+         write(amessage, 9963)TRIM(sstring_g)
+9963     format('2 parameter names have the same name in file ',               &
+              & a)
+         goto 2400
+     endif
+
+!    -- Primary and secondary parameters can't have the same name.
+     do i = 1, f_numpar
+         do j = 1, f_nequation
+             if(f_parnme(i)==f_parsecnme(j))then
+                 write(amessage, 9901)TRIM(f_parnme(i))
+9901             format('A secondary parameter (equation) has the same name '  &
+                      & 'as a primary parameter: ', a)
+                 goto 2400
+             endif
          enddo
-
-         obj_fun_value = sqrt(sse)
-
-         ! SMW additions August 2013
-         dpCount = real(nsterm, kind=8)
-         dpSum = sum( tempobsvals )
-         dpMin = minval( tempobsvals )
-         dpMax = maxval( tempobsvals )
-         dpMean = tempmean
-         dpVariance = m2 / (nsterm -1)
-
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         atemp=basename(iout)
-         weightmin=max(sweightmin(j),0.0)
-         weightmax=min(sweightmax(j),1.0e36)
-
-! -- The pertinent equation is parsed and prepared.
-
-         eqntext=sequation(j)
-         call prepare_eqn(ierr,nterm,sequation(j),io)
-         if(ierr.ne.0) then
-           ieqnerr=1
-           go to 9800
-         end if
-         nnterm=nterm
-         do iterm=1,nterm
-           cterm(iterm)=aterm(iterm)
-         end do
-         do iterm=1,nterm
-           qterm(iterm)=rterm(iterm)
-         end do
-         do j=1,nsterm
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           call num2char(j,anum)
-           aname=trim(atemp)//trim(anum)
-
-! -- First the series numbers in the equation terms are replaced by series values.
-
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'$~$') then
-               call char2num(ierr,aterm(iterm)(4:),isnum)
-               rterm(iterm)=tempobsvals(j)
-               aterm(iterm)='~!~'
-             end if
-           end do
-
-! -- The weights equation instinsic function evaluations is carried out if necessary.
-
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(tempobsvals(j))
-               aterm(iterm)='~!~'
-
-             elseif(aterm(iterm)(1:3).eq.'@_4') then       ! min
-               rterm(iterm)=dpMin
-               aterm(iterm)='~!~'
-
-             elseif(aterm(iterm)(1:3).eq.'@_5') then       ! max
-               rterm(iterm)=dpMax
-               aterm(iterm)='~!~'
-
-             elseif(aterm(iterm)(1:3).eq.'@_6') then       ! obj fun value
-               rterm(iterm)=obj_fun_value
-               aterm(iterm)='~!~'
-
-             elseif(aterm(iterm)(1:3).eq.'@_7') then       ! count
-               rterm(iterm)=dpCount
-               aterm(iterm)='~!~'
-
-             elseif(aterm(iterm)(1:3).eq.'@_8') then       ! mean
-               rterm(iterm)=dpMean
-               aterm(iterm)='~!~'
-
-             elseif(aterm(iterm)(1:3).eq.'@_9') then       ! variance
-               rterm(iterm)=dpVariance
-               aterm(iterm)='~!~'
-
-
-             else if(aterm(iterm)(1:3).eq.'@_1') then
-!               call newdate(series_g(io)%days(j),1,1,1970,dd,mm,yy)
-               call gregorian_date(iJD=series_g(io)%days(j), &
-                               iMonth=mm, &
-                               iDay=dd, &
-                               iYear=yy)
-               nn=numdays(1,1,yy,dd,mm,yy)
-               rtime=float(nn)+float(series_g(io)%secs(j))/86400.0
-               rterm(iterm)=rtime
-               aterm(iterm)='~!~'
-             else if(aterm(iterm)(1:3).eq.'@_3') then
-               call char2num(ierr,aterm(iterm)(5:),dtempx)
-               rterm(iterm)=dble(series_g(io)%days(j))+     &
-                            dble(series_g(io)%secs(j))/86400.0d0-dtempx
-               aterm(iterm)='~!~'
-             end if
-           end do
-
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(ierr.ne.0) go to 9800
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),tempobsvals(j),dval,trim(series_g(im)%name)
-1900       format(a,t22,1pg14.7,t40,1pg12.6,2x,a)
-         end do
-
-         if (allocated(tempobsvals)) deallocate(tempobsvals)
-         if (allocated(tempsimvals)) deallocate(tempsimvals)
-
-       end do
-
-! -- Now we handle S_TABLE observations.
-
-2100   continue
-       if(iostable.eq.0) go to 2200
-       siout=0
-       do i=1,iostable
-         siout=siout+1
-         im=iOutStable_g(i)
-         do j=1,iostable
-           if(im.eq.modstable(j)) go to 2120
-         end do
-         write(amessage,1110) 's',trim(stable_g(im)%name),'S'
-         go to 9800
-2120     io=obsstable(j)
-         aname=stable_g(im)%name
-         sbasename(siout)=aname(1:12)
-         weightmin=max(stweightmin(j),0.0)
-         weightmax=min(stweightmax(j),1.0e36)
-         eqntext=stequation(j)
-         call prepare_eqn(ierr,nterm,stequation(j),0)
-         if(ierr.ne.0) then
-           ieqnerr=1
-           go to 9800
-         end if
-         nnterm=nterm
-         do iterm=1,nterm
-           cterm(iterm)=aterm(iterm)
-         end do
-         do iterm=1,nterm
-           qterm(iterm)=rterm(iterm)
-         end do
-
-         if(stable_g(io)%maximum.gt.-1.0e36)then
-           aname=trim(sbasename(siout))//OBSCHAR//'max'
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(stable_g(io)%maximum)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),stable_g(io)%maximum,dval,trim(stable_g(im)%name)
-         end if
-
-         if(stable_g(io)%minimum.gt.-1.0e36)then
-           aname=trim(sbasename(siout))//OBSCHAR//'min'
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(stable_g(io)%minimum)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),stable_g(io)%minimum,dval,trim(stable_g(im)%name)
-         end if
-
-         if(stable_g(io)%range.gt.-1.0e36)then
-           aname=trim(sbasename(siout))//OBSCHAR//'range'
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(stable_g(io)%range)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),stable_g(io)%range,dval,trim(stable_g(im)%name)
-         end if
-
-         if(stable_g(io)%total.gt.-1.0e36)then
-           aname=trim(sbasename(siout))//OBSCHAR//'sum'
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(stable_g(io)%total)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),stable_g(io)%total,dval,trim(stable_g(im)%name)
-         end if
-
-         if(stable_g(io)%mean.gt.-1.0e36)then
-           aname=trim(sbasename(siout))//OBSCHAR//'mean'
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(stable_g(io)%mean)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),stable_g(io)%mean,dval,trim(stable_g(im)%name)
-         end if
-
-         if(stable_g(io)%median.gt.-1.0e36)then
-           aname=trim(sbasename(siout))//OBSCHAR//'median'
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(stable_g(io)%median)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),stable_g(io)%median,dval,trim(stable_g(im)%name)
-         end if
-
-         if(stable_g(io)%stddev.gt.-1.0e36)then
-           aname=trim(sbasename(siout))//OBSCHAR//'sd'
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(stable_g(io)%stddev)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),stable_g(io)%stddev,dval,trim(stable_g(im)%name)
-         end if
-
-       end do
-
-! -- Next the V_TABLE observations are handled.
-
-2200   continue
-       if(iovtable.eq.0) go to 2300
-       do i=1,iovtable
-         iout=iout+1
-         im=iOutVtable_g(i)
-         do j=1,iovtable
-           if(im.eq.modvtable(j)) go to 2220
-         end do
-         write(amessage,1110) 'v',trim(vtable_g(im)%name),'V'
-         go to 9800
-2220     io=obsvtable(j)
-         nsterm=vtable_g(io)%nterm
-         aname=vtable_g(im)%name
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         if(ierr.ne.0) go to 9800
-         atemp=basename(iout)
-         weightmin=max(vtweightmin(j),0.0)
-         weightmax=min(vtweightmax(j),1.0e36)
-         eqntext=vtequation(j)
-         call prepare_eqn(ierr,nterm,vtequation(j),0)
-         if(ierr.ne.0) then
-           ieqnerr=1
-           go to 9800
-         end if
-         nnterm=nterm
-         do iterm=1,nterm
-           cterm(iterm)=aterm(iterm)
-         end do
-         do iterm=1,nterm
-           qterm(iterm)=rterm(iterm)
-         end do
-         do j=1,nsterm
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           call num2char(j,anum)
-           aname=trim(atemp)//trim(anum)
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(vtable_g(io)%vol(j))
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),vtable_g(io)%vol(j),dval,trim(vtable_g(im)%name)
-         end do
-       end do
-
-! -- Next the E_TABLE observations are handled.
-
-2300   continue
-       if(iodtable.eq.0) go to 7300
-       do i=1,iodtable
-         iout=iout+1
-         im=iOutDtable_g(i)
-         do j=1,iodtable
-           if(im.eq.moddtable(j)) go to 2320
-         end do
-         write(amessage,1110) 'e',trim(vtable_g(im)%name),'E'
-         go to 9800
-2320     io=obsdtable(j)
-         totim=dtable_g(io)%total_time
-         nsterm=dtable_g(io)%nterm
-         aname=dtable_g(im)%name
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         if(ierr.ne.0) go to 9800
-         atemp=basename(iout)
-         weightmin=max(dtweightmin(j),0.0)        !chek
-         weightmax=min(dtweightmax(j),1.0e36)
-         eqntext=dtequation(j)
-         call prepare_eqn(ierr,nterm,dtequation(j),0)
-         if(ierr.ne.0) then
-           ieqnerr=1
-           go to 9800
-         end if
-         nnterm=nterm
-         do iterm=1,nterm
-           cterm(iterm)=aterm(iterm)
-         end do
-         do iterm=1,nterm
-           qterm(iterm)=rterm(iterm)
-         end do
-         do j=1,nsterm
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           call num2char(j,anum)
-           aname=trim(atemp)//trim(anum)
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs(dtable_g(io)%time(j)/totim)
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin)dval=weightmin
-           if(dval.gt.weightmax)dval=weightmax
-           write(iunit,1900) trim(aname),dtable_g(io)%time(j)/totim,dval,trim(dtable_g(im)%name)
-         end do
-       end do
-
-
-! -- Next the G_TABLE observations are handled.
-
-7300   continue
-       if(iogtable.eq.0) go to 2400
-       do i=1,iogtable
-         iout=iout+1
-         im=iOutGtable_g(i)
-         do j=1,iogtable
-           if(im .eq. modgtable(j)) go to 7320
-         end do
-         write(amessage,1110) 'g',trim(gtable_g(im)%name),'G'
-         go to 9800
-7320     io=obsgtable(j)
-         nsterm=ubound(gtable_g(io)%sDescription, 1)
-         aname=gtable_g(im)%name
-         call make_basename(ierr,iout,nsterm,aname,basename)
-         if(ierr.ne.0) go to 9800
-         atemp=basename(iout)
-         weightmin=max(gtweightmin(j),0.0)        !chek
-         weightmax=min(gtweightmax(j),1.0e36)
-         eqntext=gtequation(j)
-         call prepare_eqn(ierr,nterm,gtequation(j),0)
-         if(ierr.ne.0) then
-           ieqnerr=1
-           go to 9800
-         end if
-         nnterm=nterm
-         do iterm=1,nterm
-           cterm(iterm)=aterm(iterm)
-         end do
-         do iterm=1,nterm
-           qterm(iterm)=rterm(iterm)
-         end do
-         do j=1,nsterm
-           nterm=nnterm
-           do iterm=1,nterm
-             aterm(iterm)=cterm(iterm)
-           end do
-           do iterm=1,nterm
-             rterm(iterm)=qterm(iterm)
-           end do
-           call num2char(j,anum)
-           aname=trim(atemp)//trim(anum)
-           do iterm =1,nterm
-             if(aterm(iterm)(1:3).eq.'@_2') then
-               rterm(iterm)=abs( gtable_g(io)%rValue(j) )
-               aterm(iterm)='~!~'
-             end if
-           end do
-           call EVALUATE(ierr,MAXTERM,NTERM,NOPER,NFUNCT,ATERM,BTERM,   &
-           OPERAT,FUNCT,IORDER,DVAL,rterm)
-           if(dval.lt.weightmin) dval=weightmin
-           if(dval.gt.weightmax) dval=weightmax
-
-           write(iunit,1900) trim(aname),gtable_g(io)%rValue(j),dval,trim(gtable_g(im)%name)
-         end do
-       end do
-
-
-! -- The "* model command line" section of the PEST control file is written.
-
-2400   continue
-
-       write(iunit,2410)
-2410   format('* model command line')
-       if(modcomline.eq.' ')modcomline='model'
-!       call addquote(modcomline,bstring)
-!       write(iunit,2420) trim(bstring)
-       write(iunit,2420) trim(modcomline)
-2420   format(a)
-
-! -- The "* model input/output" section of the PEST control file is written.
-
-       write(iunit,2430)
-2430   format('* model input/output')
-       do i=1,numtempfile
-         if(modfile(i).eq.' ')then
-           call num2char(i,anum)
-           modfile(i)='model'//trim(anum)//'.in'
-         end if
-         call addquote(tempfile(i),bstring)
-         call addquote(modfile(i),cstring)
-         write(iunit,2440) trim(bstring),trim(cstring)
-2440     format(a,3x,a)
-       end do
-       call addquote(instructfile,bstring)
-       call addquote(sListOutputFile_g,cstring)
-       write(iunit,2440) trim(bstring),trim(cstring)
-       close(unit=iunit)
-
-
-       write(*,2460) trim(sString_g)
-       write(LU_REC,2460) trim(sString_g)
-2460   format(t5,'- file ',a,' written ok.')
-
-! -- If a MICA control file was requested, it is now written.
-
-       if(micactlfile.ne.' ')then
-         call addquote(micactlfile,sString_g)
-         write(*,2470) trim(sString_g)
-         write(LU_REC,2470) trim(sString_g)
-2470     format(t5,'Writing MICA control file ',a,' ....')
-         inquire(file=micactlfile,exist=lexist)
-         if(lexist)then
-2471       write(6,*)
-           write(*,815,advance='no') trim(sString_g)
-           read(5,'(a)') aa
-           call casetrans(aa,'lo')
-           if((aa.ne.'y').and.(aa.ne.'n')) go to 2471
-           if(aa.eq.'n') go to 2495
-         end if
-         itempunit=nextunit()
-         open(unit=itempunit,file=micactlfile,status='old',iostat=ierr)
-         if(ierr.eq.0)then
-           close(unit=itempunit,status='delete')
-         end if
-         itempunit=nextunit()
-         open(unit=itempunit,file='t###.###')
-         call addquote(pestctlfile,cstring)
-         write(itempunit,'(a)') trim(cstring)
-         write(itempunit,'(a)') '1'
-         write(itempunit,'(a)') trim(sString_g)
-         close(unit=itempunit)
-         call execute_command_line (trim(pest2micacom)//' < t###.### > nul')
-         inquire(file=micactlfile,exist=lexist)
-         if(.not.lexist)then
-           write(amessage,2480)
-2480       format('could not write MICA control file - check PEST2MICA command.')
-           go to 9800
-         else
-           write(*,2460) trim(sString_g)
-           write(LU_REC,2460) trim(sString_g)
-         end if
-       end if
-2495   continue
-
-       go to 9900
-
-9000   call num2char(ILine_g,aline)
-       call addquote(sInfile_g,sString_g)
-       write(amessage,9010) trim(aline), trim(sString_g)
-9010   format('cannot read line ',a,' of TSPROC input file ',a)
-       go to 9800
-9100   continue
-       call addquote(sInfile_g,sString_g)
-       write(amessage,9110) trim(sString_g),trim(CurrentBlock_g)
-9110   format('unexpected end encountered to TSPROC input file ',a,' while ', &
-       ' reading ',a,' block.')
-       go to 9800
-9200   write(amessage,9210)
-9210   format('cannot allocate sufficient memory to continue execution.')
-       go to 9800
-9300   call num2char(ILine_g,aline)
-       call addquote(sInfile_g,sString_g)
-       write(amessage,9310) trim(aoption),trim(aline),trim(sString_g),trim(correct_keyword)
-9310   format(a,' keyword at line ',a,' of TSPROC input file ',a,' should immediately ', &
-       'follow ',a,' keyword.')
-       go to 9800
-9350   write(amessage,9360) trim(sString_g)
-9360   format('cannot rewind file ',a)
-       go to 9800
-9400   call num2char(jline,aline)
-       write(amessage,9410) trim(aline),trim(sString_g)
-9410   format('cannot read line ',a,' of file ',a)
-       go to 9800
-9450   call num2char(jline,aline)
-       write(amessage,9460) trim(aline),trim(sString_g)
-9460   format('insufficient entries on line ',a,' of file ',a)
-       go to 9800
-9500   write(amessage,9510) trim(sString_g)
-9510   format('cannot close file ',a)
-       go to 9800
-9600   write(amessage,9610) trim(aoname),trim(amname),trim(avariable)
-9610   format('OBSERVATION_S_TABLE "',a,'"  has been matched to ', &
-       'MODEL_S_TABLE "',a,'". However the ',a,' has been computed ', &
-       'for one and not for the other.')
-       go to 9800
-
-
-9800   call write_message(leadspace='yes',error='yes')
-       call write_message(iunit=LU_REC,leadspace='yes')
-       if(ieqnerr.ne.0)then
-         write(amessage,9810)
-9810     format(' Offending equation follows:-')
-         call write_message()
-         call write_message(iunit=LU_REC)
-         do i=1,len_trim(eqntext)
-           if(eqntext(i:i).eq.char(196)) eqntext(i:i)='/'
-         end do
-         write(*,9820) trim(eqntext)
-         write(LU_REC,9820) trim(eqntext)
-9820     format(' "',a,'"')
-       end if
-       ifail=1
-       if(iunit.ne.0)close(unit=iunit,iostat=ierr)
-
-9900   deallocate(f_pargpnme,f_inctyp,f_derinc,f_derinclb,f_forcen,f_derincmul, &
-                  f_dermthd,stat=ierr)
-       deallocate(f_parnme,f_partrans,f_parchglim,f_parval1,f_parlbnd,f_parubnd, &
-                  f_pargp,f_scale,f_offset,stat=ierr)
-       deallocate(partrans,parchglim,parval1,parlbnd,parubnd,pargp,scale,offset, stat=ierr)
-       deallocate(pargpnme,inctyp,derinc,derinclb,forcen,derincmul,dermthd,stat=ierr)
-
-
-       return
-
-end subroutine pest_files
-
-subroutine write_list_output(ifail)
-
-! -- Subroutine Write_List_Output writes TSPROC entities to an ASCII output file.
-
-       integer, intent(out) :: ifail
-
-       integer icontext,ierr,i,dd,mm,yy,ss,hhh,mmm,sss,nn,iterm,j, &
-       nnn,dds1,mms1,yys1,dds2,mms2,yys2,hhs1,nns1,sss1,ixcon, &
-       hhs2,nns2,sss2,jstable,jvtable,jdtable,iseries,idtable,istable,ivtable, &
-       ictable,jctable,igtable,jgtable
-       real totim
-       character(3)aaa
-       character (len=iTSNAMELENGTH) :: aname,sformat,atemp
-       character(15)aline
-       character(25)aoption
-       character(25)acontext(MAXCONTEXT)
-       character (len=10) :: sDateStr
-
-       ifail=0
-       CurrentBlock_g='LIST_OUTPUT'
-
-       write(*,10)
-       write(LU_REC,10)
-10     format(/,' Processing LIST_OUTPUT block....')
-
-       ixcon=0
-       icontext=0
-       iOutseries_g=0          !iOutseries_g is an array
-       iseries=0
-       istable=0
-       ictable=0
-       ivtable=0
-       idtable=0
-       igtable = 0
-       sOutfile_g=' '
-       sformat=' '
-
-! -- Options for the LIST_OUTPUT block are first read.
-
-       do
-         ILine_g=ILine_g+1
-         read(LU_TSPROC_CONTROL,'(a)',err=9000,end=9100) cline
-         if( len_trim(cline) == 0 ) cycle
-         if(cline(1:1).eq.'#') cycle
-         call linesplit(ierr,2)
-         if(ierr.ne.0)then
-           call num2char(ILine_g,aline)
-           call addquote(sInfile_g,sString_g)
-           write(amessage,20) trim(aline),trim(sString_g)
-20         format('there should be 2 entries on line ',a,' of file ',a)
-           go to 9800
-         end if
-         aoption=cline(left_word(1):right_word(1))
-         call casetrans(aoption,'hi')
-         if(aoption.ne.'CONTEXT')then
-           call test_context(ierr,icontext,acontext)
-           if(ierr.eq.-1)then
-             call find_end(ifail)
-             if(ifail.eq.1) go to 9800
-             return
-           else if(ierr.eq.1) then
-             go to 9800
-           end if
-           ixcon=1
-         end if
-
-         if(aoption.eq.'FILE')then
-           call get_file_name(ierr,sOutfile_g)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'CONTEXT')then
-           if(ixcon.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,41) trim(aline),trim(sString_g)
-41           format('CONTEXT keyword in incorrect location at line ',a,' of file ',a)
-             go to 9800
-           end if
-           call get_context(ierr,icontext,acontext)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'SERIES_NAME')then
-           iseries=iseries+1
-           if(iseries.gt.MAXSERIES)then
-             call num2char(MAXSERIES,aline)
-             write(amessage,100) trim(aline)
-100          format('a maximum of ',a,' series can be cited in a LIST_OUTPUT block.')
-             go to 9800
-           end if
-           call get_series_name(ierr,iOutseries_g(iseries),'SERIES_NAME')
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'S_TABLE_NAME')then
-           istable=istable+1
-           if(istable.gt.MAXSTABLE)then
-             call num2char(MAXSTABLE,aline)
-             write(amessage,102) trim(aline)
-102          format('a maximum of ',a,' s_tables can be cited in a LIST_OUTPUT block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,iOutStable_g(istable),1)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'C_TABLE_NAME')then
-           ictable=ictable+1
-           if(ictable.gt.MAXCTABLE)then
-             call num2char(MAXCTABLE,aline)
-             write(amessage,109) trim(aline)
-109          format('a maximum of ',a,' c_tables can be cited in a LIST_OUTPUT block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,iOutCtable_g(ictable),4)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'V_TABLE_NAME')then
-           ivtable=ivtable+1
-           if(ivtable.gt.MAXVTABLE)then
-             call num2char(MAXVTABLE,aline)
-             write(amessage,103) trim(aline)
-103          format('a maximum of ',a,' v_tables can be cited in a LIST_OUTPUT block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,iOutVtable_g(ivtable),2)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'E_TABLE_NAME')then
-           idtable=idtable+1
-           if(idtable.gt.MAXDTABLE)then
-             call num2char(MAXDTABLE,aline)
-             write(amessage,104) trim(aline)
-104          format('a maximum of ',a,' E_TABLES can be cited in a LIST_OUTPUT block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,iOutDtable_g(idtable),3)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'G_TABLE_NAME')then
-           igtable=igtable+1
-           if(igtable > MAXGTABLE)then
-             call num2char(MAXGTABLE,aline)
-             write(amessage,204) trim(aline)
-204          format('a maximum of ',a,' G_TABLES can be cited in a LIST_OUTPUT block.')
-             go to 9800
-           end if
-           call get_table_name(ierr,iOutGtable_g(igtable),iG_TABLE)
-           if(ierr.ne.0) go to 9800
-
-         else if(aoption.eq.'END')then
-           go to 200
-
-         else if(aoption.eq.'SERIES_FORMAT')then
-           call getfile(ierr,cline,sformat,left_word(2),right_word(2))
-           if(ierr.ne.0)then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,152) trim(aline),trim(sString_g)
-152          format('cannot read SERIES_FORMAT from line ',a,' of file ',a)
-             go to 9800
-           end if
-           call casetrans(sformat,'lo')
-           if((sformat.ne.'short').and.(sformat.ne.'long') &
-             .and. ( sformat /= 'ssf' ))then
-             call num2char(ILine_g,aline)
-             call addquote(sInfile_g,sString_g)
-             write(amessage,155) trim(aline),trim(sString_g)
-155          format('SERIES_FORMAT must be "long", "short", or "ssf" at line ',a, &
-             ' of TSPROC input file ',a)
-             go to 9800
-           end if
-           write(*,157) trim(sformat)
-           write(LU_REC,157) trim(sformat)
-157        format(t5,'SERIES_FORMAT ',a)
-
-         else
-           call num2char(ILine_g,aline)
-           call addquote(sInfile_g,sString_g)
-           write(amessage,180) trim(aoption),trim(aline),trim(sString_g)
-180        format('unexpected keyword - "',a,'" in LIST_OUTPUT block at line ',a, &
-           ' of file ',a)
-           go to 9800
-         end if
-
-       end do
-
-! -- The block has been read; now it is checked for correctness.
-
-200    continue
-       if((iseries.eq.0).and.(istable.eq.0).and.(ivtable.eq.0).and.   &
-          (idtable.eq.0).and.(ictable.eq.0) .and. (igtable == 0) )then
-         write(amessage,210)
-210      format('no series or tables have been named for output in LIST_OUTPUT block.')
-         go to 9800
-       end if
-       if((iseries.ne.0).and.(sformat.eq.' '))then
-         write(amessage,215)
-215      format('if a time series is specified for output then the SERIES_FORMAT ', &
-         'specifier must also be set in a LIST_OUTPUT block.')
-         go to 9800
-       end if
-       if ( sOutfile_g .eq. ' ' ) then
-         write(amessage,230)
-230      format('no FILE name provided in LIST_OUTPUT block.')
-         go to 9800
-       end if
-       if(icontext.eq.0)then
-         write(amessage,220)
-220      format('no Context keyword(s) provided in LIST_OUTPUT block.')
-         go to 9800
-       end if
-
-! -- All is well with the LIST_OUTPUT block so the output file is written.
-
-       sSeriesFormat_g=sformat
-       sListOutputFile_g=sOutfile_g
-       call addquote(sOutfile_g,sString_g)
-       write(*,260) trim(sString_g)
-       write(LU_REC,260) trim(sString_g)
-260    format(t5,'Writing output file ',a,'....')
-       LU_OUT=nextunit()
-       open(unit=LU_OUT,file=sOutfile_g,iostat=ierr)
-       if(ierr.ne.0)then
-         write(amessage,270) trim(sString_g)
-270      format('cannot open file ',a,' for output.')
-         go to 9800
-       end if
-
-! -- All of the requested time series are first written.
-
-       iMseries_g=iseries
-       iMdtable_g=idtable
-       iMvtable_g=ivtable
-       iMstable_g=istable
-       iMctable_g=ictable
-       iMgtable_g = igtable
-
-       if(iseries.eq.0) go to 500
-       do i=1,iseries
-         j=iOutseries_g(i)
-         aname=series_g(j)%name
-         if( trim(sformat) /= 'ssf' ) then               ! suggested JFW changes to enable SSF output
-           write(LU_OUT,271) trim(series_g(j)%name)
-271        format(/,' TIME_SERIES "',a,'" ---->')
+     enddo
+
+!    -- Find out how many secondary parameters are there.
+     f_nparsec = vstrlist_length(vstrlist_sort(params_eq_dat, unique=.TRUE.))
+
+!    -- If any parameters are tied, parameter linkages are now read.
+     do ipar = 1, f_numpar
+         if(f_partrans(ipar)(1:4)=='tied')then
+             atemp = f_partrans(ipar)(6:)
+             if(atemp==f_parnme(ipar))then
+                 write(amessage, 9070)TRIM(atemp), TRIM(sstring_g)
+9070             format('parameter "', a, '" is tied to itself in file ', a)
+                 goto 2400
+             endif
          endif
-         if(series_g(j)%type.eq.'ts')then
-           do iterm=1,series_g(j)%nterm
-             if(sformat.eq.'long' .or. sformat == 'ssf' )then
-               nn=series_g(j)%days(iterm)
-               ss=series_g(j)%secs(iterm)
-!               call newdate(nn,1,1,1970,dd,mm,yy)
-               call gregorian_date(iJD=nn, &
-                               iMonth=mm, &
-                               iDay=dd, &
-                               iYear=yy)
-               hhh=ss/3600
-               mmm=(ss-hhh*3600)/60
-               sss=ss-hhh*3600-mmm*60
-
-               if(datespec == 1) then
-                 write(sDateStr, fmt="(i2.2,'/',i2.2,'/',i4.4)") dd, mm, yy
-               else
-                 write(sDateStr, fmt="(i2.2,'/',i2.2,'/',i4.4)") mm, dd, yy
-               endif
-
-               if (series_g(j)%lIsSinglePrecision) then
-                 write(LU_OUT,fmt="(1x,a,t20,a10,3x,i2.2,':',i2.2,':',   &
-                    & i2.2,3x,g16.9)")  &
-                    trim(aname),sDateStr,hhh,mmm, sss,series_g(j)%val(iterm)
-               else
-                 write(LU_OUT,fmt="(1x,a,t20,a10,3x,i2.2,':',i2.2,':',   &
-                    & i2.2,3x,g18.13)")  &
-                    trim(aname),sDateStr,hhh,mmm, sss,series_g(j)%dpval(iterm)
-               endif
-
+     enddo
+ 
+     call NUM2CHAR(f_numpar, aline)
+     write(*, 9133)TRIM(aline), TRIM(sstring_g)
+     write(lu_rec, 9133)TRIM(aline), TRIM(sstring_g)
+     close(unit = iunit)
+ 
+!    -- Next the names of all parameters are ascertained by reading template
+!       files.
+800   numtempfile = itempfile
+     call vstrlist_new(template_params)
+     npar = 0
+     read_template_file:do itempfile = 1, numtempfile
+         nnpar = 0
+         tempunit = NEXTUNIT()
+         call ADDQUOTE(tempfile(itempfile), sstring_g)
+         write(*, 9134)TRIM(sstring_g)
+         write(lu_rec, 9134)TRIM(sstring_g)
+         open(unit = tempunit, file = tempfile(itempfile), status = 'old',     &
+            & iostat = ierr)
+         if(ierr/=0)then
+             write(amessage, 9071)TRIM(sstring_g)
+9071         format('cannot open template file ', a)
+             goto 2400
+         endif
+         jline = 1
+         read(tempunit, '(a)', err = 2000, end = 900)cline
+         call CASETRANS(cline, 'lo')
+         if(cline(1:3)/='ptf')then
+             write(amessage, 9072)TRIM(sstring_g)
+9072         format('"ptf" header missing from first line of file ', a)
+             goto 2400
+         endif
+         pardelim = cline(5:5)
+         if((pardelim==' ') .OR. (INDEX('1234567890,;:', pardelim)/=0) .OR.    &
+          & (INDEX('abcdefghijklmnopqrstuvwxyz', pardelim)/=0))then
+             write(amessage, 9073)TRIM(sstring_g)
+9073         format('invalid parameter delimeter on line 1 of file ', a)
+             goto 2400
+         endif
+         read_a_line:do
+             ii1 = 1
+             jline = jline + 1
+             read(tempunit, '(a)', err = 2000, end = 900)cline
+             ll = LEN(cline)
+820          j = INDEX(cline(ii1:), pardelim)
+             if(j==0)cycle read_a_line
+             if(j>ll)cycle read_a_line
+             ii1 = ii1 + j - 1
+             j = 0
+             if(ii1<=ll)j = INDEX(cline(ii1 + 1:), pardelim)
+             if(j==0)then
+                 call NUM2CHAR(jline, aline)
+                 write(amessage, 9074)TRIM(aline), TRIM(sstring_g)
+9074             format('unbalanced parameter delimiters on line ', a,         &
+                       &' of template file ', a)
+                 goto 2400
+             endif
+             jj1 = ii1 + j
+             ii1 = ii1 + 1
+             jj1 = jj1 - 1
+             if(jj1 - ii1 + 1<=0)then
+                 call NUM2CHAR(jline, aline)
+                 write(amessage, 9075)TRIM(aline), TRIM(sstring_g)
+9075             format('parameter space has zero width at line ', a,          &
+                       &' of template file ', a)
+                 goto 2400
+             endif
+             do jj = ii1, jj1
+                 if(cline(jj:jj)/=' ')then
+                     do kk = jj, jj1
+                         if(cline(kk:kk)==' ')goto 825
+                     enddo
+                     kk = jj1 + 1
+825                  kk = kk - 1
+                     goto 840
+                 endif
+             enddo
+             call NUM2CHAR(jline, aline)
+             write(amessage, 9076)TRIM(aline), TRIM(sstring_g)
+9076         format('blank parameter space at line ', a, ' of template ',      &
+                   &'file ', a)
+             goto 2400
+840          if(kk - jj + 1>12)then
+                 call NUM2CHAR(jline, aline)
+                 write(amessage, 9077)TRIM(aline), TRIM(sstring_g)
+9077             format('parameter name greater than 12 characters in ',       &
+                       &'line ', a, ' of template file ', a)
+                 goto 2400
+             endif
+             if(cline(kk + 1:jj1)/=' ')then
+                 call NUM2CHAR(jline, aline)
+                 write(amessage, 9078)TRIM(aline), TRIM(sstring_g)
+9078             format('parameter name includes a space character at line ',  &
+                      & a, ' of file ', a)
+                 goto 2400
+             endif
+             aapar = cline(jj:kk)
+             aapar = ADJUSTL(aapar)
+             call CASETRANS(aapar, 'lo')
+             if(npar/=0)then
+                 do ipar = 1, npar
+                     if(aapar==apar(ipar))goto 860
+                 enddo
+                 npar = npar + 1
+                 nnpar = nnpar + 1
+                 if(npar>maxpar)then
+                     call NUM2CHAR(maxpar, aline)
+                     write(amessage, 9079)TRIM(aline)
+9079                 format('number of parameters cited in template files ',   &
+                           &'is limited to ', a, '. Increase MAXPAR and ',     &
+                           &'re-compile program.')
+                     goto 2400
+                 endif
              else
+                 npar = 1
+                 nnpar = 1
+             endif
+             apar(npar) = aapar
+             call vstrlist_append(template_params, TRIM(apar(npar)))
+860          ii1 = jj1 + 2
+             goto 820
+         enddo read_a_line
+900      call NUM2CHAR(nnpar, aline)
+         if(itempfile==1)then
+             write(*, 9135)TRIM(aline), TRIM(sstring_g)
+             write(lu_rec, 9135)TRIM(aline), TRIM(sstring_g)
+         else
+             write(*, 9136)TRIM(aline), TRIM(sstring_g)
+             write(lu_rec, 9136)TRIM(aline), TRIM(sstring_g)
+         endif
+         close(unit = tempunit, err = 2200)
+     enddo read_template_file
 
-               if (series_g(j)%lIsSinglePrecision) then
-                 write(LU_OUT,fmt="(4x,g16.9)") series_g(j)%val(iterm)
-               else
-                 write(LU_OUT,fmt="(4x,g18.13)") series_g(j)%dpval(iterm)
-               endif
+! -- Get unique list of parameter names in all templates.
+     template_params = vstrlist_sort(template_params, unique=.TRUE.)
 
-             end if
+!    -- Observations are named and the instruction file is now written.
+     nobs = 0
+     nobsgp = 0
+ 
+     iunit = NEXTUNIT()
+     call ADDQUOTE(instructfile, sstring_g)
+     write(*, 9137)TRIM(sstring_g)
+     write(lu_rec, 9137)TRIM(sstring_g)
+     inquire(file = instructfile, exist = lexist)
+     if(lexist)then
+         write(6, *)
+         do
+             write(*, 9138, advance = 'no')TRIM(sstring_g)
+             read(5, '(a)')aa
+             call CASETRANS(aa, 'lo')
+             if((aa=='y') .OR. (aa=='n'))then
+                 if(aa=='n')then
+                     write(*, 9139)
+                     write(lu_rec, 9139)
+                     Ifail = 1
+                     return
+                 endif
+                 exit
+             endif
+         enddo
+     endif
+     open(unit = iunit, file = instructfile, iostat = ierr)
+     if(ierr/=0)then
+         write(amessage, 9140)TRIM(sstring_g)
+         goto 2400
+     endif
+     write(iunit, 9080)
+9080  format('pif $')
+ 
+!    -- First the time series instructions are written.
+     iout = 0
+     if(ioseries/=0)then
+         do i = 1, ioseries
+             iout = iout + 1
+             im = IOUTSERIES_G(i)
+             do j = 1, ioseries
+                 if(im==modseries(j))goto 920
+             enddo
+             write(amessage, 9141)TRIM(SERIES_G(im)%NAME)
+             goto 2400
+920          io = obsseries(j)
+             nsterm = SERIES_G(io)%nterm
+             aname = SERIES_G(im)%NAME
+             nobsgp = nobsgp + 1
+             obgnme(nobsgp) = aname
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             if(ierr/=0)goto 2400
+             atemp = basename(iout)
+             do iterm = 1, nsterm
+                 call NUM2CHAR(iterm, anum)
+                 if(TRIM(sseriesformat_g)=="ssf" .OR. TRIM(sseriesformat_g)    &
+                   &=="long")then
+                     aname = '[' // TRIM(atemp) // TRIM(anum) // ']42:65'
+                 else
+                     aname = '[' // TRIM(atemp) // TRIM(anum) // ']2:25'
+                 endif
+                 if(iterm==1 .AND. TRIM(sseriesformat_g)/="ssf")then
+                     write(iunit, "('l3',t6,a)")TRIM(aname)
+                 else
+                     write(iunit, "('l1',t6,a)")TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             enddo
+         enddo
+     endif
+ 
+!    -- Next the S_TABLE instructions are written.
+     if(iostable/=0)then
+         siout = 0
+         do i = 1, iostable
+             il = 0
+             siout = siout + 1
+             im = IOUTSTABLE_G(i)
+             do j = 1, iostable
+                 if(im==modstable(j))goto 940
+             enddo
+             write(amessage, 9142)'s', TRIM(STABLE_G(im)%NAME), 'S'
+             goto 2400
+940          io = obsstable(j)
+             aname = STABLE_G(im)%NAME
+             nobsgp = nobsgp + 1
+             obgnme(nobsgp) = aname
+             sbasename(siout) = aname(1:12)
+             if(siout>1)then
+                 do j = 1, siout - 1
+                     if(sbasename(j)==sbasename(siout))then
+                         write(amessage, 9081)
+9081                     format('TSPROC cannot generate unique observation ',  &
+                               &'names from the names of the MODEL_S_TABLES ', &
+                               &'involved in the calibration process. Alter ', &
+                               &'the first twelve letters of at least one ',   &
+                               &'of the model S_TABLE names.')
+                         goto 2400
+                     endif
+                 enddo
+             endif
+             if(STABLE_G(io)%MAXIMUM> - 1.0E36)then
+                 il = il + 1
+                 aname = '[' // TRIM(sbasename(siout)) // obschar //           &
+                        &'max]51:69'
+                 if(il==1)then
+                     write(iunit, 9143)TRIM(aname)
+                 else
+                     write(iunit, 9144)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             endif
+             if(STABLE_G(io)%MINIMUM> - 1.0E36)then
+                 il = il + 1
+                 aname = '[' // TRIM(sbasename(siout)) // obschar //           &
+                        &'min]51:69'
+                 if(il==1)then
+                     write(iunit, 9143)TRIM(aname)
+                 else
+                     write(iunit, 9144)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             endif
+             if(STABLE_G(io)%RANGE> - 1.0E36)then
+                 il = il + 1
+                 aname = '[' // TRIM(sbasename(siout)) // obschar //           &
+                        &'range]51:69'
+                 if(il==1)then
+                     write(iunit, 9143)TRIM(aname)
+                 else
+                     write(iunit, 9144)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             endif
+ 
+             if(STABLE_G(io)%TOTAL> - 1.0E36)then
+                 il = il + 1
+                 aname = '[' // TRIM(sbasename(siout)) // obschar //           &
+                        &'sum]51:69'
+                 if(il==1)then
+                     write(iunit, 9143)TRIM(aname)
+                 else
+                     write(iunit, 9144)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             endif
+             if(STABLE_G(io)%MEAN> - 1.0E36)then
+                 il = il + 1
+                 aname = '[' // TRIM(sbasename(siout)) // obschar //           &
+                        &'mean]51:69'
+                 if(il==1)then
+                     write(iunit, 9143)TRIM(aname)
+                 else
+                     write(iunit, 9144)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             endif
+             if(STABLE_G(io)%MEDIAN> - 1.0E36)then
+                 il = il + 1
+                 aname = '[' // TRIM(sbasename(siout)) // obschar //           &
+                        &'median]51:69'
+                 if(il==1)then
+                     write(iunit, 9143)TRIM(aname)
+                 else
+                     write(iunit, 9144)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             endif
+             if(STABLE_G(io)%STDDEV> - 1.0E36)then
+                 il = il + 1
+                 aname = '[' // TRIM(sbasename(siout)) // obschar // 'sd]51:69'
+                 if(il==1)then
+                     write(iunit, 9143)TRIM(aname)
+                 else
+                     write(iunit, 9144)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             endif
+         enddo
+     endif
+ 
+!    -- Next the V_TABLE instructions are written.
+     if(iovtable/=0)then
+         do i = 1, iovtable
+             iout = iout + 1
+             im = IOUTVTABLE_G(i)
+             do j = 1, iovtable
+                 if(im==modvtable(j))goto 960
+             enddo
+             write(amessage, 9142)'v', TRIM(VTABLE_G(im)%NAME), 'V'
+             goto 2400
+960          io = obsvtable(j)
+             nsterm = VTABLE_G(io)%nterm
+             aname = VTABLE_G(im)%NAME
+             nobsgp = nobsgp + 1
+             obgnme(nobsgp) = aname
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             if(ierr/=0)goto 2400
+             atemp = basename(iout)
+             do iterm = 1, nsterm
+                 call NUM2CHAR(iterm, anum)
+                 aname = '[' // TRIM(atemp) // TRIM(anum) // ']62:81'
+                 if(iterm==1)then
+                     write(iunit, 9145)TRIM(aname)
+                 else
+                     write(iunit, 9146)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             enddo
+         enddo
+     endif
+ 
+!    -- Next the E_TABLE instructions are written.
+     if(iodtable/=0)then
+         do i = 1, iodtable
+             iout = iout + 1
+             im = IOUTDTABLE_G(i)
+             do j = 1, iodtable
+                 if(im==moddtable(j))goto 980
+             enddo
+             write(amessage, 9142)'e', TRIM(VTABLE_G(im)%NAME), 'E'
+             goto 2400
+980          io = obsdtable(j)
+             nsterm = DTABLE_G(io)%nterm
+             aname = DTABLE_G(im)%NAME
+             nobsgp = nobsgp + 1
+             obgnme(nobsgp) = aname                            !!!*** is this correct??
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             if(ierr/=0)goto 2400
+             atemp = basename(iout)
+             do iterm = 1, nsterm
+                 call NUM2CHAR(iterm, anum)
+                 aname = '[' // TRIM(atemp) // TRIM(anum) // ']59:78'
+                 if(iterm==1)then
+                     write(iunit, 9145)TRIM(aname)
+                 else
+                     write(iunit, 9146)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             enddo
+         enddo
+     endif
+ 
+!    -- Next the G_TABLE instructions are written.
+     if(iogtable/=0)then
+         do i = 1, iogtable
+             iout = iout + 1
+             im = IOUTGTABLE_G(i)
+             do j = 1, iogtable
+                 if(im==modgtable(j))goto 1000
+             enddo
+             write(amessage, 9142)'g', TRIM(GTABLE_G(im)%NAME), 'G'
+             goto 2400
+1000         io = obsgtable(j)
+             nsterm = UBOUND(GTABLE_G(io)%SDESCRIPTION, 1)
+             aname = GTABLE_G(im)%NAME
+             nobsgp = nobsgp + 1
+             obgnme(nobsgp) = aname                            !!!*** is this correct??
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             if(ierr/=0)goto 2400
+             atemp = basename(iout)
+             do iterm = 1, nsterm
+                 call NUM2CHAR(iterm, anum)
+                 aname = '[' // TRIM(atemp) // TRIM(anum) // ']82:96'
+                 if(iterm==1)then
+                     write(iunit, 9145)TRIM(aname)
+                 else
+                     write(iunit, 9146)TRIM(aname)
+                 endif
+                 nobs = nobs + 1
+             enddo
+         enddo
+     endif
+ 
+     close(unit = iunit)
+     write(*, 9147)TRIM(sstring_g)
+     write(lu_rec, 9147)TRIM(sstring_g)
 
-           end do
-         end if
-       end do
+! -- Find out parameters in parameter file but not in any template file.
+     dat_sorted = params_par_dat
+     tpl_sorted = template_params
+     do ipar = 1, vstrlist_length(params_par_dat)
+         do j = 1, vstrlist_length(template_params)
+             if(vstring_equals(vstrlist_index(params_par_dat, ipar),           &
+                             & vstrlist_index(template_params, j)))then
+                 i = vstrlist_search(dat_sorted,                               &
+                                   & vstrlist_index(params_par_dat, ipar))
+                 if(i>0)then
+                     call vstrlist_remove(dat_sorted, i)
+                 endif
+                 i = vstrlist_search(tpl_sorted,                               &
+                                   & vstrlist_index(template_params, j))
+                 if(i>0)then
+                     call vstrlist_remove(tpl_sorted, i)
+                 endif
+             endif
+         enddo
+     enddo
 
-! -- If any S_TABLEs were requested, they are now written.
+! -- Find out secondary parameters in parameter file but not in any template file.
+     eq_sorted = params_eq_dat
+     do ipar = 1, vstrlist_length(params_eq_dat)
+         ! -- This inner do loop is not efficient since tpl_sorted has already
+         ! been condensed, however, I didn't see an easy way to fix.
+         do j = 1, vstrlist_length(template_params)
+             if(vstring_equals(vstrlist_index(params_eq_dat, ipar),            &
+                             & vstrlist_index(template_params, j)))then
+                 i = vstrlist_search(eq_sorted, vstrlist_index(params_eq_dat, ipar))
+                 if(i>0)then
+                     call vstrlist_remove(eq_sorted, i)
+                 endif
+                 i = vstrlist_search(tpl_sorted, vstrlist_index(template_params, j))
+                 if(i>0)then
+                     call vstrlist_remove(tpl_sorted, i)
+                 endif
+             endif
+         enddo
+     enddo
 
-500    if(istable.eq.0) go to 1200
-       do i=1,istable
-          jstable=iOutStable_g(i)
-          write(LU_OUT,510) trim(stable_g(jstable)%name)
-510       format(/,' S_TABLE "',a,'" ---->')
-          write(LU_OUT,515) trim(stable_g(jstable)%series_name)
-515       format(t5,'Series for which data calculated:',t55,'"',a,'"')
-          nnn=stable_g(jstable)%rec_begdays
-          sss=stable_g(jstable)%rec_begsecs
-!          call newdate(nnn,1,1,1970,dds1,mms1,yys1)
-          call gregorian_date(iJD=nnn, &
-                          iMonth=mms1, &
-                          iDay=dds1, &
-                          iYear=yys1)
+! -- Give ERROR about parameters in templates but not in parameters.
+     if(vstrlist_length(tpl_sorted) > 0)then
+         do j = 1, vstrlist_length(tpl_sorted)
+             call vstring_cast(vstrlist_index(tpl_sorted, j), aapar)
+             write(amessage, 9082)TRIM(aapar)
+9082         format('Parameter "', a, '" was found in the template file ',     &
+                   &'but was not in the parameter file.')
+         enddo
+         goto 2400
+     endif
 
-          hhs1=sss/3600
-          nns1=(sss-hhs1*3600)/60
-          sss1=sss-hhs1*3600-nns1*60
-          nnn=stable_g(jstable)%rec_enddays
-          sss=stable_g(jstable)%rec_endsecs
-!          call newdate(nnn,1,1,1970,dds2,mms2,yys2)
-          call gregorian_date(iJD=nnn, &
-                          iMonth=mms2, &
-                          iDay=dds2, &
-                          iYear=yys2)
+! -- Give WARNING about parameters not in any template.
+     if(vstrlist_length(dat_sorted) > 0)then
+         write(*, 9981)
+         write(*, 9982)
+9981     format(/, /, "The following parameters are not in any template.")
+9982     format(/, "This could be fine since they might be used in an",        &
+              & /, "equation, however listed here in case there might",        &
+              & /, "be a mistake and they should in fact be listed in",        &
+              & /, "a template.", /)
+              
+         write(lu_rec, 9981)
+         write(lu_rec, 9982)
+         do ipar = 1, vstrlist_length(dat_sorted)
+             call vstring_cast(vstrlist_index(dat_sorted, ipar), aapar)
+             write(*, "(A13)", advance="no")aapar
+             write(lu_rec, "(A13)", advance="no")aapar
+             if(mod(ipar, 5)==0)then
+                 write(*, *)
+                 write(lu_rec, *)
+             endif
+         enddo
+         write(*, *)
+         write(*, *)
+         write(lu_rec, *)
+         write(lu_rec, *)
+     endif
 
-          hhs2=sss/3600
-          nns2=(sss-hhs2*3600)/60
-          sss2=sss-hhs2*3600-nns2*60
-          if(datespec.eq.1)then
-            write(LU_OUT,520) dds1,mms1,yys1
-          else
-            write(LU_OUT,520) mms1,dds1,yys1
-          end if
-520       format(t5,'Starting date for data accumulation:',t55,i2.2,'/',i2.2,'/',i4)
-          write(LU_OUT,530) hhs1,nns1,sss1
-530       format(t5,'Starting time for data accumulation:',t55,i2.2,':',i2.2,':',i2.2)
-          if(datespec.eq.1)then
-            write(LU_OUT,540) dds2,mms2,yys2
-          else
-            write(LU_OUT,540) mms2,dds2,yys2
-          end if
-540       format(t5,'Ending date for data accumulation:',t55,i2.2,'/',i2.2,'/',i4)
-          write(LU_OUT,550) hhs2,nns2,sss2
-550       format(t5,'Ending time for data accumulation:',t55,i2.2,':',i2.2,':',i2.2)
-          call num2char(stable_g(jstable)%rec_icount,aline)
-          write(LU_OUT,555) trim(aline)
-555       format(t5,'Number of series terms in this interval:',t55,a)
-          if(stable_g(jstable)%rec_itrans.eq.0)then
-            aaa='no'
-          else
-            aaa='yes'
-          end if
-          write(LU_OUT,560) trim(aaa)
-560       format(t5,'Logarithmic transformation of series?',t55,a)
-!          if(stable_g(jstable)%rec_power.eq.0.0)then
-!            aaa='no'
-!          else
-!            aaa='yes'
-!          end if
-!          write(LU_OUT,570) trim(aaa)
-!570       format(t5,'Power transformation of series?',t55,a)
-          if(stable_g(jstable)%rec_power.eq.0.0)then
-            aline='na'
-          else
-            call num2char(stable_g(jstable)%rec_power,aline)
-          end if
-          write(LU_OUT,580) trim(aline)
-580       format(t5,'Exponent in power transformation:',t55,a)
-          if(stable_g(jstable)%maximum.gt.-1.0e35)then
-            write(LU_OUT,590) stable_g(jstable)%maximum
-590         format(t5,'Maximum value:',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%minimum.gt.-1.0e35)then
-            write(LU_OUT,600) stable_g(jstable)%minimum
-600         format(t5,'Minimum value:',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%range.gt.-1.0e35)then
-            write(LU_OUT,601) stable_g(jstable)%range
-601         format(t5,'Range:',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%total.gt.-1.0e35)then
-            write(LU_OUT,605) stable_g(jstable)%total
-605         format(t5,'Sum of values:',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%mean.gt.-1.0e35)then
-            write(LU_OUT,610) stable_g(jstable)%mean
-610         format(t5,'Mean value:',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%stddev.gt.-1.0e35)then
-            write(LU_OUT,620) stable_g(jstable)%stddev
-620         format(t5,'Standard deviation:',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%minmean.gt.-1.0e35)then
-            call num2char(stable_g(jstable)%avetime,atemp)
-            write(LU_OUT,630) trim(atemp),stable_g(jstable)%minmean
-630         format(t5,'Minimum ',a,'-sample mean',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%maxmean.gt.-1.0e35)then
-            call num2char(stable_g(jstable)%avetime,atemp)
-            write(LU_OUT,640) trim(atemp),stable_g(jstable)%maxmean
-640         format(t5,'Maximum ',a,'-sample mean',t55,1pg14.7)
-          end if
-          if(stable_g(jstable)%median.gt.-1.0e35)then
-            write(LU_OUT,650) stable_g(jstable)%median
-650         format(t5,'Median value:',t55,1pg14.7)
-          end if
-       end do
+! -- Give WARNING about secondary parameters not in any template.
+     if(vstrlist_length(eq_sorted) > 0)then
+         write(*, 9983)
+         write(*, 9982)
+9983     format(/, /, "The following secondary parameters are not in any "     &
+              & "template.")
+         write(lu_rec, 9983)
+         write(lu_rec, 9982)
+         do ipar = 1, vstrlist_length(eq_sorted)
+             call vstring_cast(vstrlist_index(eq_sorted, ipar), aapar)
+             write(*, "(A13)", advance="no")aapar
+             write(lu_rec, "(A13)", advance="no")aapar
+             if(mod(ipar, 5)==0)then
+                 write(*, *)
+                 write(lu_rec, *)
+             endif
+         enddo
+         write(*, *)
+         write(*, *)
+         write(lu_rec, *)
+         write(lu_rec, *)
+     endif
 
-! -- If any C_TABLEs were requested, they are now written.
+     npar = vstrlist_length(groups_dat)
+!    -- Parameter and parameter group data are now assimilated on the basis of
+!    information read from the parameter data file, the parameter group file
+!    and the template files.
+     allocate(pargpnme(npar), inctyp(npar), derinc(npar), derinclb(npar),      &
+            & forcen(npar), derincmul(npar), dermthd(npar), STAT = ierr)
+     if(ierr/=0)goto 1700
 
-1200   if(ictable.eq.0) go to 700
-       do i=1,ictable
-          jctable=iOutCtable_g(i)
-          write(LU_OUT,1210) trim(ctable_g(jctable)%name)
-1210      format(/,' C_TABLE "',a,'" ---->')
-          write(LU_OUT,1215) trim(ctable_g(jctable)%series_name_obs)
-1215      format(t5,'Observation time series name:',t55,'"',a,'"')
-          write(LU_OUT,1216) trim(ctable_g(jctable)%series_name_sim)
-1216      format(t5,'Simulation time series name:',t55,'"',a,'"')
-          nnn=ctable_g(jctable)%rec_begdays
-          sss=ctable_g(jctable)%rec_begsecs
-!          call newdate(nnn,1,1,1970,dds1,mms1,yys1)
+!    -- If any parameters are tied to a parameter which does not exist, this
+!       is now rectified.
+     do ipar = 1, npar
+         if(f_partrans(ipar)(1:4)=='tied')then
+             aapar = f_partrans(ipar)(6:)
+             do i = 1, npar
+                 if(aapar==apar(i))goto 1200
+             enddo
+             f_partrans(ipar) = 'none'
+         endif
+1200  enddo
+ 
+!    -- Parameter groups are now organised.
+     npargp = 0
+     do ipar = 1, npar
+         apargp = f_pargp(ipar)
+         if(apargp=='none')then
+             if((f_partrans(ipar)=='tied') .OR. (f_partrans(ipar)=='fixed'))cycle
+             call ADDQUOTE(pardatfile, sstring_g)
+             write(amessage, 9083)TRIM(apar(ipar)), TRIM(sstring_g)
+9083         format('parameter "', a,                                          &
+                   &'" has been assigned to parameter group "none" ',          &
+                   &'in file ', a, ' but is not tied or fixed.')
+             goto 2400
+         endif
+     enddo
+ 
+!    -- The "* control data" section of the PEST control file is now written.
+     iunit = NEXTUNIT()
+     call ADDQUOTE(pestctlfile, sstring_g)
+     write(*, 9148)TRIM(sstring_g)
+     write(lu_rec, 9148)TRIM(sstring_g)
+     inquire(file = pestctlfile, exist = lexist)
+     if(lexist)then
+         write(6, *)
+         do
+             write(*, 9138, advance = 'no')TRIM(sstring_g)
+             read(5, '(a)')aa
+             call CASETRANS(aa, 'lo')
+             if((aa=='y') .OR. (aa=='n'))then
+                 if(aa=='n')then
+                     write(*, 9139)
+                     write(lu_rec, 9139)
+                     Ifail = 1
+                     return
+                 endif
+                 exit
+             endif
+         enddo
+     endif
 
-          call gregorian_date(iJD=nnn, &
-                          iMonth=mms1, &
-                          iDay=dds1, &
-                          iYear=yys1)
+     nnnpar = f_numpar
+     open(unit = iunit, file = pestctlfile, iostat = ierr)
+     if(ierr/=0)then
+         write(amessage, 9140)TRIM(sstring_g)
+         goto 2400
+     endif
+     write(iunit, 9084)
+9084  format('pcf')
+     write(iunit, 9085)
+9085  format('* control data')
+     write(iunit, 9086)
+9086  format('restart estimation')
+     write(iunit, 9087)nnnpar, nobs, f_numpargp, 0, nobsgp, f_nparsec, f_nequation
+9087  format(5I8, 1X, 'nparsec=', I0, 1X, 'nequation=', I0)
+     write(iunit, 9088)numtempfile, 1
+9088  format(2I6, '   single   point   1   0   0')
+     if(isvd==0)then
+         write(iunit, 9089)
+9089     format('10.0   2.0    0.3    0.03    10  999')
+     else
+         write(iunit, 9090)
+9090     format('10.0  -3.0    0.3    0.03     1  999')
+     endif
+     write(iunit, 9091)
+9091  format('5.0   5.0   1.0e-3')
+     if(auiyesno==0)then
+         write(iunit, 9092)
+9092     format('0.1  noaui')
+     else
+         write(iunit, 9093)
+9093     format('0.1   aui')
+     endif
+     write(iunit, 9094)
+9094  format('30   .005  4   4  .005   4')
+     write(iunit, 9095)
+9095  format('1    1    1')
+     if(isvd==1)then
+         write(iunit, 9096)
+9096     format('* singular value decomposition')
+         write(iunit, 9097)
+9097     format('1')
+         write(iunit, 9098)nnnpar, eigthresh
+9098     format(i6, 2x, 1pg13.7)
+         write(iunit, 9099)
+9099     format('1')
+     endif
+ 
+! -- The "* parameter groups" section of the PEST control file is now
+!    written.
+     write(iunit, 9100)
+9100  format('* parameter groups')
+     do igp = 1, f_numpargp
+         write(iunit, 9101)TRIM(f_pargpnme(igp)), TRIM(f_inctyp(igp)),         &
+                         & f_derinc(igp), f_derinclb(igp), TRIM(f_forcen(igp)),&
+                         & f_derincmul(igp), TRIM(f_dermthd(igp))
+9101     format(a, t14, a, t27, 1pg12.5, t41, 1pg12.5, t55, a, t66, 1pg12.5,   &
+              & 2x, a)
+     enddo
+ 
+!    -- The "* parameter data" section of the PEST control file is now written.
+     write(iunit, 9102)
+9102  format('* parameter data')
+     do ipar = 1, SIZE(f_parnme)
+         if(f_partrans(ipar)(1:4)=='tied')then
+             atrans = 'tied'
+         else
+             atrans = f_partrans(ipar)
+         endif
+         write(iunit, 9103)TRIM(f_parnme(ipar)), TRIM(atrans),                 &
+                         & TRIM(f_parchglim(ipar)), f_parval1(ipar),           &
+                         & f_parlbnd(ipar), f_parubnd(ipar),                   &
+                         & TRIM(f_pargp(ipar)), f_scale(ipar), f_offset(ipar)
+9103     format(a, t14, a, t21, a, t33, 1pg12.5, t47, 1pg12.5, t61, 1pg12.5,   &
+              & t75, a, t89, 1pg12.5, t103, 1pg12.5, t117, '  1')
+     enddo
+     do ipar = 1, f_nequation
+         write(iunit, 9900)TRIM(f_parsecnme(ipar)), TRIM(f_equation(ipar))
+9900     format(a, t14, ' = ', a)
+     enddo
+     do ipar = 1, SIZE(f_parnme)
+         if(f_partrans(ipar)(1:4)=='tied')then
+             write(iunit, 9104)TRIM(f_parnme(ipar)), TRIM(f_partrans(ipar)(6:))
+9104         format(a, t14, a)
+         endif
+     enddo
+ 
+! -- The "* observation groups" section of the PEST control file is now
+!    written.
+     write(iunit, 9105)
+9105  format('* observation groups')
+     do i = 1, nobsgp
+         write(iunit, 9106)TRIM(obgnme(i))
+9106     format(a)
+     enddo
+ 
+! -- The "* observation data" section of the PEST control file is now
+!    written.
+! -- First the time series observations are dealt with.
+     write(iunit, 9107)
+9107  format('* observation data')
+ 
+     iout = 0
+     ieqnerr = 0
+     if(ioseries/=0)then
+         do i = 1, ioseries
+             iout = iout + 1
+             im = IOUTSERIES_G(i)
+             do j = 1, ioseries
+                 if(im==modseries(j))goto 1320
+             enddo
+             write(amessage, 9141)
+             goto 2400
+1320         io = obsseries(j)
+             nsterm = SERIES_G(io)%nterm
+             aname = SERIES_G(im)%NAME
+ 
+             allocate(tempobsvals(nsterm))
+             allocate(tempsimvals(nsterm))
+ 
+             if(SERIES_G(io)%LISSINGLEPRECISION)then
+                 tempobsvals = REAL(SERIES_G(io)%VAL, KIND = t_dbl)
+                 tempsimvals = REAL(SERIES_G(im)%VAL, KIND = t_dbl)
+             else
+                 tempobsvals = SERIES_G(io)%DPVAL
+                 tempsimvals = SERIES_G(im)%DPVAL
+             endif
+ 
+             tempmean = 0.
+             m2 = 0.
+             sse = 0.
+ 
+             do lc = 1, nsterm
+                 delta = tempobsvals(lc) - tempmean
+                 delta2 = tempobsvals(lc) - tempsimvals(lc)
+                 tempmean = tempmean + delta/REAL(lc, KIND = 8)
+                 sse = sse + delta2**2
+                 m2 = m2 + delta*(tempobsvals(lc) - tempmean)
+             enddo
+ 
+             obj_fun_value = SQRT(sse)
+ 
+             dpcount = REAL(nsterm, KIND = 8)
+             dpsum = SUM(tempobsvals)
+             dpmin = MINVAL(tempobsvals)
+             dpmax = MAXVAL(tempobsvals)
+             dpmean = tempmean
+             dpvariance = m2/(nsterm - 1)
+ 
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             atemp = basename(iout)
+             weightmin = MAX(sweightmin(j), 0.0)
+             weightmax = MIN(sweightmax(j), 1.0E36)
+ 
+!            -- The pertinent equation is parsed and prepared.
+ 
+             eqntext = sequation(j)
+             call PREPARE_EQN(ierr, nterm, sequation(j), io)
+             if(ierr/=0)then
+                 ieqnerr = 1
+                 goto 2400
+             endif
+             nnterm = nterm
+             do iterm = 1, nterm
+                 CTERM(iterm) = ATERM(iterm)
+             enddo
+             do iterm = 1, nterm
+                 QTERM(iterm) = RTERM(iterm)
+             enddo
+             do j = 1, nsterm
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 call NUM2CHAR(j, anum)
+                 aname = TRIM(atemp) // TRIM(anum)
+ 
+!             -- First the series numbers in the equation terms are
+!                replaced by series values.
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='$~$')then
+                         call CHAR2NUM(ierr, ATERM(iterm)(4:), isnum)
+                         RTERM(iterm) = tempobsvals(j)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+ 
+!             -- The weights equation intrinsic function evaluations is
+!                carried out if necessary.
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(tempobsvals(j))
+                         ATERM(iterm) = '~!~'
+ 
+                     elseif(ATERM(iterm)(1:3)=='@_4')then  ! min
+                         RTERM(iterm) = dpmin
+                         ATERM(iterm) = '~!~'
+ 
+                     elseif(ATERM(iterm)(1:3)=='@_5')then  ! max
+                         RTERM(iterm) = dpmax
+                         ATERM(iterm) = '~!~'
+ 
+                     elseif(ATERM(iterm)(1:3)=='@_6')then  ! obj fun value
+                         RTERM(iterm) = obj_fun_value
+                         ATERM(iterm) = '~!~'
+ 
+                     elseif(ATERM(iterm)(1:3)=='@_7')then  ! count
+                         RTERM(iterm) = dpcount
+                         ATERM(iterm) = '~!~'
+ 
+                     elseif(ATERM(iterm)(1:3)=='@_8')then  ! mean
+                         RTERM(iterm) = dpmean
+                         ATERM(iterm) = '~!~'
+ 
+                     elseif(ATERM(iterm)(1:3)=='@_9')then  ! variance
+                         RTERM(iterm) = dpvariance
+                         ATERM(iterm) = '~!~'
+ 
+                     elseif(ATERM(iterm)(1:3)=='@_1')then
+                         call GREGORIAN_DATE(IJD = SERIES_G(io)%DAYS(j),       &
+                           & IMONTH = mm, IDAY = dd, IYEAR = yy)
+                         nn = NUMDAYS(1, 1, yy, dd, mm, yy)
+                         rtime = FLOAT(nn) + FLOAT(SERIES_G(io)%SECS(j))       &
+                               & /86400.0
+                         RTERM(iterm) = rtime
+                         ATERM(iterm) = '~!~'
+                     elseif(ATERM(iterm)(1:3)=='@_3')then
+                         call CHAR2NUM(ierr, ATERM(iterm)(5:), dtempx)
+                         RTERM(iterm) = DBLE(SERIES_G(io)%DAYS(j))             &
+                                      & + DBLE(SERIES_G(io)%SECS(j))           &
+                                      & /86400.0D0 - dtempx
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+ 
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(ierr/=0)goto 2400
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), tempobsvals(j), dval,          &
+                                 & TRIM(SERIES_G(im)%NAME)
+             enddo
+ 
+             if(ALLOCATED(tempobsvals))deallocate(tempobsvals)
+             if(ALLOCATED(tempsimvals))deallocate(tempsimvals)
+ 
+         enddo
+     endif
+ 
+!    -- Now we handle S_TABLE observations.
+     if(iostable/=0)then
+         siout = 0
+         do i = 1, iostable
+             siout = siout + 1
+             im = IOUTSTABLE_G(i)
+             do j = 1, iostable
+                 if(im==modstable(j))goto 1340
+             enddo
+             write(amessage, 9142)'s', TRIM(STABLE_G(im)%NAME), 'S'
+             goto 2400
+1340         io = obsstable(j)
+             aname = STABLE_G(im)%NAME
+             sbasename(siout) = aname(1:12)
+             weightmin = MAX(stweightmin(j), 0.0)
+             weightmax = MIN(stweightmax(j), 1.0E36)
+             eqntext = stequation(j)
+             call PREPARE_EQN(ierr, nterm, stequation(j), 0)
+             if(ierr/=0)then
+                 ieqnerr = 1
+                 goto 2400
+             endif
+             nnterm = nterm
+             do iterm = 1, nterm
+                 CTERM(iterm) = ATERM(iterm)
+             enddo
+             do iterm = 1, nterm
+                 QTERM(iterm) = RTERM(iterm)
+             enddo
+ 
+             if(STABLE_G(io)%MAXIMUM> - 1.0E36)then
+                 aname = TRIM(sbasename(siout)) // obschar // 'max'
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(STABLE_G(io)%MAXIMUM)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), STABLE_G(io)%MAXIMUM, dval,    &
+                                 & TRIM(STABLE_G(im)%NAME)
+             endif
+ 
+             if(STABLE_G(io)%MINIMUM> - 1.0E36)then
+                 aname = TRIM(sbasename(siout)) // obschar // 'min'
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(STABLE_G(io)%MINIMUM)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), STABLE_G(io)%MINIMUM, dval,    &
+                                 & TRIM(STABLE_G(im)%NAME)
+             endif
+ 
+             if(STABLE_G(io)%RANGE> - 1.0E36)then
+                 aname = TRIM(sbasename(siout)) // obschar // 'range'
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(STABLE_G(io)%RANGE)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), STABLE_G(io)%RANGE, dval,      &
+                                 & TRIM(STABLE_G(im)%NAME)
+             endif
+ 
+             if(STABLE_G(io)%TOTAL> - 1.0E36)then
+                 aname = TRIM(sbasename(siout)) // obschar // 'sum'
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(STABLE_G(io)%TOTAL)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), STABLE_G(io)%TOTAL, dval,      &
+                                 & TRIM(STABLE_G(im)%NAME)
+             endif
+ 
+             if(STABLE_G(io)%MEAN> - 1.0E36)then
+                 aname = TRIM(sbasename(siout)) // obschar // 'mean'
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(STABLE_G(io)%MEAN)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), STABLE_G(io)%MEAN, dval,       &
+                                 & TRIM(STABLE_G(im)%NAME)
+             endif
+ 
+             if(STABLE_G(io)%MEDIAN> - 1.0E36)then
+                 aname = TRIM(sbasename(siout)) // obschar // 'median'
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(STABLE_G(io)%MEDIAN)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), STABLE_G(io)%MEDIAN, dval,     &
+                                 & TRIM(STABLE_G(im)%NAME)
+             endif
+ 
+             if(STABLE_G(io)%STDDEV> - 1.0E36)then
+                 aname = TRIM(sbasename(siout)) // obschar // 'sd'
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(STABLE_G(io)%STDDEV)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), STABLE_G(io)%STDDEV, dval,     &
+                                 & TRIM(STABLE_G(im)%NAME)
+             endif
+ 
+         enddo
+     endif
+ 
+!    -- Next the V_TABLE observations are handled.
+     if(iovtable/=0)then
+         do i = 1, iovtable
+             iout = iout + 1
+             im = IOUTVTABLE_G(i)
+             do j = 1, iovtable
+                 if(im==modvtable(j))goto 1360
+             enddo
+             write(amessage, 9142)'v', TRIM(VTABLE_G(im)%NAME), 'V'
+             goto 2400
+1360         io = obsvtable(j)
+             nsterm = VTABLE_G(io)%nterm
+             aname = VTABLE_G(im)%NAME
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             if(ierr/=0)goto 2400
+             atemp = basename(iout)
+             weightmin = MAX(vtweightmin(j), 0.0)
+             weightmax = MIN(vtweightmax(j), 1.0E36)
+             eqntext = vtequation(j)
+             call PREPARE_EQN(ierr, nterm, vtequation(j), 0)
+             if(ierr/=0)then
+                 ieqnerr = 1
+                 goto 2400
+             endif
+             nnterm = nterm
+             do iterm = 1, nterm
+                 CTERM(iterm) = ATERM(iterm)
+             enddo
+             do iterm = 1, nterm
+                 QTERM(iterm) = RTERM(iterm)
+             enddo
+             do j = 1, nsterm
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 call NUM2CHAR(j, anum)
+                 aname = TRIM(atemp) // TRIM(anum)
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(VTABLE_G(io)%VOL(j))
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), VTABLE_G(io)%VOL(j), dval,     &
+                                 & TRIM(VTABLE_G(im)%NAME)
+             enddo
+         enddo
+     endif
+ 
+!    -- Next the E_TABLE observations are handled.
+     if(iodtable/=0)then
+         do i = 1, iodtable
+             iout = iout + 1
+             im = IOUTDTABLE_G(i)
+             do j = 1, iodtable
+                 if(im==moddtable(j))goto 1380
+             enddo
+             write(amessage, 9142)'e', TRIM(VTABLE_G(im)%NAME), 'E'
+             goto 2400
+1380         io = obsdtable(j)
+             totim = DTABLE_G(io)%TOTAL_TIME
+             nsterm = DTABLE_G(io)%nterm
+             aname = DTABLE_G(im)%NAME
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             if(ierr/=0)goto 2400
+             atemp = basename(iout)
+             weightmin = MAX(dtweightmin(j), 0.0) !chek
+             weightmax = MIN(dtweightmax(j), 1.0E36)
+             eqntext = dtequation(j)
+             call PREPARE_EQN(ierr, nterm, dtequation(j), 0)
+             if(ierr/=0)then
+                 ieqnerr = 1
+                 goto 2400
+             endif
+             nnterm = nterm
+             do iterm = 1, nterm
+                 CTERM(iterm) = ATERM(iterm)
+             enddo
+             do iterm = 1, nterm
+                 QTERM(iterm) = RTERM(iterm)
+             enddo
+             do j = 1, nsterm
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 call NUM2CHAR(j, anum)
+                 aname = TRIM(atemp) // TRIM(anum)
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(DTABLE_G(io)%TIME(j)/totim)
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+                 write(iunit, 9149)TRIM(aname), DTABLE_G(io)%TIME(j)/totim,    &
+                                 & dval, TRIM(DTABLE_G(im)%NAME)
+             enddo
+         enddo
+     endif
+ 
+!    -- Next the G_TABLE observations are handled.
+     if(iogtable/=0)then
+         do i = 1, iogtable
+             iout = iout + 1
+             im = IOUTGTABLE_G(i)
+             do j = 1, iogtable
+                 if(im==modgtable(j))goto 1400
+             enddo
+             write(amessage, 9142)'g', TRIM(GTABLE_G(im)%NAME), 'G'
+             goto 2400
+1400         io = obsgtable(j)
+             nsterm = UBOUND(GTABLE_G(io)%SDESCRIPTION, 1)
+             aname = GTABLE_G(im)%NAME
+             call MAKE_BASENAME(ierr, iout, nsterm, aname, basename)
+             if(ierr/=0)goto 2400
+             atemp = basename(iout)
+             weightmin = MAX(gtweightmin(j), 0.0) !chek
+             weightmax = MIN(gtweightmax(j), 1.0E36)
+             eqntext = gtequation(j)
+             call PREPARE_EQN(ierr, nterm, gtequation(j), 0)
+             if(ierr/=0)then
+                 ieqnerr = 1
+                 goto 2400
+             endif
+             nnterm = nterm
+             do iterm = 1, nterm
+                 CTERM(iterm) = ATERM(iterm)
+             enddo
+             do iterm = 1, nterm
+                 QTERM(iterm) = RTERM(iterm)
+             enddo
+             do j = 1, nsterm
+                 nterm = nnterm
+                 do iterm = 1, nterm
+                     ATERM(iterm) = CTERM(iterm)
+                 enddo
+                 do iterm = 1, nterm
+                     RTERM(iterm) = QTERM(iterm)
+                 enddo
+                 call NUM2CHAR(j, anum)
+                 aname = TRIM(atemp) // TRIM(anum)
+                 do iterm = 1, nterm
+                     if(ATERM(iterm)(1:3)=='@_2')then
+                         RTERM(iterm) = ABS(GTABLE_G(io)%RVALUE(j))
+                         ATERM(iterm) = '~!~'
+                     endif
+                 enddo
+                 call EVALUATE(ierr, maxterm, nterm, noper, nfunct, ATERM,     &
+                             & bterm, operat, funct, iorder, dval, RTERM)
+                 if(dval<weightmin)dval = weightmin
+                 if(dval>weightmax)dval = weightmax
+ 
+                 write(iunit, 9149)TRIM(aname), GTABLE_G(io)%RVALUE(j), dval,  &
+                                 & TRIM(GTABLE_G(im)%NAME)
+             enddo
+         enddo
+     endif
+ 
+!    -- The "* model command line" section of the PEST control file is written.
+     write(iunit, 9108)
+9108  format('* model command line')
+     if(modcomline==' ')modcomline = 'model'
+     write(iunit, 9109)TRIM(modcomline)
+9109  format(a)
+ 
+!    -- The "* model input/output" section of the PEST control file is written.
+     write(iunit, 9110)
+9110  format('* model input/output')
+     do i = 1, numtempfile
+         if(modfile(i)==' ')then
+             call NUM2CHAR(i, anum)
+             modfile(i) = 'model' // TRIM(anum) // '.in'
+         endif
+         call ADDQUOTE(tempfile(i), bstring)
+         call ADDQUOTE(modfile(i), cstring)
+         write(iunit, 9150)TRIM(bstring), TRIM(cstring)
+     enddo
+     call ADDQUOTE(instructfile, bstring)
+     call ADDQUOTE(slistoutputfile_g, cstring)
+     write(iunit, 9150)TRIM(bstring), TRIM(cstring)
+     close(unit = iunit)
+ 
+ 
+     write(*, 9151)TRIM(sstring_g)
+     write(lu_rec, 9151)TRIM(sstring_g)
+ 
+!    -- If a MICA control file was requested, it is now written.
+     if(micactlfile/=' ')then
+         call ADDQUOTE(micactlfile, sstring_g)
+         write(*, 9152)TRIM(sstring_g)
+         write(lu_rec, 9152)TRIM(sstring_g)
+         inquire(file = micactlfile, exist = lexist)
+         if(lexist)then
+             do
+                 write(6, *)
+                 write(*, 9138, advance = 'no')TRIM(sstring_g)
+                 read(5, '(a)')aa
+                 call CASETRANS(aa, 'lo')
+                 if((aa=='y') .OR. (aa=='n'))then
+                     if(aa/='n')exit
+                     goto 2500
+                 endif
+             enddo
+         endif
+         itempunit = NEXTUNIT()
+         open(unit = itempunit, file = micactlfile, status = 'old',            &
+            & iostat = ierr)
+         if(ierr==0)close(unit = itempunit, status = 'delete')
+         itempunit = NEXTUNIT()
+         open(unit = itempunit, file = 't###.###')
+         call ADDQUOTE(pestctlfile, cstring)
+         write(itempunit, '(a)')TRIM(cstring)
+         write(itempunit, '(a)')'1'
+         write(itempunit, '(a)')TRIM(sstring_g)
+         close(unit = itempunit)
+         call EXECUTE_COMMAND_LINE(TRIM(pest2micacom) // ' < t###.### > nul')
+         inquire(file = micactlfile, exist = lexist)
+         if(.NOT.lexist)then
+             write(amessage, 9111)
+9111         format('could not write MICA control file - check PEST2MICA ',    &
+                   &'command.')
+             goto 2400
+         else
+             write(*, 9151)TRIM(sstring_g)
+             write(lu_rec, 9151)TRIM(sstring_g)
+         endif
+     endif
+ 
+     goto 2500
+ 
+1500  call NUM2CHAR(iline_g, aline)
+     call ADDQUOTE(sinfile_g, sstring_g)
+     write(amessage, 9112)TRIM(aline), TRIM(sstring_g)
+9112  format('cannot read line ', a, ' of TSPROC input file ', a)
+     goto 2400
+1600  call ADDQUOTE(sinfile_g, sstring_g)
+     write(amessage, 9113)TRIM(sstring_g), TRIM(currentblock_g)
+9113  format('unexpected end encountered to TSPROC input file ', a, ' while ', &
+            &' reading ', a, ' block.')
+     goto 2400
+1700  write(amessage, 9114)
+9114  format('cannot allocate sufficient memory to continue execution.')
+     goto 2400
+1800  call NUM2CHAR(iline_g, aline)
+     call ADDQUOTE(sinfile_g, sstring_g)
+     write(amessage, 9115)TRIM(aoption), TRIM(aline), TRIM(sstring_g),         &
+                        & TRIM(correct_keyword)
+9115  format(a, ' keyword at line ', a, ' of TSPROC input file ', a,           &
+            &' should immediately ', 'follow ', a, ' keyword.')
+     goto 2400
+1900  write(amessage, 9116)TRIM(sstring_g)
+9116  format('cannot rewind file ', a)
+     goto 2400
+2000  call NUM2CHAR(jline, aline)
+     write(amessage, 9117)TRIM(aline), TRIM(sstring_g)
+9117  format('cannot read line ', a, ' of file ', a)
+     goto 2400
+2100  call NUM2CHAR(jline, aline)
+     write(amessage, 9118)TRIM(aline), TRIM(sstring_g)
+9118  format('insufficient entries on line ', a, ' of file ', a)
+     goto 2400
+2200  write(amessage, 9119)TRIM(sstring_g)
+9119  format('cannot close file ', a)
+     goto 2400
+2300  write(amessage, 9120)TRIM(aoname), TRIM(amname), TRIM(avariable)
+9120  format('OBSERVATION_S_TABLE "', a, '"  has been matched to ',            &
+            &'MODEL_S_TABLE "', a, '". However the ', a, ' has been computed ',&
+            &'for one and not for the other.')
+ 
+2400  call WRITE_MESSAGE(LEADSPACE = 'yes', ERROR = 'yes')
+     call WRITE_MESSAGE(iunit = lu_rec, LEADSPACE = 'yes')
+     if(ieqnerr/=0)then
+         write(amessage, 9121)
+9121     format(' Offending equation follows:-')
+         call WRITE_MESSAGE()
+         call WRITE_MESSAGE(iunit = lu_rec)
+         do i = 1, LEN_TRIM(eqntext)
+             if(eqntext(i:i)==CHAR(196))eqntext(i:i) = '/'
+         enddo
+         write(*, 9153)TRIM(eqntext)
+         write(lu_rec, 9153)TRIM(eqntext)
+     endif
+     Ifail = 1
+     if(iunit/=0)close(unit = iunit, iostat = ierr)
+ 
+2500  deallocate(f_pargpnme, f_inctyp, f_derinc, f_derinclb, f_forcen,         &
+               & f_derincmul, f_dermthd, STAT = ierr)
+     deallocate(f_parnme, f_partrans, f_parchglim, f_parval1, f_parlbnd,       &
+              & f_parubnd, f_pargp, f_scale, f_offset, STAT = ierr)
+     deallocate(pargpnme, inctyp, derinc, derinclb, forcen, derincmul, dermthd,&
+              & STAT = ierr)
+9122  format(/, ' Processing ', a, ' block....')
+9123  format(t5, a, ' ', a)
+9124  format('current version of TSPROC does not allow C_TABLES to be ',       &
+            &'used for parameter estimation.')
+9125  format('MODEL_', a, '_TABLE "', a, '" is not listed in the ',            &
+            &'LIST_OUTPUT block immediately preceding the ', a, ' block.')
+9126  format(t5, 'Reading parameter group file ', a, ' ....')
+9127  format('file ', a, ' appears to contain no data.')
+9128  format('parameter group name "', a, '" greater than 12 characters ',     &
+            &'at line ', a, ' of file ', a)
+9129  format('value for ', a, ' on line ', a, ' of file ', a,                  &
+            &' must be positive.')
+9130  format(t5, '- data for ', a, ' parameter groups read from file ', a)
+9131  format(t5, 'Reading parameter data file ', a, ' ....')
+9132  format('cannot read value for ', a, ' on line ', a, ' of file ', a)
+9133  format(t5, '- data for ', a, ' parameters read from file ', a)
+9134  format(t5, 'Reading template file ', a, ' ....')
+9135  format(t5, '- ', a, ' parameter names read from file ', a)
+9136  format(t5, '- ', a, ' more parameter names read from file ', a)
+9137  format(t5, 'Writing instruction file ', a, ' ....')
+9138  format(' File ', a, ' already exists. Overwrite it? [y/n]: ')
+9139  format(/, ' Execution terminated so file not overwritten.')
+9140  format('cannot open file ', a, ' for output.')
+9141  format('time series "', a,                                               &
+            &'" cited in the LIST_OUTPUT block immediately ',                  &
+            &'preceding the WRITE_PEST_FILES block is not cited as a ',        &
+            &'MODEL_SERIES_NAME in the latter block.')
+9142  format(a, '_table "', a, '" cited in the LIST_OUTPUT block immediately ',&
+            &'preceding the WRITE_PEST_FILES block is not cited as a ',        &
+            &'MODEL_', a, '_TABLE_NAME in the latter block.')
+9143  format('l11', t6, a)
+9144  format('l1', t6, a)
+9145  format('l4', t6, a)
+9146  format('l1', t6, a)
+9147  format(t5, '- file ', a, ' written ok.')
+9148  format(t5, 'Writing PEST control file ', a, ' ....')
+9149  format(a, t22, 1pg14.7, t40, 1pg12.6, 2x, a)
+9150  format(a, 3x, a)
+9151  format(t5, '- file ', a, ' written ok.')
+9152  format(t5, 'Writing MICA control file ', a, ' ....')
+9153  format(' "', a, '"')
+ 
+     end subroutine PEST_FILES
 
-          hhs1=sss/3600
-          nns1=(sss-hhs1*3600)/60
-          sss1=sss-hhs1*3600-nns1*60
-          nnn=ctable_g(jctable)%rec_enddays
-          sss=ctable_g(jctable)%rec_endsecs
-!          call newdate(nnn,1,1,1970,dds2,mms2,yys2)
-          call gregorian_date(iJD=nnn, &
-                          iMonth=mms2, &
-                          iDay=dds2, &
-                          iYear=yys2)
 
-          hhs2=sss/3600
-          nns2=(sss-hhs2*3600)/60
-          sss2=sss-hhs2*3600-nns2*60
-          if(datespec.eq.1)then
-            write(LU_OUT,521) dds1,mms1,yys1
-521         format(t5,'Beginning date of series comparison:',   &
-            t55,i2.2,'/',i2.2,'/',i4)
-          else
-            write(LU_OUT,521) mms1,dds1,yys1
-          end if
-          write(LU_OUT,531) hhs1,nns1,sss1
-531       format(t5,'Beginning time of series comparison:',   &
-          t55,i2.2,':',i2.2,':',i2.2)
-          if(datespec.eq.1)then
-            write(LU_OUT,541) dds2,mms2,yys2
-541         format(t5,'Finishing date of series comparison:',  &
-            t55,i2.2,'/',i2.2,'/',i4)
-          else
-            write(LU_OUT,541) mms2,dds2,yys2
-          end if
-          write(LU_OUT,551) hhs2,nns2,sss2
-551       format(t5,'Finishing time of series comparison:',  &
-          t55,i2.2,':',i2.2,':',i2.2)
-          call num2char(ctable_g(jctable)%rec_icount,aline)
-          write(LU_OUT,555) trim(aline)
-          if(ctable_g(jctable)%bias.gt.-1.0e35)then
-            write(LU_OUT,1290) ctable_g(jctable)%bias
-1290        format(t5,'Bias:',t55,1pg14.7)
-          end if
-          if(ctable_g(jctable)%se.gt.-1.0e35)then
-            write(LU_OUT,1300) ctable_g(jctable)%se
-1300        format(t5,'Standard error:',t55,1pg14.7)
-          end if
-          if(ctable_g(jctable)%rbias.gt.-1.0e35)then
-            write(LU_OUT,1305) ctable_g(jctable)%rbias
-1305        format(t5,'Relative bias:',t55,1pg14.7)
-          end if
-          if(ctable_g(jctable)%rse.gt.-1.0e35)then
-            write(LU_OUT,1310) ctable_g(jctable)%rse
-1310         format(t5,'Relative standard error:',t55,1pg14.7)
-          end if
-          if(ctable_g(jctable)%ns.gt.-1.0e35)then
-            write(LU_OUT,1320) ctable_g(jctable)%ns
-1320         format(t5,'Nash-Sutcliffe coefficient:',t55,1pg14.7)
-          end if
-          if(ctable_g(jctable)%ce.gt.-1.0e35)then
-            write(LU_OUT,1330) ctable_g(jctable)%ce
-1330        format(t5,'Coefficient of efficiency:',t55,1pg14.7)
-          end if
-          if(ctable_g(jctable)%ia.gt.-1.0e35)then
-            write(LU_OUT,1340) ctable_g(jctable)%ia
-1340        format(t5,'Index of agreement:',t55,1pg14.7)
-          endif
+     subroutine WRITE_LIST_OUTPUT(Ifail)
+!    -- Subroutine Write_List_Output writes TSPROC entities to an ASCII output
+!       file.
 
-          if (ctable_g(jctable)%ve .gt. -1.0e35) then
-            write(LU_OUT,1350) ctable_g(jctable)%ve
-1350        format(t5,'Volumetric efficiency:',t55,1pg14.7)
-          end if
-       end do
-
-! -- If any V_TABLES were requested, they are now written.
-
-700    if(ivtable.eq.0) go to 900
-       do i=1,ivtable
-          jvtable=iOutVtable_g(i)
-          write(LU_OUT,710) trim(vtable_g(jvtable)%name)
-710       format(/,' V_TABLE "',a,'" ---->')
-          write(LU_OUT,715) trim(vtable_g(jvtable)%series_name)
-715       format(t5,'Volumes calculated from series "',a,'" are as follows:-')
-          do j=1,vtable_g(jvtable)%nterm
-!            call newdate(vtable_g(jvtable)%days1(j),1,1,1970,dds1,mms1,yys1)
-
-            call gregorian_date(iJD=vtable_g(jvtable)%days1(j), &
-                            iMonth=mms1, &
-                            iDay=dds1, &
-                            iYear=yys1)
-
-            sss=vtable_g(jvtable)%secs1(j)
-            hhs1=sss/3600
-            nns1=(sss-hhs1*3600)/60
-            sss1=sss-hhs1*3600-nns1*60
-!            call newdate(vtable_g(jvtable)%days2(j),1,1,1970,dds2,mms2,yys2)
-
-            call gregorian_date(iJD=vtable_g(jvtable)%days2(j), &
-                            iMonth=mms2, &
-                            iDay=dds2, &
-                            iYear=yys2)
-
-            sss=vtable_g(jvtable)%secs2(j)
-            hhs2=sss/3600
-            nns2=(sss-hhs2*3600)/60
-            sss2=sss-hhs2*3600-nns2*60
-            if(datespec.eq.1)then
-              write(LU_OUT,720) dds1,mms1,yys1,hhs1,nns1,sss1,  &
-                                 dds2,mms2,yys2,hhs2,nns2,sss2,vtable_g(jvtable)%vol(j)
-            else
-              write(LU_OUT,720) mms1,dds1,yys1,hhs1,nns1,sss1,  &
-                                 mms2,dds2,yys2,hhs2,nns2,sss2,vtable_g(jvtable)%vol(j)
-            end if
-720         format(t5,'From ',i2.2,'/',i2.2,'/',i4,' ',i2.2,':',i2.2,':',i2.2,  &
-                      ' to ',i2.2,'/',i2.2,'/',i4,' ',i2.2,':',i2.2,':',i2.2,  &
-                      '  volume = ',g18.12)
-          end do
-       end do
-
-! -- If any E_TABLES were requested, they are now written.
-
-900    continue
-       if(idtable.eq.0) go to 1100
-       do i=1,idtable
-          jdtable=iOutDtable_g(i)
-          totim=dtable_g(jdtable)%total_time
-          write(LU_OUT,910) trim(dtable_g(jdtable)%name)
-910       format(/,' E_TABLE "',a,'" ---->')
-          if(dtable_g(jdtable)%under_over.eq.1)then
-            write(LU_OUT,915) trim(dtable_g(jdtable)%time_units), &
-            trim(dtable_g(jdtable)%time_units)
-915         format(t4,'Flow',t19,'Time delay (',a,')',t40,'Time above (',a,')',  &
-            t60,'Fraction of time above threshold')
-          else
-            write(LU_OUT,916) trim(dtable_g(jdtable)%time_units), &
-            trim(dtable_g(jdtable)%time_units)
-916         format(t4,'Flow',t19,'Time delay (',a,')',t40,'Time under (',a,')',  &
-            t60,'Fraction of time below threshold')
-          end if
-          do j=1,dtable_g(jdtable)%nterm
-            write(LU_OUT,920) dtable_g(jdtable)%flow(j),  &
-            dtable_g(jdtable)%tdelay(j), dtable_g(jdtable)%time(j), &
-            dtable_g(jdtable)%time(j)/totim
-920         format(t2,g14.7,t20,g14.7,t40,g14.7,t63,g14.7)
-          end do
-       end do
-1100   continue
-
-
-! -- If any G_TABLES were requested, they are now written.
-
-       if(igtable.eq.0) go to 3100
-       do i=1,igtable
-         jgtable=iOutGtable_g(i)
-         write(LU_OUT,2910) trim(gtable_g(jgtable)%name)
-2910     format(/,' G_TABLE "',a,'" ---->')
-         write(LU_OUT,2915) gtable_g(jgtable)%g_table_header
-2915     format(t4,a75,t90,'Value')
-         do j=1,ubound(gtable_g(jgtable)%sDescription, 1 )
-           write(LU_OUT,fmt="(t4,a,t82,g14.7)") gtable_g(jgtable)%sDescription(j), &
-              gtable_g(jgtable)%rValue(j)
-         end do
-       end do
-3100   continue
-
-       write(*,320) trim(sString_g)
-       write(LU_REC,320) trim(sString_g)
-320    format(t5,'File ',a,' written ok.')
-       flush(unit=LU_OUT)
-       close(unit=LU_OUT)
-
-       return
-
-9000   call num2char(ILine_g,aline)
-       call addquote(sInfile_g,sString_g)
-       write(amessage,9010) trim(aline),trim(sString_g)
-9010   format('cannot read line ',a,' of TSPROC input file ',a)
-       go to 9800
-9100   continue
-       call addquote(sInfile_g,sString_g)
-       write(amessage,9110) trim(sString_g)
-9110   format('unexpected end encountered to TSPROC input file ',a,  &
-       ' while reading LIST_OUTPUT block.')
-       go to 9800
-9800   call write_message(leadspace='yes',error='yes')
-       call write_message(iunit=LU_REC,leadspace='yes')
-       ifail=1
-
-       close(unit=LU_REC,iostat=ierr)
-       return
-
-
-end subroutine write_list_output
-
-
-
-end module tsp_output
+     implicit none
+!
+! Dummy arguments
+!
+     integer :: Ifail
+     intent (out) Ifail
+!
+! Local variables
+!
+     character(3) :: aaa
+     character(25), dimension(maxcontext) :: acontext
+     character(15) :: aline
+     real :: totim
+     character(itsnamelength) :: aname, atemp, sformat
+     character(25) :: aoption
+     integer :: dd, dds1, dds2, hhh, hhs1, hhs2, i, icontext, ictable, idtable,&
+              & ierr, igtable, iseries, istable, iterm, ivtable, ixcon, j,     &
+              & jctable, jdtable, jgtable, jstable, jvtable, mm, mmm, mms1,    &
+              & mms2, nn, nnn, nns1, nns2, ss, sss, sss1, sss2, yy, yys1, yys2
+     character(10) :: sdatestr
+ 
+     Ifail = 0
+     currentblock_g = 'LIST_OUTPUT'
+ 
+     write(*, 9056)
+     write(lu_rec, 9056)
+ 
+     ixcon = 0
+     icontext = 0
+     ioutseries_g = 0          !iOutseries_g is an array
+     iseries = 0
+     istable = 0
+     ictable = 0
+     ivtable = 0
+     idtable = 0
+     igtable = 0
+     soutfile_g = ' '
+     sformat = ' '
+ 
+!    -- Options for the LIST_OUTPUT block are first read.
+     do
+         iline_g = iline_g + 1
+         read(lu_tsproc_control, '(a)', err = 100, end = 200)cline
+         if(LEN_TRIM(cline)==0)cycle
+         if(cline(1:1)=='#')cycle
+         call LINESPLIT(ierr, 2)
+         if(ierr/=0)then
+             call NUM2CHAR(iline_g, aline)
+             call ADDQUOTE(sinfile_g, sstring_g)
+             write(amessage, 9001)TRIM(aline), TRIM(sstring_g)
+9001         format('there should be 2 entries on line ', a, ' of file ', a)
+             goto 300
+         endif
+         aoption = cline(LEFT_WORD(1):RIGHT_WORD(1))
+         call CASETRANS(aoption, 'hi')
+         if(aoption/='CONTEXT')then
+             call TEST_CONTEXT(ierr, icontext, acontext)
+             if(ierr== - 1)then
+                 call FIND_END(Ifail)
+                 if(Ifail==1)goto 300
+                 return
+             elseif(ierr==1)then
+                 goto 300
+             endif
+             ixcon = 1
+         endif
+ 
+         if(aoption=='FILE')then
+             call GET_FILE_NAME(ierr, soutfile_g)
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='CONTEXT')then
+             if(ixcon/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9002)TRIM(aline), TRIM(sstring_g)
+9002             format('CONTEXT keyword in incorrect location at line ', a,   &
+                       &' of file ', a)
+                 goto 300
+             endif
+             call GET_CONTEXT(ierr, icontext, acontext)
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='SERIES_NAME')then
+             iseries = iseries + 1
+             if(iseries>maxseries)then
+                 call NUM2CHAR(maxseries, aline)
+                 write(amessage, 9003)TRIM(aline)
+9003             format('a maximum of ', a,                                    &
+                       &' series can be cited in a LIST_OUTPUT block.')
+                 goto 300
+             endif
+             call GET_SERIES_NAME(ierr, ioutseries_g(iseries), 'SERIES_NAME')
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='S_TABLE_NAME')then
+             istable = istable + 1
+             if(istable>maxstable)then
+                 call NUM2CHAR(maxstable, aline)
+                 write(amessage, 9004)TRIM(aline)
+9004             format('a maximum of ', a,                                    &
+                       &' s_tables can be cited in a LIST_OUTPUT block.')
+                 goto 300
+             endif
+             call GET_TABLE_NAME(ierr, IOUTSTABLE_G(istable), 1)
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='C_TABLE_NAME')then
+             ictable = ictable + 1
+             if(ictable>maxctable)then
+                 call NUM2CHAR(maxctable, aline)
+                 write(amessage, 9005)TRIM(aline)
+9005             format('a maximum of ', a,                                    &
+                       &' c_tables can be cited in a LIST_OUTPUT block.')
+                 goto 300
+             endif
+             call GET_TABLE_NAME(ierr, IOUTCTABLE_G(ictable), 4)
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='V_TABLE_NAME')then
+             ivtable = ivtable + 1
+             if(ivtable>maxvtable)then
+                 call NUM2CHAR(maxvtable, aline)
+                 write(amessage, 9006)TRIM(aline)
+9006             format('a maximum of ', a,                                    &
+                       &' v_tables can be cited in a LIST_OUTPUT block.')
+                 goto 300
+             endif
+             call GET_TABLE_NAME(ierr, IOUTVTABLE_G(ivtable), 2)
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='E_TABLE_NAME')then
+             idtable = idtable + 1
+             if(idtable>maxdtable)then
+                 call NUM2CHAR(maxdtable, aline)
+                 write(amessage, 9007)TRIM(aline)
+9007             format('a maximum of ', a,                                    &
+                       &' E_TABLES can be cited in a LIST_OUTPUT block.')
+                 goto 300
+             endif
+             call GET_TABLE_NAME(ierr, IOUTDTABLE_G(idtable), 3)
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='G_TABLE_NAME')then
+             igtable = igtable + 1
+             if(igtable>maxgtable)then
+                 call NUM2CHAR(maxgtable, aline)
+                 write(amessage, 9008)TRIM(aline)
+9008             format('a maximum of ', a,                                    &
+                       &' G_TABLES can be cited in a LIST_OUTPUT block.')
+                 goto 300
+             endif
+             call GET_TABLE_NAME(ierr, IOUTGTABLE_G(igtable), ig_table)
+             if(ierr/=0)goto 300
+ 
+         elseif(aoption=='END')then
+             exit
+ 
+         elseif(aoption=='SERIES_FORMAT')then
+             call GETFILE(ierr, cline, sformat, LEFT_WORD(2), RIGHT_WORD(2))
+             if(ierr/=0)then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9009)TRIM(aline), TRIM(sstring_g)
+9009             format('cannot read SERIES_FORMAT from line ', a, ' of file ',&
+                      & a)
+                 goto 300
+             endif
+             call CASETRANS(sformat, 'lo')
+             if((sformat/='short') .AND. (sformat/='long') .AND.               &
+               &(sformat/='ssf'))then
+                 call NUM2CHAR(iline_g, aline)
+                 call ADDQUOTE(sinfile_g, sstring_g)
+                 write(amessage, 9010)TRIM(aline), TRIM(sstring_g)
+9010             format('SERIES_FORMAT must be "long", "short", or "ssf" ',    &
+                       &'at line ', a, ' of TSPROC input file ', a)
+                 goto 300
+             endif
+             write(*, 9057)TRIM(sformat)
+             write(lu_rec, 9057)TRIM(sformat)
+ 
+         else
+             call NUM2CHAR(iline_g, aline)
+             call ADDQUOTE(sinfile_g, sstring_g)
+             write(amessage, 9011)TRIM(aoption), TRIM(aline), TRIM(sstring_g)
+9011         format('unexpected keyword - "', a,                               &
+                   &'" in LIST_OUTPUT block at line ', a, ' of file ', a)
+             goto 300
+         endif
+ 
+     enddo
+ 
+!    -- The block has been read; now it is checked for correctness.
+     if((iseries==0) .AND. (istable==0) .AND. (ivtable==0) .AND. (idtable==0)  &
+      & .AND. (ictable==0) .AND. (igtable==0))then
+         write(amessage, 9012)
+9012     format('no series or tables have been named for output in ',          &
+               &'LIST_OUTPUT block.')
+         goto 300
+     endif
+     if((iseries/=0) .AND. (sformat==' '))then
+         write(amessage, 9013)
+9013     format('if a time series is specified for output then the ',          &
+               &'SERIES_FORMAT specifier must also be set in a ',              &
+               &'LIST_OUTPUT block.')
+         goto 300
+     endif
+     if(soutfile_g==' ')then
+         write(amessage, 9014)
+9014     format('no FILE name provided in LIST_OUTPUT block.')
+         goto 300
+     endif
+     if(icontext==0)then
+         write(amessage, 9015)
+9015     format('no Context keyword(s) provided in LIST_OUTPUT block.')
+         goto 300
+     endif
+ 
+!    -- All is well with the LIST_OUTPUT block so the output file is written.
+     sseriesformat_g = sformat
+     slistoutputfile_g = soutfile_g
+     call ADDQUOTE(soutfile_g, sstring_g)
+     write(*, 9058)TRIM(sstring_g)
+     write(lu_rec, 9058)TRIM(sstring_g)
+     lu_out = NEXTUNIT()
+     open(unit = lu_out, file = soutfile_g, iostat = ierr)
+     if(ierr/=0)then
+         write(amessage, 9016)TRIM(sstring_g)
+9016     format('cannot open file ', a, ' for output.')
+         goto 300
+     endif
+ 
+!    -- All of the requested time series are first written.
+     imseries_g = iseries
+     imdtable_g = idtable
+     imvtable_g = ivtable
+     imstable_g = istable
+     imctable_g = ictable
+     imgtable_g = igtable
+ 
+     if(iseries/=0)then
+         do i = 1, iseries
+             j = ioutseries_g(i)
+             aname = SERIES_G(j)%NAME
+             if(TRIM(sformat)/='ssf')then 
+                 write(lu_out, 9017)TRIM(SERIES_G(j)%NAME)
+9017             format(/, ' TIME_SERIES "', a, '" ---->')
+             endif
+             if(SERIES_G(j)%TYPE=='ts')then
+                 do iterm = 1, SERIES_G(j)%NTERM
+                     if(sformat=='long' .OR. sformat=='ssf')then
+                         nn = SERIES_G(j)%DAYS(iterm)
+                         ss = SERIES_G(j)%SECS(iterm)
+                         call GREGORIAN_DATE(IJD = nn, IMONTH = mm, IDAY = dd, &
+                           & IYEAR = yy)
+                         hhh = ss/3600
+                         mmm = (ss - hhh*3600)/60
+                         sss = ss - hhh*3600 - mmm*60
+ 
+                         if(datespec==1)then
+                             write(sdatestr, fmt = "(i2.2,'/',i2.2,'/',i4.4)") &
+                                 & dd, mm, yy
+                         else
+                             write(sdatestr, fmt = "(i2.2,'/',i2.2,'/',i4.4)") &
+                                 & mm, dd, yy
+                         endif
+ 
+                         if(SERIES_G(j)%LISSINGLEPRECISION)then
+                             write(lu_out, fmt =                               &
+                       &"(1x,a,t20,a10,3x,i2.2,':',i2.2,':',    i2.2,3x,g16.9)"&
+                      & )TRIM(aname), sdatestr, hhh, mmm, sss, SERIES_G(j)     &
+                       & %VAL(iterm)
+                         else
+                             write(lu_out, fmt =                               &
+                      &"(1x,a,t20,a10,3x,i2.2,':',i2.2,':',    i2.2,3x,g18.13)"&
+                     & )TRIM(aname), sdatestr, hhh, mmm, sss, SERIES_G(j)      &
+                      & %DPVAL(iterm)
+                         endif
+ 
+ 
+                     elseif(SERIES_G(j)%LISSINGLEPRECISION)then
+                         write(lu_out, fmt = "(4x,g16.9)")SERIES_G(j)          &
+                             & %VAL(iterm)
+                     else
+                         write(lu_out, fmt = "(4x,g18.13)")SERIES_G(j)         &
+                             & %DPVAL(iterm)
+ 
+                     endif
+ 
+                 enddo
+             endif
+         enddo
+     endif
+ 
+!    -- If any S_TABLEs were requested, they are now written.
+     if(istable/=0)then
+         do i = 1, istable
+             jstable = IOUTSTABLE_G(i)
+             write(lu_out, 9018)TRIM(STABLE_G(jstable)%NAME)
+9018         format(/, ' S_TABLE "', a, '" ---->')
+             write(lu_out, 9019)TRIM(STABLE_G(jstable)%SERIES_NAME)
+9019         format(t5, 'Series for which data calculated:', t55, '"', a, '"')
+             nnn = STABLE_G(jstable)%REC_BEGDAYS
+             sss = STABLE_G(jstable)%REC_BEGSECS
+!            call newdate(nnn,1,1,1970,dds1,mms1,yys1)
+             call GREGORIAN_DATE(IJD = nnn, IMONTH = mms1, IDAY = dds1,        &
+                               & IYEAR = yys1)
+ 
+             hhs1 = sss/3600
+             nns1 = (sss - hhs1*3600)/60
+             sss1 = sss - hhs1*3600 - nns1*60
+             nnn = STABLE_G(jstable)%REC_ENDDAYS
+             sss = STABLE_G(jstable)%REC_ENDSECS
+!            call newdate(nnn,1,1,1970,dds2,mms2,yys2)
+             call GREGORIAN_DATE(IJD = nnn, IMONTH = mms2, IDAY = dds2,        &
+                               & IYEAR = yys2)
+ 
+             hhs2 = sss/3600
+             nns2 = (sss - hhs2*3600)/60
+             sss2 = sss - hhs2*3600 - nns2*60
+             if(datespec==1)then
+                 write(lu_out, 9059)dds1, mms1, yys1
+             else
+                 write(lu_out, 9059)mms1, dds1, yys1
+             endif
+             write(lu_out, 9020)hhs1, nns1, sss1
+9020         format(t5, 'Starting time for data accumulation:', t55, i2.2, ':',&
+                  & i2.2, ':', i2.2)
+             if(datespec==1)then
+                 write(lu_out, 9060)dds2, mms2, yys2
+             else
+                 write(lu_out, 9060)mms2, dds2, yys2
+             endif
+             write(lu_out, 9021)hhs2, nns2, sss2
+9021         format(t5, 'Ending time for data accumulation:', t55, i2.2, ':',  &
+                  & i2.2, ':', i2.2)
+             call NUM2CHAR(STABLE_G(jstable)%REC_ICOUNT, aline)
+             write(lu_out, 9061)TRIM(aline)
+             if(STABLE_G(jstable)%REC_ITRANS==0)then
+                 aaa = 'no'
+             else
+                 aaa = 'yes'
+             endif
+             write(lu_out, 9022)TRIM(aaa)
+9022         format(t5, 'Logarithmic transformation of series?', t55, a)
+             if(STABLE_G(jstable)%REC_POWER==0.0)then
+                 aline = 'na'
+             else
+                 call NUM2CHAR(STABLE_G(jstable)%REC_POWER, aline)
+             endif
+             write(lu_out, 9023)TRIM(aline)
+9023         format(t5, 'Exponent in power transformation:', t55, a)
+             if(STABLE_G(jstable)%MAXIMUM> - 1.0E35)then
+                 write(lu_out, 9024)STABLE_G(jstable)%MAXIMUM
+9024             format(t5, 'Maximum value:', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%MINIMUM> - 1.0E35)then
+                 write(lu_out, 9025)STABLE_G(jstable)%MINIMUM
+9025             format(t5, 'Minimum value:', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%RANGE> - 1.0E35)then
+                 write(lu_out, 9026)STABLE_G(jstable)%RANGE
+9026             format(t5, 'Range:', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%TOTAL> - 1.0E35)then
+                 write(lu_out, 9027)STABLE_G(jstable)%TOTAL
+9027             format(t5, 'Sum of values:', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%MEAN> - 1.0E35)then
+                 write(lu_out, 9028)STABLE_G(jstable)%MEAN
+9028             format(t5, 'Mean value:', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%STDDEV> - 1.0E35)then
+                 write(lu_out, 9029)STABLE_G(jstable)%STDDEV
+9029             format(t5, 'Standard deviation:', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%MINMEAN> - 1.0E35)then
+                 call NUM2CHAR(STABLE_G(jstable)%AVETIME, atemp)
+                 write(lu_out, 9030)TRIM(atemp), STABLE_G(jstable)%MINMEAN
+9030             format(t5, 'Minimum ', a, '-sample mean', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%MAXMEAN> - 1.0E35)then
+                 call NUM2CHAR(STABLE_G(jstable)%AVETIME, atemp)
+                 write(lu_out, 9031)TRIM(atemp), STABLE_G(jstable)%MAXMEAN
+9031             format(t5, 'Maximum ', a, '-sample mean', t55, 1pg14.7)
+             endif
+             if(STABLE_G(jstable)%MEDIAN> - 1.0E35)then
+                 write(lu_out, 9032)STABLE_G(jstable)%MEDIAN
+9032             format(t5, 'Median value:', t55, 1pg14.7)
+             endif
+         enddo
+     endif
+ 
+!    -- If any C_TABLEs were requested, they are now written.
+     if(ictable/=0)then
+         do i = 1, ictable
+             jctable = IOUTCTABLE_G(i)
+             write(lu_out, 9033)TRIM(CTABLE_G(jctable)%NAME)
+9033         format(/, ' C_TABLE "', a, '" ---->')
+             write(lu_out, 9034)TRIM(CTABLE_G(jctable)%SERIES_NAME_OBS)
+9034         format(t5, 'Observation time series name:', t55, '"', a, '"')
+             write(lu_out, 9035)TRIM(CTABLE_G(jctable)%SERIES_NAME_SIM)
+9035         format(t5, 'Simulation time series name:', t55, '"', a, '"')
+             nnn = CTABLE_G(jctable)%REC_BEGDAYS
+             sss = CTABLE_G(jctable)%REC_BEGSECS
+             call GREGORIAN_DATE(IJD = nnn, IMONTH = mms1, IDAY = dds1,        &
+                               & IYEAR = yys1)
+ 
+             hhs1 = sss/3600
+             nns1 = (sss - hhs1*3600)/60
+             sss1 = sss - hhs1*3600 - nns1*60
+             nnn = CTABLE_G(jctable)%REC_ENDDAYS
+             sss = CTABLE_G(jctable)%REC_ENDSECS
+             call GREGORIAN_DATE(IJD = nnn, IMONTH = mms2, IDAY = dds2,        &
+                               & IYEAR = yys2)
+ 
+             hhs2 = sss/3600
+             nns2 = (sss - hhs2*3600)/60
+             sss2 = sss - hhs2*3600 - nns2*60
+             if(datespec==1)then
+                 write(lu_out, 9062)dds1, mms1, yys1
+             else
+                 write(lu_out, 9062)mms1, dds1, yys1
+             endif
+             write(lu_out, 9036)hhs1, nns1, sss1
+9036         format(t5, 'Beginning time of series comparison:', t55, i2.2, ':',&
+                  & i2.2, ':', i2.2)
+             if(datespec==1)then
+                 write(lu_out, 9063)dds2, mms2, yys2
+             else
+                 write(lu_out, 9063)mms2, dds2, yys2
+             endif
+             write(lu_out, 9037)hhs2, nns2, sss2
+9037         format(t5, 'Finishing time of series comparison:', t55, i2.2, ':',&
+                  & i2.2, ':', i2.2)
+             call NUM2CHAR(CTABLE_G(jctable)%REC_ICOUNT, aline)
+             write(lu_out, 9061)TRIM(aline)
+             if(CTABLE_G(jctable)%BIAS> - 1.0E35)then
+                 write(lu_out, 9038)CTABLE_G(jctable)%BIAS
+9038             format(t5, 'Bias:', t55, 1pg14.7)
+             endif
+             if(CTABLE_G(jctable)%SE> - 1.0E35)then
+                 write(lu_out, 9039)CTABLE_G(jctable)%SE
+9039             format(t5, 'Standard error:', t55, 1pg14.7)
+             endif
+             if(CTABLE_G(jctable)%RBIAS> - 1.0E35)then
+                 write(lu_out, 9040)CTABLE_G(jctable)%RBIAS
+9040             format(t5, 'Relative bias:', t55, 1pg14.7)
+             endif
+             if(CTABLE_G(jctable)%RSE> - 1.0E35)then
+                 write(lu_out, 9041)CTABLE_G(jctable)%RSE
+9041             format(t5, 'Relative standard error:', t55, 1pg14.7)
+             endif
+             if(CTABLE_G(jctable)%NS> - 1.0E35)then
+                 write(lu_out, 9042)CTABLE_G(jctable)%NS
+9042             format(t5, 'Nash-Sutcliffe coefficient:', t55, 1pg14.7)
+             endif
+             if(CTABLE_G(jctable)%CE> - 1.0E35)then
+                 write(lu_out, 9043)CTABLE_G(jctable)%CE
+9043             format(t5, 'Coefficient of efficiency:', t55, 1pg14.7)
+             endif
+             if(CTABLE_G(jctable)%IA> - 1.0E35)then
+                 write(lu_out, 9044)CTABLE_G(jctable)%IA
+9044             format(t5, 'Index of agreement:', t55, 1pg14.7)
+             endif
+ 
+             if(CTABLE_G(jctable)%VE> - 1.0E35)then
+                 write(lu_out, 9045)CTABLE_G(jctable)%VE
+9045             format(t5, 'Volumetric efficiency:', t55, 1pg14.7)
+             endif
+         enddo
+     endif
+ 
+!    -- If any V_TABLES were requested, they are now written.
+ 
+     if(ivtable/=0)then
+         do i = 1, ivtable
+             jvtable = IOUTVTABLE_G(i)
+             write(lu_out, 9046)TRIM(VTABLE_G(jvtable)%NAME)
+9046         format(/, ' V_TABLE "', a, '" ---->')
+             write(lu_out, 9047)TRIM(VTABLE_G(jvtable)%SERIES_NAME)
+9047         format(t5, 'Volumes calculated from series "', a,                 &
+                   &'" are as follows:-')
+             do j = 1, VTABLE_G(jvtable)%NTERM
+                 call GREGORIAN_DATE(IJD = VTABLE_G(jvtable)%DAYS1(j),         &
+                                   & IMONTH = mms1, IDAY = dds1, IYEAR = yys1)
+ 
+                 sss = VTABLE_G(jvtable)%SECS1(j)
+                 hhs1 = sss/3600
+                 nns1 = (sss - hhs1*3600)/60
+                 sss1 = sss - hhs1*3600 - nns1*60
+                 call GREGORIAN_DATE(IJD = VTABLE_G(jvtable)%DAYS2(j),         &
+                                   & IMONTH = mms2, IDAY = dds2, IYEAR = yys2)
+ 
+                 sss = VTABLE_G(jvtable)%SECS2(j)
+                 hhs2 = sss/3600
+                 nns2 = (sss - hhs2*3600)/60
+                 sss2 = sss - hhs2*3600 - nns2*60
+                 if(datespec==1)then
+                     write(lu_out, 9064)dds1, mms1, yys1, hhs1, nns1, sss1,    &
+                                      & dds2, mms2, yys2, hhs2, nns2, sss2,    &
+                                      & VTABLE_G(jvtable)%VOL(j)
+                 else
+                     write(lu_out, 9064)mms1, dds1, yys1, hhs1, nns1, sss1,    &
+                                      & mms2, dds2, yys2, hhs2, nns2, sss2,    &
+                                      & VTABLE_G(jvtable)%VOL(j)
+                 endif
+             enddo
+         enddo
+     endif
+ 
+!    -- If any E_TABLES were requested, they are now written.
+     if(idtable/=0)then
+         do i = 1, idtable
+             jdtable = IOUTDTABLE_G(i)
+             totim = DTABLE_G(jdtable)%TOTAL_TIME
+             write(lu_out, 9048)TRIM(DTABLE_G(jdtable)%NAME)
+9048         format(/, ' E_TABLE "', a, '" ---->')
+             if(DTABLE_G(jdtable)%UNDER_OVER==1)then
+                 write(lu_out, 9049)TRIM(DTABLE_G(jdtable)%TIME_UNITS),        &
+                                  & TRIM(DTABLE_G(jdtable)%TIME_UNITS)
+9049             format(t4, 'Flow', t19, 'Time delay (', a, ')', t40,          &
+                       &'Time above (', a, ')', t60,                           &
+                       &'Fraction of time above threshold')
+             else
+                 write(lu_out, 9050)TRIM(DTABLE_G(jdtable)%TIME_UNITS),        &
+                                  & TRIM(DTABLE_G(jdtable)%TIME_UNITS)
+9050             format(t4, 'Flow', t19, 'Time delay (', a, ')', t40,          &
+                       &'Time under (', a, ')', t60,                           &
+                       &'Fraction of time below threshold')
+             endif
+             do j = 1, DTABLE_G(jdtable)%NTERM
+                 write(lu_out, 9051)DTABLE_G(jdtable)%FLOW(j),                 &
+                                  & DTABLE_G(jdtable)%TDELAY(j),               &
+                                  & DTABLE_G(jdtable)%TIME(j),                 &
+                                  & DTABLE_G(jdtable)%TIME(j)/totim
+9051             format(t2, g14.7, t20, g14.7, t40, g14.7, t63, g14.7)
+             enddo
+         enddo
+     endif
+ 
+ 
+!    -- If any G_TABLES were requested, they are now written.
+     if(igtable/=0)then
+         do i = 1, igtable
+             jgtable = IOUTGTABLE_G(i)
+             write(lu_out, 9052)TRIM(GTABLE_G(jgtable)%NAME)
+9052         format(/, ' G_TABLE "', a, '" ---->')
+             write(lu_out, 9053)GTABLE_G(jgtable)%G_TABLE_HEADER
+9053         format(t4, a75, t90, 'Value')
+             do j = 1, UBOUND(GTABLE_G(jgtable)%SDESCRIPTION, 1)
+                 write(lu_out, fmt = "(t4,a,t82,g14.7)")GTABLE_G(jgtable)      &
+                     & %SDESCRIPTION(j), GTABLE_G(jgtable)%RVALUE(j)
+             enddo
+         enddo
+     endif
+ 
+     write(*, 9065)TRIM(sstring_g)
+     write(lu_rec, 9065)TRIM(sstring_g)
+     FLUSH(UNIT = lu_out)
+     close(unit = lu_out)
+ 
+     return
+ 
+100   call NUM2CHAR(iline_g, aline)
+     call ADDQUOTE(sinfile_g, sstring_g)
+     write(amessage, 9054)TRIM(aline), TRIM(sstring_g)
+9054  format('cannot read line ', a, ' of TSPROC input file ', a)
+     goto 300
+200   call ADDQUOTE(sinfile_g, sstring_g)
+     write(amessage, 9055)TRIM(sstring_g)
+9055  format('unexpected end encountered to TSPROC input file ', a,            &
+            &' while reading LIST_OUTPUT block.')
+300   call WRITE_MESSAGE(LEADSPACE = 'yes', ERROR = 'yes')
+     call WRITE_MESSAGE(IUNIT = lu_rec, LEADSPACE = 'yes')
+     Ifail = 1
+ 
+     close(unit = lu_rec, iostat = ierr)
+9056  format(/, ' Processing LIST_OUTPUT block....')
+9057  format(t5, 'SERIES_FORMAT ', a)
+9058  format(t5, 'Writing output file ', a, '....')
+9059  format(t5, 'Starting date for data accumulation:', t55, i2.2, '/', i2.2, &
+            &'/', i4)
+9060  format(t5, 'Ending date for data accumulation:', t55, i2.2, '/', i2.2,   &
+            &'/', i4)
+9061  format(t5, 'Number of series terms in this interval:', t55, a)
+9062  format(t5, 'Beginning date of series comparison:', t55, i2.2, '/', i2.2, &
+            &'/', i4)
+9063  format(t5, 'Finishing date of series comparison:', t55, i2.2, '/', i2.2, &
+            &'/', i4)
+9064  format(t5, 'From ', i2.2, '/', i2.2, '/', i4, ' ', i2.2, ':', i2.2, ':', &
+           & i2.2, ' to ', i2.2, '/', i2.2, '/', i4, ' ', i2.2, ':', i2.2, ':',&
+           & i2.2, '  volume = ', g18.12)
+9065  format(t5, 'File ', a, ' written ok.')
+ 
+     end subroutine WRITE_LIST_OUTPUT
+ 
+end module TSP_OUTPUT
