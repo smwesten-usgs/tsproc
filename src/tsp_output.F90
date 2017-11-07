@@ -1106,10 +1106,8 @@ module TSP_OUTPUT
      endif
 
 !    -- The file is read a first time to find out the number of groups
-     jline = 0
      f_numpargp = 0
      do
-         jline = jline + 1
          read(iunit, '(a)', err = 2000, end = 300)cline
          if(LEN_TRIM(cline)==0)cycle
          if(cline(1:1)=='#')cycle
@@ -1135,12 +1133,13 @@ module TSP_OUTPUT
      jline = 0
      igp = 0
      do
-         igp = igp + 1
          jline = jline + 1
          call NUM2CHAR(jline, aline)
          read(iunit, '(a)', err = 2000, end = 400)cline
          if(LEN_TRIM(cline)==0)cycle
          if(cline(1:1)=='#')cycle
+
+         igp = igp + 1
          call CASETRANS(cline, 'lo')
 
          call tlist%tokenize(cline)
