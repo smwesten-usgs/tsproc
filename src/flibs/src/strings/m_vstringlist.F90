@@ -1491,6 +1491,7 @@ contains
     type ( t_vstringlist ) , intent(inout) :: this
     integer , intent(in) :: icomponent
     integer :: status
+    integer :: length
     character ( len = 500 ) :: message
     type ( t_vstringlist ) :: oldlist
     call vstrlist_checkindex ( this , icomponent , status )
@@ -1502,18 +1503,18 @@ contains
     !
     ! Compute the new length and create the new list.
     !
-    call vstrlist_new ( oldlist , vstrlist_length ( this ) - 1 )
-    if((icomponent > 1) .AND. (icomponent < vstrlist_length (this)))then
+    length = vstrlist_length( this )
+    call vstrlist_new ( oldlist , length - 1 )
+    if((icomponent > 1) .AND. (icomponent < length))then
         oldlist = vstrlist_concat( vstrlist_range ( this, 1, icomponent - 1 ), &
                                  & vstrlist_range ( this, icomponent + 1,      &
-                                 &                  vstrlist_length ( this )))
-    elseif((icomponent == 1) .AND. (vstrlist_length (this) >= 2))then
-        oldlist = vstrlist_range ( this, 2, vstrlist_length ( this ))
-    elseif((icomponent == 1) .AND. (vstrlist_length (this) == 1))then
-        call vstrlist_free ( oldlist )
-        call vstrlist_new ( oldlist )
-    elseif(icomponent == vstrlist_length ( this ))then
-        oldlist = vstrlist_range ( this, 1, vstrlist_length ( this ) - 1)
+                                 &                  length))
+    elseif((icomponent == 1) .AND. (length == 1))then
+        continue
+    elseif((icomponent == 1) .AND. (length >= 2))then
+        oldlist = vstrlist_range ( this, 2, length)
+    elseif(icomponent == length)then
+        oldlist = vstrlist_range ( this, 1, length - 1)
     endif
     call vstrlist_free ( this )
     this = oldlist
