@@ -22,7 +22,7 @@
 ! TODO: delimiters!
 !
 !
-! $Id: tokenize.f90,v 1.4 2008/09/03 04:38:15 arjenmarkus Exp $
+! $Id$
 !
 
 ! TOKENIZE --
@@ -50,6 +50,7 @@ module TOKENIZE
 ! -------- Data structure defining the tokenizer
 !
     type tokenizer
+        integer               :: start_token
         integer               :: position
         character(len=10)     :: gaps
         character(len=10)     :: separators
@@ -138,9 +139,7 @@ function next_token( token, string, length )
     integer, intent(out)           :: length
 
     character(len=len(string))     :: next_token
-    !
-    ! Hasty implementation: only gaps
-    !
+
     if ( token%len_gaps .ne. 0 ) then
         next_token = next_token_gaps( token, string, length )
     else
@@ -181,13 +180,13 @@ function next_token_gaps( token, string, length )
 
 starttoken: &
     do while ( pos .le. lenstr )
-       if ( index(token%gaps(1:token%len_gaps), &
-                  string(pos:pos)) .gt. 0 ) then
-          pos = pos + 1
-       else
-          pos1 = pos
-          exit starttoken
-       endif
+        if ( index(token%gaps(1:token%len_gaps), &
+                   string(pos:pos)) .gt. 0 ) then
+           pos = pos + 1
+        else
+           pos1 = pos
+           exit starttoken
+        endif
     enddo starttoken
 
     if ( pos1 .gt. lenstr ) then
@@ -227,11 +226,12 @@ endtoken: &
     endif
 
     if ( pos1 .le. lenstr ) then
-       next_token_gaps = string(pos1:pos2)
-       length          = pos2-pos1+1
+       token%start_token = pos1
+       next_token_gaps   = string(pos1:pos2)
+       length            = pos2-pos1+1
     else
-       next_token_gaps = ' '
-       length          = -1
+       next_token_gaps   = ' '
+       length            = -1
     endif
 
     if ( .not. delim ) then
@@ -315,6 +315,7 @@ endtoken: &
     endif
 
     if ( pos1 .le. lenstr ) then
+        token%start_token = pos1
         next_token_separs = string(pos1:pos2)
         length            = pos2-pos1+1
     else
