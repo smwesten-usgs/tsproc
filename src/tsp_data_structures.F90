@@ -144,6 +144,7 @@ module tsp_data_structures
     real     rbias
     real     rse
     real     ns
+    real     kge
     real     ce
     real     ia
     real     ve  ! volumetric efficiency

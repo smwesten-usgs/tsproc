@@ -3032,6 +3032,10 @@ subroutine write_list_output(ifail)
             write(LU_OUT,1320) ctable_g(jctable)%ns
 1320         format(t5,'Nash-Sutcliffe coefficient:',t55,1pg14.7)
           end if
+          if(ctable_g(jctable)%kge.gt.-1.0e35)then
+            write(LU_OUT,1321) ctable_g(jctable)%kge
+1321         format(t5,'Kling-Gupta coefficient:',t55,1pg14.7)
+          end if
           if(ctable_g(jctable)%ce.gt.-1.0e35)then
             write(LU_OUT,1330) ctable_g(jctable)%ce
 1330        format(t5,'Coefficient of efficiency:',t55,1pg14.7)

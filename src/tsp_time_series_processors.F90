@@ -3012,11 +3012,13 @@ subroutine compare_series(ifail)
        integer, intent(out)   :: ifail
 
        integer isseries,ioseries,jbias,jse,jrbias,jrse,jns,jce,jia,jve,  &
-       ibseries,ibbterm,ibeterm,ibterm,exponent,l
+       ibseries,ibbterm,ibeterm,ibterm,exponent,l,jkg
        integer dd1,mm1,yy1,hh1,nn1,ss1,dd2,mm2,yy2,hh2,nn2,ss2,ierr, &
        icontext,i,begdays,begsecs,enddays,endsecs, &
        j,isbterm,iobterm,iseterm,ioeterm,iiterm,ixcon,isterm,ioterm,k
        real (kind=T_DBL) :: rtemp,rtemp1,tsum1,tsum2,tsum3,tsum4,tsum5, mean3
+       real (kind=T_DBL) :: kgetcov,kgestds,kgestdo
+       real (kind=T_DBL) :: kgetmpo,kgetmps
        character(3)aaa
        character (len=iTSNAMELENGTH) :: aname
        character(15)aline
@@ -3039,6 +3041,7 @@ subroutine compare_series(ifail)
        jrbias=0
        jrse=0
        jns=0
+       jkg=0
        jce=0
        jia=0
        jve=0
@@ -3186,6 +3189,18 @@ subroutine compare_series(ifail)
            write(LU_REC,134) trim(aaa)
 134        format(t5,'NASH_SUTCLIFFE ',a)
 
+         else if(aoption.eq.'KLING_GUPTA')then
+           call get_yes_no(ierr,jkg)
+           if(ierr.ne.0) go to 9800
+           if(jkg.eq.1)then
+             aaa='yes'
+           else
+             aaa='no'
+           end if
+           write(*,137) trim(aaa)
+           write(LU_REC,137) trim(aaa)
+137        format(t5,'KLING_GUPTA ',a)
+
          else if(aoption.eq.'VOLUMETRIC_EFFICIENCY')then
            call get_yes_no(ierr,jve)
            if(ierr.ne.0) go to 9800
@@ -3286,10 +3301,10 @@ subroutine compare_series(ifail)
 
        if((jbias.eq.0).and.(jse.eq.0).and.(jrbias.eq.0)  &
          .and.(jrse.eq.0).and.(jns.eq.0).and.(jce.eq.0).and.(jia.eq.0) &
-         .and. jve == 0 ) then
+         .and. jve == 0 .and.(jkg.eq.0)) then
          write(amessage,240) trim(CurrentBlock_g)
 240      format('at least one of the BIAS, STANDARD_ERROR, RELATIVE_BIAS, ',     &
-         'RELATIVE_STANDARD_ERROR, NASH_SUTCLIFFE, ', &
+         'RELATIVE_STANDARD_ERROR, NASH_SUTCLIFFE, KLING_GUPTA, ', &
          'VOLUMETRIC_EFFICIENCY, COEFFICIENT_OF_EFFICIENCY or INDEX_OF_AGREEMENT keywords must ', &
          'be supplied within a ',a,' block.')
          go to 9800
@@ -3424,22 +3439,22 @@ subroutine compare_series(ifail)
          ! difference between simulated and observed (Vsim - Vobs)
          rtemp1 = series_g(isseries)%val(j) - rtemp
 
-         ! running sum of differences
+         ! sum of differences
          tsum1 = tsum1 + rtemp1
 
-         ! running sum of the square of the differences
+         ! sum of the square of the differences
          tsum2 = tsum2 + ( rtemp1 * rtemp1 )
 
-         ! running sum of observed values
+         ! sum of observed values
          tsum3 = tsum3 + rtemp
 
          ! calculate this if we need INDEX of AGREEMENT or COEFFICIENT of EFFICIENCY
-         ! running sum of absolute value of difference raised to a power
+         ! sum of absolute value of difference raised to a power
          if((jia.ne.0).or.(jce.ne.0))then
            tsum4 = tsum4 + abs(rtemp1)**exponent
          end if
 
-         ! running sum of the absolute value of the difference between
+         ! sum of the absolute value of the difference between
          ! simulated and observed
          tsum5 = tsum5 + abs(rtemp1)
        end do
@@ -3510,6 +3525,38 @@ subroutine compare_series(ifail)
        else
            ctable_g(i)%rse = -1.0e37
            ctable_g(i)%ns = -1.0e37
+       end if
+
+       ! KLING_GUPTA KGE
+       if((jkg.ne.0))then
+         tsum1=0.0
+         do j=isbterm,iseterm
+           tsum1 = tsum1 + series_g(isseries)%val(j)
+         end do
+         ! mean of simulated
+         tsum1 = tsum1 / real(isterm, kind=T_DBL)
+
+         kgestdo = 0.0
+         kgestds = 0.0
+         kgetcov = 0.0
+         k=iobterm-1
+         do j=isbterm,iseterm
+           k=k+1
+           kgetmpo = series_g(ioseries)%val(k) - mean3
+           kgetmps = series_g(isseries)%val(j) - tsum1
+           kgestdo = kgestdo + kgetmpo**2
+           kgestds = kgestds + kgetmps**2
+           kgetcov = kgetcov + (kgetmpo * kgetmps)
+         end do
+         kgestdo = (kgestdo/(iseterm - isbterm))**0.5
+         kgestds = (kgestds/(iseterm - isbterm))**0.5
+         kgetcov = kgetcov/(iseterm - isbterm)
+       
+         ctable_g(i)%kge = 1.0 - ((kgetcov/(kgestdo*kgestds) - 1)**2 +  &
+                                  ((kgestds/kgestdo) - 1)**2      +  &
+                                  ((tsum1/mean3) - 1)**2)**0.5
+       else
+         ctable_g(i)%kge = -1.0e37
        end if
 
        ! calculate COEFFICIENT of EFFICIENCY
