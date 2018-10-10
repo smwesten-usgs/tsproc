@@ -94,16 +94,14 @@ module TSP_OUTPUT
 
 ! -- Variables used for dealing with parameter groups.
      integer :: f_numpargp, igp, npargp
-     real, allocatable, dimension(:) :: derinc, derinclb, derincmul, f_derinc, &
-                                      & f_derinclb, f_derincmul
+     real, allocatable, dimension(:) :: f_derinc, f_derinclb, f_derincmul
      character(12) :: apargp
-     character(12), allocatable, dimension(:) :: dermthd, forcen, f_dermthd,   &
-                                               & f_forcen, f_inctyp,           &
-                                               & f_pargpnme, inctyp, pargpnme
+     character(12), allocatable, dimension(:) :: f_dermthd, f_forcen,          &
+                                               & f_inctyp, f_pargpnme
      character(120) :: pargroupfile
 
 ! -- Variables used for dealing with parameter data.
-     integer :: f_numpar, ipar, nnpar, npar, tempunit
+     integer :: f_numpar, ipar, npar, nnpar, tempunit
      real, allocatable, dimension(:) :: f_offset, f_parlbnd, f_parubnd,        &
                                       & f_parval1, f_scale
      character(1) :: pardelim
@@ -1979,17 +1977,13 @@ module TSP_OUTPUT
          write(lu_rec, *)
      endif
 
-     npar = vstrlist_length(groups_dat)
 !    -- Parameter and parameter group data are now assimilated on the basis of
 !    information read from the parameter data file, the parameter group file
 !    and the template files.
-     allocate(pargpnme(npar), inctyp(npar), derinc(npar), derinclb(npar),      &
-            & forcen(npar), derincmul(npar), dermthd(npar), STAT = ierr)
-     if(ierr/=0)goto 1700
  
 !    -- Parameter groups are now organised.
      npargp = 0
-     do ipar = 1, npar
+     do ipar = 1, f_numpar
          apargp = f_pargp(ipar)
          if(apargp=='none')then
              if((f_partrans(ipar)=='tied') .OR. (f_partrans(ipar)=='fixed'))cycle
@@ -2776,8 +2770,6 @@ module TSP_OUTPUT
                & f_derincmul, f_dermthd, STAT = ierr)
      deallocate(f_parnme, f_partrans, f_parchglim, f_parval1, f_parlbnd,       &
               & f_parubnd, f_pargp, f_scale, f_offset, STAT = ierr)
-     deallocate(pargpnme, inctyp, derinc, derinclb, forcen, derincmul, dermthd,&
-              & STAT = ierr)
 9122  format(/, ' Processing ', a, ' block....')
 9123  format(t5, a, ' ', a)
 9124  format('current version of TSPROC does not allow C_TABLES to be ',       &
