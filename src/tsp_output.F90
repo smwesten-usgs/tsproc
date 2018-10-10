@@ -1460,6 +1460,19 @@ module TSP_OUTPUT
          endif
      enddo
  
+!    -- If any parameters are tied to a parameter which does not exist, this
+!       is now rectified.  The transformation is set to 'none', but might 
+!       should be an error.
+     do ipar = 1, f_numpar
+         if(f_partrans(ipar)(1:4)=='tied')then
+             aapar = f_partrans(ipar)(6:)
+             do i = 1, f_numpar
+                 if(aapar==f_parnme(i))goto 1200
+             enddo
+             f_partrans(ipar) = 'none'
+         endif
+1200  enddo
+
      call NUM2CHAR(f_numpar, aline)
      write(*, 9133)TRIM(aline), TRIM(sstring_g)
      write(lu_rec, 9133)TRIM(aline), TRIM(sstring_g)
@@ -1973,18 +1986,6 @@ module TSP_OUTPUT
      allocate(pargpnme(npar), inctyp(npar), derinc(npar), derinclb(npar),      &
             & forcen(npar), derincmul(npar), dermthd(npar), STAT = ierr)
      if(ierr/=0)goto 1700
-
-!    -- If any parameters are tied to a parameter which does not exist, this
-!       is now rectified.
-     do ipar = 1, npar
-         if(f_partrans(ipar)(1:4)=='tied')then
-             aapar = f_partrans(ipar)(6:)
-             do i = 1, npar
-                 if(aapar==apar(i))goto 1200
-             enddo
-             f_partrans(ipar) = 'none'
-         endif
-1200  enddo
  
 !    -- Parameter groups are now organised.
      npargp = 0
