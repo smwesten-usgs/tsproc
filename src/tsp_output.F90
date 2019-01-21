@@ -3280,11 +3280,14 @@ module TSP_OUTPUT
                  write(lu_out, 9043)CTABLE_G(jctable)%CE
 9043             format(t5, 'Coefficient of efficiency:', t55, 1pg14.7)
              endif
+             if(CTABLE_G(jctable)%KGE> - 1.0e35)then
+                 write(lu_out,1321) CTABLE_G(jctable)%KGE
+1321             format(t5, 'Kling-Gupta coefficient:', t55, 1pg14.7)
+             endif
              if(CTABLE_G(jctable)%IA> - 1.0E35)then
                  write(lu_out, 9044)CTABLE_G(jctable)%IA
 9044             format(t5, 'Index of agreement:', t55, 1pg14.7)
              endif
- 
              if(CTABLE_G(jctable)%VE> - 1.0E35)then
                  write(lu_out, 9045)CTABLE_G(jctable)%VE
 9045             format(t5, 'Volumetric efficiency:', t55, 1pg14.7)
