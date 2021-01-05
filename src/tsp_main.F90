@@ -1,112 +1,111 @@
 program tsp_main
 
-  use tsp_data_structures
-  use tsp_main_loop
-  use version_control, only  : GIT_COMMIT_HASH_STRING, GIT_BRANCH_STRING, COMPILE_DATE, COMPILE_TIME
-  use iso_fortran_env
-  implicit none
+    use tsp_data_structures
+    use tsp_main_loop
+    use version_control, only: GIT_COMMIT_HASH_STRING, GIT_BRANCH_STRING, COMPILE_DATE, COMPILE_TIME
+    use ISO_FORTRAN_ENV
+    implicit none
 
-  character(len=256) :: sFilename
-  integer (kind=T_INT) :: iReturnCode
+    character(len=256) :: sFilename
+    integer(kind=T_INT) :: iReturnCode
 
-  character (len=256) :: sInputFile
-  character (len=256) :: sRecFile
-  character (len=1024) :: sCompilerFlags
-  character (len=256) :: sCompilerVersion
+    character(len=256) :: sInputFile
+    character(len=256) :: sRecFile
+    character(len=1024) :: sCompilerFlags
+    character(len=256) :: sCompilerVersion
 
-  ! default behavior is to query the user for the control file and record files
-  logical :: lInteractive = lTRUE
-  integer  :: iNumArgs
-  integer (kind=T_INT) :: ifail
+    ! default behavior is to query the user for the control file and record files
+    logical :: lInteractive = lTRUE
+    integer :: iNumArgs
+    integer(kind=T_INT) :: ifail
 
-  ! ensure all tables and series are inactive to start with
-  gtable_g%active = lFALSE
-  dtable_g%active = lFALSE
-  stable_g%active = lFALSE
-  ctable_g%active = lFALSE
-  vtable_g%active = lFALSE
-  series_g%active = lFALSE
+    ! ensure all tables and series are inactive to start with
+    gtable_g%active = lFALSE
+    dtable_g%active = lFALSE
+    stable_g%active = lFALSE
+    ctable_g%active = lFALSE
+    vtable_g%active = lFALSE
+    series_g%active = lFALSE
 
-  sContextOverride_g = ""
-  iReturnCode = -1
+    sContextOverride_g = ""
+    iReturnCode = -1
 
-  ! get number of command-line arguments
-  iNumArgs = COMMAND_ARGUMENT_COUNT()
+    ! get number of command-line arguments
+    iNumArgs = COMMAND_ARGUMENT_COUNT()
 
-  if(iNumArgs==2) then
+    if (iNumArgs == 2) then
 
-    lInteractive = lFALSE
-    ! get actual values of the command-line arguments
-    call GET_COMMAND_ARGUMENT(1,sInputFile)
-    call GET_COMMAND_ARGUMENT(2,sRecFile)
+        lInteractive = lFALSE
+        ! get actual values of the command-line arguments
+        call GET_COMMAND_ARGUMENT(1, sInputFile)
+        call GET_COMMAND_ARGUMENT(2, sRecFile)
 
-  elseif(iNumArgs == 3) then
+    elseif (iNumArgs == 3) then
 
-    lInteractive = lFALSE
-    ! get actual values of the command-line arguments
-    call GET_COMMAND_ARGUMENT(1,sInputFile)
-    call GET_COMMAND_ARGUMENT(2,sRecFile)
-    call GET_COMMAND_ARGUMENT(3,sContextOverride_g)
+        lInteractive = lFALSE
+        ! get actual values of the command-line arguments
+        call GET_COMMAND_ARGUMENT(1, sInputFile)
+        call GET_COMMAND_ARGUMENT(2, sRecFile)
+        call GET_COMMAND_ARGUMENT(3, sContextOverride_g)
 
-  end if
+    end if
 
-   write(unit=LU_STD_OUT,fmt="(/,a,/,a,/,a,/,a)") &
-     ' Program TSPROC is a general time-series processor. It can ', &
-     ' also be used for PEST input file preparation where time series data, ', &
-     ' or processed time series data, comprises at least part of the observation ',&
-     ' dataset.'
+    write (unit=LU_STD_OUT, fmt="(/,a,/,a,/,a,/,a)") &
+        ' Program TSPROC is a general time-series processor. It can ', &
+        ' also be used for PEST input file preparation where time series data, ', &
+        ' or processed time series data, comprises at least part of the observation ', &
+        ' dataset.'
 
-   write(unit=LU_STD_OUT,fmt="(/,a)")  " TSPROC -- "//trim(sVersionString)
-   write(unit=LU_STD_OUT, fmt="(/,a)") "  Compiled on: "  // &
-      TRIM(COMPILE_DATE) //" "// TRIM(COMPILE_TIME)
-   write(unit=LU_STD_OUT, fmt="(a,/)") "  Git commit hash: "//trim(GIT_COMMIT_HASH_STRING)  &
-      //" ("//trim(GIT_BRANCH_STRING)//" )"
+    write (unit=LU_STD_OUT, fmt="(/,a)") " TSPROC -- "//TRIM(sVersionString)
+    write (unit=LU_STD_OUT, fmt="(/,a)") "  Compiled on: "// &
+        TRIM(COMPILE_DATE)//" "//TRIM(COMPILE_TIME)
+    write (unit=LU_STD_OUT, fmt="(a,/)") "  Git commit hash: "//TRIM(GIT_COMMIT_HASH_STRING) &
+        //" ("//TRIM(GIT_BRANCH_STRING)//" )"
 
 #ifdef __GFORTRAN__
     sCompilerFlags = COMPILER_OPTIONS()
     sCompilerVersion = COMPILER_VERSION()
-    write(UNIT=*,FMT="(a,/)") "Compiled with: gfortran ("//TRIM(sCompilerVersion)//")"
-    write(UNIT=*,FMT="(a)") "Compiler flags:"
-    write(UNIT=*,FMT="(a)") "-------------------------------"
-    write(UNIT=*,FMT="(a,/)") TRIM(sCompilerFlags)
+    write (UNIT=*, FMT="(a,/)") "Compiled with: gfortran ("//TRIM(sCompilerVersion)//")"
+    write (UNIT=*, FMT="(a)") "Compiler flags:"
+    write (UNIT=*, FMT="(a)") "-------------------------------"
+    write (UNIT=*, FMT="(a,/)") TRIM(sCompilerFlags)
 #endif
 
-
 #ifdef __INTEL_COMPILER
-    write(UNIT=*,FMT="(/,a,/)") "Compiled with Intel Fortran version " &
-      //TRIM(int2char(__INTEL_COMPILER))
+    write (UNIT=*, FMT="(/,a,/)") "Compiled with Intel Fortran version " &
+        //TRIM(int2char(__INTEL_COMPILER))
 #endif
 
 #ifdef __G95__
-    write(UNIT=*,FMT="(/,a,/)") "Compiled with G95 minor version " &
-      //TRIM(int2char(__G95_MINOR__))
+    write (UNIT=*, FMT="(/,a,/)") "Compiled with G95 minor version " &
+        //TRIM(int2char(__G95_MINOR__))
 #endif
 
-  if(lInteractive) then
-    write(6,FMT="('Enter name of TSPROC input file: ')",advance='no')
-    read(5,'(a)') sFilename
-  else
-    sFilename=sInputFile
-  end if
+    if (lInteractive) then
+        write (6, FMT="('Enter name of TSPROC input file: ')", advance='no')
+        read (5, '(a)') sFilename
+    else
+        sFilename = sInputFile
+    end if
 
-  if(lInteractive) then
-    write(6,FMT="('Enter name of TSPROC record file: ')",advance='no')
-    read(5,'(a)') sRecFile
-  end if
+    if (lInteractive) then
+        write (6, FMT="('Enter name of TSPROC record file: ')", advance='no')
+        read (5, '(a)') sRecFile
+    end if
 
-  call openControlfile(sFilename, sRecfile)
+    call openControlfile(sFilename, sRecfile)
 
-  do
+    do
 
-    call get_next_block(ifail)
-    if(ifail /= 0) exit
+        call get_next_block(ifail)
+        if (ifail /= 0) exit
 
-    call processBlock()
+        call processBlock()
 
-  end do
+    end do
 
 !       call write_message(leadspace='yes')
-   call close_files
+    call close_files
 
 !   do i=1,MAXSERIES
 !     if(series_g(i)%active)then
