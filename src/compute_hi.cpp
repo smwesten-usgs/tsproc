@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+using namespace std;
 
 //extern bool usemedian;		// Flag indicating median is to be used in computing MA3,MA12-MA35,ML1-ML12,ML14,
 							//  ML14,ML15,ML17,ML19,ML22,MH1-MH12,MH20,FL1,FL3,FH1,FH3-FH11,DL1-DL5,DL18,
@@ -4910,26 +4912,26 @@ void stats(int ndv, double *data, double *v1, double *v2, double *v3)
 
 double percentile(double p, int ndv, double *data)
 {
-	int k;
-	double d;
-	double value;
-	double yp;		// Percentile value
-
-	yp = 0.;
-	if(ndv == 0) return(yp);
-
-	value = p * (ndv+1);
-//	value = p * (ndv);
-	k = (int)value;
-	d = value - k;
-	if(k==0)
-		yp = data[0];
-	else if(k==ndv)
-		yp = data[ndv-1];
-	else
-		yp = data[k-1] + d * (data[k] - data[k-1]);
-//		yp = (data[k-1] + data[k])/2;
-	return(yp);
+    int lo, hi;
+    double d;
+    double value;
+    double yp;              // Percentile value
+    
+    yp = 0.;
+    if(ndv == 0) return(yp);
+    
+    value = p * (ndv-1);
+    lo = floor(value);
+    hi = ceil(value);
+    d = value - lo;
+    
+    if(lo==0)
+        yp = data[0];
+    else if(lo==ndv)
+        yp = data[ndv-1];
+    else
+        yp = (1.0 - d) * data[lo] + d * data[hi];
+    return(yp);
 }
 
 /////////////////////////////////////////////////////////////////////////////
