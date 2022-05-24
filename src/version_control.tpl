@@ -15,7 +15,7 @@ module version_control
   character (len=30), parameter :: GIT_BRANCH_STRING = GIT_BRANCH_VALUE
 
   character (len=10), parameter :: TSPROC_VERSION = "1.0.4"
-  character (len=10), parameter :: COMPILE_DATE = trim( __DATE__ )
+  character (len=12), parameter :: COMPILE_DATE = trim( __DATE__ )
   character (len=10), parameter :: COMPILE_TIME = trim( __TIME__ )
   character (len=25), parameter :: COMPILATION_TIMESTAMP            &
     = trim( COMPILE_DATE )//"  "//trim( COMPILE_TIME )
