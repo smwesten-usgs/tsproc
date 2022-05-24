@@ -735,63 +735,67 @@ contains
         return
     end subroutine COMPRESS
 
-    subroutine series_sub(IFAIL, NTERM, itype)
-
+    SUBROUTINE series_sub(IFAIL,NTERM,itype)
 ! -- Subroutine SERIES_SUB replaces series names with their numbers.
 
-        implicit none
-        integer IFAIL, NTERM, ITERM, J, JERR, NB, is, itype
-        double precision DTEMP
-        character(len=iTSNAMELENGTH) :: as
-        character(25) AAPAR
+    implicit none
+    INTEGER IFAIL,NTERM,ITERM,J,JERR,NB,is,itype
+    DOUBLE PRECISION DTEMP
+    character (len=iTSNAMELENGTH) :: as
+    CHARACTER(25)AAPAR
 
-        IFAIL = 0
-        do ITERM = 1, NTERM
-            if (aterm(iterm) (1:2) == '@_') cycle
-            if (ATERM(ITERM) (1:2) == '~#') cycle
-            do J = 1, NOPER
-                if (ATERM(ITERM) (1:1) == OPERAT(J)) cycle
-            end do
-            AAPAR = ATERM(ITERM)
-            NB = LEN_TRIM(AAPAR)
-            if (INDEX(AAPAR(1:NB), ' ') /= 0) then
-                if (itype == 0) then
-                    write (amessage, 30) AAPAR(1:NB)
-30                  format('series name "', A, '" in series equation cannot include a ', &
-                           'blank character.')
-                else if (itype == 1) then
-                    write (amessage, 31) AAPAR(1:NB)
-31                  format('series name "', A, '" in weights equation cannot include a ', &
-                           'blank character.')
-                end if
-                IFAIL = 1
-                return
-            end if
-            call char2num(jerr, aapar, dtemp)
+    IFAIL=0
+    DO 200 ITERM=1,NTERM
+       if(aterm(iterm)(1:2).eq.'@_') go to 200
+       IF(ATERM(ITERM)(1:2).EQ.'~#') GO TO 200
+       DO 20 J=1,NOPER
+         IF(ATERM(ITERM)(1:1).EQ.OPERAT(J)) GO TO 200
+20       CONTINUE
+       AAPAR=ATERM(ITERM)
+       NB=len_trim(AAPAR)
+       IF(INDEX(AAPAR(1:NB),' ').NE.0)THEN
+         if(itype.eq.0)then
+           WRITE(amessage,30) AAPAR(1:NB)
+30           FORMAT('series name "',A,'" in series equation cannot include a ',  &
+           'blank character.')
+         else if(itype.eq.1)then
+           WRITE(amessage,31) AAPAR(1:NB)
+31           FORMAT('series name "',A,'" in weights equation cannot include a ',  &
+           'blank character.')
+         endif
+         IFAIL=1
+         RETURN
+       END IF
+       call char2num(jerr,aapar,dtemp)
 !         CALL RLREAD(JERR,AAPAR,DTEMP)
-            if (JERR == 0) cycle
-            do is = 1, MAXSERIES
-                if (.NOT. series_g(is)%active) cycle
-                if (series_g(is)%name /= aapar) cycle
-                call num2char(is, as)
-                aterm(iterm) = '$~$'//TRIM(as)
-                cycle
-            end do
-            if (itype == 0) then
-                write (amessage, 40) TRIM(aapar)
-40              format('series "', a, '" appearing in the series equation is either ', &
-                       'undefined or has been erased.')
-            else if (itype == 1) then
-                write (amessage, 41) TRIM(aapar)
-41              format('series "', a, '" appearing in a weights equation is either ', &
-                       'undefined or has been erased.')
-            end if
-            ifail = 1
-            return
-        end do
+       IF(JERR.EQ.0) GO TO 200
+       do is=1,MAXSERIES
+         if(.not.series_g(is)%active) cycle
+         if(series_g(is)%name.ne.aapar)cycle
+         call num2char(is,as)
+         aterm(iterm)='$~$'//trim(as)
+         go to 200
+       end do
+       if(itype.eq.0)then
+         write(amessage,40) trim(aapar)
+40         format('series "',a,'" appearing in the series equation is either ', &
+         'undefined or has been erased.')
+       else if(itype.eq.1)then
+         write(amessage,41) trim(aapar)
+41         format('series "',a,'" appearing in a weights equation is either ', &
+         'undefined or has been erased.')
+       end if
+       ifail=1
+       return
+200   CONTINUE
 
-        return
-    end subroutine series_sub
+    RETURN
+    END SUBROUTINE series_sub
+
+
+
+
+
 
     subroutine EVALUATE(IFAIL, MAXTERM, NTERM, NOPER, NFUNCT, ATERM, BTERM, &
                         OPERAT, FUNCT, IORDER, DVAL, rterm)
